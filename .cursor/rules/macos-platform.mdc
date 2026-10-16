@@ -1,0 +1,19 @@
+---
+description: Rules for macOS integration code (windows, overlay, AppKit/AX adapters, Core Animation rendering)
+globs: Packages/PetScapeKit/Sources/PetScapePlatform/**, Packages/PetScapeKit/Sources/PetScapeRendering/**, Packages/PetScapeKit/Sources/PetScapeRuntime/**, PetScape/**
+alwaysApply: false
+---
+
+# macOS integration code
+
+Read `docs/architecture/macos-integration.md` first.
+
+- Overlay panels: borderless + non-activating, never key/main, clear background, level and collection
+  behavior exactly as documented; changes require an ADR-0003 update.
+- Click-through is controlled only by `MousePassthroughController`; default is pass-through.
+- Never move/resize/close/focus other apps' windows; never read window titles or screen contents.
+- Public APIs only; no private frameworks or SPI.
+- Quartz-space values (CGWindowList, AX) are converted to canonical space inside the adapter that reads them.
+- Prefer notifications to polling; stop everything when paused, hidden or suspended; remove observers in `stop()`.
+- Core Animation renders snapshots only: implicit layer animations disabled, no `CAAnimation` for domain timing, no SpriteKit (ADR-0015).
+- Platform behavior must be verified by running the app; record what was verified and what was not.

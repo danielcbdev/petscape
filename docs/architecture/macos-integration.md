@@ -1,0 +1,127 @@
+# macOS Integration
+
+The highest-risk area. Everything marked **[validate]** is an expectation to be confirmed by the
+PoC ([proof-of-concept.md](../planning/proof-of-concept.md)), not an established fact.
+Decision: [ADR-0003](../decisions/0003-overlay-window-strategy.md).
+
+## App shell
+
+| Topic | Decision |
+|---|---|
+| Activation policy | `LSUIElement = YES` (accessory app: no Dock icon, no app menu) |
+| Menu bar | SwiftUI `MenuBarExtra` (menu style) for the MVP; fall back to `NSStatusItem` only if a needed feature is missing |
+| Settings | SwiftUI `Settings` scene (M9), opened via `SettingsLink` / `openSettings` (macOS 14+) |
+| AppKit bridge | `@NSApplicationDelegateAdaptor(AppDelegate.self)`; the delegate owns the `AppContainer` |
+| Focus | Our overlay windows never become key or main; opening Settings activates the app normally |
+
+## Overlay window strategies compared
+
+| Criterion | 1. One large overlay per screen | 2. Small window per pet | 3. Hybrid (chosen): large overlay per screen + dynamic pass-through |
+|---|---|---|---|
+| Click-through | All-or-nothing per window unless toggled | Small blocking rect around the pet (transparent margins still block unless toggled) | Pass-through by default; enabled only when the cursor is over pet pixels |
+| Movement cost | Sprite moves inside a static window (cheap, GPU only) | `setFrameOrigin` every frame → WindowServer work per frame **[validate cost]** | Sprite moves inside a static window |
+| Multiple pets | One view renders all | N windows and layer trees | One view per screen renders all |
+| Multiple monitors | One overlay per screen required (a window cannot reliably span displays when "Displays have separate Spaces" is on) | Natural | One overlay per screen; pets handed off between overlays |
+| Interaction (drag) | Needs toggling | Natural | Needs toggling (validated in PoC E2/E4) |
+| Complexity | Low | Medium (window churn, z-order) | Medium |
+
+Chosen: **3**. Strategy 2 remains the fallback if PoC E2 shows dynamic toggling is unreliable.
+
+## Overlay window configuration
+
+| Property | Value | Why |
+|---|---|---|
+| Class | `NSPanel` subclass `OverlayPanel` | Panels can be non-activating |
+| Style mask | `[.borderless, .nonactivatingPanel]` | No chrome; clicking a pet does not activate the app |
+| `canBecomeKey` / `canBecomeMain` | `false` (override) | Never steal keyboard focus |
+| `isOpaque` / `backgroundColor` / `hasShadow` | `false` / `.clear` / `false` | Per-pixel transparency |
+| Level | `CGWindowLevelForKey(.dockWindow) + 1` | Above the Dock (pet stands on it), below the menu bar (24), pop-up menus (101), screen saver; **[validate]** with Dock magnification and Notification Center |
+| Collection behavior | `[.canJoinAllSpaces, .stationary, .ignoresCycle]` | Visible on every Space, static in Mission Control, not in Cmd-` cycling. **No** `.fullScreenAuxiliary` → not shown over fullscreen apps **[validate]** |
+| Frame | `screen.frame` (full screen, including menu bar and Dock areas) | The pet must overlap the Dock region |
+| `ignoresMouseEvents` | `true` by default; toggled by `MousePassthroughController` | Click-through |
+| `isReleasedWhenClosed` | `false` | Lifetime managed by `OverlayWindowManager` |
+| Accessibility | Overlay and sprites are hidden from the accessibility tree | Pets are decorative (NFR-10) |
+| Content | `OverlayContentView`: layer-backed, non-flipped `NSView` with a clear layer; one `PetLayer` (`CALayer`) per pet ([ADR-0015](../decisions/0015-core-animation-renderer.md)) | Overlay-local coordinates = window-local points (origin = screen origin) |
+
+## Click-through strategies
+
+Visual transparency does **not** imply event transparency. Three strategies are tested in PoC E2:
+
+| ID | Strategy | Expected behavior | Notes |
+|---|---|---|---|
+| A | `ignoresMouseEvents = true` permanently | All clicks pass through; pet not interactive | Baseline; always works |
+| B | `ignoresMouseEvents = false`, rely on WindowServer alpha hit-testing of transparent pixels | Historically, clicks on fully transparent pixels of non-opaque windows pass through, but behavior with layer/Metal-backed content is not guaranteed **[validate]** | Not relied on |
+| C | **Dynamic**: `true` by default; `MousePassthroughController` sets `false` only while the cursor is over a pet's alpha mask, and keeps it `false` during a drag | Deterministic; ≤ 1 frame latency; no permission | **Chosen** |
+
+Strategy C cursor source:
+
+- While the simulation runs: `NSEvent.mouseLocation` sampled each frame (cheap; no permission).
+- While paused (no frames): `NSEvent.addGlobalMonitorForEvents(matching: .mouseMoved)` wakes the
+  controller. Apple documents permission requirements for *key* events in global monitors; mouse
+  events are expected to work without Accessibility **[validate]**. If not, fall back to a low-rate
+  (10 Hz) timer only while paused and visible, and document the cost.
+- A local monitor / tracking handles events while our window accepts them.
+
+## Spaces, Mission Control, Stage Manager, fullscreen
+
+| Situation | Expected | Status |
+|---|---|---|
+| Switching Spaces | Overlay stays (canJoinAllSpaces); pet keeps walking | [validate] |
+| Mission Control / App Exposé | Overlay stays in place (`.stationary`), not shown as a thumbnail | [validate] |
+| Stage Manager | Overlay above stage strip; clicks pass through | [validate] |
+| Fullscreen app Space | Overlay absent (no `.fullScreenAuxiliary`) | [validate]; product decision: never cover fullscreen apps in MVP |
+| Screen locked / screen saver | Run state `suspended`; overlay ordered out | Planned |
+| Display sleep (`screensDidSleep`) | `suspended` | Planned |
+| Fast user switching (`sessionDidResignActive`) | `suspended` | Planned |
+
+## Multiple monitors, Retina, scaling
+
+- One overlay per `NSScreen`; recreated/re-laid out on `didChangeScreenParametersNotification`.
+- MVP renders only on the screen that hosts the Dock (other overlays not created); M14 enables all.
+- Screen identity: `NSScreen.deviceDescription["NSScreenNumber"]` (`CGDirectDisplayID`) — stable for
+  a session, not across reboots; never persist it as the only key.
+- Retina: layers are laid out in points and composited at the screen's `backingScaleFactor`; frame
+  images are decoded for the maximum backing scale among screens (re-decoding on change is not
+  needed if we decode at 2x).
+- Mixed DPI across monitors: a pet crossing screens keeps its point size; image density may be
+  higher than needed on a 1x screen (acceptable).
+- Coordinate conversions: [coordinate-system.md](../specifications/coordinate-system.md).
+
+## Dock
+
+Summary (details: [surface-detection.md](../specifications/surface-detection.md),
+[ADR-0009](../decisions/0009-dock-geometry.md)): estimate the Dock edge from the difference between
+`NSScreen.frame` and `NSScreen.visibleFrame`; Dock position is the edge with the inset (bottom, left
+or right); autohide yields a near-zero inset. No private APIs. A manual vertical offset adjusts
+visual alignment. The Dock's horizontal extent is unknown without Accessibility; the MVP walks the
+full screen width.
+
+## Energy and system events
+
+| Notification | Action |
+|---|---|
+| `NSWorkspace.willSleepNotification` / `didWakeNotification` | suspend / resume (reset accumulator) |
+| `NSWorkspace.screensDidSleepNotification` / `screensDidWakeNotification` | suspend / resume |
+| `NSWorkspace.sessionDidResignActiveNotification` / `sessionDidBecomeActiveNotification` | suspend / resume |
+| `com.apple.screenIsLocked` / `screenIsUnlocked` (distributed notifications) | suspend / resume **[validate availability]** |
+| `NSWindow.didChangeOcclusionStateNotification` | suspend when overlay not visible |
+| `NSApplication.didChangeScreenParametersNotification` | rebuild screens, overlays, Dock surface |
+
+## Non-interference rules (hard requirements)
+
+- Never call APIs that move, resize, close, focus or otherwise manipulate other apps' windows.
+- Never become key/main; never activate the app from overlay clicks.
+- Never raise level above the menu bar; never use `.screenSaver` or higher.
+- Never cover fullscreen apps in the MVP.
+- No private APIs, no code injection, no scripting additions, no Accessibility in the MVP.
+
+## Known limitations and risks
+
+| Risk | Impact | Mitigation |
+|---|---|---|
+| Dynamic pass-through flicker/latency | Missed or stolen clicks near the pet | Hit mask with small inset; ≤ 1 frame latency; PoC measures |
+| Overlay above Dock covers magnified Dock icons visually | Cosmetic | Pet is small; accept; option to lower level below Dock (feet hidden) evaluated in PoC |
+| Window level behavior changes between macOS versions | Overlay hidden or too high | PoC on current macOS; manual test matrix per release |
+| Global mouse monitor may require permission on some macOS versions | Pet not draggable while paused | Low-rate fallback timer only while paused |
+| Occlusion notification unreliable for full-screen transparent windows | Missed energy savings | Combine with screens/space notifications; measure |
+| `visibleFrame` does not reflect the floating Dock's real shape | Pet floats a few points above/below the Dock shelf | Manual offset; AX-based Dock frame (optional, M12+) |

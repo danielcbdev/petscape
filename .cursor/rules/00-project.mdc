@@ -1,0 +1,20 @@
+---
+description: PetScape core project rules — always applied; points to AGENTS.md
+alwaysApply: true
+---
+
+# PetScape — project rules
+
+The canonical instructions are in `AGENTS.md` at the repository root. Read it before working and
+follow it; if any Cursor rule seems to conflict with it, `AGENTS.md` wins.
+
+Non-negotiables (summary of AGENTS.md):
+
+- Check the milestone **Status** in `docs/planning/milestones.md`; implement only the requested task
+  from `docs/planning/task-breakdown.md`.
+- Module boundaries: `PetScapeCore` is pure Swift (Foundation + `os` only). Platform and Rendering
+  never import each other.
+- No third-party dependencies, no private APIs, no singletons, no manipulation of other apps' windows.
+- Original files under `assets/` are read-only.
+- Run the relevant tests; never claim untested behavior works; do not commit unless asked.
+- Update docs (and ADRs for architectural changes) together with code.

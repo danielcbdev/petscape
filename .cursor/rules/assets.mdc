@@ -1,0 +1,15 @@
+---
+description: Rules for character art and character.json manifests
+globs: assets/**
+alwaysApply: false
+---
+
+# Assets and character packs
+
+Read `docs/specifications/asset-format.md` and `docs/specifications/animation-schema.md`.
+
+- Original files are **read-only**: frames, atlases, GIF previews, and the source `README.md` / `manifest.json` delivered with them. Never edit, rename, re-export or delete them.
+- Allowed: creating or editing `assets/characters/<id>/character.json` and adding new clip folders delivered by the owner.
+- Frame counts, FPS, anchors, events and fallbacks belong in `character.json`, never in Swift code.
+- After editing a manifest, run the manifest validation tests (`make test-core`).
+- Keep `.DS_Store` and other OS files out of the repository.

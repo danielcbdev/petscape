@@ -1,0 +1,16 @@
+---
+description: Testing rules for PetScape (Swift Testing, deterministic time and randomness)
+globs: **/*Tests/**/*.swift, **/Tests/**/*.swift
+alwaysApply: false
+---
+
+# Tests
+
+Follow `docs/development/testing.md`.
+
+- Use Swift Testing (`import Testing`, `@Test`, `#expect`) for package tests; XCTest only for UI and `measure` performance tests.
+- Deterministic: drive time with explicit `dt`/`ManualClock`; randomness with `SeededRandomSource`. No `sleep`, no wall clock.
+- Prefer parameterized tests for tables (frame counts 8/12/16/24/32, screen layouts, transitions).
+- Test behavior and contracts, not implementation details; no coverage-only tests.
+- Never delete, skip or weaken a test to make the build pass; fix the cause or report it.
+- Fixtures live next to the test target (`Fixtures/`); never point tests at files outside the repo.

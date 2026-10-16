@@ -1,0 +1,98 @@
+# Data Flow
+
+## Per-frame pipeline
+
+```mermaid
+sequenceDiagram
+  participant SK as DisplayLinkFrameDriver (CADisplayLink)
+  participant RT as PetRuntime
+  participant ENV as Platform adapters
+  participant W as PetWorld (Core)
+  participant R as Renderer (sprites)
+  participant MP as MousePassthrough
+
+  SK->>RT: frame(timestamp)
+  RT->>ENV: drain pending changes (screens, dock, windows, cursor)
+  ENV-->>RT: values (ScreenDescriptor, Surface updates, cursor point)
+  RT->>W: apply(WorldInput)
+  loop fixed steps (0..maxStepsPerFrame)
+    RT->>W: step(dt = 1/60)
+  end
+  W-->>RT: RenderSnapshot (pets: position, facing, clip, frame, scale, alpha)
+  RT->>R: apply(snapshot, interpolation α)
+  RT->>MP: update(cursor, snapshot)
+  MP-->>SK: overlay.ignoresMouseEvents = !hit
+```
+
+Rules:
+
+- **One direction.** Platform → Runtime → Core → snapshot → Rendering. Rendering never mutates
+  the world; Core never calls out.
+- **Values across boundaries.** Everything that crosses a module boundary is a `Sendable` value
+  (`ScreenDescriptor`, `Surface`, `RenderSnapshot`). No AppKit or Core Animation types in Core APIs.
+- **Events are batched.** Notifications (screen change, Dock change, window moved) are converted
+  to values and queued; they are applied at the start of the next frame, never mid-step.
+- **Snapshots are complete.** The renderer can draw from a snapshot alone; it holds no domain state
+  apart from caches (frame images, layers keyed by `PetID`).
+
+## Event sources and how they enter
+
+| Source | Adapter | Delivery | Becomes |
+|---|---|---|---|
+| Display config, resolution, scaling | `ScreenProvider` (`NSApplication.didChangeScreenParametersNotification`) | Notification → queue | `[ScreenDescriptor]`, overlay re-layout |
+| Dock size/position/autohide | `DockGeometryProvider` (recomputed on screen-parameter changes) | Notification → queue | `Surface` (kind `.dockTop` or `.screenBottom`) |
+| Cursor | `CursorSampler` | Sampled per frame; global mouse-moved monitor wakes pass-through while sim is stopped | `WorldInput.cursor` (M10), pass-through hit test |
+| Mouse on pet (click/drag) | `OverlayPanel` / `OverlayContentView` mouse events | AppKit events while pass-through is disabled | `PetEvent.grabbed/dragged/released` (M10) |
+| Sleep/wake, lock, display sleep | `SystemEventsMonitor` (`NSWorkspace` notifications) | Notification | `RunState.suspended` on/off |
+| Overlay occlusion | `NSWindow.didChangeOcclusionStateNotification` | Notification | `RunState.suspended` on/off |
+| User intents | Menu / Settings via `AppModel` | Direct method call | `RunState`, preferences |
+| Other apps' windows | `WindowTracker` (M12) | AX notifications / throttled refresh | `Surface` (kind `.windowTop`) with stable IDs |
+
+## Run state
+
+```mermaid
+stateDiagram-v2
+  [*] --> Loading
+  Loading --> Running: pack loaded
+  Loading --> Degraded: pack failed (placeholder)
+  Degraded --> Running: pack reloaded
+  Running --> Paused: user pause
+  Paused --> Running: user resume
+  Running --> Hidden: user hide
+  Paused --> Hidden: user hide
+  Hidden --> Running: user show (was running)
+  Hidden --> Paused: user show (was paused)
+  Running --> Suspended: sleep / lock / occluded / no screens
+  Suspended --> Running: conditions cleared
+```
+
+- `Running` is the only state in which the frame driver runs. `Degraded` behaves like `Running`
+  but renders a placeholder and shows an error in the menu.
+- `Paused`: sprites visible, frame driver stopped (display link `isPaused = true`), no timers.
+- `Hidden`: overlays ordered out; frame driver stopped.
+- `Suspended`: system-driven; never persisted. User intent (pause/hide) is persisted (FR-18).
+  `Suspended` only overlays `Running`; a paused or hidden pet stays paused/hidden through sleep.
+- On resume, the accumulator is reset so the pet does not "catch up" on elapsed wall time.
+
+## Asset loading flow
+
+```mermaid
+flowchart LR
+  A[character.json] -->|decode| B[CharacterManifest]
+  B -->|validate| C{valid?}
+  C -->|errors| E[CharacterLoadError + fallback/placeholder]
+  C -->|ok, warnings logged| D[CharacterDefinition]
+  D -->|frame image refs| F[ImageDecoder - background, downsampled]
+  F --> G[CGImage per frame]
+  G -->|MainActor| H[FrameImageStore: CGImage + HitMask]
+  H --> I[PetLayer contents]
+```
+
+Specification: [animation-schema.md](../specifications/animation-schema.md),
+[asset-format.md](../specifications/asset-format.md).
+
+## Persistence
+
+`UserDefaults` via `PreferencesStore` (protocol). Keys are namespaced (`petscape.`) and versioned
+(`petscape.preferencesVersion`). MVP keys: `isPaused` (Bool), `isHidden` (Bool),
+`dockOffsetAdjustment` (Double, points). No other persistence in the MVP.

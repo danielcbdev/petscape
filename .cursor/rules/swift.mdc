@@ -1,0 +1,19 @@
+---
+description: Swift source conventions for PetScape (Swift 6, strict concurrency)
+globs: **/*.swift
+alwaysApply: false
+---
+
+# Swift files
+
+Follow `docs/development/conventions.md`. Checklist when editing Swift:
+
+- Swift 6 language mode; code must compile without warnings and stay compatible with Swift 6.2.
+- Respect module isolation: Core nonisolated + `Sendable` values; Platform/Rendering/Runtime/App default `MainActor`.
+- No `@unchecked Sendable`, `nonisolated(unsafe)`, `Task.detached`, new `DispatchQueue` or locks without a justification comment.
+- `internal` by default, `public` only for cross-module API; `final` classes; value types first.
+- Inject dependencies through initializers; no singletons or global mutable state.
+- Typed errors; no `try!`; no force unwrap unless a commented invariant.
+- All coordinate conversions via `CoordinateConverter`; positions are AppKit global points unless named otherwise.
+- No allocations, logging string interpolation or blocking calls in the per-frame path.
+- Format with `swift format` using the repo config.

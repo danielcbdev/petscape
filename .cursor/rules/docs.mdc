@@ -1,0 +1,14 @@
+---
+description: Rules for project documentation and agent instruction files
+globs: docs/**/*.md, AGENTS.md, CLAUDE.md, CODEX.md, README.md
+alwaysApply: false
+---
+
+# Documentation
+
+- `AGENTS.md` is canonical for agent rules; tool files (`CLAUDE.md`, `CODEX.md`, `.cursor/rules/`) only add tool-specific delivery and must not duplicate or contradict it.
+- Use relative links; check that every link target exists.
+- Do not create empty or duplicate documents; extend the existing one that owns the topic (see `docs/README.md`).
+- Requirement IDs (FR/NFR), task IDs (T-x.y) and ADR numbers are stable; deprecate instead of renumbering.
+- Accepted ADRs are not edited in place; write a superseding ADR.
+- Mark unvalidated statements as **[validate]**; never present assumptions as facts.
