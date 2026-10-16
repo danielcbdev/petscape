@@ -15,13 +15,13 @@ ADRs marked *pending PoC* are confirmed or revised with the PoC results
 |---|---|---|
 | [0001](0001-platform-baseline.md) | Platform baseline: macOS 14+, Swift 6, Apple silicon first | Proposed |
 | [0002](0002-project-structure.md) | Xcode app shell + local Swift package with four modules | Proposed |
-| [0003](0003-overlay-window-strategy.md) | Per-screen transparent overlay panels with dynamic mouse pass-through | Proposed (confirmed by PoC E1/E2/E4; level revised to Dock − 1) |
+| [0003](0003-overlay-window-strategy.md) | Per-screen transparent overlay panels with dynamic mouse pass-through | Accepted (PoC-confirmed; level Dock − 1, full-screen rule) |
 | [0004](0004-spritekit-as-renderer.md) | SpriteKit as renderer only | Superseded by 0015 |
 | [0005](0005-kinematic-physics.md) | Custom kinematic physics instead of SpriteKit physics | Proposed |
 | [0006](0006-behavior-model.md) | Hierarchical FSM + utility-based activity selection | Proposed |
 | [0007](0007-character-packs.md) | Data-driven character packs (JSON + PNG) | Proposed |
 | [0008](0008-coordinate-system.md) | Canonical AppKit global coordinate space | Proposed |
-| [0009](0009-dock-geometry.md) | Dock geometry from public-API heuristics + manual offset | Proposed (confirmed by PoC E3) |
+| [0009](0009-dock-geometry.md) | Dock geometry from public-API heuristics + manual offset | Accepted (PoC-confirmed) |
 | [0010](0010-distribution-no-sandbox.md) | Developer ID distribution, Hardened Runtime, no App Sandbox | Proposed |
 | [0011](0011-tooling-and-dependencies.md) | No third-party dependencies; Swift Testing; bundled swift-format | Proposed |
 | [0012](0012-concurrency-model.md) | Concurrency model: MainActor engine, Sendable values | Proposed |

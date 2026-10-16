@@ -36,7 +36,7 @@ Chosen: **3**. Strategy 2 remains the fallback if PoC E2 shows dynamic toggling 
 | `canBecomeKey` / `canBecomeMain` | `false` (override) | Never steal keyboard focus |
 | `isOpaque` / `backgroundColor` / `hasShadow` | `false` / `.clear` / `false` | Per-pixel transparency |
 | Level | `CGWindowLevelForKey(.dockWindow) - 1` (19) | Just **below** the Dock: above normal/floating/modal windows, but a revealed auto-hide Dock (which posts no notification) slides over the pet instead of being covered by it; magnified icons draw over the pet. Validated in PoC Dock test 5b. Below the menu bar (24), pop-up menus (101), screen saver |
-| Collection behavior | `[.canJoinAllSpaces, .stationary, .ignoresCycle]` | Visible on every Space, static in Mission Control, not in Cmd-` cycling. **No** `.fullScreenAuxiliary` → not shown over fullscreen apps **[validate]** |
+| Collection behavior | `[.canJoinAllSpaces, .stationary, .ignoresCycle]` | Visible on every Space, static in Mission Control, not in Cmd-` cycling. **No** `.fullScreenAuxiliary`. PoC: this does **not** keep the panel out of full-screen app Spaces on macOS 27 — see the full-screen rule below |
 | Frame | `screen.frame` (full screen, including menu bar and Dock areas) | The pet must overlap the Dock region |
 | `ignoresMouseEvents` | `true` by default; toggled by `MousePassthroughController` | Click-through |
 | `isReleasedWhenClosed` | `false` | Lifetime managed by `OverlayWindowManager` |
@@ -69,7 +69,7 @@ Strategy C cursor source:
 | Switching Spaces | Overlay stays (canJoinAllSpaces); pet keeps walking | [validate] |
 | Mission Control / App Exposé | Overlay stays in place (`.stationary`), not shown as a thumbnail | [validate] |
 | Stage Manager | Overlay above stage strip; clicks pass through | [validate] |
-| Fullscreen app Space | Overlay absent (no `.fullScreenAuxiliary`) | [validate]; product decision: never cover fullscreen apps in MVP |
+| Fullscreen app Space | Overlay hidden by the **full-screen rule**: on `activeSpaceDidChange`, if `CGWindowList` shows no on-screen window owned by the Dock at the Dock level (read twice, 400 ms apart, after the transition) the Space is treated as full screen → run state `suspended`, overlay ordered out; shown again when the Dock window is back | Validated in PoC (S5): hidden ~1 s after entering a full-screen Space, shown on return; Dock auto-hide does not trigger it (Dock window stays on screen). Product decision: never cover full-screen apps in the MVP |
 | Screen locked / screen saver | Run state `suspended`; overlay ordered out | Planned |
 | Display sleep (`screensDidSleep`) | `suspended` | Planned |
 | Fast user switching (`sessionDidResignActive`) | `suspended` | Planned |

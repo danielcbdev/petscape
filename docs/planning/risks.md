@@ -21,6 +21,7 @@ Probability/Impact: L/M/H.
 | R-13 | Scope creep (multi-pet, interactions) before the core feels good | M | M | Milestone gates; FR-40+ unscheduled | All |
 | R-14 | AI-generated art licensing/provenance unclear for an open-source release | M | M | Owner decision D-08 before public release | M15 |
 | R-15 | Agents produce inconsistent changes across sessions | M | M | AGENTS.md process, task IDs, PR template, docs as source of truth | All |
+| R-16 | Overlay shows over full-screen apps; the detection rule (no Dock window on screen) is undocumented behavior and could change between macOS versions | M | M | PoC-validated rule (T3.10); re-check per release; opt-in AX fallback (M12) | M3, ADR-0003 |
 
 ## Open decisions (owner)
 

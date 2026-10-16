@@ -9,7 +9,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | ID | Milestone | Release | Status |
 |---|---|---|---|
 | M0 | Repository preparation & planning | — | **Done** (approved 2026-10-16; commit pending, T0.6) |
-| M1 | Overlay proof of concept | — | **In progress** (T1.1–T1.3) |
+| M1 | Overlay proof of concept | — | **Done** (2026-10-16; recommendation: go for M2 — see [conclusion](proof-of-concept.md#conclusion-t19)) |
 | M2 | App skeleton | v0.1.0 | Not started |
 | M3 | Transparent overlay | v0.1.0 | Not started |
 | M4 | Animation system | v0.1.0 | Not started |

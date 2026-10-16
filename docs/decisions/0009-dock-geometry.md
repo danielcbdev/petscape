@@ -1,6 +1,6 @@
 # ADR-0009: Dock geometry from public-API heuristics + manual offset
 
-- Status: Proposed — **confirmed by PoC E3** (constant +1.0 pt offset for Dock sizes 22–45; every
+- Status: **Accepted** (owner, 2026-10-16) — confirmed by PoC E3 (constant +1.0 pt offset for Dock sizes 22–45; every
   Dock change notified; auto-hide reserves 0 pt). See [proof-of-concept.md](../planning/proof-of-concept.md#dock-test-procedure-e3--t14-owner-changes-the-settings)
 - Date: 2026-10-16
 - Related: [surface-detection.md](../specifications/surface-detection.md)

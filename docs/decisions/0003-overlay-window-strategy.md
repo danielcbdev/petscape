@@ -1,6 +1,7 @@
 # ADR-0003: Per-screen transparent overlay panels with dynamic mouse pass-through
 
-- Status: Proposed (pending PoC E1, E2, E4, E6)
+- Status: **Accepted** (owner, 2026-10-16) — confirmed by the PoC (E1, E2, E4, E6, E8) with two revisions:
+  level `dockWindow − 1` and the full-screen Dock-window rule
 - Date: 2026-10-16
 - Related: [macos-integration.md](../architecture/macos-integration.md), [proof-of-concept.md](../planning/proof-of-concept.md)
 
@@ -29,7 +30,9 @@ Option 3: `OverlayPanel` (`NSPanel`, `.borderless` + `.nonactivatingPanel`, clea
 never key/main), level `dockWindow − 1` (revised from `+ 1` after PoC Dock test 5b: a revealed auto-hide
 Dock must cover the pet, and its reveal is not observable through public API), collection behavior
 `[.canJoinAllSpaces, .stationary, .ignoresCycle]`, frame = `screen.frame`, one per screen hosting
-pets (MVP: the Dock screen). `MousePassthroughController` toggles `ignoresMouseEvents` from alpha-mask
+pets (MVP: the Dock screen). Because the collection behavior alone does not keep the panel out of
+full-screen app Spaces (PoC S5), the overlay is ordered out while the active Space has no on-screen
+Dock window (checked on `activeSpaceDidChange`, read twice). `MousePassthroughController` toggles `ignoresMouseEvents` from alpha-mask
 hit tests using `NSEvent.mouseLocation` per frame and a global mouse-moved monitor while paused.
 
 ## Rationale
@@ -49,5 +52,6 @@ per screen, needs no permissions, and makes click-through deterministic.
 | Latency between cursor entering the pet and the window accepting events | Measure in PoC; ≤ 1 frame expected |
 | Global mouse-moved monitor needs a permission on some macOS version | Fallback: 10 Hz timer only while paused and visible |
 | Overlay level interferes with Dock interactions | Resolved by placing the overlay just below the Dock level (PoC Dock tests 4 and 5b) |
-| Behavior in fullscreen Spaces/Stage Manager differs from expectation | PoC E6; adjust collection behavior |
+| Full-screen rule relies on undocumented Dock window behavior (no Dock window in full-screen Spaces) | Re-verify each macOS release (manual matrix); fallback: opt-in Accessibility check of `AXFullScreen` (M12) |
+| Stage Manager behavior differs from expectation | PoC E6 (pending) |
 | If PoC E2 fails | Fall back to option 2 (small window per pet) and supersede this ADR |

@@ -1,8 +1,9 @@
 # Proof of Concept — Overlay, Click-through, Dock
 
 - **Goal:** validate assumptions A1–A5 ([scope.md](../product/scope.md)) before building the real app.
-- **Status:** In progress — E1, E2, E3, E4, E7 done (renderer → Core Animation, ADR-0015; overlay level → Dock − 1); T1.4
-  done; E5, E6 not started; E8 partial.
+- **Status:** **Done (2026-10-16)** — all assumptions confirmed or resolved; see "Conclusion" at the end.
+  Open checks carried into later milestones: resolution change evidence (M3 matrix), external displays (M14),
+  macOS 14 (M14).
 - **Timebox:** 2–3 days. If an experiment exceeds its timebox, record the partial result and move on.
 - **Code location:** branch `spike/overlay-poc`, a separate minimal Xcode project. **Not merged**;
   only this document and ADR updates are merged. Code quality is "spike" level (no architecture),
@@ -101,10 +102,10 @@ configured by the owner; `visibleFrame` bottom inset 65 pt, menu bar 33 pt), dar
 | E2 | **Confirmed (strategy C)** | Cursor warp test: body → interactive, transparent corner → pass-through, each toggle within one frame. Owner's manual session (log 15:18–15:20): real mouse movement toggled interactivity with **0.9 / 3.8 / 9.1 ms** latency after the first global mouse-moved event over the sprite (≤ 1 frame) — so the global mouse-moved monitor **delivers events without any permission**; 7 click/drag sequences on the cat received; **no `BLOCKED` events** (no click on a transparent pixel was swallowed). Owner confirmed that clicks around the cat reached the apps underneath normally. Second owner session: strategy C 0 blocked events (latency 5.4 ms); **strategy B blocked 427 events** — the window server does not pass clicks through transparent pixels of this (Metal-backed) overlay, so relying on it (strategy B) is ruled out. Strategy A not exercised (trivially passes everything). |
 | E3 | **Confirmed** | Dock test procedure below (8 steps + 5b): shelf top edge at a **constant +1.0 pt** below `visibleFrame.minY` for tile sizes 22–45 (insets 42–65 pt), magnification does not change it; auto-hide gives a reservation of exactly 0 pt; left/right Docks give a 49 pt side inset. **Every** size/position/auto-hide change posted `didChangeScreenParametersNotification` (0.01–0.97 s before the 1 Hz check). Revealing an auto-hidden Dock posts nothing → overlay level lowered to `dockWindow − 1` (test 5b). |
 | E4 | **Confirmed (strategy C)** | Owner dragged the cat repeatedly (e.g. x 749 → 904, 1304 → 1335 pt): every mouseDown/mouseUp logged `PoC active=false panel key=false frontmost app=Claude` — the frontmost app kept focus and PetScape never activated. Interactivity stayed on for the whole drag and was released after mouseUp. A drag ending at y = 0 (screen bottom) shows the cursor can leave the sprite mid-drag without losing the drag. |
-| E5 | — | Not started (T1.6). |
-| E6 | — | Not started (T1.6). |
+| E5 | **Partial** | Single built-in Retina display only. Resolution change: owner reports OK, but no screen-frame change was logged (S8) → re-check in M3. External displays, negative coordinates and mixed DPI not tested (no hardware) → M14. |
+| E6 | **Confirmed (with fix)** | Spaces, Mission Control, App Exposé, Stage Manager, lock and display sleep behave as expected and post usable events (S1–S4, S6, S7). Full-screen apps are **not** excluded by the collection behavior → Dock-window rule (S5) hides the overlay ~1 s after entering a full-screen Space. |
 | E7 | **Done → Core Animation adopted ([ADR-0015](../decisions/0015-core-animation-renderer.md))** | See "E7 measurements" below. Walking 40 pt/s while animating: SpriteKit ~115 MB and 5.7% CPU (fails both targets); Core Animation ~19 MB and ~1.0% CPU; both 0% CPU when paused. WindowServer CPU delta similar for both (coarse). |
-| E8 | **Partial** | Owner: Dock hover magnification and clicks on Dock icons work normally with the overlay above the Dock (Dock test step 4); no events swallowed. Pending: right-click Dock menus, dragging a file onto a Dock icon, menu bar menus/Control Center over the overlay, notification banners, system alerts. |
+| E8 | **Confirmed** | Dock magnification and clicks (Dock test 4), Dock context menus, drag-and-drop onto Dock icons, menu bar menus, Control Center, notification banners and alerts all work with the overlay running (S10–S14); no events swallowed outside the cat. |
 
 Additional findings:
 
@@ -184,6 +185,37 @@ relaunched PoC (`open build/OverlayPoC.app`) also logs whether each change arriv
 | 7 | Position on screen: Right | Right inset 49 pt, bottom 0 → pet on the screen bottom (owner confirmed) | Yes (0.8 s) |
 | 8 | Back to bottom, original size (tile 44), auto-hide off, overlay level 19 | +1.0 pt, inset 64 pt; owner: cat back on the Dock, paws visible with the overlay below the Dock level | Yes (0.45 s) |
 
+## Spaces, displays and system UI procedure (E5 / E6 / E8, owner performs the actions)
+
+Run the PoC as the walking Core Animation demo (cat walks on the Dock, mirrors at the edges):
+
+```bash
+open --env POC_RENDERER=ca --env POC_ANIMATE=1 --env POC_MOVE=1 --env POC_TEXTURE_PX=288 poc/OverlayPoC/build/OverlayPoC.app
+```
+
+After each step, the PoC log shows what the system reported (Spaces, sleep, lock, occlusion, geometry):
+
+```bash
+/usr/bin/log show --last 2m --predicate 'subsystem == "io.github.danielcbdev.petscape.poc"' | grep -E "system event|occlusion|geometry changed|BLOCKED"
+```
+
+| # | Exp | Action | Expected | Result |
+|---|---|---|---|---|
+| S1 | E6 | Create a second desktop (Mission Control → "+") and switch with Ctrl+→ / Ctrl+← | Cat visible and walking on both desktops; `activeSpaceDidChange` logged | Log: 4 switches, `activeSpaceDidChange` each time; overlay occlusion goes `visible=false` for ~0.2–0.6 s during the transition and back to `true` (overlay follows to every Space). ✅ Owner: cat visible and walking on both Spaces — **but the second Space was a full-screen app**: the overlay showed over it (see S5) and the cat floated at the Dock height because `visibleFrame` is unchanged in a full-screen Space (no Dock there) |
+| S2 | E6 | Open Mission Control (F3 or three-finger swipe up), then close it | Cat stays put, is not shown as a window thumbnail; Mission Control clicks work | ✅ Owner: cat stays put, Mission Control works. Log 16:10:42: snapshot with 26 on-screen windows and several menu-bar windows (Mission Control), overlay present |
+| S3 | E6 | App Exposé (Ctrl+↓) on any app | Same as S2 | ✅ Owner |
+| S4 | E6 | Turn on Stage Manager (Control Center), use the stage strip, turn it off | Cat visible; strip and windows clickable | ✅ Owner: cat visible, stage strip and windows clickable (no log signal for Stage Manager) |
+| S5 | E6 | Put an app in full screen (green button), look at the bottom, exit full screen | Cat **not** shown over the full-screen app; back on the desktop afterwards | ❌ → ✅ The collection behavior alone does **not** exclude full-screen Spaces on macOS 27 (cat seen floating over a full-screen app, `visibleFrame` unchanged). Space snapshots: full-screen Spaces have **no on-screen Dock window** (4–6 windows), desktops always have the Dock's layer-20 window (15–18 windows), also with Dock auto-hide on; "window covers the screen" does not work (full-screen windows exclude the menu-bar strip). Rule implemented in the PoC (read twice, 400 ms apart, after `activeSpaceDidChange`): owner confirmed the cat **disappears in the full-screen Space** and returns on the desktop, ~1 s after each switch |
+| S6 | E6 | Lock the screen (Ctrl+Cmd+Q), unlock | Cat not on the lock screen; `screenIsLocked`/`screenIsUnlocked` logged; cat still there after unlock | ✅ Owner + log: explicit lock 16:07:26 `screenIsLocked` → 16:07:29 `screenIsUnlocked`; also observed with display sleep (S7) |
+| S7 | E6 | Display sleep: run `pmset displaysleepnow`, wake with a key | `screensDidSleep`/`screensDidWake` logged; cat resumes | ✅ Owner + log: `screensDidSleep` → `com.apple.screenIsLocked` (display sleep locked the screen) → `screensDidWake` → `com.apple.screenIsUnlocked`, then overlay occlusion false→true; all events arrive without permissions |
+| S8 | E5 | System Settings › Displays: switch to a different resolution ("More Space" or "Larger Text"), then back | Cat keeps 96 pt size and stays on the Dock; `geometry changed` logged | ⚠️ Owner reports OK, but **no screen-frame change was logged** while the PoC was running, so the re-layout is not evidenced; re-check in the M3 manual matrix |
+| S9 | E5 | (Optional, needs an external display) connect, arrange it left/above, move the Dock there, disconnect | No crash; cat stays on the Dock screen | Not run (no external display available) → multi-display validation moves to M14 |
+| S10 | E8 | Right-click a Dock icon near the cat | Dock menu opens above the cat and works | ✅ Owner |
+| S11 | E8 | Drag a file from Finder onto a Dock app icon (e.g. an image onto Preview) | Drop works, also when passing over the cat's area | ✅ Owner |
+| S12 | E8 | Open a menu bar menu and Control Center | Both appear above the overlay | ✅ Owner |
+| S13 | E8 | Trigger a notification: `osascript -e 'display notification "teste" with title "PetScape"'` | Banner appears above the overlay | ✅ Screen capture 1.2 s after triggering: banner drawn normally at the top right over all windows while the full-screen overlay was running |
+| S14 | E8 | Show an alert: `osascript -e 'display alert "teste"'` and click OK | Alert appears and is clickable (note: an overlay at level 19 sits above normal dialogs; only the cat's own pixels could cover a button) | ✅ Alert shown, OK clicked (`button returned:OK`); no occlusion change, no `BLOCKED` events |
+
 ## Manual click matrix (E2, to be run by the owner)
 
 With the PoC running (paw icon in the menu bar), for each strategy A, B and C:
@@ -196,6 +228,26 @@ With the PoC running (paw icon in the menu bar), for each strategy A, B and C:
 Expected: A — everything passes through, the cat receives nothing; B — note whether transparent
 pixels block (`BLOCKED` lines); C — no `BLOCKED` lines, the cat receives clicks/drags, the frontmost
 app keeps focus.
+
+## Conclusion (T1.9)
+
+| Assumption | Result |
+|---|---|
+| A1 Transparent overlay above the desktop/Dock | ✅ Confirmed (E1) |
+| A2 Click-through by toggling `ignoresMouseEvents` from a hit test, no permissions | ✅ Confirmed (E2: 0.9–9.1 ms, 0 swallowed clicks; strategy B ruled out) |
+| A3 `visibleFrame` as Dock edge estimate | ✅ Confirmed (E3: constant +1.0 pt, every change notified) |
+| A4 Cat looks acceptable at ~96 pt | ✅ Owner accepted it during the Dock tests |
+| A5 Animated sprite costs < 5% CPU | ✅ With Core Animation (~1% walking); ❌ with SpriteKit (5.7%) |
+
+Changes to the architecture caused by the PoC (all already reflected in the docs):
+
+1. Renderer: Core Animation instead of SpriteKit ([ADR-0015](../decisions/0015-core-animation-renderer.md)).
+2. Overlay level: `dockWindow − 1` instead of `+ 1` (ADR-0003).
+3. Full-screen app Spaces: Dock-window rule hides the overlay (ADR-0003, task T3.10, risk R-16).
+4. Dock change detection: notification only, no polling (surface-detection.md, R-03 retired).
+
+**Recommendation: go for M2.** Carried-over checks: resolution change evidence (M3 manual matrix),
+external/multiple displays (M14), macOS 14 VM pass (M14), Stage Manager has no log signal (manual only).
 
 ## Decision rules
 

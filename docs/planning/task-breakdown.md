@@ -25,10 +25,10 @@ Man = manual check recorded in the PR). Modules: Core, Plat (Platform), Rend (Re
 | T1.3 | E2: implement click-through strategies A, B, C with a menu switch; log hit/miss; measure toggle latency | T1.2 | M | Results table E2 | Done (C confirmed by owner) |
 | T1.4 | E3: place the sprite on `visibleFrame.minY`; test Dock sizes, magnification, autohide, left/right; log whether screen-parameter notifications fire for each change | T1.2 | M | Results table E3 + screenshots | Done (E3 confirmed; level → Dock − 1) |
 | T1.5 | E4: click and drag the sprite (strategy C) without activating the app or stealing focus from the frontmost app | T1.3 | S | Results table E4 | Done (E4 confirmed in owner session) |
-| T1.6 | E5/E6: resolutions/scaling, external display, Spaces, Mission Control, Stage Manager, fullscreen, lock/sleep | T1.2 | M | Results tables E5, E6 | Not started |
+| T1.6 | E5/E6: resolutions/scaling, external display, Spaces, Mission Control, Stage Manager, fullscreen, lock/sleep | T1.2 | M | Results tables E5, E6 | Done (S9 external display not run → M14; S8 needs log evidence in M3) |
 | T1.7 | E7: animate the 8 frames at 9 fps and move at 40 pt/s; measure CPU/energy at 60 fps, paused, hidden; optional CALayer comparison if > targets | T1.2 | M | Measurements entry | Done → Core Animation (ADR-0015) |
-| T1.8 | E8: check Dock interactions under the overlay (hover magnification, click, right-click, drag file to Dock) and menu bar menus over the overlay | T1.3 | S | Results table E8 | Not started |
-| T1.9 | Write results in proof-of-concept.md; update ADR-0003/0004/0009, scope assumptions and risks; recommend go/adjust | T1.3–T1.8 | S | Owner sign-off | Not started |
+| T1.8 | E8: check Dock interactions under the overlay (hover magnification, click, right-click, drag file to Dock) and menu bar menus over the overlay | T1.3 | S | Results table E8 | Done (E8 confirmed) |
+| T1.9 | Write results in proof-of-concept.md; update ADR-0003/0004/0009, scope assumptions and risks; recommend go/adjust | T1.3–T1.8 | S | Owner sign-off | Done (conclusion in proof-of-concept.md; ADR-0003/0009 accepted) |
 
 ## M2 — App skeleton
 
@@ -57,6 +57,7 @@ Man = manual check recorded in the PR). Modules: Core, Plat (Platform), Rend (Re
 | T3.7 | `CursorSampler`: per-frame `mouseLocation`; global mouse-moved monitor started only while paused and visible; teardown | Plat | T2.3 | S | Man + U for lifecycle |
 | T3.8 | `SystemEventsMonitor` (sleep/wake, screens sleep, session, lock, occlusion) + `RunStateController` combining user intent and system state | Plat, Run | T2.3 | M | U for all state combinations |
 | T3.9 | Wire into `AppContainer`; manual click-through matrix (Finder, Dock, menu bar, other apps, desktop icons) with the test rectangle | App | T3.4–T3.8 | S | Man (matrix in PR) |
+| T3.10 | Full-screen Space rule: on `activeSpaceDidChange`, read `CGWindowList` twice (after the transition, 400 ms apart); no on-screen Dock-owned window at the Dock level → `RunStateController` suspended + overlay ordered out; restore when it returns. Pure decision function in Core with tests | Plat, Run, Core | T3.8 | S | U (decision function) + Man (full-screen app, auto-hide Dock) |
 
 ## M4 — Animation system
 

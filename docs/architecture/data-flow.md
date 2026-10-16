@@ -62,7 +62,7 @@ stateDiagram-v2
   Paused --> Hidden: user hide
   Hidden --> Running: user show (was running)
   Hidden --> Paused: user show (was paused)
-  Running --> Suspended: sleep / lock / occluded / no screens
+  Running --> Suspended: sleep / lock / occluded / full-screen Space / no screens
   Suspended --> Running: conditions cleared
 ```
 

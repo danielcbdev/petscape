@@ -21,9 +21,11 @@ Open-source portfolio project: local only, no backend, accounts, payments, telem
 ### Current phase
 
 Check the **Status** column in [docs/planning/milestones.md](docs/planning/milestones.md) before
-doing anything. As of 2026-10-16: planning is approved; the proof of concept (M1) is in progress on
-branch `spike/overlay-poc` (throwaway code, never merged). No production code or Xcode project
-exists yet. Do not start implementation without an explicit instruction naming the milestone/task.
+doing anything. As of 2026-10-16: planning is approved and the proof of concept (M1) is **done**
+(results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
+branch `spike/overlay-poc`, never merged). Next milestone: **M2 (app skeleton)**. No production code or
+Xcode project exists yet. Do not start implementation without an explicit instruction naming the
+milestone/task.
 
 ## 2. Stack
 
