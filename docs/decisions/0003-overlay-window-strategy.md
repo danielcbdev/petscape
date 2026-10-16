@@ -26,7 +26,8 @@ Choose the window topology and the click-through mechanism.
 ## Decision
 
 Option 3: `OverlayPanel` (`NSPanel`, `.borderless` + `.nonactivatingPanel`, clear, no shadow,
-never key/main), level `dockWindow + 1`, collection behavior
+never key/main), level `dockWindow − 1` (revised from `+ 1` after PoC Dock test 5b: a revealed auto-hide
+Dock must cover the pet, and its reveal is not observable through public API), collection behavior
 `[.canJoinAllSpaces, .stationary, .ignoresCycle]`, frame = `screen.frame`, one per screen hosting
 pets (MVP: the Dock screen). `MousePassthroughController` toggles `ignoresMouseEvents` from alpha-mask
 hit tests using `NSEvent.mouseLocation` per frame and a global mouse-moved monitor while paused.
@@ -47,6 +48,6 @@ per screen, needs no permissions, and makes click-through deterministic.
 |---|---|
 | Latency between cursor entering the pet and the window accepting events | Measure in PoC; ≤ 1 frame expected |
 | Global mouse-moved monitor needs a permission on some macOS version | Fallback: 10 Hz timer only while paused and visible |
-| Overlay level above the Dock interferes with Dock interactions | PoC E8; alternative level below Dock |
+| Overlay level interferes with Dock interactions | Resolved by placing the overlay just below the Dock level (PoC Dock tests 4 and 5b) |
 | Behavior in fullscreen Spaces/Stage Manager differs from expectation | PoC E6; adjust collection behavior |
 | If PoC E2 fails | Fall back to option 2 (small window per pet) and supersede this ADR |

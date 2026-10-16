@@ -7,8 +7,8 @@ Probability/Impact: L/M/H.
 | ID | Risk | P | I | Mitigation | Where |
 |---|---|---|---|---|---|
 | R-01 | Dynamic click-through (toggling `ignoresMouseEvents`) is laggy or loses events | M | H | PoC E2; fallback to per-pet windows | M1, ADR-0003 |
-| R-02 | Dock shelf position cannot be estimated precisely with public APIs | H | M | Offset preference; AX enhancement later; walk full width | M1 E3, ADR-0009 |
-| R-03 | Screen-parameter notifications do not fire for Dock changes | M | M | Re-read on Space change/resume; low-rate fallback while running | M1 E3 |
+| R-02 | Dock shelf position cannot be estimated precisely with public APIs | **L** (PoC E3: constant +1.0 pt) | M | Offset preference; AX enhancement later; walk full width | M1 E3, ADR-0009 |
+| R-03 | Screen-parameter notifications do not fire for Dock changes | **Retired** (PoC E3: all changes notified) | M | Only the auto-hide *reveal* is silent → overlay below Dock level (ADR-0003) | M1 E3 |
 | R-04 | Rendering costs too much energy/memory | **Mitigated** | H | Materialized with SpriteKit (PoC E7: ~115 MB, 5.7% CPU walking); renderer switched to Core Animation (~19 MB, 1.0%) | ADR-0015 |
 | R-05 | Overlay above Dock level interferes with Dock or system UI | L | H | PoC E8; lower level option | M1 |
 | R-06 | Prototype art quality (translucent body F6, fringe F7, no idle/turn clips) limits the experience | H | M | Hit threshold 128; request re-export; fallbacks; art roadmap | M4+ |

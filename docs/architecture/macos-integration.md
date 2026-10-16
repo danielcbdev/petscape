@@ -35,7 +35,7 @@ Chosen: **3**. Strategy 2 remains the fallback if PoC E2 shows dynamic toggling 
 | Style mask | `[.borderless, .nonactivatingPanel]` | No chrome; clicking a pet does not activate the app |
 | `canBecomeKey` / `canBecomeMain` | `false` (override) | Never steal keyboard focus |
 | `isOpaque` / `backgroundColor` / `hasShadow` | `false` / `.clear` / `false` | Per-pixel transparency |
-| Level | `CGWindowLevelForKey(.dockWindow) + 1` | Above the Dock (pet stands on it), below the menu bar (24), pop-up menus (101), screen saver; **[validate]** with Dock magnification and Notification Center |
+| Level | `CGWindowLevelForKey(.dockWindow) - 1` (19) | Just **below** the Dock: above normal/floating/modal windows, but a revealed auto-hide Dock (which posts no notification) slides over the pet instead of being covered by it; magnified icons draw over the pet. Validated in PoC Dock test 5b. Below the menu bar (24), pop-up menus (101), screen saver |
 | Collection behavior | `[.canJoinAllSpaces, .stationary, .ignoresCycle]` | Visible on every Space, static in Mission Control, not in Cmd-` cycling. **No** `.fullScreenAuxiliary` → not shown over fullscreen apps **[validate]** |
 | Frame | `screen.frame` (full screen, including menu bar and Dock areas) | The pet must overlap the Dock region |
 | `ignoresMouseEvents` | `true` by default; toggled by `MousePassthroughController` | Click-through |
@@ -120,7 +120,7 @@ full screen width.
 | Risk | Impact | Mitigation |
 |---|---|---|
 | Dynamic pass-through flicker/latency | Missed or stolen clicks near the pet | Hit mask with small inset; ≤ 1 frame latency; PoC measures |
-| Overlay above Dock covers magnified Dock icons visually | Cosmetic | Pet is small; accept; option to lower level below Dock (feet hidden) evaluated in PoC |
+| A future pet pose that dips into the Dock shelf is hidden by the Dock (overlay is below it) | Cosmetic | Keep contact points on or above the shelf edge (anchor at the paws) |
 | Window level behavior changes between macOS versions | Overlay hidden or too high | PoC on current macOS; manual test matrix per release |
 | Global mouse monitor may require permission on some macOS versions | Pet not draggable while paused | Low-rate fallback timer only while paused |
 | Occlusion notification unreliable for full-screen transparent windows | Missed energy savings | Combine with screens/space notifications; measure |

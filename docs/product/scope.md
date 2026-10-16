@@ -35,7 +35,7 @@ energy cost) with one cat walking back and forth on the Dock.
 |---|---|---|
 | A1 | A borderless, non-activating, transparent window above the Dock level can host per-pixel transparent content (validated with SpriteKit and Core Animation). | PoC E1 ✅ |
 | A2 | Click-through can be achieved with `ignoresMouseEvents` toggled by a pet hit test, without permissions. | PoC E2 ✅ |
-| A3 | `NSScreen.visibleFrame` is a good-enough estimate of the Dock's top edge when the Dock is at the bottom and visible. | PoC E3 |
+| A3 | `NSScreen.visibleFrame` is a good-enough estimate of the Dock's top edge when the Dock is at the bottom and visible. | PoC E3 ✅ (+1.0 pt) |
 | A4 | The cat's walk cycle looks acceptable at ~96 pt tall. | PoC E3 (visual) |
 | A5 | Rendering one animated sprite at 60 fps costs < 5% of one CPU core on Apple silicon. | PoC E7 ✅ with Core Animation (~1%); SpriteKit 5.7% ❌ |
 | A6 | The provisional bundle identifier `io.github.danielcbdev.petscape` is acceptable until distribution. | Owner decision before M15 |

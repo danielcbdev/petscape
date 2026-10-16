@@ -50,7 +50,8 @@ Algorithm (`DockGeometryEstimator`, pure Core, fed by `ScreenDescriptor`s):
 1. For each screen compute insets: `bottom = visible.minY − frame.minY`,
    `left = visible.minX − frame.minX`, `right = frame.maxX − visible.maxX`.
 2. Candidate = the largest of those insets across all screens. If it is ≥ `dockMinInset`
-   (initial 10 pt, **[validate]** in PoC E3), the Dock is visible on that screen and edge.
+   (10 pt; PoC E3: visible Docks reserved 42–65 pt at the bottom or 49 pt on a side, auto-hide reserved
+   exactly 0 pt), the Dock is visible on that screen and edge.
 3. If no candidate: Dock is auto-hidden or absent → `.hiddenOrUnknown`.
 4. Result: `DockEstimate { screenID, position: .bottom/.left/.right/.hiddenOrUnknown, thickness, edgeLine }`.
 
@@ -65,10 +66,12 @@ Surface selection:
 `dockOffsetAdjustment` (points, default 0, range −40…+40) is a user/debug preference for visual
 alignment with the shelf. Exposed in a DEBUG menu in the MVP and in Settings → Advanced in M9.
 
-Change detection: recompute on `didChangeScreenParametersNotification`. Whether Dock resize,
-position change and autohide toggling post this notification is **[validate]** (PoC E3). If they
-do not, re-read `visibleFrame` on `NSWorkspace.activeSpaceDidChangeNotification` and on resume,
-and as a last resort at 0.5 Hz **only while running** — documented as a known cost.
+Change detection: recompute on `didChangeScreenParametersNotification`. PoC E3 (macOS 27.0.1)
+confirmed that Dock resize, position change and auto-hide toggling all post it (within ~1 s), so
+**no polling is needed**. Revealing an auto-hidden Dock posts nothing and does not change
+`visibleFrame`; this is handled by placing the overlay below the Dock level (ADR-0003), not by
+detection. Measured shelf edge: a constant +1.0 pt below `visibleFrame.minY` across Dock sizes →
+`dockOffsetAdjustment` default stays 0.
 
 Optional hints considered and rejected for the MVP: reading `com.apple.dock` preferences
 (`orientation`, `autohide`, `tilesize`). They are undocumented, unavailable in a sandbox, and keys

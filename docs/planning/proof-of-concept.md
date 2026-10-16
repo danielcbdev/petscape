@@ -1,8 +1,8 @@
 # Proof of Concept — Overlay, Click-through, Dock
 
 - **Goal:** validate assumptions A1–A5 ([scope.md](../product/scope.md)) before building the real app.
-- **Status:** In progress — E1, E2, E4, E7 done (renderer → Core Animation, ADR-0015); E3/T1.4 tooling
-  ready, Dock setting changes pending (owner); E5, E6, E8 not started.
+- **Status:** In progress — E1, E2, E3, E4, E7 done (renderer → Core Animation, ADR-0015; overlay level → Dock − 1); T1.4
+  done; E5, E6 not started; E8 partial.
 - **Timebox:** 2–3 days. If an experiment exceeds its timebox, record the partial result and move on.
 - **Code location:** branch `spike/overlay-poc`, a separate minimal Xcode project. **Not merged**;
   only this document and ADR updates are merged. Code quality is "spike" level (no architecture),
@@ -98,13 +98,13 @@ configured by the owner; `visibleFrame` bottom inset 65 pt, menu bar 33 pt), dar
 | Exp | Result | Notes / evidence |
 |---|---|---|
 | E1 | **Confirmed** | Screen capture of the Dock region: no background, border or shadow; sprite crisp at 96 pt; drawn above app windows and the Dock. Overlay reported by the window server at layer 21 (Dock 20, menu bar 24), full-screen bounds, on-screen. `SKView` is backed by `CAMetalLayer`. |
-| E2 | **Confirmed (strategy C)** | Cursor warp test: body → interactive, transparent corner → pass-through, each toggle within one frame. Owner's manual session (log 15:18–15:20): real mouse movement toggled interactivity with **0.9 / 3.8 / 9.1 ms** latency after the first global mouse-moved event over the sprite (≤ 1 frame) — so the global mouse-moved monitor **delivers events without any permission**; 7 click/drag sequences on the cat received; **no `BLOCKED` events** (no click on a transparent pixel was swallowed). Owner confirmed that clicks around the cat reached the apps underneath normally. Strategies A/B not exercised (reference only; C is the chosen design). |
-| E3 | **First data point** | With the current Dock (bottom inset 65 pt): shelf top edge at `visibleFrame.minY` +1.0 pt (`scripts/dock-probe.swift`; manual pixel check: 0 pt); lowest paw pixels within ≤ 1.5 pt. Other Dock sizes, magnification, auto-hide, left/right and change notifications pending — they need the owner to change Dock settings (see "Dock test procedure" below). |
+| E2 | **Confirmed (strategy C)** | Cursor warp test: body → interactive, transparent corner → pass-through, each toggle within one frame. Owner's manual session (log 15:18–15:20): real mouse movement toggled interactivity with **0.9 / 3.8 / 9.1 ms** latency after the first global mouse-moved event over the sprite (≤ 1 frame) — so the global mouse-moved monitor **delivers events without any permission**; 7 click/drag sequences on the cat received; **no `BLOCKED` events** (no click on a transparent pixel was swallowed). Owner confirmed that clicks around the cat reached the apps underneath normally. Second owner session: strategy C 0 blocked events (latency 5.4 ms); **strategy B blocked 427 events** — the window server does not pass clicks through transparent pixels of this (Metal-backed) overlay, so relying on it (strategy B) is ruled out. Strategy A not exercised (trivially passes everything). |
+| E3 | **Confirmed** | Dock test procedure below (8 steps + 5b): shelf top edge at a **constant +1.0 pt** below `visibleFrame.minY` for tile sizes 22–45 (insets 42–65 pt), magnification does not change it; auto-hide gives a reservation of exactly 0 pt; left/right Docks give a 49 pt side inset. **Every** size/position/auto-hide change posted `didChangeScreenParametersNotification` (0.01–0.97 s before the 1 Hz check). Revealing an auto-hidden Dock posts nothing → overlay level lowered to `dockWindow − 1` (test 5b). |
 | E4 | **Confirmed (strategy C)** | Owner dragged the cat repeatedly (e.g. x 749 → 904, 1304 → 1335 pt): every mouseDown/mouseUp logged `PoC active=false panel key=false frontmost app=Claude` — the frontmost app kept focus and PetScape never activated. Interactivity stayed on for the whole drag and was released after mouseUp. A drag ending at y = 0 (screen bottom) shows the cursor can leave the sprite mid-drag without losing the drag. |
 | E5 | — | Not started (T1.6). |
 | E6 | — | Not started (T1.6). |
 | E7 | **Done → Core Animation adopted ([ADR-0015](../decisions/0015-core-animation-renderer.md))** | See "E7 measurements" below. Walking 40 pt/s while animating: SpriteKit ~115 MB and 5.7% CPU (fails both targets); Core Animation ~19 MB and ~1.0% CPU; both 0% CPU when paused. WindowServer CPU delta similar for both (coarse). |
-| E8 | — | Not started (T1.8). |
+| E8 | **Partial** | Owner: Dock hover magnification and clicks on Dock icons work normally with the overlay above the Dock (Dock test step 4); no events swallowed. Pending: right-click Dock menus, dragging a file onto a Dock icon, menu bar menus/Control Center over the overlay, notification banners, system alerts. |
 
 Additional findings:
 
@@ -174,14 +174,15 @@ relaunched PoC (`open build/OverlayPoC.app`) also logs whether each change arriv
 
 | # | Dock setting (System Settings › Desktop & Dock) | Probe RESULT | Notification? |
 |---|---|---|---|
-| 1 | Current (baseline) | +1.0 pt, inset 65 pt | — |
-| 2 | Size: minimum | | |
-| 3 | Size: maximum | | |
-| 4 | Magnification on (hover over the Dock while probing is not needed) | | |
-| 5 | Automatically hide and show the Dock: on | | |
-| 6 | Position on screen: Left | | |
-| 7 | Position on screen: Right | | |
-| 8 | Back to bottom, original size | | |
+| 1 | Current (baseline, tile size 45) | +1.0 pt, inset 65 pt | — |
+| 2 | Size: minimum (tile size 22) | +1.0 pt, inset 42 pt; paws visually on the shelf | Yes (0.9 s) — also for intermediate sizes (insets 56/70/63/64) and a brief move to the left (inset l=49) and back |
+| 3 | Size: maximum (slider at "Large"; macOS capped tile size at 44 because the Dock already spans almost the full 1470 pt width) | +1.0 pt, inset 64 pt | Yes (0.3 s) |
+| 4 | Magnification on (large size 86) | +1.0 pt, inset 64 pt — magnification does not change the reservation | No change to notify (expected); owner: hover magnification and clicks unaffected by the cat, no `BLOCKED` events |
+| 5 | Automatically hide and show the Dock: on | Reservation exactly 0 pt (not ~4 pt) → pet moves to the screen bottom (owner confirmed) | Yes (0.01 s) when toggling auto-hide; **revealing the hidden Dock posts nothing and does not change `visibleFrame`** → with the overlay above the Dock level, the cat is drawn over the revealed Dock and its pixels cover Dock icons (owner observation) |
+| 5b | Auto-hide on, overlay level lowered to `dockWindow − 1` (19) via `POC_LEVEL_OFFSET=-1` | — | Owner: the revealed Dock slides **over** the cat, Dock icons above the cat are clickable, and the cat stays visible at the screen bottom when the Dock hides → **level 19 adopted** (ADR-0003 updated) |
+| 6 | Position on screen: Left (auto-hide off) | Left inset 49 pt, bottom 0 → pet on the screen bottom (owner confirmed) | Yes (0.8 s when auto-hide turned off, 0.65 s when moved left) |
+| 7 | Position on screen: Right | Right inset 49 pt, bottom 0 → pet on the screen bottom (owner confirmed) | Yes (0.8 s) |
+| 8 | Back to bottom, original size (tile 44), auto-hide off, overlay level 19 | +1.0 pt, inset 64 pt; owner: cat back on the Dock, paws visible with the overlay below the Dock level | Yes (0.45 s) |
 
 ## Manual click matrix (E2, to be run by the owner)
 
