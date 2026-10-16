@@ -1,0 +1,49 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon?
+._*
+
+# Xcode
+xcuserdata/
+*.xcuserstate
+*.xcscmblueprint
+DerivedData/
+build/
+*.xcresult
+*.xcarchive
+*.moved-aside
+*.hmap
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Packages/*/.swiftpm/
+
+# Release artifacts
+*.dmg
+*.zip
+dist/
+
+# Signing & secrets (never commit)
+*.p12
+*.cer
+*.certSigningRequest
+*.mobileprovision
+*.provisionprofile
+*.pem
+.env
+.env.*
+
+# Local git worktrees (e.g. spike branches)
+.worktrees/
+
+# Agent tooling (personal overrides)
+.claude/settings.local.json
+.cursor/*.local.*
+
+# Editors
+.vscode/
+.idea/
+*.swp
