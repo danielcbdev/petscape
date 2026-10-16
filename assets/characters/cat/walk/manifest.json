@@ -1,0 +1,10 @@
+{
+  "animation": "walk",
+  "frames": 8,
+  "canvas": [
+    512,
+    512
+  ],
+  "fps": 9,
+  "source": "AI-generated sheet; automated isolation; prototype, requires visual QA"
+}
