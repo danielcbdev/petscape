@@ -64,15 +64,15 @@ isolation: **nonisolated**.
 |---|---|
 | `Geometry/` | `Segment`, `ScreenID`, `ScreenDescriptor`, `QuartzPoint`/`QuartzRect`, `CoordinateConverter` (AppKit global ↔ Quartz global ↔ overlay-local, mask cells; see [coordinate-system.md](../specifications/coordinate-system.md)) on CoreGraphics' `CGPoint`/`CGRect`/`CGVector` |
 | `RunState/` | `UserIntent`, `SuspensionReason`, `RunState`/`RunStatus` (pure policy: intent × system conditions → visibility, frames, idle cursor monitor), `FullScreenSpaceRule` (Dock-window decision, T3.10) |
-| `Time/` | `SimulationTime`, `FixedStepAccumulator`, `Clock` protocol + `ManualClock` for tests |
+| `Time/` | `FixedStepAccumulator` (M5); `SimulationTime`, `Clock` + `ManualClock` when a consumer needs them (world time is a `Double` so far) |
 | `Random/` | `RandomSource` protocol, `SeededRandomSource` (SplitMix64) |
 | `Characters/` | `CharacterManifest` (Codable, schema v1), `ManifestValidator`, `CharacterDefinition` (validated, resolved model) |
 | `Animation/` | `AnimationClip`, `AnimationPlayer` (time → frame index, events), `AnimationRequest`, fallback resolution |
-| `Pets/` | `PetID`, `Pet` (state container), `Facing`, `Personality`, `Needs` |
-| `Surfaces/` | `Surface`, `SurfaceID`, `SurfaceKind`, `SurfaceMap` (queries), `DockGeometryEstimator` (pure heuristic) |
+| `Pets/` | `PetID`, `Pet` (state container), `SurfaceAttachment`, `Facing`; `Personality`, `Needs` (M9) |
+| `Surfaces/` | `Surface` (horizontal so far), `SurfaceID`, `SurfaceKind`, `SurfaceMap` (queries, diffs), `DockGeometryEstimator` (pure heuristic, M6) |
 | `Physics/` | `KinematicBody`, `PhysicsStepper`, `JumpSolver` (M8) |
-| `Behavior/` | `PetState` (HSM), `PetEvent`, `TransitionTable`, `ActivitySelector` (M9) |
-| `World/` | `PetWorld` (owns pets + surface map, `step(dt:)`), `WorldInput` (cursor, environment changes), `RenderSnapshot` |
+| `Behavior/` | `PetState` (MVP machine: spawning/walking/turning/recovering), `BehaviorTuning`; HSM, `PetEvent`, `TransitionTable`, `ActivitySelector` (M7–M9) |
+| `World/` | `PetWorld` (owns pets + surface map, `step(dt:into:)`), `WorldInput` (screens, surfaces; cursor in M10), `WorldEvent`, `RenderSnapshot` + `PetRenderState` |
 | `Diagnostics/` | `Log` categories (thin wrappers over `os.Logger`) |
 
 ### PetScapePlatform — macOS environment adapters
@@ -87,7 +87,7 @@ live in Core so they can be tested.
 | `Dock/` | `DockGeometryProvider` (feeds `DockGeometryEstimator` with screen data + optional Dock prefs hints) |
 | `Input/` | `CursorSampler` (`NSEvent.mouseLocation`, global mouse-moved monitor) |
 | `SystemEvents/` | `SystemEventsMonitor` (sleep/wake, screens sleep, session resign/become active, lock), `FullScreenSpaceDetector` (`activeSpaceDidChange` → two `CGWindowList` reads → `FullScreenSpaceRule`) |
-| `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore` |
+| `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore`, `InMemoryPreferencesStore` (tests) |
 | `Permissions/` | `AccessibilityPermission` (M12) |
 | `WindowTracking/` | `WindowTracker` protocol + implementations (M12) |
 | `LoginItem/` | `LoginItemController` via `SMAppService` (M9) |
@@ -100,7 +100,7 @@ decoding service, which is explicitly `nonisolated`/`@concurrent`.
 | Folder | Contents |
 |---|---|
 | `Overlay/` | `OverlayPanel` (NSPanel subclass), `OverlayContentView` (layer-backed, non-flipped `NSView`; receives mouse events while interactive), `OverlayWindowManager` (one per screen; also reports overlay occlusion, since only it knows the panels) |
-| `Layers/` | `PetLayer` (one `CALayer` per pet: frame image, size, anchor, mirroring; implicit animations disabled), `DebugOverlayLayer` (`CAShapeLayer`s, DEBUG only) |
+| `Layers/` | `PetLayer` (one `CALayer` per pet: frame image, size, anchor, mirroring; implicit animations disabled), `PetRenderer` (snapshot → layers keyed by `PetID`, global → overlay-local), `DebugOverlayLayer` (`CAShapeLayer`s, DEBUG only) |
 | `Images/` | `ImageDecoder` (ImageIO, downsampling), `FrameImageStore` (decoded `CGImage` cache), `HitMask` (alpha mask) |
 | `HitTesting/` | `PetHitTester` (global point → pet ID using masks) |
 
@@ -110,11 +110,11 @@ Imports: Core, Platform, Rendering, AppKit. Default isolation: **MainActor**.
 
 | Type | Role |
 |---|---|
-| `PetRuntime` | Owns `PetWorld`; applies run state (running/paused/hidden/suspended); bridges platform events into world inputs; pushes snapshots to renderer |
+| `PetRuntime` | Owns `PetWorld`, the `FixedStepAccumulator`, `PetRenderer` and `PetHitTester`; builds the `OverlayCoordinator`; per frame: steps → snapshot → render → hit masks; persists pause/hide through `PreferencesStore`; M5 walkway = bottom of the host screen |
 | `FrameDriver` | Protocol for "call me each display frame"; `DisplayLinkFrameDriver` wraps the overlay view's `CADisplayLink` (pause, preferred frame rate) |
-| `MousePassthroughController` | Decides `ignoresMouseEvents` per overlay from hit tests (`PetHitTesting`; M3 uses `RectangleHitTester`) |
+| `MousePassthroughController` | Decides `ignoresMouseEvents` per overlay from hit tests (`PetHitTesting`, implemented by Rendering's `PetHitTester`) |
 | `RunStateController` | Combines user intent (pause/hide) with system state (sleep, lock, occlusion, full-screen Space, no screens) via Core's `RunStatus.resolve` |
-| `OverlayCoordinator` | M3 wiring: screens → overlays, run state → visibility / frame driver / idle cursor monitor, cursor → pass-through; DEBUG test rectangle. `PetRuntime` (M5) builds on it |
+| `OverlayCoordinator` | M3 wiring: screens → overlays, run state → visibility / frame driver / idle cursor monitor, cursor → pass-through; hooks (`onFrame`, `onScreensChange`, `onStatusChange`, `onMouseEvent`, `needsFrames`, `preferredFramesPerSecond`) used by `PetRuntime` |
 | `CharacterLoader` | Loads manifest + frame images for a pack, reports errors |
 
 ### App target — SwiftUI shell and composition root

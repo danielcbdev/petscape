@@ -73,7 +73,7 @@ Inspected `assets/characters/cat/walk/` with `sips`, `file` and a Python/Pillow 
 | F11 | Solid vertical extent varies 352–409 px (head bob, tail) | Expected motion | — |
 | F12 | Character faces **right** | — | `defaultFacing: "right"`; mirror for left |
 | F13 | No idle, turn, sit, sleep, jump, fall or land clips | MVP turn is an instant flip; post-MVP needs art | See art dependencies in [roadmap.md](../product/roadmap.md) |
-| F14 | Ground speed of the walk cycle is unknown | Foot sliding if speed is guessed | Measure stride in M5 (T5.3) and record `nominalSpeed` |
+| F14 | Ground speed of the walk cycle (T5.3, 2026-10-17): the art is not a physically consistent in-place cycle. Planted front paws travel ≈ 78 px per stance (≈ 33 pt/s at 96 pt, 9 fps), planted rear paws ≈ 4–5 px/frame (≈ 8 pt/s), and the best frame-to-frame alignment of the whole ground-contact band gives 60–92 px per cycle (≈ 13–19 pt/s). New paw contacts appear in frames 3 (front) and 7 (rear) | Some foot sliding is unavoidable at any single speed | `nominalSpeed: 20` (minimizes the worst slip, ≈ 13 pt/s on either pair); `footstep` on frames 3 and 7. The DEBUG Animation Preview scrolls ground ticks at an adjustable speed for the owner's visual check (AC-07); re-measure if the art is re-exported |
 | F15 | `.DS_Store` files were tracked in git under `assets/` and at the root | Noise in the repo/bundle | Done: untracked and ignored (T0.2); never copied into the app bundle (checked in T4.9) |
 
 Sizes on disk: frames ≈ 1.5 MB total, atlas ≈ 1.48 MB, GIF ≈ 0.30 MB.

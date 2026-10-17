@@ -33,13 +33,11 @@ Inspect with Instruments › os_signpost / Points of Interest.
 |---|---|
 | Show overlay bounds | M3 |
 | Show pass-through state (tint when interactive) | M3 |
-| Show test rectangle (96 pt pass-through target in place of the pet; on by default) | M3 |
-| Pause frames / Hide overlay (stand-ins for the M5 menu items; drive the run state) | M3 |
-| Animation Preview (done in M4): plays any clip in place at 1×/1.5×/2× with the anchor baseline and cross, mirroring toggle, declared vs. measured frame rate; logs `Animation preview '<clip>': measured N frame changes/s` (category `animation`). Frame-by-frame stepping is not implemented yet | M4 |
+| Animation Preview (done in M4): plays any clip in place at 1×/1.5×/2× with the anchor baseline and cross, mirroring toggle, declared vs. measured frame rate; logs `Animation preview '<clip>': measured N frame changes/s` (category `animation`). Since M5 the baseline has tick marks scrolling at a ground speed (starts at the clip's `nominalSpeed`, stepper to adjust): planted paws should move with the ticks (foot sliding, AC-07). Frame-by-frame stepping is not implemented yet | M4–M5 |
 | Show anchor, hit mask, sprite bounds | M4–M5 |
 | Show surfaces (segments with IDs) and Dock estimate | M5–M6 |
 | Show pet state, clip, frame, facing, needs | M5–M9 |
-| Frame stats (measured FPS, step time, frame-image memory) from signposts/counters | M5 |
+| Frame stats (step time, frame-image memory) from signposts/counters; the measured frame rate is logged instead (see below) | later |
 | Dock offset stepper | M6 |
 | Simulation speed (0.25×, 1×, 4×) and single-step while paused | M7 |
 | Force events (surface lost, startled, low energy) | M7–M9 |
@@ -55,6 +53,19 @@ DEBUG launch arguments (ignored in Release):
 ```bash
 open -n build/DerivedData/Build/Products/Debug/PetScape.app --args --animation-preview
 ```
+
+The M3 test rectangle and the "Pause frames" / "Hide overlay" stand-ins were removed in M5: the cat is the
+pass-through target and the real Pause/Resume and Show/Hide Pet items drive the run state.
+
+DEBUG log lines added in M5 (useful predicates: `category == "simulation"`, `category == "performance"`):
+
+| Line | Meaning |
+|---|---|
+| `Pet 1 'cat' spawned on screen:<id>:bottom` (notice) | Character handed to the runtime and placed |
+| `Pet 1: walking → turning`, `Pet 1 reached an edge` (debug) | State machine transitions; the turn hold is the time between `walking → turning` and `turning → walking` |
+| `Pet 1 recovered: <reason>` (error) | An invariant failed (surface lost, out of bounds, invalid numbers) |
+| `Mouse down on pet 1 at (x, y)` (debug) | A click reached the overlay over the cat's opaque pixels (AC-M5-02) |
+| `Frames: 60.0 fps, 60.0 steps/s over 10.0 s` (debug, `performance`) | Delivered display-link rate while frames run (T5.7) |
 
 The debug overlay is drawn by `DebugOverlayLayer` (`CAShapeLayer`s) in `OverlayContentView` from data in the snapshot; it must
 not affect simulation.

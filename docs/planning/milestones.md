@@ -13,7 +13,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M2 | App skeleton | v0.1.0 | In review (2026-10-16: build, lint, package tests and manual launch/Quit verified; UI launch test pending Automation Mode on the owner's Mac; T2.8 CI awaits D-06) |
 | M3 | Transparent overlay | v0.1.0 | In review (owner approved the manual matrix; resolution-change log evidence still missing, PoC S8) |
 | M4 | Animation system | v0.1.0 | In review (2026-10-17: lint, package tests and build verified; walk measured at 9.00 fps in the DEBUG preview; owner visual check of the anchor (AC-M4-03) pending) |
-| M5 | Rendering & automatic walking | v0.1.0 | Not started |
+| M5 | Rendering & automatic walking | v0.1.0 | In review (2026-10-17: lint, 256 package tests and build verified; walking, turning, pause/hide with persistence and clicks on the cat verified in the running app; owner review of foot sliding (AC-07) pending) |
 | M6 | Dock integration & MVP hardening | v0.1.0 | Not started |
 | M7 | Basic physics | v0.2.0 | Not started |
 | M8 | Jumps & landings | v0.2.0 | Not started |
@@ -103,6 +103,23 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** foot sliding (speed vs art); jitter.
 - **Tests:** accumulator, world step and FSM tests; preferences tests; manual walking/visual checks.
 - **DoD:** FR-02, FR-04, FR-07, FR-08, FR-09, FR-11, FR-12, FR-18 met (walking on the screen bottom).
+- **Verification (2026-10-17, macOS 27.0.1, built-in Retina 1470 × 956 pt, Dock at the bottom, Debug build):**
+  `make lint` clean, `make test-core` 256 tests pass (Core 156, Rendering 44, Platform 36, Runtime 20), `make build`
+  0 compiler warnings. Automated: AC-07 speed ±5% over 10 s both directions, AC-08 sprite inside the segment over
+  100 turns (3 anchors), AC-09 0.15 s hold + mirrored walk back + no drift, AC-11 frozen while not stepped and no
+  catch-up after resume, AC-18 store round-trip, AC-M5-02 mask hit and 5 pt outside (incl. mirroring and scale).
+  Running app (screenshots + DEBUG log): cat spawned on `screen:1:bottom`, display link 60.0 fps / 60.0 steps/s;
+  turn at the right edge with the sprite inside the screen, walk back mirrored; hold measured 0.150 s in the log;
+  menu items via System Events: "Hide Pet/Show Pet" and "Pause/Resume" labels follow the state; paused cat
+  pixel-identical over 3 s and resumed from the same place; Hide ordered the overlay out, Show restored it; quit +
+  relaunch restored `paused=true` (cat drawn, frozen) and `hidden=true` (no overlay window, "Show Pet");
+  synthetic click on the cat logged `Mouse down on pet 1`, `app active=false overlay key=false`; cursor just
+  above its back returned to pass-through. CPU (Debug, `top`): ~2.5% walking, 0.0% paused; footprint 29 MB.
+  **Not verified / pending:** owner review of foot sliding (AC-07 Man; `nominalSpeed` 20 is a compromise, see
+  [asset-format.md F14](../specifications/asset-format.md#current-asset-audit-2026-10-16)); AC-02 VoiceOver;
+  AC-14 full click-through matrix around the walking cat; AC-04 look on light/dark wallpapers. The M5 walkway is
+  the screen bottom, so most of the time the cat walks **behind the Dock** (overlay level is below the Dock);
+  the Dock surface is M6.
 
 ## M6 — Dock integration & MVP hardening
 

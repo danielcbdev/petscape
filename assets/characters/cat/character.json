@@ -16,7 +16,7 @@
     "walk": {
       "playback": "loop",
       "fps": 9,
-      "nominalSpeed": 40,
+      "nominalSpeed": 20,
       "frames": [
         { "image": "walk/frames/walk_01.png" },
         { "image": "walk/frames/walk_02.png" },
