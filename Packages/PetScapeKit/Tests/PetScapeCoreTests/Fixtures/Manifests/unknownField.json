@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture",
+  "displayName": "Fixture",
+  "author": "Someone",
+  "defaultAnimation": "walk",
+  "canvas": { "width": 64, "height": 64, "depth": 1 },
+  "displaySize": { "width": 32, "height": 32 },
+  "anchor": { "x": 0.5, "y": 0.1 },
+  "animations": {
+    "walk": {
+      "fps": 8,
+      "loopStart": 2,
+      "frames": [{ "image": "walk/walk_01.png", "tint": "#ff0000" }]
+    }
+  }
+}

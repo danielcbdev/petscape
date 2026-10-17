@@ -32,7 +32,7 @@ let package = Package(
             dependencies: ["PetScapeCore", "PetScapePlatform", "PetScapeRendering"],
             swiftSettings: mainActorByDefault
         ),
-        .testTarget(name: "PetScapeCoreTests", dependencies: ["PetScapeCore"]),
+        .testTarget(name: "PetScapeCoreTests", dependencies: ["PetScapeCore"], resources: [.copy("Fixtures")]),
         .testTarget(
             name: "PetScapePlatformTests",
             dependencies: ["PetScapePlatform"],

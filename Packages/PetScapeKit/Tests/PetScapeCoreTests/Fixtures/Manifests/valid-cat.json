@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "id": "cat",
+  "displayName": "Cat",
+  "defaultAnimation": "walk",
+  "defaultFacing": "right",
+  "canvas": { "width": 512, "height": 512 },
+  "displaySize": { "width": 96, "height": 96 },
+  "anchor": { "x": 0.5, "y": 0.074 },
+  "fallbacks": {
+    "idle": "walk",
+    "fall": "walk",
+    "land": "walk"
+  },
+  "animations": {
+    "walk": {
+      "playback": "loop",
+      "fps": 9,
+      "nominalSpeed": 40,
+      "frames": [
+        { "image": "walk/frames/walk_01.png" },
+        { "image": "walk/frames/walk_02.png" },
+        { "image": "walk/frames/walk_03.png", "events": ["footstep"] },
+        { "image": "walk/frames/walk_04.png" },
+        { "image": "walk/frames/walk_05.png" },
+        { "image": "walk/frames/walk_06.png" },
+        { "image": "walk/frames/walk_07.png", "events": ["footstep"] },
+        { "image": "walk/frames/walk_08.png" }
+      ]
+    }
+  }
+}

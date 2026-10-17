@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture",
+  "displayName": "Fixture",
+  "defaultAnimation": "walk",
+  "canvas": { "width": 64, "height": 64 },
+  "displaySize": { "width": 32, "height": 32 },
+  "anchor": { "x": 0.5, "y": 0.1 },
+  "animations": {
+    "walk": { "fps": 8, "frames": [{ "image": "walk/walk_01.png" }] },
+    "sit": { "frames": [{ "image": "sit/sit_01.png", "duration": 0.2 }, { "image": "sit/sit_02.png" }] },
+    "nap": { "fps": 120, "frames": [{ "image": "nap/nap_01.png" }] },
+    "yawn": { "fps": 8, "frames": [{ "image": "yawn/yawn_01.png", "duration": 0 }] }
+  }
+}

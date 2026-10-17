@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture",
+  "displayName": "Fixture",
+  "defaultAnimation": "walk",
+  "canvas": { "width": 64, "height": 64 },
+  "displaySize": { "width": 0, "height": 32 },
+  "anchor": { "x": 0.5, "y": 0.1 },
+  "animations": {
+    "walk": { "fps": 8, "frames": [{ "image": "walk/walk_01.png" }] },
+    "stretch": { "fps": 8, "canvas": { "width": 64, "height": -1 }, "frames": [{ "image": "stretch/stretch_01.png" }] }
+  }
+}

@@ -1,0 +1,75 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture-cat",
+  "displayName": "Fixture Cat",
+  "defaultAnimation": "idle",
+  "defaultFacing": "left",
+  "canvas": { "width": 64, "height": 64 },
+  "displaySize": { "width": 32, "height": 32 },
+  "anchor": { "x": 0.5, "y": 0.1 },
+  "fallbacks": {
+    "idle": "walk",
+    "fall": "jump",
+    "jump": "walk",
+    "broken": "sit"
+  },
+  "sheets": {
+    "atlas": { "image": "sit/sit_atlas.png", "columns": 2, "rows": 2 }
+  },
+  "personality": { "curiosity": 0.7, "laziness": 0.4 },
+  "animations": {
+    "walk": {
+      "fps": 8,
+      "nominalSpeed": 40,
+      "frames": [
+        { "image": "walk/walk_01.png" },
+        { "image": "walk/walk_02.png", "events": ["footstep"] },
+        { "image": "walk/walk_03.png" },
+        { "image": "walk/walk_04.png", "events": ["footstep"] }
+      ]
+    },
+    "walk-right": {
+      "fps": 8,
+      "facing": "right",
+      "mirrorable": false,
+      "frames": [
+        { "image": "walk-right/walk_01.png" },
+        { "image": "walk-right/walk_02.png" },
+        { "image": "walk-right/walk_03.png" },
+        { "image": "walk-right/walk_04.png" }
+      ]
+    },
+    "climb": {
+      "fps": 6,
+      "mirrorable": false,
+      "variants": { "right": "walk-right" },
+      "alignment": "left",
+      "anchor": { "x": 0.2, "y": 0.5 },
+      "canvas": { "width": 64, "height": 96 },
+      "frames": [{ "image": "climb/climb_01.png" }, { "image": "climb/climb_02.png" }]
+    },
+    "sit-down": {
+      "playback": "once",
+      "next": "sit",
+      "interruptible": false,
+      "frames": [
+        { "sheet": "atlas", "cell": 0, "duration": 0.1 },
+        { "sheet": "atlas", "cell": 1, "duration": 0.2, "events": ["contact"] }
+      ]
+    },
+    "sit": {
+      "playback": "pingPong",
+      "fps": 4,
+      "frames": [{ "sheet": "atlas", "cell": 2 }, { "sheet": "atlas", "cell": 3 }]
+    },
+    "yawn": {
+      "playback": "once",
+      "fps": 8,
+      "frames": [{ "image": "yawn/yawn_01.png" }, { "image": "yawn/yawn_02.png" }]
+    },
+    "broken": {
+      "fps": 120,
+      "frames": [{ "image": "broken/broken_01.png" }]
+    }
+  }
+}

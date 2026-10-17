@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "id": "fixture",
+  "displayName": "Fixture",
+  "defaultAnimation": "walk",
+  "canvas": { "width": 64, "height": 64 },
+  "displaySize": { "width": 32, "height": 32 },
+  "anchor": { "x": 0.5, "y": 0.1 },
+  "sheets": {
+    "atlas": { "image": "atlas.png", "columns": 4, "rows": 2 }
+  },
+  "animations": {
+    "walk": { "fps": 8, "frames": [{ "sheet": "atlas", "cell": 0 }] },
+    "both": { "fps": 8, "frames": [{ "image": "both/both_01.png", "sheet": "atlas", "cell": 1 }] },
+    "neither": { "fps": 8, "frames": [{ "events": ["footstep"] }] },
+    "escape": { "fps": 8, "frames": [{ "image": "../outside.png" }] },
+    "absolute": { "fps": 8, "frames": [{ "image": "/tmp/frame.png" }] },
+    "not-png": { "fps": 8, "frames": [{ "image": "walk/walk_01.jpg" }] },
+    "unknown-sheet": { "fps": 8, "frames": [{ "sheet": "missing", "cell": 0 }] },
+    "out-of-range": { "fps": 8, "frames": [{ "sheet": "atlas", "cell": 8 }] }
+  }
+}
