@@ -130,10 +130,14 @@ struct MousePassthroughControllerTests {
 
     @Test func hitTesterCanBeReplaced() {
         let h = Harness()
-        h.controller.hitTester = RectangleHitTester(rect: nil)
+        let empty = FakeHitTester()
+        empty.petRect = .null
+        h.controller.hitTester = empty
         h.move(Self.onPet)
         #expect(h.controller.state == .passThrough)
-        h.controller.hitTester = RectangleHitTester(rect: CGRect(x: 0, y: 0, width: 1000, height: 100))
+        let wide = FakeHitTester()
+        wide.petRect = CGRect(x: 0, y: 0, width: 1000, height: 100)
+        h.controller.hitTester = wide
         h.move(Self.offPet)
         #expect(h.controller.state == .interactive)
     }

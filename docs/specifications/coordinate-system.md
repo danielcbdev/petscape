@@ -73,9 +73,9 @@ The Platform `ScreenProvider` produces them; Core never touches `NSScreen`.
 
 - Simulation and layout are in points; Core Animation composites at each screen's backing scale.
 - Texture pixel size is chosen from the **maximum** backing scale among connected screens.
-- Sprite positions are not pixel-snapped while moving (snapping causes stutter at low speeds);
-  stationary sprites may be snapped to `round(p × scale) / scale` to avoid soft edges — to be
-  decided visually in M5.
+- Sprite positions are not pixel-snapped while moving (snapping causes stutter at low speeds).
+  M5 does not snap stationary sprites either (a turn holds only 0.15 s and a paused cat showed no
+  visible softness); revisit if idle states (M9) look soft.
 
 ## Configuration changes
 

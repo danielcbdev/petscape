@@ -43,6 +43,26 @@ enum Fixtures {
         return try CharacterDefinition.resolve(manifest, report: ManifestValidator.validate(manifest))
     }
 
+    /// A character with a single looping `walk` clip (default, facing right, mirrorable), 96 × 96 pt like the cat.
+    static func walkingDefinition(
+        nominalSpeed: Double? = 20,
+        frameCount: Int = 8,
+        fps: Double = 9,
+        anchorX: Double = 0.5,
+        footstepFrames: [Int] = [2, 6]
+    ) throws -> CharacterDefinition {
+        let frames = (0..<frameCount).map { index in
+            CharacterManifest.Frame(
+                image: "walk/walk_\(index + 1).png", events: footstepFrames.contains(index) ? ["footstep"] : nil)
+        }
+        let manifest = CharacterManifest(
+            id: "walker", displayName: "Walker", defaultAnimation: "walk", defaultFacing: .right,
+            canvas: .init(width: 512, height: 512), displaySize: .init(width: 96, height: 96),
+            anchor: .init(x: anchorX, y: 0.074),
+            animations: ["walk": .init(fps: fps, frames: frames, nominalSpeed: nominalSpeed)])
+        return try CharacterDefinition.resolve(manifest, report: ManifestValidator.validate(manifest))
+    }
+
     /// A clip of `frameCount` image frames at `fps`; `events` maps a frame index to its declared events.
     static func clip(
         _ name: String = "clip",

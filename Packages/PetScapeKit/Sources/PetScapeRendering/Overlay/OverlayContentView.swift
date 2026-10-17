@@ -7,6 +7,8 @@ import QuartzCore
 /// While pass-through is off it receives the mouse and forwards it through `onMouseEvent`.
 public final class OverlayContentView: NSView {
     public var onMouseEvent: ((OverlayMouseEvent) -> Void)?
+    /// Parent of the pet layers; its coordinates are overlay-local (same bounds as the view).
+    public let petLayerHost = CALayer()
 
     #if DEBUG
         private let debugLayer = DebugOverlayLayer()
@@ -21,6 +23,9 @@ public final class OverlayContentView: NSView {
         layer.backgroundColor = .clear
         layer.isOpaque = false
         setAccessibilityElement(false)
+        petLayerHost.actions = ["bounds": NSNull(), "position": NSNull(), "frame": NSNull(), "sublayers": NSNull()]
+        petLayerHost.frame = layer.bounds
+        layer.addSublayer(petLayerHost)
         #if DEBUG
             debugLayer.layout(in: layer.bounds)
             layer.addSublayer(debugLayer.layer)
@@ -39,12 +44,13 @@ public final class OverlayContentView: NSView {
 
     override public func layout() {
         super.layout()
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        petLayerHost.frame = bounds
         #if DEBUG
-            CATransaction.begin()
-            CATransaction.setDisableActions(true)
             debugLayer.layout(in: bounds)
-            CATransaction.commit()
         #endif
+        CATransaction.commit()
     }
 
     // Mouse-moved events reach a non-key window only through a tracking area.
@@ -79,11 +85,6 @@ public final class OverlayContentView: NSView {
 
         public func setInteractive(_ isInteractive: Bool) {
             debugLayer.isInteractive = isInteractive
-        }
-
-        /// Test target drawn in place of the pet (M3); `overlayRect` is overlay-local, `nil` removes it.
-        public func setDebugTarget(_ overlayRect: CGRect?) {
-            debugLayer.targetRect = overlayRect
         }
     #endif
 }

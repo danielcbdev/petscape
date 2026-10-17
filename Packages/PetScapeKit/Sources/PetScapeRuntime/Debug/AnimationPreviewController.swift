@@ -8,10 +8,13 @@
     /// `AnimationController` the pets use, so the declared fps, the anchor and mirroring can be checked by eye.
     ///
     /// The baseline and cross mark the manifest anchor: the paws must rest on the line and the sprite must not
-    /// slide when mirrored. Not a production renderer (that is `PetLayer`, M5).
+    /// slide when mirrored. Tick marks on the baseline scroll at the ground speed (the clip's `nominalSpeed`,
+    /// adjustable here): a planted paw should travel with them (T5.3, no foot sliding). Not a production
+    /// renderer (that is `PetLayer`).
     public final class AnimationPreviewController: NSObject, NSWindowDelegate {
         private static let scales: [Double] = [1, 1.5, 2]
         private static let groundY: CGFloat = 56
+        private static let tickSpacing: CGFloat = 16
 
         private let character: LoadedCharacter
         private var controller: AnimationController
@@ -20,6 +23,13 @@
         private let petLayer = CALayer()
         private let baselineLayer = CAShapeLayer()
         private let anchorLayer = CAShapeLayer()
+        private let groundLayer = CAShapeLayer()
+        private let speedStepper = NSStepper()
+        private let speedLabel = NSTextField(labelWithString: "")
+        /// Ground speed in points/s at scale 1; starts at the clip's `nominalSpeed`.
+        private var groundSpeed: Double = 0
+        /// Distance the ground has moved, in canvas points (wraps at the tick spacing).
+        private var groundOffset: CGFloat = 0
         private let infoLabel = NSTextField(labelWithString: "")
         private let clipPopUp = NSPopUpButton()
         private let scaleControl = NSSegmentedControl()
@@ -36,7 +46,7 @@
             self.character = character
             self.controller = AnimationController(definition: character.definition)
             self.window = NSWindow(
-                contentRect: NSRect(x: 0, y: 0, width: 420, height: 380), styleMask: [.titled, .closable, .resizable],
+                contentRect: NSRect(x: 0, y: 0, width: 540, height: 380), styleMask: [.titled, .closable, .resizable],
                 backing: .buffered, defer: true)
             super.init()
             buildWindow()
@@ -74,6 +84,7 @@
             lastTimestamp = link.timestamp
             controller.advance(by: dt, into: &events)
             events.removeAll(keepingCapacity: true)
+            moveGround(by: dt)
 
             let frame = controller.currentFrame
             guard frame != shownFrame else { return }
@@ -92,6 +103,19 @@
             petLayer.setAffineTransform(frame.mirrored ? CGAffineTransform(scaleX: -1, y: 1) : .identity)
             CATransaction.commit()
             updateInfo()
+        }
+
+        /// The ground slides backwards under the walking pet: left when it faces right, right when mirrored.
+        private func moveGround(by dt: Double) {
+            guard dt > 0, groundSpeed > 0 else { return }
+            let spacing = Self.tickSpacing * scale
+            let direction: CGFloat = controller.facing == .right ? -1 : 1
+            groundOffset = (groundOffset + direction * CGFloat(groundSpeed * scale * dt)).truncatingRemainder(
+                dividingBy: spacing)
+            CATransaction.begin()
+            CATransaction.setDisableActions(true)
+            groundLayer.setAffineTransform(CGAffineTransform(translationX: groundOffset, y: 0))
+            CATransaction.commit()
         }
 
         private func recordFrameChange(at time: CFTimeInterval) {
@@ -117,7 +141,7 @@
             window.title = "Animation Preview — \(character.definition.displayName)"
             window.isReleasedWhenClosed = false
             window.delegate = self
-            window.minSize = NSSize(width: 360, height: 320)
+            window.minSize = NSSize(width: 520, height: 320)
 
             for name in character.definition.clips.keys.sorted() { clipPopUp.addItem(withTitle: name) }
             clipPopUp.selectItem(withTitle: character.definition.defaultClipName)
@@ -135,6 +159,15 @@
             mirrorCheckbox.target = self
             mirrorCheckbox.action = #selector(mirrorChanged)
 
+            groundSpeed = controller.player.clip.nominalSpeed ?? 0
+            speedStepper.minValue = 0
+            speedStepper.maxValue = 120
+            speedStepper.increment = 1
+            speedStepper.doubleValue = groundSpeed
+            speedStepper.target = self
+            speedStepper.action = #selector(speedChanged)
+            updateSpeedLabel()
+
             infoLabel.font = .monospacedSystemFont(ofSize: NSFont.smallSystemFontSize, weight: .regular)
             infoLabel.lineBreakMode = .byWordWrapping
             infoLabel.maximumNumberOfLines = 0
@@ -145,11 +178,12 @@
             canvas.layer?.borderWidth = 1
             canvas.onLayout = { [weak self] in self?.layoutCanvas() }
 
-            for layer in [baselineLayer, anchorLayer] {
+            for layer in [baselineLayer, anchorLayer, groundLayer] {
                 layer.fillColor = nil
                 layer.lineWidth = 1
-                layer.actions = ["path": NSNull(), "position": NSNull()]
+                layer.actions = ["path": NSNull(), "position": NSNull(), "transform": NSNull()]
             }
+            groundLayer.strokeColor = NSColor.secondaryLabelColor.cgColor
             baselineLayer.strokeColor = NSColor.systemRed.withAlphaComponent(0.7).cgColor
             baselineLayer.lineDashPattern = [4, 3]
             anchorLayer.strokeColor = NSColor.systemRed.cgColor
@@ -163,11 +197,13 @@
             ]
             petLayer.borderColor = NSColor.systemBlue.withAlphaComponent(0.4).cgColor
             petLayer.borderWidth = 1
+            canvas.layer?.masksToBounds = true
+            canvas.layer?.addSublayer(groundLayer)
             canvas.layer?.addSublayer(baselineLayer)
             canvas.layer?.addSublayer(petLayer)
             canvas.layer?.addSublayer(anchorLayer)
 
-            let controls = NSStackView(views: [clipPopUp, scaleControl, mirrorCheckbox])
+            let controls = NSStackView(views: [clipPopUp, scaleControl, mirrorCheckbox, speedLabel, speedStepper])
             controls.orientation = .horizontal
             let stack = NSStackView(views: [controls, canvas, infoLabel])
             stack.orientation = .vertical
@@ -213,6 +249,19 @@
             cross.move(to: CGPoint(x: ground.x, y: ground.y - 8))
             cross.addLine(to: CGPoint(x: ground.x, y: ground.y + 8))
             anchorLayer.path = cross
+
+            // Ticks below the baseline, one spacing beyond each side so scrolling never shows a gap.
+            let spacing = Self.tickSpacing * scale
+            let ticks = CGMutablePath()
+            var x = -spacing
+            while x <= bounds.width + spacing {
+                ticks.move(to: CGPoint(x: x, y: ground.y))
+                ticks.addLine(to: CGPoint(x: x, y: ground.y - 6))
+                x += spacing
+            }
+            groundLayer.path = ticks
+            groundOffset = 0
+            groundLayer.setAffineTransform(.identity)
             CATransaction.commit()
         }
 
@@ -239,7 +288,19 @@
         @objc private func clipChanged() {
             guard let name = clipPopUp.titleOfSelectedItem else { return }
             controller.request(AnimationRequest(clip: name, priority: AnimationRequest.criticalPriority, restart: true))
+            groundSpeed = controller.player.clip.nominalSpeed ?? 0
+            speedStepper.doubleValue = groundSpeed
+            updateSpeedLabel()
             resetMeasurement()
+        }
+
+        @objc private func speedChanged() {
+            groundSpeed = speedStepper.doubleValue
+            updateSpeedLabel()
+        }
+
+        private func updateSpeedLabel() {
+            speedLabel.stringValue = "ground \(groundSpeed.formatted()) pt/s"
         }
 
         @objc private func scaleChanged() {

@@ -5,10 +5,33 @@ import PetScapeRendering
 
 /// Runtime orchestration of the transparent overlay (M3): screens → overlays, system events and user
 /// intent → run state → visibility / frame driver / idle cursor monitor, and cursor → pass-through.
-/// `PetRuntime` (M5) adds the simulation on top of the same frame callback.
+/// `PetRuntime` (M5) adds the simulation through the hooks below; each frame runs `onFrame` (simulate,
+/// render) before the pass-through update, so the cursor is tested against the pet as just drawn.
 public final class OverlayCoordinator {
     public let runState: RunStateController
     public let passthrough: MousePassthroughController
+
+    /// Called on every display frame while frames run, before the pass-through update.
+    public var onFrame: ((_ timestamp: TimeInterval) -> Void)?
+    /// Called after the screens, the host overlay or its frame driver changed (also once from `start()`).
+    public var onScreensChange: (() -> Void)?
+    /// Called after every run status change has been applied.
+    public var onStatusChange: ((RunStatus) -> Void)?
+    /// Mouse events the overlay received (only while pass-through is off, i.e. over a pet).
+    public var onMouseEvent: ((OverlayMouseEvent) -> Void)?
+
+    /// `false` stops the frame driver even while running, when nothing on screen changes (no pet placed).
+    public var needsFrames = true {
+        didSet { if needsFrames != oldValue { updateFrameDriver() } }
+    }
+
+    /// Frame rate asked from the display link (T5.7): 60 caps ProMotion displays at the simulation rate.
+    public var preferredFramesPerSecond: Float = 60 {
+        didSet { frameDriver?.preferredFramesPerSecond = preferredFramesPerSecond }
+    }
+
+    /// Converter for the current screens; `nil` without screens.
+    public private(set) var converter: CoordinateConverter?
 
     private let screenProvider: ScreenProvider
     private let cursorSampler: CursorSampler
@@ -16,9 +39,7 @@ public final class OverlayCoordinator {
     private let fullScreenDetector: FullScreenSpaceDetector
     private let overlays: OverlayWindowManager
     private let makeFrameDriver: (NSView) -> any FrameDriver
-    private let hitTester = RectangleHitTester()
 
-    private var converter: CoordinateConverter?
     private var hostScreenID: ScreenID?
     private var frameDriver: (any FrameDriver)?
     private var isStarted = false
@@ -30,6 +51,7 @@ public final class OverlayCoordinator {
         fullScreenDetector: FullScreenSpaceDetector,
         overlays: OverlayWindowManager = OverlayWindowManager(),
         runState: RunStateController,
+        hitTester: any PetHitTesting,
         makeFrameDriver: @escaping (NSView) -> any FrameDriver = { DisplayLinkFrameDriver(view: $0) }
     ) {
         self.screenProvider = screenProvider
@@ -42,6 +64,16 @@ public final class OverlayCoordinator {
         var applyIgnores: (Bool) -> Void = { _ in }
         passthrough = MousePassthroughController(hitTester: hitTester) { applyIgnores($0) }
         applyIgnores = { [weak self] ignores in self?.applyIgnoresMouseEvents(ignores) }
+    }
+
+    /// The screen hosting the overlay with the pets (MVP: the primary screen; M6: the Dock's screen).
+    public var hostScreen: ScreenDescriptor? {
+        hostScreenID.flatMap { converter?.screen(withID: $0) }
+    }
+
+    /// The host overlay's content view (pet layers go into its `petLayerHost`).
+    public var hostContentView: OverlayContentView? {
+        hostScreenID.flatMap { overlays.contentView(for: $0) }
     }
 
     public func start() {
@@ -71,6 +103,10 @@ public final class OverlayCoordinator {
         cursorSampler.stopMonitoring()
         frameDriver?.invalidate()
         frameDriver = nil
+        onFrame = nil
+        onScreensChange = nil
+        onStatusChange = nil
+        onMouseEvent = nil
         runState.onChange = nil
         overlays.onOcclusionChange = nil
         overlays.onMouseEvent = nil
@@ -92,8 +128,12 @@ public final class OverlayCoordinator {
             replaceFrameDriver()
         }
         #if DEBUG
-            layOutDebugTarget(on: host)
+            for id in overlays.screenIDs {
+                overlays.contentView(for: id)?.showsBounds = showsOverlayBounds
+                overlays.contentView(for: id)?.showsPassthroughState = showsPassthroughState
+            }
         #endif
+        onScreensChange?()
     }
 
     /// The display link belongs to the host overlay's view, so it follows that overlay.
@@ -102,16 +142,22 @@ public final class OverlayCoordinator {
         frameDriver = nil
         guard let hostScreenID, let view = overlays.contentView(for: hostScreenID) else { return }
         let driver = makeFrameDriver(view)
-        driver.onFrame = { [weak self] _ in self?.frame() }
-        driver.isPaused = !runState.status.isFrameDriverRunning
+        driver.onFrame = { [weak self] timestamp in self?.frame(timestamp) }
+        driver.preferredFramesPerSecond = preferredFramesPerSecond
         frameDriver = driver
+        updateFrameDriver()
+    }
+
+    /// Frames run only while running and while something on screen changes (`needsFrames`).
+    private func updateFrameDriver() {
+        frameDriver?.isPaused = !(runState.status.isFrameDriverRunning && needsFrames)
     }
 
     // MARK: Run state
 
     private func apply(_ status: RunStatus) {
         overlays.setVisible(status.isOverlayVisible)
-        frameDriver?.isPaused = !status.isFrameDriverRunning
+        updateFrameDriver()
         if status.isIdleCursorMonitorNeeded {
             cursorSampler.startMonitoring { [weak self] sample in self?.passthrough.update(with: sample) }
         } else {
@@ -123,17 +169,20 @@ public final class OverlayCoordinator {
             // No frames: take one sample now so the state is right before the first mouse move.
             passthrough.update(with: cursorSampler.sample())
         }
+        onStatusChange?(status)
     }
 
     // MARK: Per frame and mouse
 
-    private func frame() {
+    private func frame(_ timestamp: TimeInterval) {
         Signposts.measure(Signposts.Interval.frame) {
+            onFrame?(timestamp)
             passthrough.update(with: cursorSampler.sample())
         }
     }
 
     private func handle(_ event: OverlayMouseEvent) {
+        onMouseEvent?(event)
         switch event.kind {
         case .moved:
             passthrough.update(
@@ -156,7 +205,7 @@ public final class OverlayCoordinator {
         #endif
     }
 
-    /// DEBUG evidence for AC-21: clicks on the target never activate PetScape or make the overlay key.
+    /// DEBUG evidence for AC-21: clicks on the pet never activate PetScape or make the overlay key.
     private func logReceived(_ event: OverlayMouseEvent) {
         #if DEBUG
             let isKey = hostScreenID.flatMap { overlays.panel(for: $0)?.isKeyWindow } ?? false
@@ -169,18 +218,6 @@ public final class OverlayCoordinator {
     // MARK: DEBUG
 
     #if DEBUG
-        /// Size of the M3 test rectangle: the default pet canvas (FR-04, 96 pt).
-        private static let debugTargetSize = CGSize(width: 96, height: 96)
-
-        /// When on, a rectangle stands in for the pet: bottom-centered on the host screen, standing on the
-        /// top edge of the Dock reservation (`visibleFrame.minY`), and is the pass-through target.
-        public var showsDebugTarget = false {
-            didSet {
-                guard showsDebugTarget != oldValue else { return }
-                layOutDebugTarget(on: hostScreenID.flatMap { converter?.screen(withID: $0) })
-            }
-        }
-
         public var showsOverlayBounds = false {
             didSet { for id in overlays.screenIDs { overlays.contentView(for: id)?.showsBounds = showsOverlayBounds } }
         }
@@ -191,27 +228,6 @@ public final class OverlayCoordinator {
                     overlays.contentView(for: id)?.showsPassthroughState = showsPassthroughState
                 }
             }
-        }
-
-        private func layOutDebugTarget(on screen: ScreenDescriptor?) {
-            guard let screen, let converter, showsDebugTarget else {
-                hitTester.rect = nil
-                if let id = screen?.id { overlays.contentView(for: id)?.setDebugTarget(nil) }
-                passthrough.reset()
-                return
-            }
-            let size = Self.debugTargetSize
-            let rect = CGRect(
-                x: screen.frame.midX - size.width / 2, y: screen.visibleFrame.minY, width: size.width,
-                height: size.height)
-            hitTester.rect = rect
-            let view = overlays.contentView(for: screen.id)
-            view?.setDebugTarget(converter.overlayRect(fromGlobal: rect, on: screen))
-            view?.showsBounds = showsOverlayBounds
-            view?.showsPassthroughState = showsPassthroughState
-            Log.overlay.notice(
-                "Debug target at \(String(describing: rect), privacy: .public) on screen \(screen.id, privacy: .public)"
-            )
         }
     #endif
 }

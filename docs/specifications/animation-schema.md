@@ -26,7 +26,7 @@ Image rules: [asset-format.md](asset-format.md). Runtime behavior:
     "walk": {
       "playback": "loop",
       "fps": 9,
-      "nominalSpeed": 40,
+      "nominalSpeed": 20,
       "frames": [
         { "image": "walk/frames/walk_01.png" },
         { "image": "walk/frames/walk_02.png" },
@@ -42,7 +42,7 @@ Image rules: [asset-format.md](asset-format.md). Runtime behavior:
 }
 ```
 
-`nominalSpeed: 40` and the `footstep` frames are placeholders to be measured in T5.3 (F14 in the audit).
+`nominalSpeed: 20` and the `footstep` frames (3 and 7) were measured in T5.3 (F14 in the [audit](asset-format.md#current-asset-audit-2026-10-16)).
 
 ## Top-level fields
 

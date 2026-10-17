@@ -5,6 +5,8 @@ public protocol FrameDriver: AnyObject {
     /// Called on the main actor with the frame's timestamp (system uptime, seconds).
     var onFrame: ((_ timestamp: TimeInterval) -> Void)? { get set }
     var isPaused: Bool { get set }
+    /// Rate asked from the display (the display may deliver less); the simulation step does not depend on it.
+    var preferredFramesPerSecond: Float { get set }
     /// Stops for good and releases the underlying display link.
     func invalidate()
 }
