@@ -1,0 +1,37 @@
+// Settings shared by every target and configuration. Documented in docs/development/setup.md.
+// Target-specific values (product name, test host) live in the target's build settings.
+
+// Identity (provisional bundle ID, ADR-0010). Keep in sync with Log.defaultSubsystem.
+PETSCAPE_BUNDLE_ID = io.github.danielcbdev.petscape
+PRODUCT_BUNDLE_IDENTIFIER = $(PETSCAPE_BUNDLE_ID)
+MARKETING_VERSION = 0.1.0
+CURRENT_PROJECT_VERSION = 1
+
+// Platform baseline (ADR-0001)
+SDKROOT = macosx
+MACOSX_DEPLOYMENT_TARGET = 14.0
+SWIFT_VERSION = 6.0
+SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
+
+// Info.plist (generated). LSMinimumSystemVersion comes from MACOSX_DEPLOYMENT_TARGET.
+GENERATE_INFOPLIST_FILE = YES
+INFOPLIST_KEY_LSUIElement = YES
+INFOPLIST_KEY_CFBundleDisplayName = PetScape
+INFOPLIST_KEY_LSApplicationCategoryType = public.app-category.entertainment
+INFOPLIST_KEY_NSHumanReadableCopyright = Copyright © 2026 Daniel Carvalho. MIT License.
+ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon
+
+// Strings (String Catalog, NFR-13)
+LOCALIZATION_PREFERS_STRING_CATALOGS = YES
+SWIFT_EMIT_LOC_STRINGS = YES
+
+// Signing and security: Hardened Runtime on, no App Sandbox (ADR-0010). Debug signs locally ("-");
+// use a stable personal identity once Accessibility work starts (M12).
+ENABLE_HARDENED_RUNTIME = YES
+CODE_SIGN_STYLE = Automatic
+CODE_SIGN_IDENTITY = -
+ENABLE_USER_SCRIPT_SANDBOXING = YES
+
+// Build behavior
+DEAD_CODE_STRIPPING = YES
+ALWAYS_SEARCH_USER_PATHS = NO

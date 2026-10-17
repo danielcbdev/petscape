@@ -1,0 +1,12 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "PetScape" : {
+      "shouldTranslate" : false
+    },
+    "Quit PetScape" : {
+
+    }
+  },
+  "version" : "1.0"
+}
