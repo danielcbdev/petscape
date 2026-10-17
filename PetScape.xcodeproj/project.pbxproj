@@ -10,6 +10,7 @@
 		751B0FA7C8AB6C2BA49E579F /* PetScapeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 628BC3E0C40C370F029A0D41 /* PetScapeCore */; };
 		1661455D67DF873C2DC54CC4 /* PetScapePlatform in Frameworks */ = {isa = PBXBuildFile; productRef = B552E34B5CEB87542F6DE32A /* PetScapePlatform */; };
 		8D3937472E927DB38F5819F6 /* PetScapeRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 6DE285515A1AF9795065E816 /* PetScapeRuntime */; };
+		4C8A2E1F9B3D47A6C0E15F72 /* characters in Resources */ = {isa = PBXBuildFile; fileRef = 7E2B9D4A1C6F38E5A0B47D19 /* characters */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -26,6 +27,7 @@
 		31A8B3B31D96B76F8D0A3CA7 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
 		A2C31A6F596A0D3868C6A21B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		7928FDC7B0FD773D997494E1 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		7E2B9D4A1C6F38E5A0B47D19 /* characters */ = {isa = PBXFileReference; lastKnownFileType = folder; name = characters; path = assets/characters; sourceTree = "<group>"; };
 		C62D751F7B4F725A77A3223D /* PetScape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScape.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		269A974EF0E89CEC63141C08 /* PetScapeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PetScapeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -68,6 +70,7 @@
 			isa = PBXGroup;
 			children = (
 				BD2D01B6B735C96A6536B50F /* Config */,
+				7E2B9D4A1C6F38E5A0B47D19 /* characters */,
 				A285C17680BF67723D6557EE /* PetScape */,
 				B12B9E80B4DAA30405864962 /* PetScapeUITests */,
 				72DF8E6A0FC26E8D5DCAAB4A /* Products */,
@@ -191,6 +194,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C8A2E1F9B3D47A6C0E15F72 /* characters in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

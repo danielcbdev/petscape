@@ -1,11 +1,21 @@
 {
   "sourceLanguage" : "en",
   "strings" : {
+    "Animation Preview" : {
+      "comment" : "DEBUG builds only: menu item that opens the animation preview window.",
+      "shouldTranslate" : false
+    },
     "PetScape" : {
       "shouldTranslate" : false
     },
     "Quit PetScape" : {
 
+    },
+    "Some pet animations could not be loaded." : {
+      "comment" : "Menu status line: the character loaded but some clips use fallbacks (FR-15)."
+    },
+    "The pet could not be loaded. Showing a placeholder." : {
+      "comment" : "Menu status line: the character pack failed to load (FR-15)."
     }
   },
   "version" : "1.0"

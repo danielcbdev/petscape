@@ -7,7 +7,7 @@ struct PetScapeApp: App {
 
     var body: some Scene {
         MenuBarExtra("PetScape", systemImage: "pawprint") {
-            MenuBarContent()
+            MenuBarContent(model: appDelegate.model)
         }
     }
 }
