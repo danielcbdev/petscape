@@ -5,15 +5,15 @@ import PetScapeRuntime
 
 /// Composition root: creates and wires the long-lived objects (ADR-0002, conventions: no singletons).
 /// Creating it has no side effects; windows, observers, monitors and the character load start in `start()`.
-/// M3 wires the transparent overlay; M4 the character loader and the DEBUG animation preview; M5 connects
-/// the loaded character to the overlay.
+/// The pet runtime owns the overlay and the simulation; the loaded character is handed to it, and the menu's
+/// pause/hide intents go to it through `AppModel`.
 final class AppContainer {
     /// The bundled pack folder inside `Contents/Resources` (folder reference to `assets/characters`, T4.9).
     static let charactersFolder = "characters"
     static let defaultCharacterID = "cat"
 
     private let model: AppModel
-    private let overlay: OverlayCoordinator
+    private let runtime: PetRuntime
     private let characterLoader = CharacterLoader()
     private var loadTask: Task<Void, Never>?
     private(set) var character: LoadedCharacter?
@@ -25,22 +25,25 @@ final class AppContainer {
 
     init(model: AppModel) {
         self.model = model
-        overlay = OverlayCoordinator(
+        runtime = PetRuntime(
             screenProvider: ScreenProvider(),
             cursorSampler: CursorSampler(),
             systemEvents: SystemEventsMonitor(),
             fullScreenDetector: FullScreenSpaceDetector(),
-            runState: RunStateController())
+            preferences: UserDefaultsPreferencesStore())
         #if DEBUG
-            debugModel = DebugOverlayModel(overlay: overlay)
+            debugModel = DebugOverlayModel(overlay: runtime.overlay)
         #endif
     }
 
     func start() {
         Log.app.notice("PetScape started")
-        overlay.start()
+        runtime.start()
+        let runtime = runtime
+        model.bind(
+            isPaused: runtime.userIntent.isPaused, isHidden: runtime.userIntent.isHidden,
+            setPaused: { runtime.setPaused($0) }, setHidden: { runtime.setHidden($0) })
         #if DEBUG
-            debugModel.applyDefaults()
             model.openAnimationPreviewAction = { [weak self] in self?.openAnimationPreview() }
             opensPreviewWhenLoaded = LaunchOptions.opensAnimationPreview
         #endif
@@ -60,12 +63,13 @@ final class AppContainer {
             animationPreview?.close()
             animationPreview = nil
         #endif
-        overlay.stop()
+        runtime.stop()
         Log.app.notice("PetScape stopped")
     }
 
     private func characterDidLoad(_ character: LoadedCharacter) {
         self.character = character
+        runtime.show(character)
         if character.isPlaceholder {
             model.characterStatus = String(localized: "The pet could not be loaded. Showing a placeholder.")
         } else if character.isDegraded {

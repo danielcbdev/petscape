@@ -5,11 +5,23 @@
       "comment" : "DEBUG builds only: menu item that opens the animation preview window.",
       "shouldTranslate" : false
     },
+    "Hide Pet" : {
+      "comment" : "Menu item: hides the pet and its overlay (FR-02, FR-12)."
+    },
+    "Pause" : {
+      "comment" : "Menu item: freezes the pet's animation and movement (FR-02, FR-11)."
+    },
     "PetScape" : {
       "shouldTranslate" : false
     },
     "Quit PetScape" : {
 
+    },
+    "Resume" : {
+      "comment" : "Menu item shown while paused: the pet continues from where it stopped (FR-02, FR-11)."
+    },
+    "Show Pet" : {
+      "comment" : "Menu item shown while the pet is hidden: shows it again (FR-02, FR-12)."
     },
     "Some pet animations could not be loaded." : {
       "comment" : "Menu status line: the character loaded but some clips use fallbacks (FR-15)."
