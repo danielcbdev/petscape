@@ -14,7 +14,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M3 | Transparent overlay | v0.1.0 | In review (owner approved the manual matrix; resolution-change log evidence still missing, PoC S8) |
 | M4 | Animation system | v0.1.0 | In review (2026-10-17: lint, package tests and build verified; walk measured at 9.00 fps in the DEBUG preview; owner visual check of the anchor (AC-M4-03) pending) |
 | M5 | Rendering & automatic walking | v0.1.0 | In review (2026-10-17: lint, 256 package tests and build verified; walking, turning, pause/hide with persistence and clicks on the cat verified in the running app; owner review of foot sliding (AC-07) pending) |
-| M6 | Dock integration & MVP hardening | v0.1.0 | Not started |
+| M6 | Dock integration & MVP hardening | v0.1.0 | In review (2026-10-17: lint, 282 package tests, Debug and Release builds verified; Dock estimate, walkway, Space/lock suspension, error path, leaks, 2 h soak, launch and CPU measured; owner checklist (Dock settings, displays, visual ±3 pt, click-through) pending — see the M6 block) |
 | M7 | Basic physics | v0.2.0 | Not started |
 | M8 | Jumps & landings | v0.2.0 | Not started |
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | Not started |
@@ -131,6 +131,46 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** Dock change notifications; visual offset per macOS version.
 - **Tests:** estimator tables; re-projection; run-state combos; performance protocol; manual matrix.
 - **DoD:** all MVP acceptance criteria (FR-01…FR-18) pass; performance targets met or deviations accepted by the owner; v0.1.0 tagged when asked.
+- **Verification (2026-10-17, macOS 27.0.1, built-in Retina 1470 × 956 pt, Dock at the bottom (64 pt reservation),
+  Debug and Release builds; screen access was not granted, so nothing below was checked by eye):** `make lint` clean, `make test-core` 282 tests pass (Core 174,
+  Rendering 44, Platform 25, Runtime 39), `make build` and a Release build with 0 compiler warnings.
+  - Automated: estimator table (bottom/left/right, auto-hide 0–9.5 pt, menu bar ignored, Dock on the secondary
+    screen, negative coordinates, ties), surface selection with offset clamping, provider (resize, auto-hide, side,
+    host screen), offset preference persistence/clamping, lost-surface re-settle (same x/facing, clamp, other
+    screen → random respawn), runtime walkway + offset, and sleep / display sleep / session / lock → frames stop,
+    overlay ordered out, resume without catch-up.
+  - Running app (logs): `Dock estimate: bottom on screen 1, inset 64.0 pt`, `Walkway dock (dockTop) at y=64.0`,
+    `Pet 1 'cat' spawned on dock`. Real Space switches during the soak: `Full-screen Space detected` → overlay
+    ordered out, frames off; `Desktop Space (Dock window present)` → visible, frames on (3 round trips). Real screen
+    lock: `com.apple.screenIsLocked` → overlay out, frames off for 42 min (0.00% CPU), unlock → walking again.
+    Paws vs shelf by geometry: anchor row 474/512 = lowest opaque paw row (±1 px = 0.2 pt), walkway =
+    `visibleFrame.minY` = 64 pt, PoC E3 shelf top 63 pt → paws ≈ 1 pt above the shelf (AC-10 predicts pass; not
+    seen).
+  - Error UX (Debug, `--character-pack` copies with `character.json` renamed / truncated): error logged
+    (`assets`), placeholder spawned on the Dock, no crash, no crash report.
+  - Measurements (Release): paused 0.00% CPU over 60 s (cumulative CPU time unchanged) and 0 idle wakeups in
+    60 s; walking on the Dock 2.06% average (median 2.06%, max 3.33%, 69 min of 15 s samples); full-screen Space
+    ~0% (median 0.00%); locked 0.00%; launch `open` → cat spawned 0.45 s, → first simulation frame 0.49 s (warm).
+    Leaks (`leaks`, Debug and Release): 416 objects / 19.9 KB, all in three retain cycles inside Apple's AppIntents
+    XPC connection (`com.apple.linkd.autoShortcut`), none in PetScape code — identical at the start and end of the
+    soak. 2 h soak (Release, 2026-10-17 15:17–17:18): no crash, no crash report, physical footprint 21.8 → 23.7 MB
+    (+1.9 MB; RSS 66 → 39 MB).
+  - Not verified / owner checklist (needs Dock settings, displays or eyes): (1) Debug › Show walkway + paws on
+    the shelf ±3 pt, Dock small/large/magnification, Debug › Dock offset if needed (AC-10); (2) auto-hide on/off,
+    Dock left/right, resize/move while running (AC-10, AC-17); (3) resolution change with `log stream` running —
+    expects `Screen parameters changed` and a new walkway line (AC-17, closes M3/PoC S8); (4) external display
+    connect/disconnect and Dock on the secondary (matrix 7–8, if hardware exists); (5) that the cat disappears in
+    full-screen apps and looks right after a Space switch and after unlock — no jump (matrix 11–12, seen in logs
+    only); (6) display sleep, sleep/wake and user switching (matrix 12; runtime tests only, not exercised live);
+    (7) AC-14 click-through around the cat on the Dock and the Dock icons next to it, AC-21 click the cat while
+    typing; (8) AC-02 VoiceOver, AC-04 light/dark wallpapers, AC-07 foot sliding, AC-M4-03 anchor, AC-16 privacy
+    panes, AC-13 quit time, menu status line with a broken pack (AC-15 Man); (9) Automation Mode for the UI test
+    (`make test`, M2).
+  - Deviations for the owner to accept or reject: walking CPU 2.06% is a > 20% regression versus the PoC entry
+    in performance.md (1.0%; the spike had no simulation or per-frame hit testing) though within the 5% target; when PetScape is launched inside a full-screen Space the cat
+    can show for ~0.4 s until the two-read full-screen check confirms (T3.10 design); a Dock hidden/shown while
+    paused leaves the cat at the old height until Resume (the world is not stepped while paused); the cat walks
+    the full screen width beyond the shelf ends (ADR-0009, accepted).
 
 ## M7 — Basic physics
 

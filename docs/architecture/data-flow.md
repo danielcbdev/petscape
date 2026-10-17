@@ -105,5 +105,6 @@ Specification: [animation-schema.md](../specifications/animation-schema.md),
 
 `UserDefaults` via `PreferencesStore` (protocol). Keys are namespaced (`petscape.`) and versioned
 (`petscape.preferencesVersion`, currently 1). MVP keys: `petscape.isPaused` (Bool) and `petscape.isHidden`
-(Bool) since M5; `dockOffsetAdjustment` (Double, points) arrives in M6. No other persistence in the MVP.
+(Bool) since M5; `petscape.dockOffsetAdjustment` (Double, points, clamped to −40…+40, absent = 0) since M6,
+added without a version bump because its absence means the default. No other persistence in the MVP.
 Pause/hide are read once at launch to seed `RunStateController` and written whenever the user changes them.

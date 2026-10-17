@@ -35,10 +35,10 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Show pass-through state (tint when interactive) | M3 |
 | Animation Preview (done in M4): plays any clip in place at 1×/1.5×/2× with the anchor baseline and cross, mirroring toggle, declared vs. measured frame rate; logs `Animation preview '<clip>': measured N frame changes/s` (category `animation`). Since M5 the baseline has tick marks scrolling at a ground speed (starts at the clip's `nominalSpeed`, stepper to adjust): planted paws should move with the ticks (foot sliding, AC-07). Frame-by-frame stepping is not implemented yet | M4–M5 |
 | Show anchor, hit mask, sprite bounds | M4–M5 |
-| Show surfaces (segments with IDs) and Dock estimate | M5–M6 |
+| Show walkway (done in M6): the pet's surface as a 1 pt green line whose top edge is the surface y; the Dock estimate and walkway are logged (category `dock`) | M5–M6 |
 | Show pet state, clip, frame, facing, needs | M5–M9 |
 | Frame stats (step time, frame-image memory) from signposts/counters; the measured frame rate is logged instead (see below) | later |
-| Dock offset stepper | M6 |
+| Dock offset (done in M6): submenu "Dock offset: +0 pt" with Raise/Lower 1 pt and 5 pt and Reset; persisted (`petscape.dockOffsetAdjustment`) | M6 |
 | Simulation speed (0.25×, 1×, 4×) and single-step while paused | M7 |
 | Force events (surface lost, startled, low energy) | M7–M9 |
 | Show window surfaces and tracked windows | M12 |
@@ -66,6 +66,20 @@ DEBUG log lines added in M5 (useful predicates: `category == "simulation"`, `cat
 | `Pet 1 recovered: <reason>` (error) | An invariant failed (surface lost, out of bounds, invalid numbers) |
 | `Mouse down on pet 1 at (x, y)` (debug) | A click reached the overlay over the cat's opaque pixels (AC-M5-02) |
 | `Frames: 60.0 fps, 60.0 steps/s over 10.0 s` (debug, `performance`) | Delivered display-link rate while frames run (T5.7) |
+
+Log lines added in M6 (all builds; predicate `category == "dock" OR category == "overlay"`):
+
+| Line | Meaning |
+|---|---|
+| `Dock estimate: bottom on screen 1, inset 64.0 pt, edge at 64.0` (notice, `dock`) | New estimate after a screen change (`hiddenOrUnknown` when auto-hidden) |
+| `Walkway dock (dockTop) at y=64.0, x 0.0…1470.0, offset 0.0 pt` (notice, `dock`) | The pet's surface changed (estimate or offset) |
+| `Host screen: <id>` (notice, `overlay`) | The overlay moved to another screen (the Dock's) |
+| `Screen parameters changed: [...]` (notice, `overlay`) | `didChangeScreenParametersNotification` with the new frames — the evidence for resolution, Dock and display changes |
+| `Screens changed while suspended: [...]` (notice, `overlay`) | The fallback re-read after wake/unlock found a change no notification reported |
+
+```bash
+log stream --level info --predicate 'subsystem == "io.github.danielcbdev.petscape" AND (category == "dock" OR category == "overlay")'
+```
 
 The debug overlay is drawn by `DebugOverlayLayer` (`CAShapeLayer`s) in `OverlayContentView` from data in the snapshot; it must
 not affect simulation.

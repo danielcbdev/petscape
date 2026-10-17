@@ -45,6 +45,6 @@ manual adjustment fixes.
 
 | Risk | Mitigation |
 |---|---|
-| `visibleFrame` changes not notified when the Dock is resized/moved/auto-hidden | PoC E3; fallback re-reads on Space change/resume or 0.5 Hz while running |
+| `visibleFrame` changes not notified when the Dock is resized/moved/auto-hidden | PoC E3: every change was notified. Implemented fallback (M6): re-read the screens when a suspension ends (wake, unlock, session, full-screen Space exit); no polling |
 | Reserved height ≠ shelf top by a version-dependent amount | `dockOffsetAdjustment`; measured default per macOS major if stable |
 | Cat walking "in the air" beyond the shelf ends looks odd | Accept for MVP; AX enhancement later |
