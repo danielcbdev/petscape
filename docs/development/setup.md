@@ -1,7 +1,6 @@
 # Development Setup
 
-> Until M2 there is no Xcode project; this document describes the target setup. T2.9 replaces the
-> "planned" markers with verified commands.
+> Verified on 2026-10-16 (T2.9) with Xcode 27.1 / Swift 6.4 on macOS 27.0.1, unless marked otherwise.
 
 ## Toolchain
 
@@ -18,46 +17,91 @@
 
 No package manager installs are required. Do not add Homebrew dependencies to the workflow.
 
-## Getting started (planned, after M2)
+## Getting started
 
 ```bash
 git clone git@github.com:danielcbdev/petscape.git
 ```
 
 ```bash
-cd petscape && make build && make test
+cd petscape && make build && make test && make lint
 ```
 
-Open `PetScape.xcodeproj` in Xcode and run the `PetScape` scheme. The app appears only in the menu bar.
+Or open `PetScape.xcodeproj` in Xcode and run the `PetScape` scheme. The app appears only in the
+menu bar (paw print icon); quit it from its menu.
 
-## Project settings (to be created in T2.1)
+## Project layout
+
+- `PetScape.xcodeproj`: the `PetScape` app target and the `PetScapeUITests` target. It uses
+  folder-synchronized groups: files added under `PetScape/` or `PetScapeUITests/` are picked up
+  without editing `project.pbxproj`. The shared scheme `PetScape` builds the app and runs the UI tests.
+- `Packages/PetScapeKit`: `swift-tools-version: 6.2`, Swift 6 language mode, four library targets plus
+  four test targets ([modules.md](../architecture/modules.md)). Core is nonisolated; Platform,
+  Rendering, Runtime and their tests use `.defaultIsolation(MainActor.self)`. The app links
+  `PetScapeRuntime`, `PetScapePlatform` and `PetScapeCore`.
+- `Config/*.xcconfig`: all project build settings. `project.pbxproj` holds only per-target values
+  (`PRODUCT_NAME`; for UI tests the bundle ID, `TEST_TARGET_NAME`, isolation and Hardened Runtime).
+- The Info.plist is generated (`GENERATE_INFOPLIST_FILE`); its keys come from `INFOPLIST_KEY_*`
+  settings. Resources: `PetScape/Resources/Assets.xcassets` (placeholder `AppIcon`) and
+  `Localizable.xcstrings` (English source).
+
+## Project settings
 
 | Setting | Value | Where |
 |---|---|---|
-| `PETSCAPE_BUNDLE_ID` | `io.github.danielcbdev.petscape` (provisional, ADR-0010) | `Config/Base.xcconfig` |
-| `PRODUCT_BUNDLE_IDENTIFIER` | `$(PETSCAPE_BUNDLE_ID)` | `Config/Base.xcconfig` |
-| `MACOSX_DEPLOYMENT_TARGET` | `14.0` | `Config/Base.xcconfig` |
+| `PETSCAPE_BUNDLE_ID` | `io.github.danielcbdev.petscape` (provisional, ADR-0010); also `Log.defaultSubsystem` | `Config/Base.xcconfig` |
+| `PRODUCT_BUNDLE_IDENTIFIER` | `$(PETSCAPE_BUNDLE_ID)` (UI tests: `$(PETSCAPE_BUNDLE_ID).uitests`) | `Config/Base.xcconfig` / UI test target |
+| `MACOSX_DEPLOYMENT_TARGET` | `14.0` (Info.plist `LSMinimumSystemVersion` follows it) | `Config/Base.xcconfig` |
 | `SWIFT_VERSION` | `6.0` (Swift 6 language mode) | `Config/Base.xcconfig` |
-| `SWIFT_DEFAULT_ACTOR_ISOLATION` | `MainActor` (app target) | `Config/Base.xcconfig` |
-| `ENABLE_HARDENED_RUNTIME` | `YES` | `Config/Base.xcconfig` |
+| `SWIFT_DEFAULT_ACTOR_ISOLATION` | `MainActor`; `nonisolated` in the UI test target (`XCTestCase` initializers are nonisolated; test methods are `@MainActor`) | `Config/Base.xcconfig` / UI test target |
+| `ENABLE_HARDENED_RUNTIME` | `YES`; `NO` in the UI test target (see notes) | `Config/Base.xcconfig` / UI test target |
 | App Sandbox | off (no entitlement) | — |
-| `SWIFT_TREAT_WARNINGS_AS_ERRORS` | `YES` in Release/CI | `Config/Release.xcconfig` |
-| `INFOPLIST_KEY_LSUIElement` | `YES` | `Config/Base.xcconfig` |
-| Code signing (Debug) | "Sign to Run Locally" or a personal Apple Development identity | Xcode |
+| `SWIFT_TREAT_WARNINGS_AS_ERRORS`, `GCC_TREAT_WARNINGS_AS_ERRORS` | `YES` in Release; always passed by the Makefile's `xcodebuild` calls | `Config/Release.xcconfig`, `Makefile` |
+| `INFOPLIST_KEY_LSUIElement` | `YES` (no Dock icon, no app menu) | `Config/Base.xcconfig` |
+| `INFOPLIST_KEY_CFBundleDisplayName` | `PetScape` | `Config/Base.xcconfig` |
+| `ALWAYS_SEARCH_USER_PATHS` | `NO` (otherwise Xcode warns about traditional headermaps) | `Config/Base.xcconfig` |
+| Code signing | `CODE_SIGN_IDENTITY = -` ("Sign to Run Locally"), automatic style, no team | `Config/Base.xcconfig` |
 
-Signing note: keep a **stable development signing identity** once Accessibility work starts (M12);
-macOS ties Accessibility grants to the code signature, and switching identities forces re-granting.
+Notes:
 
-## Canonical commands (planned)
+- **Hardened Runtime with local signing.** Xcode prints `note: Disabling hardened runtime with ad-hoc
+  codesigning`, so the setting is on but has no effect until the app is signed with a real
+  identity (Developer ID for releases, M15). Local Debug builds therefore run without it.
+- **UI test target.** With Hardened Runtime on, the test runner's library validation refuses to
+  load the locally signed test bundle ("different Team IDs"). The UI test target never ships, so
+  it turns Hardened Runtime off.
+- **Signing identity.** Keep a **stable development signing identity** once Accessibility work
+  starts (M12). macOS ties Accessibility grants to the code signature, and switching identities
+  forces users to grant access again.
 
-| Command | Runs |
-|---|---|
-| `make test-core` | `swift test --package-path Packages/PetScapeKit` |
-| `make test` | `make test-core` + `xcodebuild test -project PetScape.xcodeproj -scheme PetScape -destination 'platform=macOS'` |
-| `make build` | `xcodebuild build -project PetScape.xcodeproj -scheme PetScape -configuration Debug` |
-| `make lint` | `swift format lint --recursive --strict PetScape Packages` |
-| `make format` | `swift format --in-place --recursive PetScape Packages` |
-| `make run` | build, then `open` the Debug app from DerivedData |
+## Canonical commands
+
+| Command | Runs | Verified |
+|---|---|---|
+| `make test-core` | `swift test --package-path Packages/PetScapeKit -Xswiftc -warnings-as-errors` | Yes |
+| `make test` | `make test-core`, then `xcodebuild … -configuration Debug test` (UI tests) | Package part yes; UI part needs Automation Mode (below) |
+| `make build` | `xcodebuild -project PetScape.xcodeproj -scheme PetScape -destination 'platform=macOS' -derivedDataPath build/DerivedData -configuration Debug build` with warnings as errors | Yes |
+| `make lint` | `swift format lint --strict --recursive --parallel` over `PetScape`, `PetScapeUITests` and the package sources/tests, then a `grep` for forbidden imports (Core: no AppKit/SwiftUI/QuartzCore/SpriteKit/ApplicationServices/other PetScape modules; Rendering and Platform: no SpriteKit and not each other) | Yes |
+| `make format` | `swift format --in-place --recursive --parallel` over the same paths | Yes |
+| `make run` | `make build`, then `open build/DerivedData/Build/Products/Debug/PetScape.app` | Yes |
+
+The Makefile builds into `build/DerivedData` (git-ignored), so `make run` knows where the app is.
+Xcode itself keeps using its default DerivedData.
+
+Expected tool output that is not a warning about our code: `appintentsmetadataprocessor … warning:
+Metadata extraction skipped, no AppIntents.framework dependency found` (printed on every app build).
+
+### UI tests and Automation Mode
+
+XCUITest on macOS needs **Automation Mode**. On this Mac, `automationmodetool` reports "This device
+requires user authentication to enable Automation Mode". If nobody answers the password prompt,
+the run fails with "Timed out while enabling automation mode". Either run `make test` (or ⌘U in
+Xcode) at the machine and authenticate when asked, or allow it once for this user (admin password,
+changes a system security setting):
+
+```bash
+sudo automationmodetool enable-automationmode-without-authentication
+```
 
 ## Repository hygiene
 

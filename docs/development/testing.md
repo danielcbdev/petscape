@@ -41,7 +41,11 @@ purpose — never modified copies of original art beyond what the test needs).
 
 ## UI tests
 
-Menu bar status items are harder to reach in XCUITest **[validate in T2.7]**. If unreliable, UI tests
+`PetScapeLaunchTests` (T2.7) launches the app, waits for `app.statusItems.firstMatch`, checks that no
+window is open, opens the menu, clicks "Quit PetScape" and expects the process to end. **Not yet
+verified (2026-10-16):** every run so far stopped before the test body with "Timed out while
+enabling automation mode", so it is still unknown whether XCUITest can reach the status item. See
+[setup.md](setup.md#ui-tests-and-automation-mode). If status items turn out to be unreliable, UI tests
 cover only launch and Settings; menu behavior is covered by `AppModel` unit tests plus manual checks.
 
 ## Manual test matrix (MVP)

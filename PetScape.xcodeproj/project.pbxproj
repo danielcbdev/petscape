@@ -1,0 +1,340 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		751B0FA7C8AB6C2BA49E579F /* PetScapeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 628BC3E0C40C370F029A0D41 /* PetScapeCore */; };
+		1661455D67DF873C2DC54CC4 /* PetScapePlatform in Frameworks */ = {isa = PBXBuildFile; productRef = B552E34B5CEB87542F6DE32A /* PetScapePlatform */; };
+		8D3937472E927DB38F5819F6 /* PetScapeRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 6DE285515A1AF9795065E816 /* PetScapeRuntime */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		D5E2C54FDAE3F2A1ED66E9AE /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = C5EDB511670FB77D063EBAEF /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 58DE0DFFFE1D01F9DF0751E6;
+			remoteInfo = PetScape;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		31A8B3B31D96B76F8D0A3CA7 /* Base.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Base.xcconfig; sourceTree = "<group>"; };
+		A2C31A6F596A0D3868C6A21B /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		7928FDC7B0FD773D997494E1 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		C62D751F7B4F725A77A3223D /* PetScape.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PetScape.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		269A974EF0E89CEC63141C08 /* PetScapeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PetScapeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		A285C17680BF67723D6557EE /* PetScape */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PetScape;
+			sourceTree = "<group>";
+		};
+		B12B9E80B4DAA30405864962 /* PetScapeUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PetScapeUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		B04D6F4CFE8D79B00A2F63E2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				751B0FA7C8AB6C2BA49E579F /* PetScapeCore in Frameworks */,
+				1661455D67DF873C2DC54CC4 /* PetScapePlatform in Frameworks */,
+				8D3937472E927DB38F5819F6 /* PetScapeRuntime in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		436E15606EB4971CE718B9DB /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		EC2BD7D9B6D8ACF9F20EAF3E = {
+			isa = PBXGroup;
+			children = (
+				BD2D01B6B735C96A6536B50F /* Config */,
+				A285C17680BF67723D6557EE /* PetScape */,
+				B12B9E80B4DAA30405864962 /* PetScapeUITests */,
+				72DF8E6A0FC26E8D5DCAAB4A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		72DF8E6A0FC26E8D5DCAAB4A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				C62D751F7B4F725A77A3223D /* PetScape.app */,
+				269A974EF0E89CEC63141C08 /* PetScapeUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BD2D01B6B735C96A6536B50F /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				31A8B3B31D96B76F8D0A3CA7 /* Base.xcconfig */,
+				A2C31A6F596A0D3868C6A21B /* Debug.xcconfig */,
+				7928FDC7B0FD773D997494E1 /* Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58DE0DFFFE1D01F9DF0751E6 /* PetScape */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = D0B3AFA5A1417DC41C645DE7 /* Build configuration list for PBXNativeTarget "PetScape" */;
+			buildPhases = (
+				187C1D166FEDD03E583805B7 /* Sources */,
+				B04D6F4CFE8D79B00A2F63E2 /* Frameworks */,
+				98C76B4DAC7ACE58CBC58547 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				A285C17680BF67723D6557EE /* PetScape */,
+			);
+			name = PetScape;
+			packageProductDependencies = (
+				628BC3E0C40C370F029A0D41 /* PetScapeCore */,
+				B552E34B5CEB87542F6DE32A /* PetScapePlatform */,
+				6DE285515A1AF9795065E816 /* PetScapeRuntime */,
+			);
+			productName = PetScape;
+			productReference = C62D751F7B4F725A77A3223D /* PetScape.app */;
+			productType = "com.apple.product-type.application";
+		};
+		11B9DB12A8711EAB66912C4C /* PetScapeUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 1181DB19A018A659D78470CA /* Build configuration list for PBXNativeTarget "PetScapeUITests" */;
+			buildPhases = (
+				44CEB1F2120C97EEAAD123B0 /* Sources */,
+				436E15606EB4971CE718B9DB /* Frameworks */,
+				4A456AF682D3ACAC4130B518 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E3DC2A7031E1070ADA3C62C5 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				B12B9E80B4DAA30405864962 /* PetScapeUITests */,
+			);
+			name = PetScapeUITests;
+			packageProductDependencies = (
+			);
+			productName = PetScapeUITests;
+			productReference = 269A974EF0E89CEC63141C08 /* PetScapeUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		C5EDB511670FB77D063EBAEF /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2710;
+				LastUpgradeCheck = 2710;
+				TargetAttributes = {
+					58DE0DFFFE1D01F9DF0751E6 = {
+						CreatedOnToolsVersion = 27.1;
+					};
+					11B9DB12A8711EAB66912C4C = {
+						CreatedOnToolsVersion = 27.1;
+						TestTargetID = 58DE0DFFFE1D01F9DF0751E6;
+					};
+				};
+			};
+			buildConfigurationList = 1F444EB3629DA7E8CBD22525 /* Build configuration list for PBXProject "PetScape" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = EC2BD7D9B6D8ACF9F20EAF3E;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				921873B13BB29ED0615D2B3E /* XCLocalSwiftPackageReference "Packages/PetScapeKit" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 72DF8E6A0FC26E8D5DCAAB4A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58DE0DFFFE1D01F9DF0751E6 /* PetScape */,
+				11B9DB12A8711EAB66912C4C /* PetScapeUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		98C76B4DAC7ACE58CBC58547 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4A456AF682D3ACAC4130B518 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		187C1D166FEDD03E583805B7 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		44CEB1F2120C97EEAAD123B0 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E3DC2A7031E1070ADA3C62C5 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 58DE0DFFFE1D01F9DF0751E6 /* PetScape */;
+			targetProxy = D5E2C54FDAE3F2A1ED66E9AE /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		1E1D1CB9C09299BB0435273F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = A2C31A6F596A0D3868C6A21B /* Debug.xcconfig */;
+			buildSettings = {
+			};
+			name = Debug;
+		};
+		D3147FF59021DC8D372E8D8D /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7928FDC7B0FD773D997494E1 /* Release.xcconfig */;
+			buildSettings = {
+			};
+			name = Release;
+		};
+		E690BDBEE01A7613003FE260 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		E10277B2F7DE00AF35718316 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		F5304568B904205BE1A022FD /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_HARDENED_RUNTIME = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PETSCAPE_BUNDLE_ID).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TEST_TARGET_NAME = PetScape;
+			};
+			name = Debug;
+		};
+		5C5FC9E43B6FEA74E60A909A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ENABLE_HARDENED_RUNTIME = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(PETSCAPE_BUNDLE_ID).uitests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_DEFAULT_ACTOR_ISOLATION = nonisolated;
+				TEST_TARGET_NAME = PetScape;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1F444EB3629DA7E8CBD22525 /* Build configuration list for PBXProject "PetScape" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				1E1D1CB9C09299BB0435273F /* Debug */,
+				D3147FF59021DC8D372E8D8D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		D0B3AFA5A1417DC41C645DE7 /* Build configuration list for PBXNativeTarget "PetScape" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E690BDBEE01A7613003FE260 /* Debug */,
+				E10277B2F7DE00AF35718316 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		1181DB19A018A659D78470CA /* Build configuration list for PBXNativeTarget "PetScapeUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				F5304568B904205BE1A022FD /* Debug */,
+				5C5FC9E43B6FEA74E60A909A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		921873B13BB29ED0615D2B3E /* XCLocalSwiftPackageReference "Packages/PetScapeKit" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Packages/PetScapeKit;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		628BC3E0C40C370F029A0D41 /* PetScapeCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 921873B13BB29ED0615D2B3E /* XCLocalSwiftPackageReference "Packages/PetScapeKit" */;
+			productName = PetScapeCore;
+		};
+		B552E34B5CEB87542F6DE32A /* PetScapePlatform */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 921873B13BB29ED0615D2B3E /* XCLocalSwiftPackageReference "Packages/PetScapeKit" */;
+			productName = PetScapePlatform;
+		};
+		6DE285515A1AF9795065E816 /* PetScapeRuntime */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 921873B13BB29ED0615D2B3E /* XCLocalSwiftPackageReference "Packages/PetScapeKit" */;
+			productName = PetScapeRuntime;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = C5EDB511670FB77D063EBAEF /* Project object */;
+}

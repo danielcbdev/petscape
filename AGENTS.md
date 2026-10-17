@@ -23,9 +23,10 @@ Open-source portfolio project: local only, no backend, accounts, payments, telem
 Check the **Status** column in [docs/planning/milestones.md](docs/planning/milestones.md) before
 doing anything. As of 2026-10-16: planning is approved and the proof of concept (M1) is **done**
 (results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
-branch `spike/overlay-poc`, never merged). Next milestone: **M2 (app skeleton)**. No production code or
-Xcode project exists yet. Do not start implementation without an explicit instruction naming the
-milestone/task.
+branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
+`PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
+with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)). Do not
+start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
 
@@ -187,7 +188,7 @@ assume them.
 
 ## Commands
 
-Available from M2 (until then there is nothing to build):
+Available since M2 (details and verified status: [setup.md](docs/development/setup.md#canonical-commands)):
 
 | Command | Purpose |
 |---|---|

@@ -4,7 +4,7 @@ Applies to all Swift code. Agents: this is the long form of [AGENTS.md §4–5](
 
 ## Formatting
 
-- `swift format` with the repository `.swift-format` (created in T2.6): 4-space indentation, 120
+- `swift format` with the repository `.swift-format`: 4-space indentation, 120
   columns, ordered imports, trailing commas in multi-line collections.
 - `make lint` must be clean; formatting changes go in the same PR as the code, never mixed into
   unrelated files.
