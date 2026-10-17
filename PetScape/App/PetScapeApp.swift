@@ -7,7 +7,11 @@ struct PetScapeApp: App {
 
     var body: some Scene {
         MenuBarExtra("PetScape", systemImage: "pawprint") {
-            MenuBarContent()
+            #if DEBUG
+                MenuBarContent(debugModel: appDelegate.container.debugModel)
+            #else
+                MenuBarContent()
+            #endif
         }
     }
 }
