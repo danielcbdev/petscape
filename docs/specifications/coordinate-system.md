@@ -16,7 +16,9 @@ Rationale: it is the space of `NSScreen.frame`, `NSWindow.frame` and `NSEvent.mo
 its y-up orientation matches the layer coordinates of a non-flipped `NSView`, so most values need no
 conversion at all.
 
-Types: Core uses Foundation's `CGPoint`, `CGSize`, `CGRect`, `CGVector` (no custom geometry
+Types: Core uses CoreGraphics' `CGPoint`, `CGSize`, `CGRect`, `CGVector` — imported explicitly, because
+the macOS 27 SDK's Foundation no longer re-exports the CoreGraphics Swift overlay (`==`, `.zero`,
+`contains`) — (no custom geometry
 wrappers) plus `Segment`. **Any `CGPoint`/`CGRect` outside a Platform adapter is canonical global**
 unless its name says otherwise (`overlayPoint`, `localRect`, `quartzRect`).
 

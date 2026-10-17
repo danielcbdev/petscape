@@ -33,6 +33,8 @@ Inspect with Instruments › os_signpost / Points of Interest.
 |---|---|
 | Show overlay bounds | M3 |
 | Show pass-through state (tint when interactive) | M3 |
+| Show test rectangle (96 pt pass-through target in place of the pet; on by default) | M3 |
+| Pause frames / Hide overlay (stand-ins for the M5 menu items; drive the run state) | M3 |
 | Animation preview (play any clip in place, step frame by frame) | M4 |
 | Show anchor, hit mask, sprite bounds | M4–M5 |
 | Show surfaces (segments with IDs) and Dock estimate | M5–M6 |
