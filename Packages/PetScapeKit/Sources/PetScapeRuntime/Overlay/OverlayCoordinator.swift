@@ -3,13 +3,15 @@ import PetScapeCore
 import PetScapePlatform
 import PetScapeRendering
 
-/// Runtime orchestration of the transparent overlay (M3): screens → overlays, system events and user
-/// intent → run state → visibility / frame driver / idle cursor monitor, and cursor → pass-through.
+/// Runtime orchestration of the transparent overlay (M3): screens → Dock estimate → overlays, system events and
+/// user intent → run state → visibility / frame driver / idle cursor monitor, and cursor → pass-through.
 /// `PetRuntime` (M5) adds the simulation through the hooks below; each frame runs `onFrame` (simulate,
 /// render) before the pass-through update, so the cursor is tested against the pet as just drawn.
 public final class OverlayCoordinator {
     public let runState: RunStateController
     public let passthrough: MousePassthroughController
+    /// The Dock estimate and walkway, updated with every screen change (M6); it decides the host screen.
+    public let dock: DockSurfaceProvider
 
     /// Called on every display frame while frames run, before the pass-through update.
     public var onFrame: ((_ timestamp: TimeInterval) -> Void)?
@@ -41,6 +43,8 @@ public final class OverlayCoordinator {
     private let makeFrameDriver: (NSView) -> any FrameDriver
 
     private var hostScreenID: ScreenID?
+    /// The screens last applied, to skip re-reads that change nothing.
+    private var screens: [ScreenDescriptor] = []
     private var frameDriver: (any FrameDriver)?
     private var isStarted = false
 
@@ -51,6 +55,7 @@ public final class OverlayCoordinator {
         fullScreenDetector: FullScreenSpaceDetector,
         overlays: OverlayWindowManager = OverlayWindowManager(),
         runState: RunStateController,
+        dock: DockSurfaceProvider = DockSurfaceProvider(),
         hitTester: any PetHitTesting,
         makeFrameDriver: @escaping (NSView) -> any FrameDriver = { DisplayLinkFrameDriver(view: $0) }
     ) {
@@ -60,13 +65,15 @@ public final class OverlayCoordinator {
         self.fullScreenDetector = fullScreenDetector
         self.overlays = overlays
         self.runState = runState
+        self.dock = dock
         self.makeFrameDriver = makeFrameDriver
         var applyIgnores: (Bool) -> Void = { _ in }
         passthrough = MousePassthroughController(hitTester: hitTester) { applyIgnores($0) }
         applyIgnores = { [weak self] ignores in self?.applyIgnoresMouseEvents(ignores) }
     }
 
-    /// The screen hosting the overlay with the pets (MVP: the primary screen; M6: the Dock's screen).
+    /// The screen hosting the overlay with the pets: the Dock's screen, or the primary screen while the Dock is
+    /// hidden or unknown (T6.2, T6.6).
     public var hostScreen: ScreenDescriptor? {
         hostScreenID.flatMap { converter?.screen(withID: $0) }
     }
@@ -86,9 +93,9 @@ public final class OverlayCoordinator {
         overlays.onMouseEvent = { [weak self] _, event in self?.handle(event) }
         apply(screens: screenProvider.currentScreens())
         screenProvider.start { [weak self] screens in self?.apply(screens: screens) }
-        systemEvents.start { [weak self] reason, isActive in self?.runState.setCondition(reason, isActive: isActive) }
+        systemEvents.start { [weak self] reason, isActive in self?.setCondition(reason, isActive: isActive) }
         fullScreenDetector.start { [weak self] isFullScreen in
-            self?.runState.setCondition(.fullScreenSpace, isActive: isFullScreen)
+            self?.setCondition(.fullScreenSpace, isActive: isFullScreen)
         }
         apply(runState.status)
     }
@@ -117,13 +124,16 @@ public final class OverlayCoordinator {
     // MARK: Screens
 
     private func apply(screens: [ScreenDescriptor]) {
+        self.screens = screens
         converter = CoordinateConverter(screens: screens)
-        // MVP: one overlay on the primary screen; T6.2/T6.6 host it on the Dock's screen instead.
-        let host = converter?.primary
+        dock.update(screens: screens)
+        // One overlay, on the Dock's screen (the walkway's screen); the others are closed (performance.md).
+        let host = dock.hostScreenID.flatMap { converter?.screen(withID: $0) } ?? converter?.primary
         runState.setCondition(.noScreens, isActive: host == nil)
         overlays.update(screens: screens, hosting: host.map { [$0.id] } ?? [])
         passthrough.reset()
         if host?.id != hostScreenID {
+            Log.overlay.notice("Host screen: \(host.map { String(describing: $0.id) } ?? "none", privacy: .public)")
             hostScreenID = host?.id
             replaceFrameDriver()
         }
@@ -153,7 +163,22 @@ public final class OverlayCoordinator {
         frameDriver?.isPaused = !(runState.status.isFrameDriverRunning && needsFrames)
     }
 
+    /// The fallback re-read of ADR-0009 / PoC E3, without polling: screen changes made while asleep, locked,
+    /// switched out or in a full-screen Space may not arrive as a notification afterwards, so the screens are
+    /// read again whenever such a condition ends, and applied only if they differ.
+    private func refreshScreensIfChanged() {
+        let current = screenProvider.currentScreens()
+        guard current != screens else { return }
+        Log.overlay.notice("Screens changed while suspended: \(ScreenProvider.summary(of: current), privacy: .public)")
+        apply(screens: current)
+    }
+
     // MARK: Run state
+
+    private func setCondition(_ reason: SuspensionReason, isActive: Bool) {
+        runState.setCondition(reason, isActive: isActive)
+        if !isActive && reason != .overlayOccluded { refreshScreensIfChanged() }
+    }
 
     private func apply(_ status: RunStatus) {
         overlays.setVisible(status.isOverlayVisible)

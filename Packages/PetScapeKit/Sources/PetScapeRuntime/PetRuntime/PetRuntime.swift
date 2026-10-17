@@ -10,8 +10,8 @@ import PetScapeRendering
 /// pausing, hiding and suspension stop the display link, and the accumulator is reset so resuming never
 /// catches up (ADR-0013).
 ///
-/// M5 walkway: the bottom edge of the host screen (the Dock surface is M6). Pause and hide are persisted
-/// through `PreferencesStore` (FR-18).
+/// Walkway (M6): the Dock top on the Dock's screen, or the screen bottom when the Dock is hidden or on a side
+/// (`DockSurfaceProvider`). Pause, hide and the Dock offset are persisted through `PreferencesStore` (FR-18).
 public final class PetRuntime {
     public let overlay: OverlayCoordinator
 
@@ -48,7 +48,8 @@ public final class PetRuntime {
         overlay = OverlayCoordinator(
             screenProvider: screenProvider, cursorSampler: cursorSampler, systemEvents: systemEvents,
             fullScreenDetector: fullScreenDetector, overlays: overlays,
-            runState: RunStateController(intent: preferences.userIntent), hitTester: hitTester,
+            runState: RunStateController(intent: preferences.userIntent),
+            dock: DockSurfaceProvider(offsetAdjustment: preferences.dockOffsetAdjustment), hitTester: hitTester,
             makeFrameDriver: makeFrameDriver)
     }
 
@@ -91,6 +92,17 @@ public final class PetRuntime {
         overlay.runState.setHidden(hidden)
     }
 
+    /// Points added to the estimated Dock top (T6.3; DEBUG menu in the MVP, Settings › Advanced in M9).
+    public var dockOffsetAdjustment: Double { overlay.dock.offsetAdjustment }
+
+    /// Stores the offset (clamped to −40…+40 pt) and moves the walkway; an attached pet follows it.
+    public func setDockOffsetAdjustment(_ offset: Double) {
+        preferences.dockOffsetAdjustment = offset
+        overlay.dock.offsetAdjustment = preferences.dockOffsetAdjustment
+        applySurfaces()
+        renderNow()
+    }
+
     // MARK: - Character
 
     /// Puts one pet of `character` into the world (replacing any previous one) and shows it, even while paused.
@@ -109,8 +121,7 @@ public final class PetRuntime {
 
     private func screensDidChange() {
         world.apply(.screens(overlay.converter?.screens ?? []))
-        // M5 walkway: the bottom of the host (Dock) screen. M6 replaces it with the Dock surface (T6.x).
-        world.apply(.surfaces(overlay.hostScreen.map { [Surface.screenBottom(of: $0)] } ?? []))
+        applySurfaces()
         let view = overlay.hostContentView
         if view !== rendererView {
             renderer?.removeAll()
@@ -118,6 +129,15 @@ public final class PetRuntime {
             rendererView = view
         }
         renderNow()
+    }
+
+    /// The Dock walkway as the world's surface set: a moved Dock keeps its surface (the pet rides it, clamped);
+    /// a Dock hidden, shown or moved to a side replaces it (the pet re-settles below or above, T6.4).
+    private func applySurfaces() {
+        world.apply(.surfaces(overlay.dock.surfaces))
+        #if DEBUG
+            updateSurfaceDebugLine()
+        #endif
     }
 
     private func statusDidChange(_ status: RunStatus) {
@@ -153,6 +173,22 @@ public final class PetRuntime {
         if !snapshot.isAnimating { accumulator.reset() }
         overlay.needsFrames = snapshot.isAnimating
     }
+
+    #if DEBUG
+        /// DEBUG menu "Show walkway": a line where the paws should be (surface y, overlay-local).
+        public var showsWalkway = false {
+            didSet { updateSurfaceDebugLine() }
+        }
+
+        private func updateSurfaceDebugLine() {
+            let view = overlay.hostContentView
+            guard let surface = overlay.dock.surface, let screen = overlay.hostScreen, showsWalkway else {
+                view?.debugWalkwayY = nil
+                return
+            }
+            view?.debugWalkwayY = surface.y - screen.frame.minY
+        }
+    #endif
 
     private func handle(_ event: OverlayMouseEvent) {
         #if DEBUG

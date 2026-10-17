@@ -6,8 +6,8 @@ import Testing
 
 @testable import PetScapeRuntime
 
-/// T5.5–T5.8 integration: `PetRuntime` on the real screens with a fake frame driver, isolated notification
-/// centers and in-memory preferences.
+/// T5.5–T5.8, T6.2–T6.5 integration: `PetRuntime` on the real screens (and the real Dock reservation) with a
+/// fake frame driver, isolated notification centers and in-memory preferences.
 @Suite("PetRuntime", .serialized)
 struct PetRuntimeTests {
     final class FakeFrameDriver: FrameDriver {
@@ -35,6 +35,8 @@ struct PetRuntimeTests {
 
     final class Harness {
         let driver = FakeFrameDriver()
+        let workspaceCenter = NotificationCenter()
+        let distributedCenter = NotificationCenter()
         let preferences: InMemoryPreferencesStore
         let runtime: PetRuntime
         var time: TimeInterval = 1000
@@ -46,7 +48,7 @@ struct PetRuntimeTests {
                 screenProvider: ScreenProvider(notificationCenter: NotificationCenter()),
                 cursorSampler: CursorSampler(monitoring: NoMouseMonitoring()),
                 systemEvents: SystemEventsMonitor(
-                    workspaceCenter: NotificationCenter(), distributedCenter: NotificationCenter()),
+                    workspaceCenter: workspaceCenter, distributedCenter: distributedCenter),
                 fullScreenDetector: FullScreenSpaceDetector(workspaceCenter: NotificationCenter()),
                 preferences: preferences,
                 overlays: OverlayWindowManager(notificationCenter: NotificationCenter()),
@@ -84,13 +86,21 @@ struct PetRuntimeTests {
         #expect(h.driver.preferredFramesPerSecond == 60)
     }
 
-    @Test func showingACharacterPlacesThePetOnTheHostScreenBottomAndRendersIt() async throws {
+    @Test func showingACharacterPlacesThePetOnTheDockWalkwayAndRendersIt() async throws {
         let h = Harness()
         try await h.start()
         let screen = try #require(h.runtime.overlay.hostScreen)
         let pet = try #require(h.pet)
         #expect(pet.isVisible)
-        #expect(pet.position.y == screen.frame.minY)
+        // This machine's Dock decides the walkway: its top when at the bottom, else the screen bottom.
+        let dock = h.runtime.overlay.dock
+        let walkway = try #require(dock.surface)
+        #expect(pet.position.y == walkway.y)
+        #expect(dock.hostScreenID == screen.id)
+        switch dock.estimate.position {
+        case .bottom: #expect(walkway.kind == .dockTop && walkway.y == screen.visibleFrame.minY)
+        case .left, .right, .hiddenOrUnknown: #expect(walkway.y == screen.frame.minY)
+        }
         #expect(pet.spriteRect.minX >= screen.frame.minX && pet.spriteRect.maxX <= screen.frame.maxX)
         let layers = try #require(h.runtime.overlay.hostContentView?.petLayerHost.sublayers)
         #expect(layers.count == 1)
@@ -166,5 +176,58 @@ struct PetRuntimeTests {
         #expect(h.driver.isPaused)
         #expect(h.pet?.isVisible == true)  // a paused pet is still drawn, frozen
         #expect(h.runtime.overlay.hostContentView?.petLayerHost.sublayers?.first?.contents != nil)
+    }
+
+    @Test func dockOffsetMovesTheWalkwayAndThePetAndPersists() async throws {
+        let h = Harness()
+        try await h.start()
+        let y = try #require(h.pet).position.y
+        let isDockTop = h.runtime.overlay.dock.surface?.kind == .dockTop
+        h.runtime.setDockOffsetAdjustment(-3)
+        #expect(h.preferences.dockOffsetAdjustment == -3)
+        #expect(h.runtime.dockOffsetAdjustment == -3)
+        // The offset applies to the Dock top only; the screen-bottom fallback ignores it.
+        #expect(h.pet?.position.y == (isDockTop ? y - 3 : y))
+        h.runtime.setDockOffsetAdjustment(100)
+        #expect(h.preferences.dockOffsetAdjustment == 40)
+    }
+
+    @Test func persistedDockOffsetIsAppliedAtLaunch() async throws {
+        let h = Harness(preferences: InMemoryPreferencesStore(dockOffsetAdjustment: 7))
+        try await h.start()
+        #expect(h.runtime.dockOffsetAdjustment == 7)
+    }
+
+    /// T6.5: sleep and lock stop frames; on return the simulation continues where it was, without catching up.
+    @Test(arguments: [
+        (NSWorkspace.willSleepNotification, NSWorkspace.didWakeNotification, false),
+        (NSWorkspace.screensDidSleepNotification, NSWorkspace.screensDidWakeNotification, false),
+        (NSWorkspace.sessionDidResignActiveNotification, NSWorkspace.sessionDidBecomeActiveNotification, false),
+        (Notification.Name("com.apple.screenIsLocked"), Notification.Name("com.apple.screenIsUnlocked"), true),
+    ])
+    func suspensionStopsFramesHidesTheOverlayAndResumesWithoutAJump(
+        start: Notification.Name, end: Notification.Name, isDistributed: Bool
+    ) async throws {
+        let h = Harness()
+        try await h.start()
+        h.frames(30)
+        let before = try #require(h.pet)
+        let center = isDistributed ? h.distributedCenter : h.workspaceCenter
+
+        center.post(name: start, object: nil)
+        #expect(h.driver.isPaused)
+        #expect(h.runtime.overlay.hostContentView?.window?.isVisible == false)
+        h.time += 3600  // away for an hour
+        h.frames(10)
+        #expect(h.pet == before)
+
+        center.post(name: end, object: nil)
+        #expect(!h.driver.isPaused)
+        #expect(h.runtime.overlay.hostContentView?.window?.isVisible == true)
+        h.frames(1)  // only records the timestamp
+        #expect(h.pet == before)
+        h.frames(1)
+        let after = try #require(h.pet)
+        #expect(abs(after.position.x - before.position.x) <= 20.0 / 60 + 1e-9)
     }
 }
