@@ -247,6 +247,53 @@ struct PetWorldTests {
         #expect(world.pet(id)?.state == .walking)
     }
 
+    /// T6.4: the Dock hidden (auto-hide on) or shown again swaps the Dock top and the screen bottom; the cat
+    /// re-settles straight below or above where it was, with its facing.
+    @Test func lostSurfaceRecoveryKeepsTheXAndFacingWhenTheReplacementFits() throws {
+        let dock = Surface(id: .dock, kind: .dockTop, y: 70, minX: 0, maxX: 1470)
+        var (world, id) = try Self.makeWorld(surfaces: [dock])
+        Self.set(&world, x: 600, facing: .left)
+
+        world.apply(.surfaces([Self.floor]))  // Dock hidden
+        #expect(world.step(dt: Self.dt).contains(.recovered(id, reason: .surfaceLost)))
+        #expect(world.step(dt: Self.dt).contains(.placed(id, Self.floor.id)))
+        #expect(world.pet(id)?.position == CGPoint(x: 600, y: 0))
+        #expect(world.pet(id)?.facing == .left)
+        _ = world.step(dt: Self.dt)  // walking again
+
+        world.apply(.surfaces([dock]))  // Dock shown
+        _ = world.step(dt: Self.dt)
+        _ = world.step(dt: Self.dt)
+        #expect(world.pet(id)?.position == CGPoint(x: 600, y: 70))
+        #expect(world.pet(id)?.attachment?.surfaceID == .dock)
+    }
+
+    @Test func lostSurfaceRecoveryClampsAnXJustOutsideTheNewMargins() throws {
+        let floor = Surface(id: SurfaceID("floor"), kind: .screenBottom, y: 0, minX: 0, maxX: 1000)
+        let wide = Surface(id: SurfaceID("wide"), kind: .dockTop, y: 70, minX: 0, maxX: 1470)
+        var (world, id) = try Self.makeWorld(surfaces: [wide])
+        Self.set(&world, x: 980, facing: .right)
+        world.apply(.surfaces([floor]))
+        _ = world.step(dt: Self.dt)
+        _ = world.step(dt: Self.dt)
+        #expect(world.pet(id)?.position == CGPoint(x: 952, y: 0))  // 1000 − 48
+    }
+
+    @Test func lostSurfaceRecoveryOnAnotherScreenRespawnsAtRandom() throws {
+        let other = Surface(id: SurfaceID("other"), kind: .screenBottom, y: 0, minX: 3000, maxX: 4000)
+        var (world, id) = try Self.makeWorld()
+        let wide = ScreenDescriptor(
+            id: ScreenID(1), frame: CGRect(x: 0, y: 0, width: 4000, height: 956),
+            visibleFrame: CGRect(x: 0, y: 0, width: 4000, height: 956), backingScale: 2, isPrimary: true)
+        world.apply(.screens([wide]))
+        Self.set(&world, x: 600, facing: .left)
+        world.apply(.surfaces([other]))
+        _ = world.step(dt: Self.dt)
+        _ = world.step(dt: Self.dt)
+        let x = try #require(world.pet(id)?.position.x)
+        #expect((3048...3952).contains(x))
+    }
+
     @Test func leavingEveryScreenRecoversOutOfBounds() throws {
         var (world, id) = try Self.makeWorld()
         _ = world.step(dt: Self.dt)
