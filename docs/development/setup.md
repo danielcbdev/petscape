@@ -105,7 +105,6 @@ sudo automationmodetool enable-automationmode-without-authentication
 
 ## Repository hygiene
 
-- `.DS_Store` files are ignored; 5 were committed before the `.gitignore` existed. Untrack them with
-  `git rm --cached` (task T0.2, pending approval).
+- `.DS_Store` files are ignored; the 5 committed before the `.gitignore` existed were untracked in T0.2.
 - Never commit signing material (`.p12`, profiles), `.env`, or `DerivedData`.
 - Branches: `main` (releases), `develop` (integration), `feature/T<id>-<slug>`, `fix/…`, `spike/…`, `docs/…`.

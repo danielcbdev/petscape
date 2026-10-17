@@ -21,7 +21,7 @@ Open-source portfolio project: local only, no backend, accounts, payments, telem
 ### Current phase
 
 Check the **Status** column in [docs/planning/milestones.md](docs/planning/milestones.md) before
-doing anything. As of 2026-10-16: planning is approved and the proof of concept (M1) is **done**
+doing anything. As of 2026-10-17: planning is approved and the proof of concept (M1) is **done**
 (results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
 branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
 `PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
