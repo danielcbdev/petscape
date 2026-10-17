@@ -1,0 +1,5 @@
+{
+  "schemaVersion": 1,
+  "id": "cat",
+  "animations": {
+    "walk": { "fps": 9, "frames": [

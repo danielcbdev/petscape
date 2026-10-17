@@ -35,7 +35,7 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Show pass-through state (tint when interactive) | M3 |
 | Show test rectangle (96 pt pass-through target in place of the pet; on by default) | M3 |
 | Pause frames / Hide overlay (stand-ins for the M5 menu items; drive the run state) | M3 |
-| Animation preview (play any clip in place, step frame by frame) | M4 |
+| Animation Preview (done in M4): plays any clip in place at 1×/1.5×/2× with the anchor baseline and cross, mirroring toggle, declared vs. measured frame rate; logs `Animation preview '<clip>': measured N frame changes/s` (category `animation`). Frame-by-frame stepping is not implemented yet | M4 |
 | Show anchor, hit mask, sprite bounds | M4–M5 |
 | Show surfaces (segments with IDs) and Dock estimate | M5–M6 |
 | Show pet state, clip, frame, facing, needs | M5–M9 |
@@ -44,6 +44,17 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Simulation speed (0.25×, 1×, 4×) and single-step while paused | M7 |
 | Force events (surface lost, startled, low energy) | M7–M9 |
 | Show window surfaces and tracked windows | M12 |
+
+DEBUG launch arguments (ignored in Release):
+
+| Argument | Effect |
+|---|---|
+| `--animation-preview` | Opens the Animation Preview as soon as the character has loaded |
+| `--character-pack <folder>` | Loads that pack folder instead of the bundled cat (e.g. to check a broken manifest: placeholder, menu status line, `assets` error log) |
+
+```bash
+open -n build/DerivedData/Build/Products/Debug/PetScape.app --args --animation-preview
+```
 
 The debug overlay is drawn by `DebugOverlayLayer` (`CAShapeLayer`s) in `OverlayContentView` from data in the snapshot; it must
 not affect simulation.

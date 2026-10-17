@@ -8,9 +8,9 @@ struct PetScapeApp: App {
     var body: some Scene {
         MenuBarExtra("PetScape", systemImage: "pawprint") {
             #if DEBUG
-                MenuBarContent(debugModel: appDelegate.container.debugModel)
+                MenuBarContent(model: appDelegate.model, debugModel: appDelegate.container.debugModel)
             #else
-                MenuBarContent()
+                MenuBarContent(model: appDelegate.model)
             #endif
         }
     }

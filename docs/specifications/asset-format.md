@@ -10,7 +10,7 @@ Decision: [ADR-0007](../decisions/0007-character-packs.md).
 |---|---|---|
 | **Original source art** (as delivered) | `assets/characters/<id>/<clip>/` (`frames/`, atlas, GIF preview, `README.md`, `manifest.json`) | **Read-only.** Never edited, renamed or re-exported in place. Replacements arrive as new files/versions. |
 | **Character pack manifest** | `assets/characters/<id>/character.json` | New file authored by the team; references source frames by relative path. Edits allowed. |
-| **Bundled pack** (in the app) | `PetScape.app/Contents/Resources/Characters/<id>/` | Built from the pack; only the manifest and the frames it references are shipped (previews, atlases not referenced, READMEs and `.DS_Store` are excluded). Mechanism chosen in task T4.9. |
+| **Bundled pack** (in the app) | `PetScape.app/Contents/Resources/characters/<id>/` | MVP (T4.9): an Xcode folder reference to `assets/characters` copies the whole folder, so the originals (README, `manifest.json`, atlas, GIF) ship too (~3.3 MB for the cat); Xcode's copy step skips `.DS_Store` (verified). The folder keeps its on-disk name `characters` (Xcode ignores a different reference name), so code must use that exact case. A build step that copies only manifest-referenced files replaces this in M14. |
 
 The original `manifest.json` next to the frames is an art-pipeline note, not the runtime manifest.
 It is kept unchanged.
@@ -65,15 +65,15 @@ Inspected `assets/characters/cat/walk/` with `sips`, `file` and a Python/Pillow 
 | F3 | `walk_preview.gif`: 512 × 512, 8 frames, 110 ms each (≈ 9.09 fps), infinite loop | Preview only | Not shipped |
 | F4 | `manifest.json` has `animation`, `frames: 8`, `canvas: [512, 512]`, `fps: 9`, `source` — no frame list, anchor, facing, character id or schema version | Insufficient for runtime | New `character.json` (schema v1) supersedes it at runtime; original kept |
 | F5 | README: "V3", AI-generated sheet, automated isolation; "may contain generation artifacts; animation needs artistic review" | Prototype quality | Visual QA in PoC; replace later |
-| F6 | **Body alpha is 250–254, not 255**: per frame only ~176–236 pixels are fully opaque while ~79k–93k pixels sit at 250–254 | Body is ~1–2% translucent; desktop content may faintly show through; a "alpha == 255" hit test would fail | Hit mask threshold 128; request re-export with opaque body; consider clamping alpha ≥ 250 → 255 at load (decide in M4, logged) |
+| F6 | **Body alpha is 250–254, not 255**: per frame only ~176–236 pixels are fully opaque while ~79k–93k pixels sit at 250–254 | Body is ~1–2% translucent; desktop content may faintly show through; a "alpha == 255" hit test would fail | Hit mask threshold 128 (`HitMask`, tested with alpha 250). **M4 decision:** no alpha clamping at load — pixels are shown as delivered (the PoC showed no visible see-through) and clamping would mean rewriting decoded pixels; request a re-export with an opaque body instead |
 | F7 | Soft fringe: ~2.0–2.7k pixels with alpha 1–15 and ~1.2–1.4k with alpha 16–63 per frame | Possible faint halo on dark/light backgrounds | Check against dark and light wallpapers in PoC |
-| F8 | One connected component (alpha > 32) in frames 01 and 05 — no stray islands found (other frames not checked) | Good isolation in sampled frames | Check all frames in T4.1 fixture test |
+| F8 | All 8 frames checked by `CatArtAuditTests` (M4): one body per frame (alpha > 32, 8-connected), except **frame 03, which has a 4 px speck at x 493, y 248–251 (max alpha 41)** — a generation artifact, below the hit-mask threshold | Barely visible; no effect on hit testing | Tolerated by the test only while specks stay ≤ 16 px and below alpha 128; ask for removal in the next re-export (originals are read-only) |
 | F9 | Lowest solid row (alpha > 128) is y = 473–474 (from top) in all 8 frames; 38 px transparent below | Stable ground contact | Anchor y ≈ 38 / 512 = 0.074 (from bottom) |
 | F10 | Solid horizontal extent x ≈ 19–490 in all frames (~92% of the canvas width; ~20 px side margins); center ≈ 254–255 | Tight canvas; future poses may not fit 512 | Anchor x = 0.5; allow per-clip canvas |
 | F11 | Solid vertical extent varies 352–409 px (head bob, tail) | Expected motion | — |
 | F12 | Character faces **right** | — | `defaultFacing: "right"`; mirror for left |
 | F13 | No idle, turn, sit, sleep, jump, fall or land clips | MVP turn is an instant flip; post-MVP needs art | See art dependencies in [roadmap.md](../product/roadmap.md) |
 | F14 | Ground speed of the walk cycle is unknown | Foot sliding if speed is guessed | Measure stride in M5 (T5.3) and record `nominalSpeed` |
-| F15 | `.DS_Store` files are tracked in git under `assets/` and at the root | Noise in the repo/bundle | Untrack and ignore (T0.2) |
+| F15 | `.DS_Store` files were tracked in git under `assets/` and at the root | Noise in the repo/bundle | Done: untracked and ignored (T0.2); never copied into the app bundle (checked in T4.9) |
 
 Sizes on disk: frames ≈ 1.5 MB total, atlas ≈ 1.48 MB, GIF ≈ 0.30 MB.

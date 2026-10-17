@@ -26,9 +26,10 @@ doing anything. As of 2026-10-16: planning is approved and the proof of concept 
 branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
 `PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
 with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)).
-**M3 (transparent overlay)** is in review (owner approved the manual matrix; see the M3 verification note in
-milestones.md). Do not
-start implementation without an explicit instruction naming the milestone/task.
+**M3 (transparent overlay)** and **M4 (animation system)** are merged and in review: M3 is pending
+log evidence of a resolution change (PoC S8); M4 is pending the owner's visual check of the anchor
+(AC-M4-03). Next milestone: **M5 (rendering & walking)**. Do not start implementation without an
+explicit instruction naming the milestone/task.
 
 ## 2. Stack
 
