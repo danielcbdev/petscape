@@ -28,10 +28,11 @@ changes.
 - A **character pack** is a folder with `character.json` (schema v1) and the PNGs it references.
 - The cat pack lives at `assets/characters/cat/` with a new `character.json`; original files there
   are read-only and referenced in place.
-- Bundling: the app bundle contains `Resources/Characters/<id>/` with the manifest and referenced
-  frames. MVP mechanism (decided in T4.9): an Xcode folder reference to `assets/characters`
-  (simplest, ships unused previews, ~1.8 MB), to be replaced in M14 by a build step that copies only
-  manifest-referenced files.
+- Bundling: the app bundle contains `Resources/characters/<id>/` with the manifest and referenced
+  frames. MVP mechanism (implemented in T4.9): an Xcode folder reference to `assets/characters`
+  (simplest; also ships the unused originals — README, source `manifest.json`, atlas, GIF — about
+  3.3 MB for the cat; `.DS_Store` is skipped by Xcode's copy), to be replaced in M14 by a build step that
+  copies only manifest-referenced files.
 - All bundled manifests are validated by unit tests.
 
 ## Rationale

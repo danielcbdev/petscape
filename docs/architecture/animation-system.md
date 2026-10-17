@@ -65,12 +65,18 @@ own `duration` or `1 / clip.fps`.
 | `pingPong` | reverses direction at ends (end frames not duplicated); emits `loopCompleted` per round trip |
 
 - **FPS independence:** the player accumulates simulation `dt` and may advance several frames in one
-  step (e.g. after a long frame); all crossed frame events are emitted in order.
+  step (e.g. after a long frame); all crossed frame events are emitted in order. Frame boundaries are
+  compared with a 1e-9 s tolerance so a boundary that falls exactly on a step is not missed. Entering
+  frame 0 (start/restart) emits its events on the first step. A single step of a repeating clip plays at
+  most 16 whole cycles; beyond that, whole cycles are skipped (phase kept, their events dropped).
 - **Pause/resume:** the player only advances when stepped; pausing the simulation pauses animation.
 - **Playback rate:** `rate` multiplier (e.g. walk speed setting ×1.2 → rate ×1.2) keeps feet in sync.
-- **Interruption & priority:** `AnimationRequest(clip, priority, restart)`. A request replaces the
-  current clip if `priority >= current.priority` or the current clip is `interruptible` and finished
-  its minimum frames. Priorities are owned by the behavior layer, not the assets
+- **Interruption & priority:** `AnimationRequest(clip, priority, restart)`. `AnimationController`
+  accepts a request when the current clip has finished (a `once` clip holding its last frame); else,
+  when the current clip is `interruptible: false`, only if `priority >= 90`
+  (`AnimationRequest.criticalPriority`); else if `priority >= current.priority`. A "minimum frames"
+  rule is not in schema v1 (no field for it). Requesting the playing clip keeps its position unless
+  `restart` is set. Priorities are owned by the behavior layer, not the assets
   (see [state-machines.md](../specifications/state-machines.md)).
 - **Transitions:** v1 uses hard cuts plus explicit transition clips (`sit-down` then `sit`), chained
   by `next` in data or by the state machine. Cross-fades are out of scope (sprites with alpha

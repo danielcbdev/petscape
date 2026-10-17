@@ -25,8 +25,11 @@ doing anything. As of 2026-10-16: planning is approved and the proof of concept 
 (results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
 branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
 `PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
-with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)). Do not
-start implementation without an explicit instruction naming the milestone/task.
+with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)).
+**M4 (animation system)** is in review: manifest/validator/definition/player/controller in Core, decoder,
+frame store and hit masks in Rendering, `CharacterLoader` and the DEBUG Animation Preview in Runtime,
+cat `character.json` bundled. Do not start implementation without an explicit instruction naming the
+milestone/task.
 
 ## 2. Stack
 

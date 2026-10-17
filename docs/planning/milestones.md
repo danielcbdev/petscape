@@ -12,7 +12,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M1 | Overlay proof of concept | — | **Done** (2026-10-16; recommendation: go for M2 — see [conclusion](proof-of-concept.md#conclusion-t19)) |
 | M2 | App skeleton | v0.1.0 | In review (2026-10-16: build, lint, package tests and manual launch/Quit verified; UI launch test pending Automation Mode on the owner's Mac; T2.8 CI awaits D-06) |
 | M3 | Transparent overlay | v0.1.0 | Not started |
-| M4 | Animation system | v0.1.0 | Not started |
+| M4 | Animation system | v0.1.0 | In review (2026-10-17: lint, package tests and build verified; walk measured at 9.00 fps in the DEBUG preview; owner visual check of the anchor (AC-M4-03) pending) |
 | M5 | Rendering & automatic walking | v0.1.0 | Not started |
 | M6 | Dock integration & MVP hardening | v0.1.0 | Not started |
 | M7 | Basic physics | v0.2.0 | Not started |
