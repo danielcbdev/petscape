@@ -8,6 +8,8 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         public static let version = "petscape.preferencesVersion"
         public static let isPaused = "petscape.isPaused"
         public static let isHidden = "petscape.isHidden"
+        /// Added in M6 without a version bump: absent means 0, the default.
+        public static let dockOffsetAdjustment = "petscape.dockOffsetAdjustment"
     }
 
     /// Bump with a migration in `migrate()` when keys or meanings change.
@@ -28,6 +30,12 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
     public var isHidden: Bool {
         get { defaults.bool(forKey: Key.isHidden) }
         set { defaults.set(newValue, forKey: Key.isHidden) }
+    }
+
+    /// Clamped on read and write, so a hand-edited value cannot push the Dock surface off screen.
+    public var dockOffsetAdjustment: Double {
+        get { DockGeometryEstimator.clampedOffset(defaults.double(forKey: Key.dockOffsetAdjustment)) }
+        set { defaults.set(DockGeometryEstimator.clampedOffset(newValue), forKey: Key.dockOffsetAdjustment) }
     }
 
     /// Version 1 is the first: nothing to migrate yet, only record the version.
