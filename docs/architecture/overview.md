@@ -76,7 +76,7 @@ pure core, enforced by module boundaries.
 
 | Layer | May import | Must not import |
 |---|---|---|
-| `PetScapeCore` | Foundation, `os` (logging) | AppKit, SwiftUI, QuartzCore, ApplicationServices, any other PetScape module |
+| `PetScapeCore` | Foundation, CoreGraphics (geometry value types), `os` (logging) | AppKit, SwiftUI, QuartzCore, ApplicationServices, any other PetScape module |
 | `PetScapePlatform` | Core, AppKit, CoreGraphics, ApplicationServices (AX), ServiceManagement | QuartzCore layers, SwiftUI, Rendering, Runtime |
 | `PetScapeRendering` | Core, AppKit, QuartzCore, ImageIO | Platform, Runtime, SwiftUI, SpriteKit |
 | `PetScapeRuntime` | Core, Platform, Rendering, AppKit | SwiftUI |

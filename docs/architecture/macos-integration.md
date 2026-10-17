@@ -60,7 +60,17 @@ Strategy C cursor source:
   controller. Apple documents permission requirements for *key* events in global monitors; mouse
   events are expected to work without Accessibility **[validate]**. If not, fall back to a low-rate
   (10 Hz) timer only while paused and visible, and document the cost.
-- A local monitor / tracking handles events while our window accepts them.
+- A tracking area (`.mouseMoved`, `.activeAlways`) on `OverlayContentView` handles moves while our window
+  accepts the mouse.
+- The overlay never becomes interactive while a mouse button is already held (a drag from another app,
+  e.g. a file dragged to the Dock, passes over the pet untouched), and a drag that lost its mouse-up is
+  ended as soon as a sample shows no button held.
+- M3 finding (2026-10-17, macOS 27.0.1): the content view's tracking area (`.mouseMoved`, `.activeAlways`)
+  also receives mouse-moved events **while the overlay ignores the mouse**, delivered in step with the
+  display refresh; most pass-through toggles came from them (input event → toggle 9–14 ms, ≤ 1 frame;
+  frame-sampled toggles ~0.4 ms). Consequence: the app wakes on mouse movement anywhere on the overlay's
+  screen, also while paused (no movement = no wakeups). The global monitor is kept as specified, because
+  this delivery is undocumented.
 
 ## Spaces, Mission Control, Stage Manager, fullscreen
 

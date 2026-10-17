@@ -25,7 +25,9 @@ doing anything. As of 2026-10-16: planning is approved and the proof of concept 
 (results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
 branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
 `PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
-with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)). Do not
+with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)).
+**M3 (transparent overlay)** is in review (owner approved the manual matrix; see the M3 verification note in
+milestones.md). Do not
 start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
@@ -50,7 +52,7 @@ App target (SwiftUI shell, composition root — no domain logic)
 
 Hard rules:
 
-- `PetScapeCore` imports only Foundation and `os`. Never AppKit, SwiftUI, QuartzCore, SpriteKit, ApplicationServices.
+- `PetScapeCore` imports only Foundation, CoreGraphics (geometry value types only) and `os`. Never AppKit, SwiftUI, QuartzCore, SpriteKit, ApplicationServices.
 - `Platform` and `Rendering` never import each other; they meet in `Runtime`.
 - Data crosses module boundaries as `Sendable` values (`ScreenDescriptor`, `Surface`, `RenderSnapshot`).
 - Simulation: fixed 60 Hz step, driven by the display frame; stopped entirely when paused, hidden or

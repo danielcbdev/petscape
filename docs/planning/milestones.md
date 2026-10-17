@@ -11,7 +11,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M0 | Repository preparation & planning | — | **Done** (approved 2026-10-16; commit pending, T0.6) |
 | M1 | Overlay proof of concept | — | **Done** (2026-10-16; recommendation: go for M2 — see [conclusion](proof-of-concept.md#conclusion-t19)) |
 | M2 | App skeleton | v0.1.0 | In review (2026-10-16: build, lint, package tests and manual launch/Quit verified; UI launch test pending Automation Mode on the owner's Mac; T2.8 CI awaits D-06) |
-| M3 | Transparent overlay | v0.1.0 | Not started |
+| M3 | Transparent overlay | v0.1.0 | In review (owner approved the manual matrix; resolution-change log evidence still missing, PoC S8) |
 | M4 | Animation system | v0.1.0 | Not started |
 | M5 | Rendering & automatic walking | v0.1.0 | Not started |
 | M6 | Dock integration & MVP hardening | v0.1.0 | Not started |
@@ -72,6 +72,15 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** pass-through latency; Spaces behavior.
 - **Tests:** CoordinateConverter, MousePassthroughController, RunStateController unit tests; manual click-through matrix.
 - **DoD:** FR-03, FR-14, FR-16 (partial) met with a debug rectangle in place of the pet.
+- **Verification (2026-10-17, macOS 27.0.1, built-in Retina 1470 × 956 pt, Dock at the bottom):**
+  `make lint`, `make test-core` (67 tests), `make build` (0 warnings) pass. Window server: overlay at layer 19
+  with full-screen bounds, Dock at 20. AC-M3-04: 56 pass-through toggles over two sessions, each completed
+  ≤ 14.4 ms after the input event/sample that crossed the target edge. Full-screen rule: 8 entries hidden
+  ~1 s after the switch, restored on every return; the inconclusive case kept the state. Clicks/drags on the
+  target: never activated the app or made the overlay key (DEBUG log). Quit: observers, monitors and display
+  link removed, no crash report. Owner approved AC-03, AC-14, AC-16, AC-21, the paused path and the resolution
+  change by hand; **the resolution change left no `Screen parameters changed` line in the log** (as in PoC
+  S8), so the re-layout on resolution change is still not evidenced.
 
 ## M4 — Animation system
 

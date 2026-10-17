@@ -30,7 +30,7 @@ test-core:
 lint:
 	swift format lint --strict --recursive --parallel $(SWIFT_FORMAT_PATHS)
 	@! grep -rnE '$(IMPORT_OF)(AppKit|SwiftUI|QuartzCore|SpriteKit|ApplicationServices|PetScape[A-Za-z]+)\b' \
-		$(PACKAGE)/Sources/PetScapeCore || { echo "error: PetScapeCore may import only Foundation and os"; exit 1; }
+		$(PACKAGE)/Sources/PetScapeCore || { echo "error: PetScapeCore may import only Foundation, CoreGraphics and os"; exit 1; }
 	@! grep -rnE '$(IMPORT_OF)(SpriteKit|PetScapePlatform)\b' \
 		$(PACKAGE)/Sources/PetScapeRendering || { echo "error: PetScapeRendering must not import SpriteKit or PetScapePlatform"; exit 1; }
 	@! grep -rnE '$(IMPORT_OF)(SpriteKit|PetScapeRendering)\b' \

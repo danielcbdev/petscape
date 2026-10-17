@@ -56,12 +56,14 @@ No cycles. `Platform` and `Rendering` never depend on each other; they meet only
 
 ### PetScapeCore — the domain (pure Swift)
 
-Imports: Foundation, `os`. No UI frameworks. Most types are `Sendable` value types. Default actor
+Imports: Foundation, CoreGraphics (geometry value types only: the macOS 27 SDK's Foundation no longer
+re-exports its Swift overlay), `os`. No UI frameworks. Most types are `Sendable` value types. Default actor
 isolation: **nonisolated**.
 
 | Folder | Contents |
 |---|---|
-| `Geometry/` | `Segment`, geometry helpers on Foundation's `CGPoint`/`CGRect`/`CGVector`, `ScreenDescriptor`, `CoordinateConverter` (AppKit global ↔ Quartz global ↔ scene; see [coordinate-system.md](../specifications/coordinate-system.md)) |
+| `Geometry/` | `Segment`, `ScreenID`, `ScreenDescriptor`, `QuartzPoint`/`QuartzRect`, `CoordinateConverter` (AppKit global ↔ Quartz global ↔ overlay-local, mask cells; see [coordinate-system.md](../specifications/coordinate-system.md)) on CoreGraphics' `CGPoint`/`CGRect`/`CGVector` |
+| `RunState/` | `UserIntent`, `SuspensionReason`, `RunState`/`RunStatus` (pure policy: intent × system conditions → visibility, frames, idle cursor monitor), `FullScreenSpaceRule` (Dock-window decision, T3.10) |
 | `Time/` | `SimulationTime`, `FixedStepAccumulator`, `Clock` protocol + `ManualClock` for tests |
 | `Random/` | `RandomSource` protocol, `SeededRandomSource` (SplitMix64) |
 | `Characters/` | `CharacterManifest` (Codable, schema v1), `ManifestValidator`, `CharacterDefinition` (validated, resolved model) |
@@ -84,7 +86,7 @@ live in Core so they can be tested.
 | `Screens/` | `ScreenProvider` (NSScreen → `ScreenDescriptor`, change notifications) |
 | `Dock/` | `DockGeometryProvider` (feeds `DockGeometryEstimator` with screen data + optional Dock prefs hints) |
 | `Input/` | `CursorSampler` (`NSEvent.mouseLocation`, global mouse-moved monitor) |
-| `SystemEvents/` | `SystemEventsMonitor` (sleep/wake, screens sleep, session resign/become active, lock) |
+| `SystemEvents/` | `SystemEventsMonitor` (sleep/wake, screens sleep, session resign/become active, lock), `FullScreenSpaceDetector` (`activeSpaceDidChange` → two `CGWindowList` reads → `FullScreenSpaceRule`) |
 | `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore` |
 | `Permissions/` | `AccessibilityPermission` (M12) |
 | `WindowTracking/` | `WindowTracker` protocol + implementations (M12) |
@@ -97,7 +99,7 @@ decoding service, which is explicitly `nonisolated`/`@concurrent`.
 
 | Folder | Contents |
 |---|---|
-| `Overlay/` | `OverlayPanel` (NSPanel subclass), `OverlayContentView` (layer-backed, non-flipped `NSView`; receives mouse events while interactive), `OverlayWindowManager` (one per screen) |
+| `Overlay/` | `OverlayPanel` (NSPanel subclass), `OverlayContentView` (layer-backed, non-flipped `NSView`; receives mouse events while interactive), `OverlayWindowManager` (one per screen; also reports overlay occlusion, since only it knows the panels) |
 | `Layers/` | `PetLayer` (one `CALayer` per pet: frame image, size, anchor, mirroring; implicit animations disabled), `DebugOverlayLayer` (`CAShapeLayer`s, DEBUG only) |
 | `Images/` | `ImageDecoder` (ImageIO, downsampling), `FrameImageStore` (decoded `CGImage` cache), `HitMask` (alpha mask) |
 | `HitTesting/` | `PetHitTester` (global point → pet ID using masks) |
@@ -110,8 +112,9 @@ Imports: Core, Platform, Rendering, AppKit. Default isolation: **MainActor**.
 |---|---|
 | `PetRuntime` | Owns `PetWorld`; applies run state (running/paused/hidden/suspended); bridges platform events into world inputs; pushes snapshots to renderer |
 | `FrameDriver` | Protocol for "call me each display frame"; `DisplayLinkFrameDriver` wraps the overlay view's `CADisplayLink` (pause, preferred frame rate) |
-| `MousePassthroughController` | Decides `ignoresMouseEvents` per overlay from hit tests |
-| `RunStateController` | Combines user intent (pause/hide) with system state (sleep, lock, occlusion) |
+| `MousePassthroughController` | Decides `ignoresMouseEvents` per overlay from hit tests (`PetHitTesting`; M3 uses `RectangleHitTester`) |
+| `RunStateController` | Combines user intent (pause/hide) with system state (sleep, lock, occlusion, full-screen Space, no screens) via Core's `RunStatus.resolve` |
+| `OverlayCoordinator` | M3 wiring: screens → overlays, run state → visibility / frame driver / idle cursor monitor, cursor → pass-through; DEBUG test rectangle. `PetRuntime` (M5) builds on it |
 | `CharacterLoader` | Loads manifest + frame images for a pack, reports errors |
 
 ### App target — SwiftUI shell and composition root
