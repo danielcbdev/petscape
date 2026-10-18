@@ -67,11 +67,11 @@ stateDiagram-v2
   Suspended --> Running: conditions cleared
 ```
 
-- `Running` is the only state in which the frame driver runs, and only while a pet is placed on a surface
-  (`OverlayCoordinator.needsFrames`, set by `PetRuntime`): before the character loads or without a surface
-  nothing changes on screen, so the display link stays paused. Preferred rate: 60 Hz (ProMotion displays are
-  capped at the simulation rate; the MVP cat always walks, so no lower idle rate is used yet). `Degraded` behaves like `Running`
-  but renders a placeholder and shows an error in the menu.
+- `Running` is the only state in which the frame driver runs. It runs while a visible pet animates or an
+  unplaced pet needs a recovery/placement step on an available surface (`OverlayCoordinator.needsFrames`, set
+  by `PetRuntime`); before the character loads or without a surface, it stays paused. Preferred rate: 60 Hz
+  (ProMotion displays are capped at the simulation rate; the MVP cat always walks, so no lower idle rate is used
+  yet). `Degraded` behaves like `Running` but renders a placeholder and shows an error in the menu.
 - `Paused`: sprites visible, frame driver stopped (display link `isPaused = true`), no timers.
 - `Hidden`: overlays ordered out; frame driver stopped.
 - `Suspended`: system-driven; never persisted. User intent (pause/hide) is persisted (FR-18).

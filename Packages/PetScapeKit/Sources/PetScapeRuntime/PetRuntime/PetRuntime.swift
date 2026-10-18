@@ -6,9 +6,9 @@ import PetScapeRendering
 /// Owns the simulation and connects it to the overlay (modules.md, data-flow.md#per-frame-pipeline):
 ///
 /// display frame → fixed steps of `PetWorld` → snapshot → `PetRenderer` (layers) → `PetHitTester` → the
-/// coordinator's pass-through update. Frames run only while the run state is `running` and a pet is placed;
-/// pausing, hiding and suspension stop the display link, and the accumulator is reset so resuming never
-/// catches up (ADR-0013).
+/// coordinator's pass-through update. Frames run while the run state is `running` and a visible pet animates,
+/// or while an unplaced pet needs a recovery/placement step on an available surface. Pausing, hiding and
+/// suspension stop the display link, and the accumulator is reset so resuming never catches up (ADR-0013).
 ///
 /// Walkway (M6): the Dock top on the Dock's screen, or the screen bottom when the Dock is hidden or on a side
 /// (`DockSurfaceProvider`). Pause, hide and the Dock offset are persisted through `PreferencesStore` (FR-18).
@@ -161,7 +161,7 @@ public final class PetRuntime {
         renderNow()
     }
 
-    /// Snapshot → layers → hit masks; frames are needed only while a pet is on screen.
+    /// Snapshot → layers → hit masks; also keep frames on for a pending placement or recovery step.
     private func renderNow() {
         world.writeSnapshot(into: &snapshot)
         if let renderer, let converter = overlay.converter, let screen = overlay.hostScreen {
@@ -171,7 +171,21 @@ public final class PetRuntime {
         }
         hitTester.update(snapshot) { pet in character?.frame(pet.frame)?.hitMask }
         if !snapshot.isAnimating { accumulator.reset() }
-        overlay.needsFrames = snapshot.isAnimating
+        overlay.needsFrames = snapshot.isAnimating || hasPendingPlacement
+    }
+
+    /// A surface can disappear between frames. Keep the display link alive long enough for the world's
+    /// recovering/spawning state to attach the pet to the replacement surface; otherwise the invisible
+    /// recovery frame would stop the simulation step that makes the pet visible again.
+    private var hasPendingPlacement: Bool {
+        guard overlay.dock.surface != nil else { return false }
+        return world.pets.contains { pet in
+            guard pet.attachment == nil else { return false }
+            return switch pet.state {
+            case .spawning, .recovering: true
+            case .walking, .turning: false
+            }
+        }
     }
 
     #if DEBUG

@@ -12,9 +12,9 @@ final class PetScapeLaunchTests: XCTestCase {
         XCTAssertEqual(app.windows.count, 0, "A menu bar–only app must not open windows")
 
         statusItem.click()
-        let quit = app.menuItems["Quit PetScape"]
+        let quit = app.menuItems.matching(identifier: "menuAction:").firstMatch
         XCTAssertTrue(quit.waitForExistence(timeout: 5), "Quit PetScape menu item not found")
-        quit.click()
+        app.typeKey("q", modifierFlags: .command)
 
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5), "PetScape did not quit")
     }

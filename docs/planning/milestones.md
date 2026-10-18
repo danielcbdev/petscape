@@ -10,11 +10,11 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 |---|---|---|---|
 | M0 | Repository preparation & planning | — | **Done** (approved 2026-10-16; commit pending, T0.6) |
 | M1 | Overlay proof of concept | — | **Done** (2026-10-16; recommendation: go for M2 — see [conclusion](proof-of-concept.md#conclusion-t19)) |
-| M2 | App skeleton | v0.1.0 | In review (2026-10-16: build, lint, package tests and manual launch/Quit verified; UI launch test pending Automation Mode on the owner's Mac; T2.8 CI awaits D-06) |
+| M2 | App skeleton | v0.1.0 | In review (2026-10-18: `make test` and UI launch/Quit test passed in Automation Mode; T2.8 CI awaits D-06) |
 | M3 | Transparent overlay | v0.1.0 | In review (owner approved the manual matrix; resolution-change log evidence still missing, PoC S8) |
-| M4 | Animation system | v0.1.0 | In review (2026-10-17: lint, package tests and build verified; walk measured at 9.00 fps in the DEBUG preview; owner visual check of the anchor (AC-M4-03) pending) |
-| M5 | Rendering & automatic walking | v0.1.0 | In review (2026-10-17: lint, 256 package tests and build verified; walking, turning, pause/hide with persistence and clicks on the cat verified in the running app; owner review of foot sliding (AC-07) pending) |
-| M6 | Dock integration & MVP hardening | v0.1.0 | In review (2026-10-17: lint, 282 package tests, Debug and Release builds verified; Dock estimate, walkway, Space/lock suspension, error path, leaks, 2 h soak, launch and CPU measured; owner checklist (Dock settings, displays, visual ±3 pt, click-through) pending — see the M6 block) |
+| M4 | Animation system | v0.1.0 | **Done** (2026-10-18: lint, package tests, build, 9.00 fps DEBUG preview and owner anchor check verified) |
+| M5 | Rendering & automatic walking | v0.1.0 | In review (2026-10-18: lint, 256 package tests, build and owner visual checks passed; full AC-14 click-through matrix around the walking cat remains) |
+| M6 | Dock integration & MVP hardening | v0.1.0 | In review (2026-10-18: implementation checks and owner manual checks passed; resolution-change log evidence remains missing and external-display checks are unavailable — see the M6 block) |
 | M7 | Basic physics | v0.2.0 | Not started |
 | M8 | Jumps & landings | v0.2.0 | Not started |
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | Not started |
@@ -92,6 +92,7 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** bundling the pack; memory; alpha fringe.
 - **Tests:** decoding/validation tables, player parameterized tests (8/12/16/24/32 frames, 60/120 Hz), decoder/texture tests with fixtures, bundled-pack validation test.
 - **DoD:** FR-05, FR-06, FR-15 met in the DEBUG preview.
+- **Owner check (2026-10-18):** DEBUG Animation preview showed the `walk` anchor aligned at the paws (AC-M4-03 pass).
 
 ## M5 — Rendering & automatic walking
 
@@ -115,9 +116,8 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
   relaunch restored `paused=true` (cat drawn, frozen) and `hidden=true` (no overlay window, "Show Pet");
   synthetic click on the cat logged `Mouse down on pet 1`, `app active=false overlay key=false`; cursor just
   above its back returned to pass-through. CPU (Debug, `top`): ~2.5% walking, 0.0% paused; footprint 29 MB.
-  **Not verified / pending:** owner review of foot sliding (AC-07 Man; `nominalSpeed` 20 is a compromise, see
-  [asset-format.md F14](../specifications/asset-format.md#current-asset-audit-2026-10-16)); AC-02 VoiceOver;
-  AC-14 full click-through matrix around the walking cat; AC-04 look on light/dark wallpapers. The M5 walkway is
+  **Not verified / pending:** AC-14 full click-through matrix around the walking cat (partial Dock check passed);
+  other owner visual checks passed on 2026-10-18. The M5 walkway is
   the screen bottom, so most of the time the cat walks **behind the Dock** (overlay level is below the Dock);
   the Dock surface is M6.
 
@@ -155,17 +155,50 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
     XPC connection (`com.apple.linkd.autoShortcut`), none in PetScape code — identical at the start and end of the
     soak. 2 h soak (Release, 2026-10-17 15:17–17:18): no crash, no crash report, physical footprint 21.8 → 23.7 MB
     (+1.9 MB; RSS 66 → 39 MB).
-  - Not verified / owner checklist (needs Dock settings, displays or eyes): (1) Debug › Show walkway + paws on
-    the shelf ±3 pt, Dock small/large/magnification, Debug › Dock offset if needed (AC-10); (2) auto-hide on/off,
-    Dock left/right, resize/move while running (AC-10, AC-17); (3) resolution change with `log stream` running —
-    expects `Screen parameters changed` and a new walkway line (AC-17, closes M3/PoC S8); (4) external display
-    connect/disconnect and Dock on the secondary (matrix 7–8, if hardware exists); (5) that the cat disappears in
-    full-screen apps and looks right after a Space switch and after unlock — no jump (matrix 11–12, seen in logs
-    only); (6) display sleep, sleep/wake and user switching (matrix 12; runtime tests only, not exercised live);
-    (7) AC-14 click-through around the cat on the Dock and the Dock icons next to it, AC-21 click the cat while
-    typing; (8) AC-02 VoiceOver, AC-04 light/dark wallpapers, AC-07 foot sliding, AC-M4-03 anchor, AC-16 privacy
-    panes, AC-13 quit time, menu status line with a broken pack (AC-15 Man); (9) Automation Mode for the UI test
-    (`make test`, M2).
+  - Owner visual check (2026-10-17, macOS 27.0.1, built-in Retina display, bottom Dock): Debug › Show walkway
+    confirmed the cat's paws are within ±3 pt of the Dock edge (AC-10). Small/large Dock sizes and magnification
+    also passed the owner's visual check. Quit from the menu logged `PetScape stopped` after removing the overlay
+    and stopping observers, monitors and the display link.
+  - Owner manual check (2026-10-18, macOS 27.0.1, built-in Retina display): moving the Dock to the left and
+    right briefly transitions the cat through `surfaceLost`, then restores it on the screen-bottom fallback
+    walkway; the owner confirmed the cat remained visible and the behavior worked on both sides (AC-10 pass).
+    T6.4 regression coverage reproduces both side placements; the runtime keeps frames running until placement
+    completes.
+  - Owner manual check (2026-10-18): Dock auto-hide on/off, resizing and moving the Dock while PetScape was
+    running all worked as expected (AC-10, AC-17 pass).
+  - Owner accepted the resolution-change check as passing without a direct run because no external monitor was
+    available (2026-10-18); the required `Screen parameters changed` and new walkway log evidence was not captured,
+    so the M3/PoC S8 evidence gap remains. External display connect/disconnect and Dock-on-secondary checks are
+    not applicable until an external display is available (matrix 7–8).
+  - Owner manual check (2026-10-18): the cat disappears in a full-screen app and returns after leaving full screen
+    (matrix 11–12 pass); logs confirmed `Full-screen Space detected (no Dock window)` and `Desktop Space (Dock
+    window present)`.
+  - Owner manual check (2026-10-18): switching Spaces and returning left the cat visible and correctly placed,
+    with no jump (matrix 11–12 pass); the log stream recorded full-screen/desktop Space transitions.
+  - Owner manual check (2026-10-18): locking and unlocking the session returned the cat in the right place,
+    without a jump (matrix 11–12 pass).
+  - Owner manual check (2026-10-18): after the display went to sleep and was woken, the cat returned correctly
+    (matrix 12 pass).
+  - Owner manual check (2026-10-18): after putting the Mac to sleep and waking it, the cat returned in the right
+    place (matrix 12 pass).
+  - Owner manual check (2026-10-18): switching to another macOS user and returning worked; the cat resumed
+    correctly (matrix 12 pass).
+  - Owner manual check (2026-10-18): clicking and dragging Dock icons beside the cat and clicking around it on
+    the Dock worked normally (AC-14 pass).
+  - Owner manual check (2026-10-18): clicking the cat while typing left the other app frontmost and typing
+    continued there (AC-21 pass).
+  - Owner manual check (2026-10-18): the PetScape menu was reachable and correctly announced with VoiceOver
+    (AC-02 pass).
+  - Owner manual check (2026-10-18): the overlay remained transparent with no visible background, border or
+    shadow on both light and dark wallpapers (AC-03 pass).
+  - Owner manual check (2026-10-18): watching the cat walk showed no visible foot sliding (AC-07 pass).
+  - Owner manual check (2026-10-18): PetScape had no entries in the checked Privacy & Security panes (AC-16 pass).
+  - Owner manual check (2026-10-18): the DEBUG Animation preview showed the `walk` anchor aligned at the paws
+    (AC-M4-03 pass).
+  - Owner manual check (2026-10-18): with a missing `character.json`, the menu showed the placeholder error
+    status and the placeholder pet appeared; logs recorded the load error, placeholder spawn and clean quit
+    (AC-15 Man pass).
+  - UI launch test (2026-10-18): `make test` passed in Automation Mode (174 package tests and 1 UI test).
   - Deviations for the owner to accept or reject: walking CPU 2.06% is a > 20% regression versus the PoC entry
     in performance.md (1.0%; the spike had no simulation or per-frame hit testing) though within the 5% target; when PetScape is launched inside a full-screen Space the cat
     can show for ~0.4 s until the two-read full-screen check confirms (T3.10 design); a Dock hidden/shown while

@@ -109,6 +109,42 @@ struct PetRuntimeTests {
         #expect(!h.driver.isPaused)  // running and a pet is on screen
     }
 
+    @Test(arguments: [DockEstimate.Position.left, .right])
+    func movingDockToASideKeepsFramesRunningUntilThePetResettles(_ position: DockEstimate.Position) async throws {
+        let h = Harness()
+        try await h.start()
+        h.frames(2)
+        let screen = try #require(h.runtime.overlay.hostScreen)
+        let frame = screen.frame
+        let visibleFrame: CGRect
+        switch position {
+        case .left:
+            visibleFrame = CGRect(
+                x: frame.minX + 50, y: frame.minY, width: frame.width - 50, height: frame.height - 36)
+        case .right:
+            visibleFrame = CGRect(
+                x: frame.minX, y: frame.minY, width: frame.width - 50, height: frame.height - 36)
+        case .bottom, .hiddenOrUnknown:
+            Issue.record("This regression test only covers a side Dock")
+            return
+        }
+        let sideScreen = ScreenDescriptor(
+            id: screen.id, frame: frame, visibleFrame: visibleFrame,
+            backingScale: screen.backingScale, isPrimary: true)
+
+        h.runtime.overlay.dock.update(screens: [sideScreen])
+        h.runtime.overlay.onScreensChange?()
+        #expect(h.runtime.overlay.dock.estimate.position == position)
+        #expect(h.runtime.overlay.dock.surface?.kind == .screenBottom)
+
+        h.frames(3)
+
+        let pet = try #require(h.pet)
+        #expect(pet.isVisible)
+        #expect(pet.position.y == frame.minY)
+        #expect(!h.driver.isPaused)
+    }
+
     @Test func framesStepTheWorldAtTheFixedRateAndMoveTheLayer() async throws {
         let h = Harness()
         try await h.start()

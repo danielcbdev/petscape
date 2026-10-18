@@ -72,10 +72,13 @@ Record environment (see [proof-of-concept.md](../planning/proof-of-concept.md#en
 | 16 | No permissions requested | Privacy panes have no PetScape entry |
 | 17 | Quit from menu | Exits cleanly |
 
-M6 run (2026-10-17, recorded in the [M6 block of milestones.md](../planning/milestones.md#m6--dock-integration--mvp-hardening)):
-row 15 passed (logs: error + placeholder, no crash; the menu line itself not seen); row 11 (full-screen Space ↔
-desktop, 3 times) and row 12 for lock/unlock seen in the logs with frames off; rows 1, 3–5 covered by
-estimator/provider/world tests and launch logs; sleep, display sleep and user switching by runtime tests only. Every row
-still needs the owner's eyes or settings changes — rows 1–14, 16 and 17 are on the owner checklist there.
+M6 run (2026-10-17, with owner follow-up on 2026-10-18, recorded in the [M6 block of milestones.md](../planning/milestones.md#m6--dock-integration--mvp-hardening)):
+row 15 passed (logs: error + placeholder, no crash; owner later confirmed the menu status line); row 16 passed
+(no PetScape entry in checked Privacy & Security panes); owner also confirmed Dock side fallback, auto-hide,
+resize/move, full-screen and Space return, lock/unlock, display and system sleep/wake, user switching, Dock
+click-through, typing focus, VoiceOver, light/dark wallpaper transparency, foot motion, anchor and clean Quit.
+Rows 1, 3–5 are covered by estimator/provider/world tests and launch logs. Resolution-change log evidence and
+external-display checks remain unavailable; the full AC-14 click-through matrix is still pending. The M2 UI launch
+test passed in Automation Mode on 2026-10-18 (`make test`; 174 package tests plus 1 UI test).
 
 Post-MVP milestones extend this matrix (drag, climbing, windows, multi-display).
