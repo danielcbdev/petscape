@@ -126,9 +126,11 @@ public struct PetWorld: Sendable {
                 pet.animation.setFacing(newFacing)
                 enter(.walking, pet: &pet, events: &events)
             }
-        case .recovering:
+        case .recovering(let reason):
             enter(.spawning, pet: &pet, events: &events)
-            place(&pet, events: &events)
+            if reason != .surfaceLost || !resettle(&pet, events: &events) {
+                place(&pet, events: &events)
+            }
         }
         validate(&pet, events: &events)
     }
@@ -174,6 +176,20 @@ public struct PetWorld: Sendable {
             AnimationRequest(clip: BehaviorTuning.walkClip, priority: AnimationRequest.criticalPriority, restart: true))
         setPosition(of: &pet, x: x, on: surface)
         events.append(.placed(pet.id, surface.id))
+    }
+
+    /// After `surfaceLost` (the Dock hidden, shown or moved to a side, T6.4): puts the pet on the spawn surface
+    /// straight below or above its last position, keeping facing and animation, when that surface spans its x
+    /// (clamped into the walkable range). Returns `false` when it does not, so the pet respawns at random.
+    private func resettle(_ pet: inout Pet, events: inout [WorldEvent]) -> Bool {
+        let x = pet.position.x
+        guard let surface = surfaces.spawnSurface, x.isFinite, surface.minX <= x, x <= surface.maxX else {
+            return false
+        }
+        let range = surface.walkableRange(margin: pet.edgeMargin)
+        setPosition(of: &pet, x: min(max(x, range.lowerBound), range.upperBound), on: surface)
+        events.append(.placed(pet.id, surface.id))
+        return true
     }
 
     /// Uniform in `0..<1` from the top 53 bits of the injected source.

@@ -28,9 +28,11 @@ branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: t
 with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)).
 **M3 (transparent overlay)** and **M4 (animation system)** are merged and in review: M3 is pending
 log evidence of a resolution change (PoC S8); M4 is pending the owner's visual check of the anchor
-(AC-M4-03). **M5 (rendering & walking)** is implemented and in review (owner review of foot sliding
-pending; not merged). Next milestone: **M6 (Dock integration & MVP hardening)**. Do not start
-implementation without an explicit instruction naming the milestone/task.
+(AC-M4-03). **M5 (rendering & walking)** is merged and in review (owner review of foot sliding
+pending). **M6 (Dock integration & MVP hardening)** is implemented and in review (not merged, v0.1.0 not
+tagged): the cat walks on the Dock top (2.1% CPU walking, 0% paused, 2 h soak clean); the owner checklist in the M6 block of milestones.md (Dock settings,
+displays, visual alignment, click-through) is pending. Next milestone after the v0.1.0 release: **M7 (basic
+physics)**. Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
 

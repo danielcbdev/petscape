@@ -48,6 +48,9 @@ Notes:
   (so the sprite never pokes past the edge).
 - When the Dock surface changes size (user resizes Dock), the attachment parameter is re-projected;
   if the pet ends up outside the new segment it is clamped and `edgeReached` fires.
+- `recovering(surfaceLost)` (Dock hidden, shown or moved to a side, M6): the pet re-settles on the new spawn
+  surface at the same x (clamped into the walkable range), keeping facing and animation, when that surface
+  spans its x; otherwise, and for every other reason, it respawns at a random position.
 - App pause is not a pet state; the world is simply not stepped.
 
 ## Target hierarchical state machine (M7+)

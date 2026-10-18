@@ -59,12 +59,37 @@ Surface selection:
 
 | Estimate | Surface | Notes |
 |---|---|---|
-| `.bottom` | `.dockTop` at `y = visible.minY + dockOffsetAdjustment`, x from `frame.minX + halfPetWidth` to `frame.maxX − halfPetWidth` | MVP target. Full width because the shelf's horizontal extent is unknown |
+| `.bottom` | `.dockTop` (ID `dock`) at `y = visible.minY + dockOffsetAdjustment`, spanning `frame.minX…frame.maxX` of the Dock's screen | MVP target. Full width because the shelf's horizontal extent is unknown; the half-pet-width margin is applied by the world's walkable range (FR-08), not baked into the segment |
 | `.left` / `.right` | `.screenBottom` of that screen | Vertical Dock as climbable surface is FR-43 (future) |
 | `.hiddenOrUnknown` | `.screenBottom` of the primary screen | Auto-hide: pet walks on the screen edge; the Dock appearing on hover is not tracked in the MVP |
+| estimate for a screen that is gone | `.screenBottom` of the primary screen | Defensive; the next screen change re-estimates |
+
+Ties between equal insets keep the first screen (primary first), then bottom before left before right.
+
+### Implementation (M6)
+
+| Piece | Where | Role |
+|---|---|---|
+| `DockEstimate`, `DockGeometryEstimator` | Core `Surfaces/` | Pure estimate and surface selection above (`minimumInset` 10 pt, `offsetAdjustmentRange` −40…+40, `clampedOffset`) |
+| `DockSurfaceProvider` | Platform `Dock/` | Keeps the current estimate, offset and walkway; logs changes (category `dock`); owns no observer |
+| `OverlayCoordinator` | Runtime | Calls `dock.update(screens:)` on every screen change and hosts the overlay on `dock.hostScreenID` (the Dock's screen, else the primary) |
+| `PetRuntime` | Runtime | Feeds `dock.surfaces` to the world; `setDockOffsetAdjustment(_:)` persists the offset and moves the walkway |
+
+Fallback re-read (ADR-0009 risk, no polling): when a suspension ends (wake, display wake, unlock, session
+active again, leaving a full-screen Space) the coordinator reads the screens again and applies them only if they
+differ, in case a change made meanwhile was not notified.
+
+Pets and walkway changes: a resized Dock keeps the `dock` ID, so an attached pet is re-projected by parameter
+and clamped (`edgeReached` fires on the next step if it hit an end). A Dock hidden, shown or moved to a side
+swaps `dock` and a screen bottom: the pet goes through `recovering(surfaceLost)` and re-settles on the new
+surface at the same x (clamped, same facing) when that surface spans its x, else it respawns at random (e.g.
+its screen disappeared). M7 replaces this with falling (AC-M7-02).
 
 `dockOffsetAdjustment` (points, default 0, range −40…+40) is a user/debug preference for visual
-alignment with the shelf. Exposed in a DEBUG menu in the MVP and in Settings → Advanced in M9.
+alignment with the shelf. Exposed in a DEBUG menu in the MVP (Debug › Dock offset: ±1/±5 pt, reset; Debug ›
+Show walkway draws the surface as a green line) and in Settings → Advanced in M9. Persisted as
+`petscape.dockOffsetAdjustment` and clamped on read and write; it moves only the Dock top, not the screen-bottom
+fallback.
 
 Change detection: recompute on `didChangeScreenParametersNotification`. PoC E3 (macOS 27.0.1)
 confirmed that Dock resize, position change and auto-hide toggling all post it (within ~1 s), so

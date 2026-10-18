@@ -32,7 +32,7 @@ final class AppContainer {
             fullScreenDetector: FullScreenSpaceDetector(),
             preferences: UserDefaultsPreferencesStore())
         #if DEBUG
-            debugModel = DebugOverlayModel(overlay: runtime.overlay)
+            debugModel = DebugOverlayModel(runtime: runtime)
         #endif
     }
 

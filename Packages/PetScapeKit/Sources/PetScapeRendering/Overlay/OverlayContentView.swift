@@ -83,6 +83,12 @@ public final class OverlayContentView: NSView {
             set { debugLayer.showsPassthroughState = newValue }
         }
 
+        /// DEBUG menu "Show walkway": overlay-local y of the pet's surface; `nil` hides the line.
+        public var debugWalkwayY: CGFloat? {
+            get { debugLayer.walkwayY }
+            set { debugLayer.walkwayY = newValue }
+        }
+
         public func setInteractive(_ isInteractive: Bool) {
             debugLayer.isInteractive = isInteractive
         }

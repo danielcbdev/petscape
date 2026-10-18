@@ -69,7 +69,7 @@ isolation: **nonisolated**.
 | `Characters/` | `CharacterManifest` (Codable, schema v1), `ManifestValidator`, `CharacterDefinition` (validated, resolved model) |
 | `Animation/` | `AnimationClip`, `AnimationPlayer` (time → frame index, events), `AnimationRequest`, fallback resolution |
 | `Pets/` | `PetID`, `Pet` (state container), `SurfaceAttachment`, `Facing`; `Personality`, `Needs` (M9) |
-| `Surfaces/` | `Surface` (horizontal so far), `SurfaceID`, `SurfaceKind`, `SurfaceMap` (queries, diffs), `DockGeometryEstimator` (pure heuristic, M6) |
+| `Surfaces/` | `Surface` (horizontal so far), `SurfaceID`, `SurfaceKind`, `SurfaceMap` (queries, diffs), `DockEstimate` + `DockGeometryEstimator` (pure heuristic and surface selection, M6) |
 | `Physics/` | `KinematicBody`, `PhysicsStepper`, `JumpSolver` (M8) |
 | `Behavior/` | `PetState` (MVP machine: spawning/walking/turning/recovering), `BehaviorTuning`; HSM, `PetEvent`, `TransitionTable`, `ActivitySelector` (M7–M9) |
 | `World/` | `PetWorld` (owns pets + surface map, `step(dt:into:)`), `WorldInput` (screens, surfaces; cursor in M10), `WorldEvent`, `RenderSnapshot` + `PetRenderState` |
@@ -84,7 +84,7 @@ live in Core so they can be tested.
 | Folder | Contents |
 |---|---|
 | `Screens/` | `ScreenProvider` (NSScreen → `ScreenDescriptor`, change notifications) |
-| `Dock/` | `DockGeometryProvider` (feeds `DockGeometryEstimator` with screen data + optional Dock prefs hints) |
+| `Dock/` | `DockSurfaceProvider` (M6: current Dock estimate, offset and walkway from the screens `ScreenProvider` reports; no observer of its own). The AX-based exact shelf frame (M12+) goes behind it |
 | `Input/` | `CursorSampler` (`NSEvent.mouseLocation`, global mouse-moved monitor) |
 | `SystemEvents/` | `SystemEventsMonitor` (sleep/wake, screens sleep, session resign/become active, lock), `FullScreenSpaceDetector` (`activeSpaceDidChange` → two `CGWindowList` reads → `FullScreenSpaceRule`) |
 | `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore`, `InMemoryPreferencesStore` (tests) |
@@ -110,11 +110,11 @@ Imports: Core, Platform, Rendering, AppKit. Default isolation: **MainActor**.
 
 | Type | Role |
 |---|---|
-| `PetRuntime` | Owns `PetWorld`, the `FixedStepAccumulator`, `PetRenderer` and `PetHitTester`; builds the `OverlayCoordinator`; per frame: steps → snapshot → render → hit masks; persists pause/hide through `PreferencesStore`; M5 walkway = bottom of the host screen |
+| `PetRuntime` | Owns `PetWorld`, the `FixedStepAccumulator`, `PetRenderer` and `PetHitTester`; builds the `OverlayCoordinator`; per frame: steps → snapshot → render → hit masks; persists pause/hide and the Dock offset through `PreferencesStore`; walkway = `DockSurfaceProvider` (Dock top or screen-bottom fallback) |
 | `FrameDriver` | Protocol for "call me each display frame"; `DisplayLinkFrameDriver` wraps the overlay view's `CADisplayLink` (pause, preferred frame rate) |
 | `MousePassthroughController` | Decides `ignoresMouseEvents` per overlay from hit tests (`PetHitTesting`, implemented by Rendering's `PetHitTester`) |
 | `RunStateController` | Combines user intent (pause/hide) with system state (sleep, lock, occlusion, full-screen Space, no screens) via Core's `RunStatus.resolve` |
-| `OverlayCoordinator` | M3 wiring: screens → overlays, run state → visibility / frame driver / idle cursor monitor, cursor → pass-through; hooks (`onFrame`, `onScreensChange`, `onStatusChange`, `onMouseEvent`, `needsFrames`, `preferredFramesPerSecond`) used by `PetRuntime` |
+| `OverlayCoordinator` | M3 wiring: screens → Dock estimate (host = Dock's screen) → overlays, run state → visibility / frame driver / idle cursor monitor, cursor → pass-through; hooks (`onFrame`, `onScreensChange`, `onStatusChange`, `onMouseEvent`, `needsFrames`, `preferredFramesPerSecond`) used by `PetRuntime` |
 | `CharacterLoader` | Loads manifest + frame images for a pack, reports errors |
 
 ### App target — SwiftUI shell and composition root
