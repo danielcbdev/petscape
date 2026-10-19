@@ -10,7 +10,7 @@ public struct RenderSnapshot: Equatable, Sendable {
     }
 
     /// Whether any visible pet moves or animates, i.e. frames are worth rendering (T5.7).
-    public var isAnimating: Bool { pets.contains { $0.isVisible } }
+    public var isAnimating: Bool { pets.contains { $0.isVisible && $0.isAnimating } }
 }
 
 /// How one pet is drawn: canonical global contact point, size in points and the frame to show.
@@ -25,9 +25,11 @@ public struct PetRenderState: Equatable, Sendable {
     public var frame: AnimationFrameRef
     /// `false` while the pet is not placed on a surface.
     public var isVisible: Bool
+    public var isAnimating: Bool
 
     public init(
-        id: PetID, characterID: CharacterID, position: CGPoint, size: CGSize, frame: AnimationFrameRef, isVisible: Bool
+        id: PetID, characterID: CharacterID, position: CGPoint, size: CGSize, frame: AnimationFrameRef, isVisible: Bool,
+        isAnimating: Bool = true
     ) {
         self.id = id
         self.characterID = characterID
@@ -35,6 +37,7 @@ public struct PetRenderState: Equatable, Sendable {
         self.size = size
         self.frame = frame
         self.isVisible = isVisible
+        self.isAnimating = isAnimating
     }
 
     /// The global rectangle the sprite covers. Mirroring flips the layer around its anchor, so a mirrored

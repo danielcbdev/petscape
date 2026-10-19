@@ -24,6 +24,11 @@ struct MenuBarContent: View {
             if model.isPaused { Text("Resume") } else { Text("Pause") }
         }
         Divider()
+        SettingsLink {
+            Text("Settings…")
+        }
+        .keyboardShortcut(",")
+        Divider()
         #if DEBUG
             DebugMenu(model: debugModel)
             Button("Animation Preview") {

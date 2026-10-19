@@ -13,14 +13,18 @@ public struct BehaviorTuning: Equatable, Sendable {
     public var fallbackWalkSpeed: Double
     /// How far outside every screen frame a contact point may be before the pet is recovered.
     public var outOfBoundsMargin: CGFloat
+    /// Optional base-weight overrides for tuning scenarios. Missing entries are unavailable; nil uses the
+    /// personality/energy defaults. Eligibility, cooldowns and the low-energy safety guard still apply.
+    public var activityWeights: [Activity: Double]?
 
     public init(
         turnHold: Double = 0.15, speedScale: Double = 1, fallbackWalkSpeed: Double = 20,
-        outOfBoundsMargin: CGFloat = 8
+        outOfBoundsMargin: CGFloat = 8, activityWeights: [Activity: Double]? = nil
     ) {
         self.turnHold = turnHold
         self.speedScale = speedScale
         self.fallbackWalkSpeed = fallbackWalkSpeed
         self.outOfBoundsMargin = outOfBoundsMargin
+        self.activityWeights = activityWeights
     }
 }

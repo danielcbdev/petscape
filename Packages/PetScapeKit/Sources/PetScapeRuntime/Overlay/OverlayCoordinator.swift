@@ -19,6 +19,8 @@ public final class OverlayCoordinator {
     public var onScreensChange: (() -> Void)?
     /// Called after every run status change has been applied.
     public var onStatusChange: ((RunStatus) -> Void)?
+    /// Effective display-link transitions, including demand changes and replacement of the host driver.
+    public var onFrameDriverChange: ((Bool) -> Void)?
     /// Mouse events the overlay received (only while pass-through is off, i.e. over a pet).
     public var onMouseEvent: ((OverlayMouseEvent) -> Void)?
 
@@ -47,6 +49,7 @@ public final class OverlayCoordinator {
     private var screens: [ScreenDescriptor] = []
     private var frameDriver: (any FrameDriver)?
     private var isStarted = false
+    private var hasEffectiveFrames = false
 
     public init(
         screenProvider: ScreenProvider,
@@ -113,6 +116,8 @@ public final class OverlayCoordinator {
         onFrame = nil
         onScreensChange = nil
         onStatusChange = nil
+        onFrameDriverChange = nil
+        hasEffectiveFrames = false
         onMouseEvent = nil
         runState.onChange = nil
         overlays.onOcclusionChange = nil
@@ -148,6 +153,10 @@ public final class OverlayCoordinator {
 
     /// The display link belongs to the host overlay's view, so it follows that overlay.
     private func replaceFrameDriver() {
+        if hasEffectiveFrames {
+            hasEffectiveFrames = false
+            onFrameDriverChange?(false)
+        }
         frameDriver?.invalidate()
         frameDriver = nil
         guard let hostScreenID, let view = overlays.contentView(for: hostScreenID) else { return }
@@ -160,7 +169,23 @@ public final class OverlayCoordinator {
 
     /// Frames run only while running and while something on screen changes (`needsFrames`).
     private func updateFrameDriver() {
-        frameDriver?.isPaused = !(runState.status.isFrameDriverRunning && needsFrames)
+        let active = frameDriver != nil && runState.status.isFrameDriverRunning && needsFrames
+        frameDriver?.isPaused = !active
+        if active != hasEffectiveFrames {
+            hasEffectiveFrames = active
+            onFrameDriverChange?(active)
+        }
+        updateCursorMonitoring()
+    }
+
+    private func updateCursorMonitoring() {
+        guard isStarted else { return }
+        let status = runState.status
+        if status.isOverlayVisible && !hasEffectiveFrames && !runState.reasons.contains(.overlayOccluded) {
+            cursorSampler.startMonitoring { [weak self] sample in self?.passthrough.update(with: sample) }
+        } else {
+            cursorSampler.stopMonitoring()
+        }
     }
 
     /// The fallback re-read of ADR-0009 / PoC E3, without polling: screen changes made while asleep, locked,
@@ -176,21 +201,16 @@ public final class OverlayCoordinator {
     // MARK: Run state
 
     private func setCondition(_ reason: SuspensionReason, isActive: Bool) {
-        runState.setCondition(reason, isActive: isActive)
         if !isActive && reason != .overlayOccluded { refreshScreensIfChanged() }
+        runState.setCondition(reason, isActive: isActive)
     }
 
     private func apply(_ status: RunStatus) {
         overlays.setVisible(status.isOverlayVisible)
         updateFrameDriver()
-        if status.isIdleCursorMonitorNeeded {
-            cursorSampler.startMonitoring { [weak self] sample in self?.passthrough.update(with: sample) }
-        } else {
-            cursorSampler.stopMonitoring()
-        }
         if !status.isOverlayVisible {
             passthrough.reset()
-        } else if !status.isFrameDriverRunning {
+        } else if !hasEffectiveFrames {
             // No frames: take one sample now so the state is right before the first mouse move.
             passthrough.update(with: cursorSampler.sample())
         }

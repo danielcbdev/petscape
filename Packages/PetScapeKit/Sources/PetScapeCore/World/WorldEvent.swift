@@ -5,6 +5,12 @@ public enum WorldEvent: Equatable, Sendable {
     case stateChanged(PetID, from: PetStateKind, to: PetStateKind)
     /// The contact point reached the walkable end of its surface.
     case edgeReached(PetID)
+    case surfaceLost(PetID, SurfaceID)
+    case landed(PetID, SurfaceID)
+    case tookOff(PetID)
+    case apex(PetID)
+    case jumpRejected(PetID, JumpRejection)
+    case jumpCancelled(PetID)
     case recovered(PetID, reason: RecoveryReason)
     case animationEvent(PetID, AnimationEvent)
 }

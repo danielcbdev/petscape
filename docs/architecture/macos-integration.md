@@ -14,6 +14,13 @@ Decision: [ADR-0003](../decisions/0003-overlay-window-strategy.md).
 | AppKit bridge | `@NSApplicationDelegateAdaptor(AppDelegate.self)`; the delegate owns the `AppContainer` |
 | Focus | Our overlay windows never become key or main; opening Settings activates the app normally |
 
+M9 Settings forwards intents through a shared observable SettingsModel to PetRuntime. Production
+preferences restore size/speed/activity toggles before spawn. The public SMAppService.mainApp adapter
+is injected at the composition root. Launch only reads its status; registration/unregistration happens
+on explicit Settings actions. Status refreshes on window opening and application activation, without
+polling. Login failures remain visible while local preferences continue to work. Tests inject a fake
+login service and an isolated preference suite, including for Restore Defaults.
+
 ## Overlay window strategies compared
 
 | Criterion | 1. One large overlay per screen | 2. Small window per pet | 3. Hybrid (chosen): large overlay per screen + dynamic pass-through |

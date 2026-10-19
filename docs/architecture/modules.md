@@ -68,10 +68,10 @@ isolation: **nonisolated**.
 | `Random/` | `RandomSource` protocol, `SeededRandomSource` (SplitMix64) |
 | `Characters/` | `CharacterManifest` (Codable, schema v1), `ManifestValidator`, `CharacterDefinition` (validated, resolved model) |
 | `Animation/` | `AnimationClip`, `AnimationPlayer` (time → frame index, events), `AnimationRequest`, fallback resolution |
-| `Pets/` | `PetID`, `Pet` (state container), `SurfaceAttachment`, `Facing`; `Personality`, `Needs` (M9) |
+| `Pets/` | `PetID`, `Pet` (state container), `SurfaceAttachment`, `Facing`; `PetSettings`; `Personality`, `Needs` live in Behavior |
 | `Surfaces/` | `Surface` (horizontal so far), `SurfaceID`, `SurfaceKind`, `SurfaceMap` (queries, diffs), `DockEstimate` + `DockGeometryEstimator` (pure heuristic and surface selection, M6) |
-| `Physics/` | `KinematicBody`, `PhysicsStepper`, `JumpSolver` (M8) |
-| `Behavior/` | `PetState` (MVP machine: spawning/walking/turning/recovering), `BehaviorTuning`; HSM, `PetEvent`, `TransitionTable`, `ActivitySelector` (M7–M9) |
+| `Physics/` | Implemented `PhysicsTuning`, `ContactGeometry`, `PhysicsStepper`/candidate results (Pet.position remains canonical), `JumpSolver`/plan/tuning |
+| `Behavior/` | `PetState` with grounded/airborne/lifecycle phases, `BehaviorTuning`, explicit `JumpRequest`/return intent; M9 `Needs`, `Personality`, `ActivitySelector`, activity/cooldown execution and `AutonomySettings`; no second FSM framework |
 | `World/` | `PetWorld` (owns pets + surface map, `step(dt:into:)`), `WorldInput` (screens, surfaces; cursor in M10), `WorldEvent`, `RenderSnapshot` + `PetRenderState` |
 | `Diagnostics/` | `Log` categories (thin wrappers over `os.Logger`) |
 
@@ -90,7 +90,7 @@ live in Core so they can be tested.
 | `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore`, `InMemoryPreferencesStore` (tests) |
 | `Permissions/` | `AccessibilityPermission` (M12) |
 | `WindowTracking/` | `WindowTracker` protocol + implementations (M12) |
-| `LoginItem/` | `LoginItemController` via `SMAppService` (M9) |
+| `Login/` | injected login-item service via public `SMAppService.mainApp` (M9) |
 
 ### PetScapeRendering — Core Animation renderer and overlay windows
 
@@ -119,12 +119,12 @@ Imports: Core, Platform, Rendering, AppKit. Default isolation: **MainActor**.
 
 ### App target — SwiftUI shell and composition root
 
-`PetScapeApp`, `AppDelegate`, `AppContainer`, `MenuBarContent`, (M9) `SettingsView`. Contains no
+`PetScapeApp`, `AppDelegate`, `AppContainer`, `MenuBarContent`, `SettingsView`. Contains no
 domain logic; views talk to a small `@Observable` `AppModel` that forwards intents to `PetRuntime`.
 
 ## When to split or merge modules
 
 - Split `PetScapeCore` only when a sub-area needs a different dependency set or compile times
-  become a problem (measure first). Candidate: `PetScapeBehavior` once utility AI grows.
+  become a problem (measure first). Candidate: `PetScapeBehavior` only if measured behavior-code complexity warrants it; M9 simple weights alone do not justify it.
 - Do not create a module per "engine". Engines are folders inside Core with clear type boundaries.
 - Any new module requires an ADR update.

@@ -36,7 +36,8 @@ struct RenderSnapshotTests {
         #expect(pet.characterID == CharacterID("walker"))
         #expect(pet.frame.clip == "walk")
         #expect(pet.isVisible)
-        #expect(snapshot.isAnimating)
+        #expect(!snapshot.isAnimating)  // placed spawning pose is static until the first step
+        #expect(world.needsSimulationSteps)
         world.writeSnapshot(into: &snapshot)  // reuses storage, same content
         #expect(snapshot.pets.count == 1)
         #expect(!RenderSnapshot().isAnimating)

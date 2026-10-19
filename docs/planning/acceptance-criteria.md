@@ -63,19 +63,65 @@ check recorded in the PR (environment + result); **[Meas]** = measurement per
 - AC-M6-01: All MVP criteria AC-01…AC-23 pass, or deviations are explicitly accepted by the owner.
 
 ### M7 — Physics
-- AC-M7-01: Pets falling at terminal velocity onto 1-pt-thick segments never tunnel (property test, 10k random drops).
-- AC-M7-02: Hiding the Dock makes the cat fall and land on the screen bottom within 1 s; no respawn teleport.
-- AC-M7-03: Same seed + inputs ⇒ identical trajectories (determinism test).
+
+All rows are **planned checks, not passing results**. Baseline/new contracts in
+[Physics Engine](../architecture/physics-engine.md); task ownership below. Values provisional until
+planning approval; formal acceptance requires shared build/lint/test gate and owner evidence review.
+
+| ID | Criterion | Type | Task |
+|---|---|---|---|
+| AC-M7-01 | 10,000 seeded descending terminal-speed sweeps across zero/1-pt horizontal segments produce first valid contact, never tunnel; x evaluated at crossing, deterministic ties. No contact when ascending/from below/unsupported width. | Auto | T7.2, T7.8 |
+| AC-M7-02 | Removing a bottom Dock at the documented 64 pt reservation makes the visible cat fall and land on the host floor within 60 fixed steps, same initial x/facing apart from physical vx; no respawn/random teleport. General fall duration follows height/gravity, not a universal 1 s cap. | Auto, Man | T7.4, T7.7 |
+| AC-M7-03 | Identical seed, ordered inputs and fixed steps produce identical position/velocity/contact/state/events; replay is unaffected by surface input ordering when contacts tie. | Auto | T7.2, T7.7 |
+| AC-M7-04 | PetWorld is sole stored position writer; walk intent/stepper/renderer do not own competing positions. Snapshot and hit tester equal committed foot position; runtime uses existing driver. Audit assignments and fake-driver test. | Auto, review | T7.4 |
+| AC-M7-05 | Existing walking remains nominalSpeed × speedScale × scale ±5% over 10 s in both facings, 0.15 s turns and 100-turn no-drift/bounds checks pass; pose/tail change cannot change physical speed or edge guard. | Auto, Man | T7.4, T7.5 |
+| AC-M7-06 | At h=1/60 from y=100 and rest, gravity 2400 gives vy=−40 and y=99⅓ within 1e-6; acceleration and terminal clamp verified. Invalid/nonpositive/>h+1e-9 dt leaves world/time/random/events unchanged; frame stalls execute ≤5 steps with remainder<h, resume first frame does zero steps. | Auto | T7.1, T7.4, T7.7 |
+| AC-M7-07 | Swept contact commits exact y, valid SurfaceAttachment/parameter, zero velocity and one landed event; continuous grounded contact emits no repeated landings over 600 steps. | Auto | T7.2, T7.4 |
+| AC-M7-08 | Unsupported contact/removal detaches once; narrow/zero-width/nonfinite surfaces do not invent support. Grounded/airborne contradictory attachment states recover; x-at-impact and exact boundary cases covered. | Auto | T7.2, T7.4, T7.5 |
+| AC-M7-09 | Runtime world contains host floor plus optional Dock, deduplicated; spawn still prefers Dock, adding Dock never lifts a pet on surviving floor; builder handles negative coordinates, no-screen input and no non-host landing. | Auto | T7.3 |
+| AC-M7-10 | Same-ID Dock size/offset reprojects and clamps through world; invalid body, removed host and >3 s airborne use the existing bounded recovery path, one event/incident; no surface means wait for notification without busy retry. | Auto, Man | T7.4, T7.7 |
+| AC-M7-11 | With usable surfaces, pending placement/recovery/airborne/timed phases keep driver demand active even with hidden/still snapshots; actual RunStatus pause/hide/suspension stops driver. No demand resets accumulator; restarting/replacing driver has no catch-up. | Auto | T7.6, T7.7 |
+| AC-M7-12 | Explicit 2f7f33f regression for BOTH left/right Dock: frames remain active from surface removal through falling/contact; cat reaches floor and walks. Reverse change retains floor attachment; screen boundaries turn, never randomly drop off-screen. | Auto, Man | T7.5, T7.6 |
+| AC-M7-13 | Auto-hide setting removal produces fall; hover reveal remains below Dock with no polling. Paused geometry changes reconcile on resume; no fall/catch-up while paused/hidden/locked/sleeping/full-screen. Offset persistence and no-permission behavior retained. | Auto, Man | T7.6, T7.7 |
+| AC-M7-14 | Walk-only current pack and placeholder complete fall/landing with bounded settle and no missing-frame crash; fall/landing fallback cannot stop physics frames. Deterministic fixtures use explicit time/seed and injected screens, no sleep or real Dock dependency. | Auto | T7.6–T7.8 |
+| AC-M7-15 | Release movement CPU≤5%, paused/hidden≤0.2%, idle wakeups≤1/s, simulation step p95≤0.3 ms, process footprint≤100 MB; ≥60 s/scenario and 2 h soak/no app leaks, frame pacing per performance.md. >20% regression explained and owner accepted. Manual AC-03/10/14/16/21/menu VoiceOver retained, evidence/gaps recorded. | Meas, Man | T7.7, T7.8 |
 
 ### M8 — Jumps
-- AC-M8-01: Jump solver lands within 1 pt of target for targets within max jump range.
-- AC-M8-02: Takeoff happens on the `takeoff` frame; landing animation starts on contact (tests + owner review of recording).
+
+Planned, **not verified**. [Jump System](../architecture/jump-system.md) owns tuning, target envelope
+and interruption rules; [V4](../specifications/animation-assets-v4.md) owns art QA.
+Historical AC-M8-02 required impulse on an art takeoff frame. The same ID is revised under D8 /
+accepted ADR-0017: simulation causes motion; visual synchronization remains a manual obligation.
+
+| ID | Criterion | Type | Task |
+|---|---|---|---|
+| AC-M8-01 | Every accepted vertical/short horizontal/floor↔Dock plan actually lands within 1 pt of target using the M7 stepper/sweep; unreachable/blocked/out-of-host plans rejected without mutation. Candidate replay is bounded (N≤120, ≤120 replay steps each). | Auto, Meas | T8.1, T8.3 |
+| AC-M8-02 | Impulse applied once at 0.15 s preparation deadline (±one boundary step), independent of frame counts/markers; landed starts Landing in the same fixed step. Owner reviews takeoff/impact appearance in a recording/preview; no app screen-capture permission. | Auto, Man | T8.2, T8.4, T8.5 |
+| AC-M8-03 | Vertical jump has unchanged x absent an environment correction, positive vy after launch, valid contact on return, no through-floor traversal. | Auto | T8.1, T8.2 |
+| AC-M8-04 | Both facings perform short horizontal jumps within ≤80 pt displacement and ≤160 pt/s horizontal speed; accepted trajectories stay in host/ceiling bounds with max apex rise≤120 pt. | Auto | T8.1, T8.3 |
+| AC-M8-05 | Rising has vy>0; transition at sign crossing to Falling emits exactly one apex event. Low arc apex/contact same-step order is apex then landed, final phase Landing. | Auto | T8.2 |
+| AC-M8-06 | Falling uses M7 gravity/contact; Landing holds zero velocity and valid support for 0.10 s then exits, regardless of clip finished/loop/fallback. | Auto | T8.2, T8.4 |
+| AC-M8-07 | Walking→PreparingJump→Rising→Falling→Landing→Walking preserves facing/valid support, restores walk rate/speed and edge behavior. | Auto, Man | T8.2, T8.4 |
+| AC-M8-08 | Idle→same jump phases→Idle holds zero ground speed after return; cooldown/timers use simulated time. Real idle loop requests 30 fps (15 minimum), held idle stops frames, no lost time from the five-step cap at those rates. | Auto, Man | T8.2 |
+| AC-M8-09 | Valid/invalid transition rows, duplicate requests/markers, priorities and timer boundaries tested; no request can recursively launch/reselect or oscillate phases. | Auto | T8.2, T8.4 |
+| AC-M8-10 | Requests during Turning/recovery/flight/cooldown/paused/hidden/suspended rejected without position change; source/target change before takeoff cancels once, restores valid grounded intent or M7 fall. | Auto | T8.2, T8.3 |
+| AC-M8-11 | Dock moved/hidden/left/right/resized/shown during flight invalidates target but preserves body/velocity; only real descending contact can attach. Host loss uses existing exceptional recovery; no mid-air target teleport or duplicate jump. | Auto, Man | T8.3, T8.6 |
+| AC-M8-12 | Pause/hide/full-screen/sleep/lock/session/display sleep freeze body/phase/animation and cooldown; resume applies current geometry before next step and resets accumulator, no catch-up. Ordinary desktop Space preserves state. | Auto, Man | T8.2, T8.6 |
+| AC-M8-13 | Preparation and Landing have finite timers, flight plan≤2 s and M7 watchdog≤3 s simulated; removed target/no usable surface does not cause infinite airborne/transition/retry loop. | Auto | T8.1–T8.3 |
+| AC-M8-14 | Actual first-hit collision wins over desired target; terminal descent, exact boundary, raised surface, ceiling and narrow support cases never tunnel or snap from underneath. | Auto | T8.1, T8.3 |
+| AC-M8-15 | Valid V4 clips preserve 96 pt display size, common anchor, identity, proportions, foot baseline±1 source px and bbox/margin rules in both facings/scales; recommended frame counts may vary. Owner approves appearance; data-only v1 additions. | Auto (data), Man | T8.5 |
+| AC-M8-16 | 1/8/12/24/32-frame and missing/invalid clip/frame fixtures produce identical body trajectories/phase timing; current walk-only pack and placeholder remain usable. Legacy jump-air/land supported, no fallback cycles or missing-event deadlock. | Auto | T8.4, T8.5 |
+| AC-M8-17 | AC-14 rerun on ≥20 transparent points around flight/landing silhouettes, including leg gaps/under tail; all event kinds/desktop target classes pass. AC-03/16/21, typing and menu VoiceOver retained; mask matches drawn snapshot after each cut. | Auto (masks), Man | T8.5, T8.6 |
+| AC-M8-18 | Release walk/repeated jump/idle/paused/hidden tests meet M7 total/step/idle budgets, approved V4 image budget≤16 MiB, footprint≤100 MB, frame pacing protocol and 2 h soak/leaks; >20% changes require explanation/acceptance. Art budget change needs owner approval. | Meas, Man | T8.5, T8.6 |
 
 ### M9 — Behaviors & Settings
-- AC-M9-01: Seeded scenario tests: tired lazy cat sleeps within N decisions; startled sleeping cat wakes; no activity repeats more than 3× in a row.
+- AC-M9-01: Seed 42, energy 0.05 and laziness 1 enter sleep within two decisions; explicit wake exits through a ≤0.5 s waking phase. With eligible alternatives, no selected activity repeats more than 3× consecutively; forced safety/critical-energy and single-eligible-action fallback are bounded. Selection is replayable and never polled per frame.
 - AC-M9-02: Sleeping renders at ≤ animation fps (measured).
-- AC-M9-03: Settings changes apply live and persist; "Restore defaults" resets all keys.
+- AC-M9-03: Settings changes apply live and persist; "Restore defaults" resets all known user-value keys,
+  preserving schema version and unrelated/future keys.
 - AC-M9-04: Launch at login toggles correctly and reflects system state.
+
+Owner closeout (2026-10-18): M9 is **Done by explicit owner acceptance**. Package/UI tests pass; the owner accepts that native sleep cadence (AC-M9-02), real OS login-item registration/approval (AC-M9-04) and the ≥2-hour installed-app playtest (T9.10) remain unverified. This records accepted evidence gaps, not passing measurements.
 
 ### M10 — Cursor & drag
 - AC-M10-01: Dragging the cat moves it under the cursor with the grab offset preserved; releasing throws it with the release velocity.
@@ -99,3 +145,22 @@ check recorded in the PR (environment + result); **[Meas]** = measurement per
 
 ### M15 — Release
 - AC-M15-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
+
+## M7/M8 evidence status (2026-10-18)
+
+Automated engineering evidence is recorded per task in [task-breakdown.md](task-breakdown.md#execution-evidence-2026-10-18):
+361 package tests and the full app/UI launch/status-item/Quit test pass, lint and Debug/Release builds pass.
+Physics, contacts, ownership, frame demand, recovery, solver replay, execution, return intent and
+art-independent phase timing are exercised. The owner subsequently confirmed completion of all
+remaining tests and explicitly directed M7/M8 closure; both are **Done by owner acceptance**.
+This does not convert missing quantitative evidence into independently measured passes.
+
+Manual/visual portions are accepted by the owner's report of all remaining M7/M8 tests and
+explicit closure instruction (2026-10-18). AC-M8-15 data/alpha/baseline/budget checks and visual
+approval are recorded; AC-M8-16 synthetic/fallback/actual-art trajectory comparisons pass.
+No per-point native event matrix, hardware details, frame-pacing/energy/wakeup readings, two-hour
+duration or leak-delta record was supplied with that confirmation. Existing paused CPU variability
+remains recorded. See [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18),
+[testing.md](../development/testing.md) and [performance.md](../specifications/performance.md)
+for the distinction between milestone acceptance and independently recorded measurements.
+M9 was subsequently reauthorized separately; no release/tag/commit is authorized by milestone acceptance.

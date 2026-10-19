@@ -1,0 +1,290 @@
+[
+  {
+    "clip" : "idle",
+    "frame" : 1,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      37,
+      54,
+      518,
+      480
+    ]
+  },
+  {
+    "clip" : "idle",
+    "frame" : 2,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      541,
+      48,
+      993,
+      479
+    ]
+  },
+  {
+    "clip" : "idle",
+    "frame" : 3,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      1020,
+      54,
+      1500,
+      479
+    ]
+  },
+  {
+    "clip" : "idle",
+    "frame" : 4,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      32,
+      549,
+      514,
+      975
+    ]
+  },
+  {
+    "clip" : "idle",
+    "frame" : 5,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      535,
+      552,
+      1004,
+      975
+    ]
+  },
+  {
+    "clip" : "idle",
+    "frame" : 6,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.9467592592592593,
+    "sourceBounds" : [
+      1026,
+      550,
+      1503,
+      975
+    ]
+  },
+  {
+    "clip" : "jump-start",
+    "frame" : 1,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.76862123613312205,
+    "sourceBounds" : [
+      33,
+      73,
+      617,
+      586
+    ]
+  },
+  {
+    "clip" : "jump-start",
+    "frame" : 2,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.76862123613312205,
+    "sourceBounds" : [
+      651,
+      122,
+      1245,
+      586
+    ]
+  },
+  {
+    "clip" : "jump-start",
+    "frame" : 3,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.76862123613312205,
+    "sourceBounds" : [
+      41,
+      756,
+      634,
+      1171
+    ]
+  },
+  {
+    "clip" : "jump-start",
+    "frame" : 4,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.76862123613312205,
+    "sourceBounds" : [
+      655,
+      650,
+      1245,
+      1173
+    ]
+  },
+  {
+    "clip" : "jump",
+    "frame" : 1,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.75045871559633026,
+    "sourceBounds" : [
+      31,
+      70,
+      618,
+      614
+    ]
+  },
+  {
+    "clip" : "jump",
+    "frame" : 2,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.75045871559633026,
+    "sourceBounds" : [
+      653,
+      62,
+      1222,
+      577
+    ]
+  },
+  {
+    "clip" : "jump",
+    "frame" : 3,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.75045871559633026,
+    "sourceBounds" : [
+      33,
+      669,
+      619,
+      1143
+    ]
+  },
+  {
+    "clip" : "jump",
+    "frame" : 4,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.75045871559633026,
+    "sourceBounds" : [
+      652,
+      677,
+      1226,
+      1114
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 1,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      33,
+      65,
+      504,
+      467
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 2,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      526,
+      64,
+      1002,
+      473
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 3,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      1033,
+      69,
+      1507,
+      483
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 4,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      21,
+      574,
+      508,
+      966
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 5,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      536,
+      564,
+      1007,
+      958
+    ]
+  },
+  {
+    "clip" : "fall",
+    "frame" : 6,
+    "registration" : "ear-412-top-65",
+    "scale" : 0.94312796208530802,
+    "sourceBounds" : [
+      1039,
+      569,
+      1512,
+      971
+    ]
+  },
+  {
+    "clip" : "landing",
+    "frame" : 1,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.73652239939255881,
+    "sourceBounds" : [
+      24,
+      91,
+      619,
+      595
+    ]
+  },
+  {
+    "clip" : "landing",
+    "frame" : 2,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.73652239939255881,
+    "sourceBounds" : [
+      652,
+      171,
+      1246,
+      595
+    ]
+  },
+  {
+    "clip" : "landing",
+    "frame" : 3,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.73652239939255881,
+    "sourceBounds" : [
+      24,
+      702,
+      633,
+      1195
+    ]
+  },
+  {
+    "clip" : "landing",
+    "frame" : 4,
+    "registration" : "anatomical-paws-166.5-346.5-row-474",
+    "scale" : 0.73652239939255881,
+    "sourceBounds" : [
+      653,
+      691,
+      1250,
+      1195
+    ]
+  }
+]

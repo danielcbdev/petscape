@@ -77,9 +77,46 @@ Sizes: **S** ≤ ½ day, **M** ≤ 1 day, **L** ≤ 2 days (anything bigger must
 | M12–M13 | ~14 | 2–3 weeks |
 | M14–M15 | ~14 | 2–3 weeks |
 
-## First recommended task
+## M7/M8 planning revision (2026-10-18)
 
-1. **T0.5** — owner reviews this plan and answers the open decisions in [risks.md](risks.md)
-   (at minimum D-01 license, D-02 docs language, D-05 approval of the PoC).
-2. **T1.1** — create the PoC spike project on `spike/overlay-poc` and run experiments E1–E2 first
-   (overlay + click-through), since every later decision depends on them.
+Status: **M7/M8 Done by explicit owner acceptance, 2026-10-18.** This section retains the
+M7/M8 sequencing history; M9 was subsequently reauthorized under its [implementation plan](m9-implementation.md).
+Brief, code diagnosis, D1–D10 compatibility and
+approval questions: [technical review](m7-m8-technical-review.md). Detailed executable plans remain
+in [task-breakdown.md](task-breakdown.md#m7--basic-physics), not a duplicate plan tree.
+Specs: [Physics](../architecture/physics-engine.md), [Jumps](../architecture/jump-system.md),
+[V4 art](../specifications/animation-assets-v4.md), [M9 boundaries](../architecture/behavior-engine.md).
+
+1. Owner reviews ADR-0016–0018 and the blocked literal SpriteKit clause; retaining Core Animation
+   is the smallest correction to match accepted ADR-0015. Review simulation-owned launch/landing,
+   stricter dt API, logical geometry, persistent floor and no automatic lift when Dock reappears.
+2. Close [M5/M6 evidence](m5-m6-closeout.md) and accept remaining deviations. Planning proceeds
+   independently. Default M7 implementation gate is M6 acceptance; owner may explicitly authorize
+   pure T7.1/T7.2 before closeout with named gaps. Runtime adoption T7.4 needs baseline non-interference,
+   environment and CPU evidence or explicit named exceptions, not an inferred waiver.
+3. First requested implementation should be **T7.1** (values/integration/tests; no live behavior change),
+   followed by T7.2 sweep, T7.3 floor composition, T7.4 world/flight, T7.5 walking policy,
+   T7.6 liveness/demand, T7.7 recovery/environment and T7.8 acceptance/performance.
+4. Freeze verified M7 contracts and obtain owner milestone acceptance. M8 may then implement
+   T8.1 solver → T8.2 execution → T8.3 target safety → T8.4 animation causality.
+5. V4 production is separately authorized, can overlap engineering, and never blocks M7.
+   T8.5 integrates delivered art and measures proposed ≤16 MiB image budget (vs MVP 10 MB);
+   T8.6 closes regression/performance/owner review. Logical M8 may use fallbacks; full visual
+   completion needs art or an explicit owner-approved deferral, not an automatic pass.
+6. M9 is prepared architecturally only. No autonomous selector/needs/personality/Settings code
+   is included; its own request/design gate follows accepted M7/M8 contracts.
+
+Every task includes dependencies, real/proposed files, interfaces, red/green tests, acceptance,
+risks and DoD. All slices stay buildable; no commits, pushes, tags or PRs without explicit request.
+M5/M6 initially stayed In review; the owner subsequently explicitly closed M2/M3/M5/M6. Subsequent owner instruction explicitly authorized all M7/M8 tasks
+continuously, including runtime engineering before manual closeout. The owner subsequently
+confirmed all remaining M7/M8 tests and explicitly requested closure: both are Done.
+[Closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18) preserves missing numeric
+evidence without claiming new measurements. V4 is integrated, measured and visually approved.
+M9 was temporarily deferred, then explicitly reauthorized for continuous implementation.
+Current scope and evidence are recorded in [m9-implementation.md](m9-implementation.md).
+
+## Historical first steps (2026-10-16, completed planning/PoC)
+
+The initial recommendation was T0.5 owner planning review, then T1.1 PoC on spike/overlay-poc.
+The PoC is now Done; those steps are retained as history, not the next implementation action.

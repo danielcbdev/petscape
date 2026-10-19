@@ -13,15 +13,21 @@ public final class ScreenProvider {
     }
 
     private let notificationCenter: NotificationCenter
+    private let readScreens: (@MainActor () -> [ScreenDescriptor])?
     private var observer: (any NSObjectProtocol)?
 
-    public init(notificationCenter: NotificationCenter = .default) {
+    public init(
+        notificationCenter: NotificationCenter = .default,
+        readScreens: (@MainActor () -> [ScreenDescriptor])? = nil
+    ) {
         self.notificationCenter = notificationCenter
+        self.readScreens = readScreens
     }
 
     /// Current screens; the first one is the primary screen (global origin), as in `NSScreen.screens`.
     public func currentScreens() -> [ScreenDescriptor] {
-        Self.descriptors(
+        if let readScreens { return readScreens() }
+        return Self.descriptors(
             from: NSScreen.screens.map { screen in
                 RawScreen(
                     displayID: (screen.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?

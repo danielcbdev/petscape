@@ -44,6 +44,8 @@ public final class PetRuntime {
         self.hitTester = hitTester
         self.preferences = preferences
         world = PetWorld(tuning: tuning, random: random)
+        world.apply(.configureBehavior(preferences.petSettings.behavior))
+        world.apply(.setSpeedScale(preferences.petSettings.speed))
         events.reserveCapacity(16)
         overlay = OverlayCoordinator(
             screenProvider: screenProvider, cursorSampler: cursorSampler, systemEvents: systemEvents,
@@ -58,11 +60,32 @@ public final class PetRuntime {
 
     /// The current simulation state (tests, debugging).
     public var currentSnapshot: RenderSnapshot { snapshot }
+    public var pets: [Pet] { world.pets }
+    public var simulationTime: Double { world.time }
+    public var petSettings: PetSettings { preferences.petSettings }
+    public var onUserIntentChange: ((UserIntent) -> Void)?
+
+    /// Applies persisted choices between fixed steps, including while paused or hidden.
+    public func setPetSettings(_ settings: PetSettings) {
+        preferences.petSettings = settings
+        world.apply(.setDisplayScale(settings.scale))
+        world.apply(.setSpeedScale(settings.speed))
+        world.apply(.configureBehavior(settings.behavior))
+        accumulator.reset()
+        renderNow()
+    }
+
+    public func wakePet() {
+        for pet in world.pets { world.apply(.wake(pet.id)) }
+        accumulator.reset()
+        renderNow()
+    }
 
     public func start() {
         overlay.onFrame = { [weak self] timestamp in self?.frame(timestamp) }
         overlay.onScreensChange = { [weak self] in self?.screensDidChange() }
         overlay.onStatusChange = { [weak self] status in self?.statusDidChange(status) }
+        overlay.onFrameDriverChange = { [weak self] _ in self?.accumulator.reset() }
         overlay.onMouseEvent = { [weak self] event in self?.handle(event) }
         overlay.needsFrames = false
         overlay.start()
@@ -85,11 +108,39 @@ public final class PetRuntime {
     public func setPaused(_ paused: Bool) {
         preferences.isPaused = paused
         overlay.runState.setPaused(paused)
+        onUserIntentChange?(userIntent)
     }
 
     public func setHidden(_ hidden: Bool) {
         preferences.isHidden = hidden
         overlay.runState.setHidden(hidden)
+        onUserIntentChange?(userIntent)
+    }
+
+    /// Explicit movement commands retain their independent physical guards alongside autonomy.
+    @discardableResult
+    public func requestJump(_ request: JumpRequest) -> Bool {
+        guard overlay.runState.status.state == .running, let id = snapshot.pets.first?.id else { return false }
+        let previous = world.pet(id)?.state
+        world.apply(.requestJump(id, request))
+        let accepted =
+            previous != .grounded(.preparingJump)
+            && world.pet(id)?.state == .grounded(.preparingJump)
+        renderNow()
+        return accepted
+    }
+
+    /// A target-only debug intent preserves the current activity across landing.
+    @discardableResult
+    public func requestJump(to target: JumpRequest.Target) -> Bool {
+        guard let activity = world.pets.first?.resumeActivity else { return false }
+        return requestJump(JumpRequest(target: target, returnActivity: activity))
+    }
+
+    public func setActivity(_ activity: ResumeActivity) {
+        guard overlay.runState.status.state == .running, let id = snapshot.pets.first?.id else { return }
+        world.apply(.setActivity(id, activity))
+        renderNow()
     }
 
     /// Points added to the estimated Dock top (T6.3; DEBUG menu in the MVP, Settings › Advanced in M9).
@@ -109,7 +160,7 @@ public final class PetRuntime {
     public func show(_ character: LoadedCharacter) {
         self.character = character
         world.removeAllPets()
-        let id = world.spawn(character.definition)
+        let id = world.spawn(character.definition, scale: preferences.petSettings.scale)
         let placement = world.pet(id)?.attachment.map { "on \($0.surfaceID)" } ?? "waiting for a surface"
         Log.simulation.notice(
             "Pet \(id, privacy: .public) '\(character.definition.id.rawValue, privacy: .public)' spawned \(placement, privacy: .public)"
@@ -120,7 +171,7 @@ public final class PetRuntime {
     // MARK: - Overlay callbacks
 
     private func screensDidChange() {
-        world.apply(.screens(overlay.converter?.screens ?? []))
+        world.apply(.screens(overlay.hostScreen.map { [$0] } ?? []))
         applySurfaces()
         let view = overlay.hostContentView
         if view !== rendererView {
@@ -134,7 +185,12 @@ public final class PetRuntime {
     /// The Dock walkway as the world's surface set: a moved Dock keeps its surface (the pet rides it, clamped);
     /// a Dock hidden, shown or moved to a side replaces it (the pet re-settles below or above, T6.4).
     private func applySurfaces() {
-        world.apply(.surfaces(overlay.dock.surfaces))
+        let floors = SurfaceMap.screenBottoms(for: overlay.hostScreen.map { [$0] } ?? [])
+        var surfaces = overlay.dock.surfaces
+        for floor in floors where !surfaces.contains(where: { $0.id == floor.id }) {
+            surfaces.append(floor)
+        }
+        world.apply(.surfaces(surfaces))
         #if DEBUG
             updateSurfaceDebugLine()
         #endif
@@ -146,9 +202,12 @@ public final class PetRuntime {
     }
 
     private func frame(_ timestamp: TimeInterval) {
-        let steps = accumulator.steps(forFrameAt: timestamp)
+        let passive = isPassiveSleep
+        let steps = accumulator.steps(forFrameAt: timestamp, allowPassiveCatchUp: passive)
         #if DEBUG
-            frameRateWindow.record(timestamp: timestamp, steps: steps)
+            var executedSteps = 0
+            // A zero-step seed is still a delivered frame; passive work may stop before its budget.
+            defer { frameRateWindow.record(timestamp: timestamp, steps: executedSteps) }
         #endif
         guard steps > 0 else { return }
         events.removeAll(keepingCapacity: true)
@@ -156,13 +215,26 @@ public final class PetRuntime {
             Signposts.measure(Signposts.Interval.simulationStep) {
                 world.step(dt: accumulator.step, into: &events)
             }
+            #if DEBUG
+                executedSteps += 1
+            #endif
+            // A passive batch may hit a wake deadline or lose support. Drop its remaining ticks,
+            // so movement resumes on the next ordinary display frame, never in a low-rate burst.
+            if passive && !isPassiveSleep { break }
         }
         if !events.isEmpty { log(events) }
         renderNow()
     }
 
+    private var isPassiveSleep: Bool {
+        !world.pets.isEmpty && world.pets.allSatisfy { $0.state == .grounded(.sleeping) }
+    }
+
     /// Snapshot → layers → hit masks; also keep frames on for a pending placement or recovery step.
     private func renderNow() {
+        events.removeAll(keepingCapacity: true)
+        world.drainEvents(into: &events)
+        if !events.isEmpty { log(events) }
         world.writeSnapshot(into: &snapshot)
         if let renderer, let converter = overlay.converter, let screen = overlay.hostScreen {
             renderer.render(snapshot, converter: converter, screen: screen) { pet in
@@ -170,25 +242,16 @@ public final class PetRuntime {
             }
         }
         hitTester.update(snapshot) { pet in character?.frame(pet.frame)?.hitMask }
-        if !snapshot.isAnimating { accumulator.reset() }
-        overlay.needsFrames = snapshot.isAnimating || hasPendingPlacement
-    }
-
-    /// A surface can disappear between frames. Keep the display link alive long enough for the world's
-    /// recovering/spawning state to attach the pet to the replacement surface; otherwise the invisible
-    /// recovery frame would stop the simulation step that makes the pet visible again.
-    private var hasPendingPlacement: Bool {
-        guard overlay.dock.surface != nil else { return false }
-        return world.pets.contains { pet in
-            guard pet.attachment == nil else { return false }
-            return switch pet.state {
-            case .spawning, .recovering: true
-            case .walking, .turning: false
-            }
-        }
+        let demand = world.needsSimulationSteps || world.needsAnimationFrames
+        overlay.preferredFramesPerSecond = world.pets.isEmpty ? 60 : world.preferredFramesPerSecond
+        if !demand || demand != overlay.needsFrames { accumulator.reset() }
+        overlay.needsFrames = demand
     }
 
     #if DEBUG
+        /// Actual step input to the latest frame-rate diagnostic sample (including a zero-step seed).
+        var lastFrameStepCount: Int? { frameRateWindow.lastSampleSteps }
+
         /// DEBUG menu "Show walkway": a line where the paws should be (surface y, overlay-local).
         public var showsWalkway = false {
             didSet { updateSurfaceDebugLine() }
@@ -229,6 +292,18 @@ public final class PetRuntime {
                 Log.simulation.info("Pet \(id, privacy: .public) placed on \(surface, privacy: .public)")
             case .recovered(let id, let reason):
                 Log.simulation.error("Pet \(id, privacy: .public) recovered: \(reason.rawValue, privacy: .public)")
+            case .surfaceLost(let id, let surface):
+                Log.simulation.info("Pet \(id, privacy: .public) lost surface \(surface, privacy: .public)")
+            case .landed(let id, let surface):
+                Log.simulation.debug("Pet \(id, privacy: .public) landed on \(surface, privacy: .public)")
+            case .tookOff(let id):
+                Log.simulation.debug("Pet \(id, privacy: .public) took off")
+            case .apex(let id):
+                Log.simulation.debug("Pet \(id, privacy: .public) reached jump apex")
+            case .jumpRejected(let id, let reason):
+                Log.simulation.debug("Pet \(id, privacy: .public) jump rejected: \(reason.rawValue, privacy: .public)")
+            case .jumpCancelled(let id):
+                Log.simulation.info("Pet \(id, privacy: .public) jump cancelled after environment change")
             case .animationEvent:
                 break
             }
@@ -244,8 +319,10 @@ public final class PetRuntime {
         private var last: TimeInterval = 0
         private var frames = 0
         private var steps = 0
+        private(set) var lastSampleSteps: Int?
 
         mutating func record(timestamp: TimeInterval, steps newSteps: Int) {
+            lastSampleSteps = newSteps
             guard let start, timestamp - last <= 0.5 else {
                 restart(at: timestamp)
                 return

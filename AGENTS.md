@@ -21,18 +21,20 @@ Open-source portfolio project: local only, no backend, accounts, payments, telem
 ### Current phase
 
 Check the **Status** column in [docs/planning/milestones.md](docs/planning/milestones.md) before
-doing anything. As of 2026-10-17: planning is approved and the proof of concept (M1) is **done**
-(results: [proof-of-concept.md](docs/planning/proof-of-concept.md#conclusion-t19); throwaway code on
-branch `spike/overlay-poc`, never merged). **M2 (app skeleton)** is in review: the Xcode project,
-`PetScapeKit` package, Makefile and swift-format config exist; the UI launch test still has to run once
-with Automation Mode enabled ([setup.md](docs/development/setup.md#ui-tests-and-automation-mode)).
-**M3 (transparent overlay)** and **M4 (animation system)** are merged and in review: M3 is pending
-log evidence of a resolution change (PoC S8); M4 is pending the owner's visual check of the anchor
-(AC-M4-03). **M5 (rendering & walking)** is merged and in review (owner review of foot sliding
-pending). **M6 (Dock integration & MVP hardening)** is implemented and in review (not merged, v0.1.0 not
-tagged): the cat walks on the Dock top (2.1% CPU walking, 0% paused, 2 h soak clean); the owner checklist in the M6 block of milestones.md (Dock settings,
-displays, visual alignment, click-through) is pending. Next milestone after the v0.1.0 release: **M7 (basic
-physics)**. Do not start implementation without an explicit instruction naming the milestone/task.
+doing anything. As of 2026-10-18, **M7 (basic physics) and M8 (jumps/landings, including V4 art)
+are Done by explicit owner acceptance** after the owner confirmed all remaining tests. Automated
+package tests, UI runs and Debug/Release builds are recorded; instrumented evidence limits and
+the historical Automation Mode timeout remain explicit in the
+[owner closeout](docs/planning/m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).
+
+M1–M8 are Done by owner acceptance. On 2026-10-18 the owner explicitly closed M2/M3/M5/M6,
+reporting that everything works perfectly; historical missing logs/hardware/quantitative evidence
+remain identified in the closeout record, without inventing measurements. CI is authored locally;
+no hosted run, push, release or tag is claimed. M6 is merged, v0.1.0 remains untagged.
+**M9 was explicitly reauthorized and then closed by owner acceptance on 2026-10-18** after the
+implementation, 400 package tests, 2 UI tests, lint and Debug/Release gates passed. Real login-item,
+native cadence and installed-app playtest evidence limits remain in the [closeout](docs/planning/m9-implementation.md#owner-m9-closeout-2026-10-18); they are accepted gaps, not claimed test results. M10+ are outside this implementation request.
+Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
 

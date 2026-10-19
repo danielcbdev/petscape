@@ -1,55 +1,56 @@
-/// MVP pet state machine (state-machines.md#mvp-pet-state-machine-m5m6):
-///
-/// ```
-/// spawning ──placed──▶ walking ──edgeReached──▶ turning ──turnHold elapsed (facing flipped)──▶ walking
-/// walking / turning ──surfaceLost / outOfBounds / invalidNumbers──▶ recovering ──next step──▶ spawning
-/// ```
-///
-/// | State | Clip | Motion | Interrupt threshold | Duration |
-/// |---|---|---|---|---|
-/// | spawning | walk (frame 0) | none | 90 | 1 step once placed |
-/// | walking | walk (loop) | along the surface at `nominalSpeed × speedScale`, direction = `facing` | 80 | until an edge |
-/// | turning | walk (held on its current frame) | none | 90 | `turnHold`, then flip `facing` |
-/// | recovering | — | none | — | 1 step |
+/// Single pet execution hierarchy (state-machines.md). RunState independently gates simulation time.
 public enum PetState: Equatable, Sendable {
     case spawning
-    case walking
-    case turning(to: Facing)
+    case grounded(GroundedState)
+    case airborne(AirborneState)
     case recovering(RecoveryReason)
+
+    /// Source-compatible construction of the existing walking/turning states.
+    public static var walking: Self { .grounded(.walking) }
+    public static func turning(to facing: Facing) -> Self { .grounded(.turning(to: facing)) }
 
     public var kind: PetStateKind {
         switch self {
         case .spawning: .spawning
-        case .walking: .walking
-        case .turning: .turning
+        case .grounded(.walking): .walking
+        case .grounded(.turning): .turning
+        case .grounded(.landing): .landing
+        case .grounded(.idle): .idle
+        case .grounded(.preparingJump): .preparingJump
+        case .grounded(.sittingDown): .sittingDown
+        case .grounded(.sitting): .sitting
+        case .grounded(.standingUp): .standingUp
+        case .grounded(.lyingDown): .lyingDown
+        case .grounded(.sleeping): .sleeping
+        case .grounded(.wakingUp): .wakingUp
+        case .grounded(.stretching): .stretching
+        case .grounded(.observing): .observing
+        case .airborne(.falling): .falling
+        case .airborne(.rising): .rising
         case .recovering: .recovering
         }
     }
 
-    /// Minimum event priority that may interrupt the state (state-machines.md#event-priorities).
     public var interruptThreshold: Int {
         switch self {
-        case .walking: 80
-        case .spawning, .turning: 90
+        case .grounded(.walking): 80
+        case .grounded(.idle): 10
         case .recovering: Int.max
+        case .spawning, .grounded, .airborne: 90
         }
     }
 }
 
-/// Payload-free state name, for events, logs and tests.
 public enum PetStateKind: String, Sendable {
-    case spawning
-    case walking
-    case turning
-    case recovering
+    case spawning, walking, turning, falling, landing, recovering, idle, preparingJump, rising
+    case sittingDown, sitting, standingUp, lyingDown, sleeping, wakingUp, stretching, observing
 }
 
-/// Why a pet had to be recovered (pet-engine.md#invariants-and-recovery).
 public enum RecoveryReason: String, Sendable {
-    /// The surface it stood on was removed.
+    /// Retained for compatibility; ordinary support loss now falls instead of respawning.
     case surfaceLost
-    /// Its contact point left every screen (plus margin).
     case outOfBounds
-    /// Its position became NaN or infinite.
     case invalidNumbers
+    case invalidContact
+    case airborneTimeout
 }

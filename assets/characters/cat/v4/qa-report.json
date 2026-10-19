@@ -1,0 +1,565 @@
+{
+  "boundsConvention": "[minX, minY, maxXExclusive, maxYExclusive], image y-down",
+  "unionBounds": {
+    "idle": [
+      18,
+      63,
+      486,
+      479
+    ],
+    "jump-start": [
+      11,
+      69,
+      481,
+      478
+    ],
+    "jump": [
+      41,
+      62,
+      489,
+      477
+    ],
+    "fall": [
+      10,
+      61,
+      491,
+      460
+    ],
+    "landing": [
+      11,
+      100,
+      477,
+      478
+    ]
+  },
+  "frames": [
+    {
+      "path": "idle/frames/idle_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        22,
+        67,
+        486,
+        478
+      ],
+      "solidBounds": [
+        25,
+        71,
+        482,
+        475
+      ],
+      "solidPixels": 101075,
+      "opaqueBodyRatio": 0.9618896858768241
+    },
+    {
+      "path": "idle/frames/idle_02.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        27,
+        63,
+        464,
+        479
+      ],
+      "solidBounds": [
+        32,
+        66,
+        460,
+        475
+      ],
+      "solidPixels": 100924,
+      "opaqueBodyRatio": 0.963110855693393
+    },
+    {
+      "path": "idle/frames/idle_03.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        21,
+        68,
+        484,
+        479
+      ],
+      "solidBounds": [
+        25,
+        72,
+        480,
+        475
+      ],
+      "solidPixels": 101212,
+      "opaqueBodyRatio": 0.9634529502430542
+    },
+    {
+      "path": "idle/frames/idle_04.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        18,
+        67,
+        482,
+        479
+      ],
+      "solidBounds": [
+        21,
+        71,
+        478,
+        475
+      ],
+      "solidPixels": 102474,
+      "opaqueBodyRatio": 0.9635322130491637
+    },
+    {
+      "path": "idle/frames/idle_05.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        21,
+        70,
+        475,
+        478
+      ],
+      "solidBounds": [
+        26,
+        74,
+        471,
+        475
+      ],
+      "solidPixels": 99647,
+      "opaqueBodyRatio": 0.9622166246851386
+    },
+    {
+      "path": "idle/frames/idle_06.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        25,
+        68,
+        486,
+        479
+      ],
+      "solidBounds": [
+        29,
+        71,
+        481,
+        475
+      ],
+      "solidPixels": 101391,
+      "opaqueBodyRatio": 0.9625410539396988
+    },
+    {
+      "path": "jump-start/frames/jump-start_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        25,
+        78,
+        481,
+        478
+      ],
+      "solidBounds": [
+        28,
+        80,
+        477,
+        475
+      ],
+      "solidPixels": 96280,
+      "opaqueBodyRatio": 0.9684461985874533
+    },
+    {
+      "path": "jump-start/frames/jump-start_02.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        11,
+        115,
+        475,
+        478
+      ],
+      "solidBounds": [
+        14,
+        118,
+        471,
+        475
+      ],
+      "solidPixels": 88288,
+      "opaqueBodyRatio": 0.9673794853207683
+    },
+    {
+      "path": "jump-start/frames/jump-start_03.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        11,
+        153,
+        474,
+        478
+      ],
+      "solidBounds": [
+        15,
+        155,
+        470,
+        475
+      ],
+      "solidPixels": 86363,
+      "opaqueBodyRatio": 0.9688871391683939
+    },
+    {
+      "path": "jump-start/frames/jump-start_04.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        17,
+        69,
+        478,
+        478
+      ],
+      "solidBounds": [
+        20,
+        72,
+        475,
+        475
+      ],
+      "solidPixels": 98442,
+      "opaqueBodyRatio": 0.9682147863716706
+    },
+    {
+      "path": "jump/frames/jump_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        41,
+        62,
+        488,
+        477
+      ],
+      "solidBounds": [
+        43,
+        65,
+        485,
+        474
+      ],
+      "solidPixels": 90173,
+      "opaqueBodyRatio": 0.9663313852261763
+    },
+    {
+      "path": "jump/frames/jump_02.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        52,
+        63,
+        487,
+        454
+      ],
+      "solidBounds": [
+        56,
+        65,
+        483,
+        452
+      ],
+      "solidPixels": 82658,
+      "opaqueBodyRatio": 0.9640446175808755
+    },
+    {
+      "path": "jump/frames/jump_03.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        42,
+        63,
+        489,
+        425
+      ],
+      "solidBounds": [
+        45,
+        66,
+        485,
+        422
+      ],
+      "solidPixels": 79753,
+      "opaqueBodyRatio": 0.9618446954973481
+    },
+    {
+      "path": "jump/frames/jump_04.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        43,
+        62,
+        481,
+        397
+      ],
+      "solidBounds": [
+        47,
+        65,
+        478,
+        393
+      ],
+      "solidPixels": 75230,
+      "opaqueBodyRatio": 0.9637910408081882
+    },
+    {
+      "path": "fall/frames/fall_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        34,
+        62,
+        488,
+        449
+      ],
+      "solidBounds": [
+        38,
+        65,
+        483,
+        446
+      ],
+      "solidPixels": 88487,
+      "opaqueBodyRatio": 0.9596211872930487
+    },
+    {
+      "path": "fall/frames/fall_02.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        31,
+        61,
+        489,
+        456
+      ],
+      "solidBounds": [
+        35,
+        65,
+        484,
+        452
+      ],
+      "solidPixels": 93519,
+      "opaqueBodyRatio": 0.9605000053465071
+    },
+    {
+      "path": "fall/frames/fall_03.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        23,
+        61,
+        479,
+        460
+      ],
+      "solidBounds": [
+        27,
+        65,
+        475,
+        456
+      ],
+      "solidPixels": 95275,
+      "opaqueBodyRatio": 0.9590133823143532
+    },
+    {
+      "path": "fall/frames/fall_04.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        10,
+        61,
+        478,
+        440
+      ],
+      "solidBounds": [
+        14,
+        65,
+        474,
+        435
+      ],
+      "solidPixels": 91062,
+      "opaqueBodyRatio": 0.9614218883837385
+    },
+    {
+      "path": "fall/frames/fall_05.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        34,
+        61,
+        487,
+        441
+      ],
+      "solidBounds": [
+        39,
+        65,
+        483,
+        437
+      ],
+      "solidPixels": 87460,
+      "opaqueBodyRatio": 0.9621312600045735
+    },
+    {
+      "path": "fall/frames/fall_06.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        35,
+        61,
+        491,
+        449
+      ],
+      "solidBounds": [
+        40,
+        65,
+        486,
+        445
+      ],
+      "solidPixels": 88655,
+      "opaqueBodyRatio": 0.9607128757543286
+    },
+    {
+      "path": "landing/frames/landing_01.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        31,
+        101,
+        477,
+        478
+      ],
+      "solidBounds": [
+        35,
+        104,
+        473,
+        475
+      ],
+      "solidPixels": 87830,
+      "opaqueBodyRatio": 0.9653193669588979
+    },
+    {
+      "path": "landing/frames/landing_02.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        11,
+        159,
+        456,
+        478
+      ],
+      "solidBounds": [
+        14,
+        162,
+        452,
+        475
+      ],
+      "solidPixels": 74954,
+      "opaqueBodyRatio": 0.9675267497398404
+    },
+    {
+      "path": "landing/frames/landing_03.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        16,
+        108,
+        471,
+        478
+      ],
+      "solidBounds": [
+        19,
+        111,
+        468,
+        475
+      ],
+      "solidPixels": 87239,
+      "opaqueBodyRatio": 0.9683627735301872
+    },
+    {
+      "path": "landing/frames/landing_04.png",
+      "size": [
+        512,
+        512
+      ],
+      "mode": "RGBA",
+      "alphaBounds": [
+        30,
+        100,
+        476,
+        478
+      ],
+      "solidBounds": [
+        33,
+        103,
+        473,
+        475
+      ],
+      "solidPixels": 87690,
+      "opaqueBodyRatio": 0.9670315885505759
+    }
+  ]
+}

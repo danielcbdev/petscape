@@ -95,14 +95,14 @@ struct PetWorldTests {
     @Test func walkSpeedFollowsSpeedScaleAndFallsBackWithoutNominalSpeed() throws {
         var (world, id) = try Self.makeWorld(nominalSpeed: nil)
         Self.set(&world, x: 700, facing: .right)
-        _ = world.step(dt: 0.5)
+        for _ in 0..<30 { _ = world.step(dt: Self.dt) }
         let fallbackX = try #require(world.pet(id)).position.x
         #expect(abs(fallbackX - 710) < 1e-9)  // fallbackWalkSpeed 20 pt/s
 
         var (scaled, scaledID) = try Self.makeWorld(nominalSpeed: 30)
         scaled.tuning.speedScale = 1.5
         Self.set(&scaled, x: 700, facing: .left)
-        _ = scaled.step(dt: 0.5)
+        for _ in 0..<30 { _ = scaled.step(dt: Self.dt) }
         let scaledX = try #require(scaled.pet(scaledID)).position.x
         #expect(abs(scaledX - 677.5) < 1e-9)
     }
@@ -228,58 +228,58 @@ struct PetWorldTests {
         #expect(events.contains(.edgeReached(id)))
     }
 
-    @Test func removedSurfaceRecoversAndRespawnsOnTheRemainingOne() throws {
-        let shelf = Surface(id: SurfaceID("dock"), kind: .dockTop, y: 70, minX: 200, maxX: 1200)
+    /// M7 replaces the MVP teleport with visible physical falling and exactly one contact.
+    @Test func removedSurfaceFallsOntoTheRemainingOneWithoutRespawn() throws {
+        let shelf = Surface(id: .dock, kind: .dockTop, y: 70, minX: 200, maxX: 1200)
         var (world, id) = try Self.makeWorld(surfaces: [Self.floor, shelf])
-        #expect(world.pet(id)?.attachment?.surfaceID == shelf.id)
         _ = world.step(dt: Self.dt)
-
         world.apply(.surfaces([Self.floor]))
-        let lost = world.step(dt: Self.dt)
-        #expect(lost.contains(.recovered(id, reason: .surfaceLost)))
-        #expect(world.pet(id)?.state == .recovering(.surfaceLost))
-        #expect(world.snapshot().pets[0].isVisible == false)
-
-        let respawn = world.step(dt: Self.dt)
-        #expect(respawn.contains(.placed(id, Self.floor.id)))
-        #expect(world.pet(id)?.state == .spawning)
-        _ = world.step(dt: Self.dt)
+        var events = world.step(dt: Self.dt)
+        #expect(events.contains(.surfaceLost(id, shelf.id)))
+        #expect(world.pet(id)?.state == .airborne(.falling))
+        #expect(world.snapshot().pets[0].isVisible)
+        for _ in 0..<60 { world.step(dt: Self.dt, into: &events) }
+        #expect(events.filter { if case .landed = $0 { true } else { false } }.count == 1)
+        #expect(!events.contains { if case .placed = $0 { true } else { false } })
+        #expect(world.pet(id)?.attachment?.surfaceID == Self.floor.id)
         #expect(world.pet(id)?.state == .walking)
     }
 
-    /// T6.4: the Dock hidden (auto-hide on) or shown again swaps the Dock top and the screen bottom; the cat
-    /// re-settles straight below or above where it was, with its facing.
-    @Test func lostSurfaceRecoveryKeepsTheXAndFacingWhenTheReplacementFits() throws {
+    @Test func lostSurfaceFallsAtSameXAndFacingWhenAtRestAndDockShowDoesNotLift() throws {
         let dock = Surface(id: .dock, kind: .dockTop, y: 70, minX: 0, maxX: 1470)
-        var (world, id) = try Self.makeWorld(surfaces: [dock])
+        var (world, id) = try Self.makeWorld(surfaces: [dock, Self.floor])
         Self.set(&world, x: 600, facing: .left)
-
-        world.apply(.surfaces([Self.floor]))  // Dock hidden
-        #expect(world.step(dt: Self.dt).contains(.recovered(id, reason: .surfaceLost)))
-        #expect(world.step(dt: Self.dt).contains(.placed(id, Self.floor.id)))
+        world.apply(.surfaces([Self.floor]))
+        var events: [WorldEvent] = []
+        for _ in 0..<60 {
+            world.step(dt: Self.dt, into: &events)
+            if world.pet(id)?.attachment?.surfaceID == Self.floor.id { break }
+        }
         #expect(world.pet(id)?.position == CGPoint(x: 600, y: 0))
         #expect(world.pet(id)?.facing == .left)
-        _ = world.step(dt: Self.dt)  // walking again
-
-        world.apply(.surfaces([dock]))  // Dock shown
-        _ = world.step(dt: Self.dt)
-        _ = world.step(dt: Self.dt)
-        #expect(world.pet(id)?.position == CGPoint(x: 600, y: 70))
-        #expect(world.pet(id)?.attachment?.surfaceID == .dock)
+        #expect(events.contains(.landed(id, Self.floor.id)))
+        #expect(!events.contains { if case .placed = $0 { true } else { false } })
+        world.apply(.surfaces([dock, Self.floor]))
+        #expect(world.pet(id)?.position.y == 0)
+        #expect(world.pet(id)?.attachment?.surfaceID == Self.floor.id)
     }
 
-    @Test func lostSurfaceRecoveryClampsAnXJustOutsideTheNewMargins() throws {
+    @Test func unsupportedReplacementUsesBoundedExceptionalRecovery() throws {
         let floor = Surface(id: SurfaceID("floor"), kind: .screenBottom, y: 0, minX: 0, maxX: 1000)
-        let wide = Surface(id: SurfaceID("wide"), kind: .dockTop, y: 70, minX: 0, maxX: 1470)
+        let wide = Surface(id: .dock, kind: .dockTop, y: 70, minX: 0, maxX: 1470)
         var (world, id) = try Self.makeWorld(surfaces: [wide])
         Self.set(&world, x: 980, facing: .right)
         world.apply(.surfaces([floor]))
-        _ = world.step(dt: Self.dt)
-        _ = world.step(dt: Self.dt)
-        #expect(world.pet(id)?.position == CGPoint(x: 952, y: 0))  // 1000 − 48
+        var events = world.step(dt: Self.dt)
+        #expect(try #require(world.pet(id)).position.y > 0)  // no immediate placement on unsupported x
+        for _ in 0..<120 { world.step(dt: Self.dt, into: &events) }
+        let pet = try #require(world.pet(id))
+        #expect(pet.attachment?.surfaceID == floor.id)
+        #expect((48...952).contains(pet.position.x))
+        #expect(events.contains { if case .recovered = $0 { true } else { false } })
     }
 
-    @Test func lostSurfaceRecoveryOnAnotherScreenRespawnsAtRandom() throws {
+    @Test func missingSupportOnAnotherScreenUsesBoundedRecovery() throws {
         let other = Surface(id: SurfaceID("other"), kind: .screenBottom, y: 0, minX: 3000, maxX: 4000)
         var (world, id) = try Self.makeWorld()
         let wide = ScreenDescriptor(
@@ -288,10 +288,12 @@ struct PetWorldTests {
         world.apply(.screens([wide]))
         Self.set(&world, x: 600, facing: .left)
         world.apply(.surfaces([other]))
-        _ = world.step(dt: Self.dt)
-        _ = world.step(dt: Self.dt)
+        var events: [WorldEvent] = []
+        for _ in 0..<120 { world.step(dt: Self.dt, into: &events) }
         let x = try #require(world.pet(id)?.position.x)
         #expect((3048...3952).contains(x))
+        #expect(world.pet(id)?.attachment?.surfaceID == other.id)
+        #expect(events.contains { if case .recovered = $0 { true } else { false } })
     }
 
     @Test func leavingEveryScreenRecoversOutOfBounds() throws {

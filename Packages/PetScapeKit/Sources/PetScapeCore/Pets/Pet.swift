@@ -4,12 +4,22 @@ import Foundation
 /// One pet: identity, placement, state and animation (pet-engine.md#data-model). A value; only `PetWorld`
 /// changes it.
 ///
-/// MVP subset of the target model: no velocity (walking moves along the surface), needs, personality or
-/// cooldowns yet — they arrive with physics (M7) and behaviors (M9).
+/// Physical state and autonomous activity execution are world-owned.
 public struct Pet: Sendable {
     public let id: PetID
     /// Contact point (paws) in canonical global space.
     public internal(set) var position: CGPoint
+    /// Finite velocity in canonical points/s.
+    public internal(set) var velocity: CGVector = .zero
+    var airborneElapsed: Double = 0
+    var jumpPlan: JumpPlan?
+    var jumpSource: Surface?
+    public internal(set) var resumeActivity: ResumeActivity = .walking
+    var lastJumpLaunchTime: Double?
+    var jumpRequestID = 0
+    var consumedJumpID = 0
+    var contactGeometry: ContactGeometry?
+    private let visualAnchorX: Double
     /// `nil` while not placed (no surface yet, or during recovery).
     public internal(set) var attachment: SurfaceAttachment?
     public internal(set) var facing: Facing
@@ -18,10 +28,22 @@ public struct Pet: Sendable {
     public internal(set) var stateElapsed: Double
     public internal(set) var animation: AnimationController
     /// User display scale (1 = the manifest `displaySize`).
-    public let scale: Double
+    public internal(set) var scale: Double
+    public internal(set) var needs = Needs()
+    public internal(set) var personality: Personality
+    public internal(set) var activity: Activity?
+    public internal(set) var activityDecisionCount = 0
+    var activityDeadline: Double = 0
+    var activityDuration: Double = 0
+    var previousActivity: Activity?
+    var activityRepetitions = 0
+    var activityCooldowns: [Activity: Double] = [:]
+    var noProgressElapsed: Double = 0
+    var progressPosition: CGPoint = .zero
 
     init(id: PetID, definition: CharacterDefinition, scale: Double) {
         self.id = id
+        personality = Personality(definition.personality)
         position = .zero
         attachment = nil
         facing = definition.defaultFacing
@@ -29,6 +51,11 @@ public struct Pet: Sendable {
         stateElapsed = 0
         animation = AnimationController(definition: definition)
         self.scale = scale
+        let walk = definition.clip(named: BehaviorTuning.walkClip)
+        visualAnchorX = walk.anchor.x
+        contactGeometry = ContactGeometry(
+            displaySize: CGSize(width: definition.displaySize.width, height: definition.displaySize.height),
+            scale: scale)
     }
 
     public var characterID: CharacterID { animation.definition.id }
@@ -42,7 +69,7 @@ public struct Pet: Sendable {
     /// How far the sprite reaches sideways from the contact point, for either facing: the larger side of the
     /// anchor. Equals half the sprite width for a centered anchor (state-machines.md: edge margin).
     public var edgeMargin: CGFloat {
-        let anchorX = animation.player.clip.anchor.x
+        let anchorX = visualAnchorX
         return CGFloat(max(anchorX, 1 - anchorX)) * size.width
     }
 }

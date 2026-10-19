@@ -83,4 +83,16 @@ struct FixedStepAccumulatorTests {
         _ = accumulator.steps(forFrameAt: 1.0 / 120)
         #expect(abs(accumulator.interpolation - 0.5) < 1e-9)
     }
+    @Test func passiveModePreservesLowRateTimeButBoundsStallsAndReturnsToNormalPolicy() {
+        var accumulator = FixedStepAccumulator()
+        #expect(accumulator.steps(forFrameAt: 0, allowPassiveCatchUp: true) == 0)
+        #expect(accumulator.steps(forFrameAt: 1, allowPassiveCatchUp: true) == 60)
+        #expect(accumulator.steps(forFrameAt: 1.5, allowPassiveCatchUp: true) == 30)
+        #expect(accumulator.steps(forFrameAt: 100, allowPassiveCatchUp: true) == 120)
+        #expect(accumulator.steps(forFrameAt: 100.5) == 5)
+        #expect(accumulator.steps(forFrameAt: 100.5 + 1.0 / 60) == 1)
+        accumulator.reset()
+        #expect(accumulator.steps(forFrameAt: 200, allowPassiveCatchUp: true) == 0)
+    }
+
 }

@@ -19,7 +19,8 @@ struct CharacterLoaderTests {
         let walk = try #require(character.frames["walk"])
         #expect(walk.count == 8)
         #expect(walk.allSatisfy { $0.image.width == 288 && $0.image.height == 288 })
-        #expect(character.decodedByteCount <= 3 * 1024 * 1024)  // AC-M4-02
+        #expect(walk.reduce(0) { $0 + $1.image.bytesPerRow * $1.image.height } <= 3 * 1024 * 1024)  // AC-M4-02
+        #expect(character.decodedByteCount <= 16 * 1024 * 1024)  // Approved V4 total; walk budget retained.
     }
 
     @Test func theCatWalkPlaysAtTheDeclaredRate() async throws {
@@ -33,6 +34,48 @@ struct CharacterLoaderTests {
         }
         #expect(shown.last == 9 % 8)
         #expect(Set(shown).count == 8)
+    }
+
+    @Test(arguments: [1, 8, 32])
+    func additivePhasePacksRenderEverySimulationCut(frameCount: Int) async throws {
+        let names = ["walk", "idle", "jump-start", "jump", "fall", "landing"]
+        let paths = (0..<frameCount).map { "phase/\($0).png" }
+        let frames = paths.map { CharacterManifest.Frame(image: $0) }
+        let clips = Dictionary(
+            uniqueKeysWithValues: names.map {
+                ($0, CharacterManifest.Clip(fps: 12, frames: frames))
+            })
+        let manifest = CharacterManifest(
+            id: "phase-fixture", displayName: "Phases", defaultAnimation: "walk",
+            canvas: .init(width: 64, height: 64), displaySize: .init(width: 96, height: 96),
+            anchor: .init(x: 0.5, y: 0.074), animations: clips)
+        let json = String(decoding: try JSONEncoder().encode(manifest), as: UTF8.self)
+        let pack = try TestPacks.make(manifest: json, images: paths)
+        defer { try? FileManager.default.removeItem(at: pack) }
+        let character = await CharacterLoader().load(packURL: pack)
+        #expect(character.failure == nil)
+        #expect(character.issues.isEmpty)
+        #expect(character.frames["jump"]?.count == frameCount)
+        let screen = ScreenDescriptor(
+            id: ScreenID(1),
+            frame: CGRect(x: 0, y: 0, width: 1470, height: 956),
+            visibleFrame: CGRect(x: 0, y: 70, width: 1470, height: 853), backingScale: 2, isPrimary: true)
+        var world = PetWorld(random: SeededRandomSource(seed: 8))
+        world.apply(.screens([screen]))
+        world.apply(.surfaces([Surface.screenBottom(of: screen)]))
+        let id = world.spawn(character.definition)
+        _ = world.step(dt: 1.0 / 60)
+        world.apply(.requestJump(id, JumpRequest(returnActivity: .idle)))
+        var seen: Set<String> = []
+        for _ in 0..<130 {
+            let snapshot = world.snapshot()
+            let pose = try #require(snapshot.pets.first)
+            #expect(pose.size == CGSize(width: 96, height: 96))
+            #expect(character.frame(pose.frame) != nil)
+            seen.insert(pose.frame.clip)
+            _ = world.step(dt: 1.0 / 60)
+        }
+        #expect(seen.isSuperset(of: ["jump-start", "jump", "fall", "landing", "idle"]))
     }
 
     // MARK: AC-05: changing the manifest changes playback without code changes

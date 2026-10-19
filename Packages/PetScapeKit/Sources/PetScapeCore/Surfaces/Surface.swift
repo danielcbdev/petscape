@@ -31,6 +31,9 @@ public struct Surface: Equatable, Sendable {
     public var maxX: CGFloat { segment.end.x }
     public var width: CGFloat { maxX - minX }
 
+    /// Invalid environment geometry is never a support or a recovery destination.
+    var isUsable: Bool { y.isFinite && minX.isFinite && maxX.isFinite && width.isFinite && width > 0 }
+
     /// The point at `parameter` (0 = left end, 1 = right end); not clamped.
     public func point(atParameter parameter: Double) -> CGPoint {
         CGPoint(x: minX + CGFloat(parameter) * width, y: y)

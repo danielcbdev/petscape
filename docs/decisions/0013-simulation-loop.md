@@ -59,3 +59,18 @@ physics and behavior deterministic and testable regardless of display rate.
 |---|---|
 | Multi-screen with several scenes double-stepping | Exactly one `FrameDriver` registered; asserted in DEBUG |
 | 30 fps render while sleeping → 2 steps per frame | Cheap; acceptable |
+
+## M9 scoped amendment (2026-10-18)
+
+The owner-authorized M9 plan adds passive sleep deadlines/needs without a second scheduler.
+`FixedStepAccumulator.steps(forFrameAt:allowPassiveCatchUp:)` keeps the original moving defaults
+(5 fixed ticks, delta ≤0.25 s). Runtime opts in only while every pet is Sleeping; that one callback
+may consume ≤2 s / 120 fixed 1/60 s ticks. On the first state change (wake deadline or safety/fall),
+Runtime drops the rest of that passive batch and returns to ordinary display demand. It never
+fast-forwards physical motion because a low-rate sleep callback arrived late. Stalls beyond 2 s
+are dropped. All existing pause/hide/suspend/driver-reset rules still seed time on resume.
+
+This permits held fallback sleep at 4 Hz (including the driver's 2 Hz minimum) and authored 2 FPS
+sleep to retain real simulated needs/deadlines, without changing movement integration or adding
+work during a stopped run state. Tests cover 1/2/4 Hz callbacks, wake and support loss, bounded
+stall, moving-policy restoration and no catch-up after pause.

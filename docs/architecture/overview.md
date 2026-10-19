@@ -1,7 +1,12 @@
 # Architecture Overview
 
-Status: **Proposed** (pending owner approval and PoC results; see
-[proof-of-concept.md](../planning/proof-of-concept.md)).
+Status: M2–M6 implemented baseline, HEAD `2f7f33f`; individual milestone/ADR approvals remain
+in their registers. PoC is Done. M7/M8 physics, explicit jumps and runtime integration are
+implemented in the working tree and **Done by owner acceptance (2026-10-18)**, including V4.
+See the [owner closeout](../planning/m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)
+for reported tests and instrumented evidence limits. The owner subsequently closed M2/M3/M5/M6
+and reauthorized M9. Autonomous needs/activity execution and Settings UI automation pass; M9 was closed by owner acceptance,
+with real login, native frame cadence and installed-app playtest gaps recorded in the [M9 closeout](../planning/m9-implementation.md).
 
 ## Shape of the system
 
@@ -27,7 +32,7 @@ flowchart TB
   end
   subgraph Core["PetScapeCore (pure Swift, no UI frameworks)"]
     World[PetWorld]
-    Behavior[Behavior FSM / activity selection]
+    Behavior[HSM + weighted activity selection]
     Physics[Kinematic physics]
     Anim[Animation model + player]
     Surfaces[SurfaceMap]
@@ -36,7 +41,7 @@ flowchart TB
   end
   subgraph Platform["PetScapePlatform (AppKit / CG / AX adapters)"]
     Screens[ScreenProvider]
-    Dock[DockGeometryProvider]
+    Dock[DockSurfaceProvider]
     Windows[WindowTracker - M12]
     Cursor[CursorSampler]
     SystemEvents[SystemEventsMonitor]
@@ -94,7 +99,7 @@ rationale: [modules.md](modules.md), [ADR-0002](../decisions/0002-project-struct
 | Overlay | One borderless, non-activating, transparent `NSPanel` per screen; mouse pass-through by default, enabled only over pet pixels | [0003](../decisions/0003-overlay-window-strategy.md) |
 | Rendering | Core Animation (`CALayer` per pet, `CADisplayLink`) renders snapshots only; SpriteKit rejected after PoC E7 (~5× memory, ~5× CPU) | [0015](../decisions/0015-core-animation-renderer.md) (supersedes [0004](../decisions/0004-spritekit-as-renderer.md)) |
 | Physics | Custom kinematic "platformer" controller, fixed timestep | [0005](../decisions/0005-kinematic-physics.md) |
-| Behavior | Hierarchical FSM for actions + utility-based activity selection (post-MVP) | [0006](../decisions/0006-behavior-model.md) |
+| Behavior | Hierarchical FSM; simple weighted M9 selection accepted by ADR-0018 (historical ADR-0006 utility design) | [0006](../decisions/0006-behavior-model.md), [0018](../decisions/0018-simple-weighted-behaviors.md) |
 | Assets | Data-driven character packs (JSON manifest + PNG frames) | [0007](../decisions/0007-character-packs.md) |
 | Coordinates | One canonical global space (AppKit global points, y-up); conversions centralized | [0008](../decisions/0008-coordinate-system.md) |
 | Dock | Public-API heuristics (`visibleFrame`) + manual offset; no private APIs | [0009](../decisions/0009-dock-geometry.md) |
@@ -108,8 +113,9 @@ rationale: [modules.md](modules.md), [ADR-0002](../decisions/0002-project-struct
 
 1. `PetScapeApp` (SwiftUI `App`) starts with `LSUIElement = YES`; `AppDelegate` builds the
    `AppContainer` (composition root).
-2. The container loads preferences, builds the `ScreenProvider`, `DockGeometryProvider`,
-   `FrameImageStore`, `OverlayWindowManager` and `PetRuntime`.
+2. The container loads preferences, builds the `ScreenProvider`, `DockSurfaceProvider`,
+   `FrameImageStore`, `OverlayWindowManager` and `PetRuntime`. M9 restores size, speed and behavior
+   settings before spawn; the Settings model shares the runtime and an injected login-item service.
 3. `PetRuntime` loads the cat character pack (manifest decode + validation and image decoding off
    the main actor, layer setup on the main actor), spawns the pet on the Dock surface and
    starts the frame driver (display link).
@@ -123,6 +129,7 @@ Data flow details: [data-flow.md](data-flow.md).
 ## Where to read next
 
 - Modules and dependencies: [modules.md](modules.md)
+- Explicit jumps: [jump-system.md](jump-system.md); V4: [animation-assets-v4.md](../specifications/animation-assets-v4.md)
 - Per-subsystem design: [animation-system.md](animation-system.md), [pet-engine.md](pet-engine.md),
   [physics-engine.md](physics-engine.md), [behavior-engine.md](behavior-engine.md),
   [macos-integration.md](macos-integration.md), [window-tracking.md](window-tracking.md)

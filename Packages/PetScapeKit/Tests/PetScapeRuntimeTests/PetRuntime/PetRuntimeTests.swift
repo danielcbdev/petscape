@@ -37,23 +37,30 @@ struct PetRuntimeTests {
         let driver = FakeFrameDriver()
         let workspaceCenter = NotificationCenter()
         let distributedCenter = NotificationCenter()
+        let sampler = CursorSampler(monitoring: NoMouseMonitoring())
         let preferences: InMemoryPreferencesStore
         let runtime: PetRuntime
         var time: TimeInterval = 1000
 
-        init(preferences: InMemoryPreferencesStore = InMemoryPreferencesStore()) {
+        init(
+            preferences: InMemoryPreferencesStore = InMemoryPreferencesStore(
+                petSettings: PetSettings(behavior: AutonomySettings(isEnabled: false))),
+            tuning: BehaviorTuning = BehaviorTuning(),
+            readScreens: (@MainActor () -> [ScreenDescriptor])? = nil,
+            screenCenter: NotificationCenter = NotificationCenter()
+        ) {
             self.preferences = preferences
             let driver = driver
             runtime = PetRuntime(
-                screenProvider: ScreenProvider(notificationCenter: NotificationCenter()),
-                cursorSampler: CursorSampler(monitoring: NoMouseMonitoring()),
+                screenProvider: ScreenProvider(notificationCenter: screenCenter, readScreens: readScreens),
+                cursorSampler: sampler,
                 systemEvents: SystemEventsMonitor(
                     workspaceCenter: workspaceCenter, distributedCenter: distributedCenter),
                 fullScreenDetector: FullScreenSpaceDetector(workspaceCenter: NotificationCenter()),
                 preferences: preferences,
                 overlays: OverlayWindowManager(notificationCenter: NotificationCenter()),
                 makeFrameDriver: { _ in driver },
-                random: SeededRandomSource(seed: 5))
+                random: SeededRandomSource(seed: 5), tuning: tuning)
         }
 
         /// Starts the runtime with an opaque 32 pt test character.
@@ -110,7 +117,7 @@ struct PetRuntimeTests {
     }
 
     @Test(arguments: [DockEstimate.Position.left, .right])
-    func movingDockToASideKeepsFramesRunningUntilThePetResettles(_ position: DockEstimate.Position) async throws {
+    func movingDockToASideKeepsFramesRunningThroughFallAndLanding(_ position: DockEstimate.Position) async throws {
         let h = Harness()
         try await h.start()
         h.frames(2)
@@ -137,7 +144,11 @@ struct PetRuntimeTests {
         #expect(h.runtime.overlay.dock.estimate.position == position)
         #expect(h.runtime.overlay.dock.surface?.kind == .screenBottom)
 
-        h.frames(3)
+        for _ in 0..<60 {
+            #expect(!h.driver.isPaused)
+            h.frames(1)
+            #expect(h.pet?.isVisible == true)
+        }
 
         let pet = try #require(h.pet)
         #expect(pet.isVisible)
@@ -266,4 +277,308 @@ struct PetRuntimeTests {
         let after = try #require(h.pet)
         #expect(abs(after.position.x - before.position.x) <= 20.0 / 60 + 1e-9)
     }
+    @Test func idleDemandKeepsCursorMonitoringWithoutPollingFrames() async throws {
+        let h = Harness()
+        try await h.start()
+        #expect(!h.sampler.isMonitoring)
+        h.runtime.overlay.needsFrames = false
+        #expect(h.driver.isPaused)
+        #expect(h.sampler.isMonitoring)
+        h.runtime.overlay.needsFrames = true
+        #expect(!h.driver.isPaused)
+        #expect(!h.sampler.isMonitoring)
+    }
+    final class ScreenValues {
+        var screens: [ScreenDescriptor]
+        init(_ screens: [ScreenDescriptor]) { self.screens = screens }
+    }
+    static func syntheticScreen(_ id: UInt32 = 1, bottomInset: CGFloat = 64) -> ScreenDescriptor {
+        ScreenDescriptor(
+            id: ScreenID(id), frame: CGRect(x: 0, y: 0, width: 1000, height: 800),
+            visibleFrame: CGRect(x: 0, y: bottomInset, width: 1000, height: 764 - bottomInset),
+            backingScale: 2, isPrimary: true)
+    }
+    @Test func syntheticDockChangeWhilePausedFallsOnlyAfterResume() async throws {
+        let values = ScreenValues([Self.syntheticScreen()])
+        let center = NotificationCenter()
+        let h = Harness(readScreens: { values.screens }, screenCenter: center)
+        try await h.start()
+        h.frames(3)
+        h.runtime.setPaused(true)
+        let old = try #require(h.pet)
+        values.screens = [Self.syntheticScreen(bottomInset: 0)]
+        center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)
+        h.frames(600)
+        #expect(h.pet?.position == old.position)
+        #expect(h.driver.isPaused)
+        h.runtime.setPaused(false)
+        h.frames(1)
+        #expect(h.pet?.position == old.position)
+        h.frames(60)
+        #expect(h.pet?.position.y == 0)
+        #expect(!h.driver.isPaused)
+    }
+    @Test func replacementDriverStartsWithoutCatchup() async throws {
+        let values = ScreenValues([Self.syntheticScreen()])
+        let center = NotificationCenter()
+        let h = Harness(readScreens: { values.screens }, screenCenter: center)
+        try await h.start()
+        h.frames(3)
+        values.screens = [Self.syntheticScreen(2)]
+        center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)
+        let afterEnvironment = try #require(h.pet)
+        h.time += 1000
+        h.frames(1)
+        #expect(h.pet == afterEnvironment)
+        h.frames(10)
+        #expect(h.pet?.isVisible == true)
+    }
+    @Test func jumpCommandsRespectPauseAndFreezeMidairWithoutCatchup() async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(3)
+        h.runtime.setPaused(true)
+        #expect(!h.runtime.requestJump(JumpRequest()))
+        h.runtime.setPaused(false)
+        #expect(h.runtime.requestJump(JumpRequest()))
+        h.frames(15)
+        let airborne = try #require(h.pet)
+        #expect(airborne.position.y > 64)
+        h.runtime.setPaused(true)
+        h.time += 3600
+        h.frames(120)
+        #expect(h.pet == airborne)
+        h.runtime.setPaused(false)
+        h.frames(1)
+        #expect(h.pet == airborne)
+        h.frames(120)
+        #expect(h.pet?.position.y == 64)
+    }
+    @Test func heldIdleStopsFramesAndJumpWakesTheSameDriver() async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(3)
+        h.runtime.setActivity(.idle)
+        #expect(h.driver.isPaused)
+        #expect(h.sampler.isMonitoring)
+        #expect(h.runtime.requestJump(JumpRequest(returnActivity: .idle)))
+        #expect(!h.driver.isPaused)
+        #expect(h.driver.preferredFramesPerSecond == 60)
+        h.frames(210)
+        #expect(h.driver.isPaused)
+        #expect(h.sampler.isMonitoring)
+        #expect(h.runtime.requestJump(JumpRequest()))
+        #expect(!h.driver.isPaused)
+    }
+    @Test func debugTargetCommandPreservesIdleIntent() async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(3)
+        h.runtime.setActivity(.idle)
+        #expect(h.runtime.requestJump(to: .vertical))
+        h.frames(210)
+        #expect(h.driver.isPaused)
+    }
+    @Test(arguments: [15, 30])
+    func realIdleLoopAtLowerCallbackRatesKeepsSimulationTime(callbackRate: Int) async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        h.runtime.start()
+        let frames = ["a.png", "b.png", "c.png", "d.png"]
+        let json = TestPacks.manifest(walkFrames: ["a.png"], sitFrames: frames)
+            .replacingOccurrences(of: "sit", with: "idle")
+        let pack = try TestPacks.make(manifest: json, images: frames)
+        defer { try? FileManager.default.removeItem(at: pack) }
+        h.runtime.show(await CharacterLoader().load(packURL: pack))
+        h.frames(3)
+        h.runtime.setActivity(.idle)
+        #expect(!h.driver.isPaused)
+        #expect(h.driver.preferredFramesPerSecond == 30)
+        let position = h.pet?.position
+        for _ in 0..<callbackRate {
+            h.time += 1.0 / Double(callbackRate)
+            h.driver.fire(at: h.time)
+        }
+        #expect(h.pet?.position == position)
+        #expect(h.pet?.frame.clip == "idle")
+        #expect(h.pet?.frame.frameIndex == 0)  // 4 fps / four frames: exactly one loop.
+    }
+    @Test func duplicateRuntimeJumpReturnsFalse() async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(3)
+        #expect(h.runtime.requestJump(JumpRequest()))
+        #expect(!h.runtime.requestJump(JumpRequest()))
+    }
+    @Test func productionDefaultsEnableAutonomyAndRestoreScaleBeforeSpawn() async throws {
+        let preferences = InMemoryPreferencesStore(petSettings: PetSettings(scale: 1.5, speed: 2))
+        let h = Harness(
+            preferences: preferences, tuning: BehaviorTuning(activityWeights: [.sleep: 1]),
+            readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        #expect(h.pet?.spriteRect.width == 48)
+        h.frames(30)
+        #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+        #expect(h.driver.preferredFramesPerSecond == 4)
+        #expect(!h.driver.isPaused)
+    }
+
+    @Test func settingsApplyWhilePausedHiddenAndAirborneWithoutMovingFeet() async throws {
+        let h = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(3)
+        #expect(h.runtime.requestJump(JumpRequest()))
+        h.frames(15)
+        let before = try #require(h.runtime.pets.first)
+        #expect(before.state == .airborne(.rising) || before.state == .airborne(.falling))
+        h.runtime.setPaused(true)
+        h.runtime.setHidden(true)
+        let settings = PetSettings(
+            scale: 1.5, speed: 2,
+            behavior: AutonomySettings(
+                isEnabled: false,
+                jumpsEnabled: false, restEnabled: false, expressionsEnabled: false))
+        h.runtime.setPetSettings(settings)
+        let after = try #require(h.runtime.pets.first)
+        #expect(after.position == before.position)
+        #expect(after.velocity == before.velocity)
+        #expect(after.facing == before.facing)
+        #expect(after.size.width == 48)
+        #expect(h.preferences.petSettings == settings)
+        #expect(h.runtime.petSettings == settings)
+        #expect(h.driver.isPaused)
+        h.runtime.setHidden(false)
+        h.runtime.setPaused(false)
+        h.frames(1)
+        #expect(h.runtime.pets.first?.position == before.position)
+        h.frames(120)
+        #expect(h.runtime.pets.first?.position.y == 64)
+    }
+
+    @Test func speedSettingChangesSupportedWalkingDistance() async throws {
+        let slow = Harness(readScreens: { [Self.syntheticScreen()] })
+        let fast = Harness(readScreens: { [Self.syntheticScreen()] })
+        try await slow.start()
+        try await fast.start()
+        slow.frames(3)
+        fast.frames(3)
+        slow.runtime.setPetSettings(PetSettings(behavior: AutonomySettings(isEnabled: false)))
+        fast.runtime.setPetSettings(PetSettings(speed: 2, behavior: AutonomySettings(isEnabled: false)))
+        slow.frames(1)
+        fast.frames(1)
+        let start = try #require(slow.pet?.position.x)
+        slow.frames(30)
+        fast.frames(30)
+        #expect(abs(abs(try #require(slow.pet?.position.x) - start) - 10) < 1e-6)
+        #expect(abs(abs(try #require(fast.pet?.position.x) - start) - 20) < 1e-6)
+    }
+
+    @Test(arguments: [1.0, 2, 4])
+    func passiveSleepPreservesSixtyHertzTimeAndPauseDoesNotCatchUp(rate: Double) async throws {
+        let h = Harness(
+            preferences: InMemoryPreferencesStore(),
+            tuning: BehaviorTuning(activityWeights: [.sleep: 1]), readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(30)
+        #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+        let before = h.runtime.simulationTime
+        let energy = try #require(h.runtime.pets.first?.needs.energy)
+        for _ in 0..<Int(rate * 5) {
+            h.time += 1 / rate
+            h.driver.fire(at: h.time)
+        }
+        #expect(abs(h.runtime.simulationTime - before - 5) < 1e-6)
+        #expect(abs(try #require(h.runtime.pets.first?.needs.energy) - energy - 5.0 / 45) < 1e-6)
+        h.runtime.setPaused(true)
+        let paused = h.runtime.simulationTime
+        h.time += 3600
+        h.runtime.setPaused(false)
+        h.driver.fire(at: h.time)
+        #expect(h.runtime.simulationTime == paused)
+        h.time += 1 / rate
+        h.driver.fire(at: h.time)
+        #expect(abs(h.runtime.simulationTime - paused - 1 / rate) < 1e-6)
+    }
+
+    @Test func passiveBatchStopsAtWakeAndDoesNotFastForwardWalking() async throws {
+        let h = Harness(
+            preferences: InMemoryPreferencesStore(),
+            tuning: BehaviorTuning(activityWeights: [.sleep: 1]), readScreens: { [Self.syntheticScreen()] })
+        try await h.start()
+        h.frames(30)
+        var iterations = 0
+        while h.runtime.pets.first?.state == .grounded(.sleeping), iterations < 70 {
+            let before = h.runtime.simulationTime
+            h.time += 2
+            h.driver.fire(at: h.time)
+            if h.runtime.pets.first?.state != .grounded(.sleeping) {
+                #expect(h.runtime.pets.first?.state == .grounded(.wakingUp))
+                #expect(h.runtime.simulationTime - before <= 2 + 1e-6)
+                #expect(h.runtime.pets.first?.stateElapsed == 0)
+                #expect(h.driver.preferredFramesPerSecond == 60)
+            }
+            iterations += 1
+        }
+        #expect(iterations < 70)
+    }
+
+    @Test func wakeAndSupportLossLeavePassiveRateWithoutFastForwardingPhysics() async throws {
+        let values = ScreenValues([Self.syntheticScreen()])
+        let center = NotificationCenter()
+        let h = Harness(
+            preferences: InMemoryPreferencesStore(),
+            tuning: BehaviorTuning(activityWeights: [.sleep: 1]),
+            readScreens: { values.screens }, screenCenter: center)
+        try await h.start()
+        h.frames(30)
+        #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+        h.runtime.wakePet()
+        #expect(h.runtime.pets.first?.state == .grounded(.wakingUp))
+        #expect(h.driver.preferredFramesPerSecond == 60)
+        h.frames(120)
+        // Re-enter sleep after its cooldown using the same deterministic weighting.
+        h.frames(1500)
+        #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+        values.screens = [Self.syntheticScreen(bottomInset: 0)]
+        center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)
+        let y = try #require(h.pet?.position.y)
+        h.time += 1
+        h.driver.fire(at: h.time)
+        #expect(try #require(h.pet?.position.y) > 0)
+        #expect(try #require(h.pet?.position.y) <= y)
+        #expect(h.runtime.pets.first?.state == .airborne(.falling))
+        #expect(h.driver.preferredFramesPerSecond == 60)
+    }
+
+    #if DEBUG
+        @Test func diagnosticCountsZeroSeedFullPassiveBatchAndOneSafetyTick() async throws {
+            let values = ScreenValues([Self.syntheticScreen()])
+            let center = NotificationCenter()
+            let h = Harness(
+                preferences: InMemoryPreferencesStore(),
+                tuning: BehaviorTuning(activityWeights: [.sleep: 1]),
+                readScreens: { values.screens }, screenCenter: center)
+            try await h.start()
+            h.frames(1)
+            #expect(h.runtime.lastFrameStepCount == 0)
+            #expect(h.runtime.simulationTime == 0)
+            h.frames(29)
+            #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+            let sleepingTime = h.runtime.simulationTime
+            h.time += 0.25
+            h.driver.fire(at: h.time)
+            #expect(h.runtime.lastFrameStepCount == 15)
+            #expect(abs(h.runtime.simulationTime - sleepingTime - 0.25) < 1e-6)
+            values.screens = [Self.syntheticScreen(bottomInset: 0)]
+            center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)
+            #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
+            let beforeSafety = h.runtime.simulationTime
+            h.time += 0.25
+            h.driver.fire(at: h.time)
+            #expect(h.runtime.lastFrameStepCount == 1)
+            #expect(abs(h.runtime.simulationTime - beforeSafety - 1.0 / 60) < 1e-6)
+            #expect(h.runtime.pets.first?.state == .airborne(.falling))
+            #expect(h.driver.preferredFramesPerSecond == 60)
+        }
+    #endif
+
 }

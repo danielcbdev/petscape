@@ -4,17 +4,20 @@ A native macOS app that turns your desktop into a place where small, expressive,
 live — walking on the Dock, climbing screen edges, hopping between windows, napping and playing —
 without ever getting in the way of your work.
 
-> **Status:** MVP (v0.1.0) in review: a menu bar app with one cat walking on top of the Dock. Not yet
-> released; build it from source (below). Physics, jumps, behaviors and window interaction come later
+> **Status:** M1–M9 accepted by the owner. M9 implementation and Settings UI automation pass; its
+> owner closeout records unverified real login, native cadence and installed-app playtest checks.
+> Build from source below; no release/tag has been published.
+> V4 idle/jump/fall/landing art is integrated ([production notes](assets/characters/cat/v4/README.md)).
+> Rest/expression states currently use held idle poses; window interaction comes later
 > ([roadmap](docs/product/roadmap.md)).
 
 <p align="center"><img src="assets/characters/cat/walk/walk_preview.gif" width="160" alt="Prototype walk cycle of the cat"></p>
 
-## Highlights (planned)
+## Highlights
 
 - Menu bar app; transparent overlay; clicks pass through everything that isn't a pet.
 - Data-driven animations: swap art by editing a JSON manifest — no code changes.
-- Believable behavior: hierarchical state machine + utility-based activity selection.
+- Autonomous behavior: hierarchical state machine + weighted activities, energy and rest.
 - Energy-conscious: rendering stops completely when paused, hidden or the Mac sleeps.
 - 100% native: Swift 6, SwiftUI, AppKit, Core Animation. No third-party dependencies. No network, no telemetry.
 
@@ -23,7 +26,7 @@ without ever getting in the way of your work.
 - macOS 14 Sonoma or later (Apple silicon primary; Intel best-effort).
 - To build: Xcode 26 or later (developed with Xcode 27.1 / Swift 6.4).
 
-## Usage (v0.1.0)
+## Usage (working tree)
 
 Build and launch from a clone (Xcode 26+ installed):
 
@@ -31,8 +34,10 @@ Build and launch from a clone (Xcode 26+ installed):
 make run
 ```
 
-- PetScape lives in the menu bar (paw icon); it has no Dock icon and no window.
-- A cat walks back and forth on top of the Dock and turns around at the screen edges. Clicks anywhere except
+- PetScape lives in the menu bar (paw icon); it has no Dock icon. **Settings…** opens its native
+  preferences window.
+- A cat walks on top of the Dock, turns at screen edges and chooses short jumps, idle, rest and
+  ambient activities. Clicks anywhere except
   on the cat's own pixels go to whatever is underneath; clicking the cat never takes focus.
 - **Hide Pet / Show Pet** removes or restores the cat; **Pause / Resume** freezes it in place. Both choices are
   remembered after relaunch. **Quit PetScape** (⌘Q) exits.
@@ -41,8 +46,12 @@ make run
 - The cat disappears while a full-screen app is in front, and nothing is drawn while the Mac sleeps, the
   screen is locked or the display is off.
 - No permissions are requested; nothing is sent over the network.
-- If the paws float above or sink into the Dock on your Mac, Debug builds have **Debug › Dock offset** to shift
-  the cat up or down (−40…+40 pt); a Settings window follows in a later version.
+- In **Settings…**, change pet size/speed and enable or disable autonomous activities, jumping, resting
+  and expressions. Changes apply immediately and persist. **Wake Pet** exits sleep; **Restore Defaults**
+  resets PetScape choices and disables its login item.
+- If the paws float above or sink into the Dock, use **Settings › Advanced › Dock offset** (−40…+40 pt).
+- **Launch at login** changes only when explicitly toggled. Its status reflects macOS; approval, when
+  needed, is managed in System Settings › General › Login Items.
 
 ## Documentation
 

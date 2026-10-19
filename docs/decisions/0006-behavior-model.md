@@ -1,6 +1,6 @@
 # ADR-0006: Hierarchical FSM for execution + utility-based activity selection
 
-- Status: Proposed
+- Status: **Superseded by [ADR-0018](0018-simple-weighted-behaviors.md)** (owner planning approval, 2026-10-18); original decision below preserved for history.
 - Date: 2026-10-16
 - Related: [behavior-engine.md](../architecture/behavior-engine.md), [state-machines.md](../specifications/state-machines.md)
 
