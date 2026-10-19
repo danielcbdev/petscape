@@ -4,13 +4,35 @@
   "displayName": "Cat",
   "defaultAnimation": "walk",
   "defaultFacing": "right",
-  "canvas": { "width": 512, "height": 512 },
-  "displaySize": { "width": 96, "height": 96 },
-  "anchor": { "x": 0.5, "y": 0.074 },
+  "canvas": {
+    "width": 512,
+    "height": 512
+  },
+  "displaySize": {
+    "width": 96,
+    "height": 96
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.074
+  },
   "fallbacks": {
     "idle": "walk",
     "fall": "walk",
-    "land": "walk"
+    "land": "landing",
+    "jump-start": "walk",
+    "jump": "walk",
+    "landing": "walk",
+    "jump-air": "jump",
+    "sit-down": "idle",
+    "sit": "idle",
+    "stand-up": "idle",
+    "lie-down": "idle",
+    "sleep": "idle",
+    "wake-up": "idle",
+    "stretch": "idle",
+    "look-around": "idle",
+    "observe": "idle"
   },
   "animations": {
     "walk": {
@@ -18,14 +40,150 @@
       "fps": 9,
       "nominalSpeed": 20,
       "frames": [
-        { "image": "walk/frames/walk_01.png" },
-        { "image": "walk/frames/walk_02.png" },
-        { "image": "walk/frames/walk_03.png", "events": ["footstep"] },
-        { "image": "walk/frames/walk_04.png" },
-        { "image": "walk/frames/walk_05.png" },
-        { "image": "walk/frames/walk_06.png" },
-        { "image": "walk/frames/walk_07.png", "events": ["footstep"] },
-        { "image": "walk/frames/walk_08.png" }
+        {
+          "image": "walk/frames/walk_01.png"
+        },
+        {
+          "image": "walk/frames/walk_02.png"
+        },
+        {
+          "image": "walk/frames/walk_03.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "walk/frames/walk_04.png"
+        },
+        {
+          "image": "walk/frames/walk_05.png"
+        },
+        {
+          "image": "walk/frames/walk_06.png"
+        },
+        {
+          "image": "walk/frames/walk_07.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "walk/frames/walk_08.png"
+        }
+      ]
+    },
+    "idle": {
+      "playback": "loop",
+      "fps": 4,
+      "frames": [
+        {
+          "image": "idle/frames/idle_01.png"
+        },
+        {
+          "image": "idle/frames/idle_02.png"
+        },
+        {
+          "image": "idle/frames/idle_03.png"
+        },
+        {
+          "image": "idle/frames/idle_04.png",
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "idle/frames/idle_05.png"
+        },
+        {
+          "image": "idle/frames/idle_06.png"
+        }
+      ]
+    },
+    "jump-start": {
+      "playback": "once",
+      "fps": 26.666666666666668,
+      "frames": [
+        {
+          "image": "jump-start/frames/jump-start_01.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_02.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_03.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_04.png",
+          "events": [
+            "takeoff"
+          ]
+        }
+      ]
+    },
+    "jump": {
+      "playback": "once",
+      "fps": 12,
+      "frames": [
+        {
+          "image": "jump/frames/jump_01.png"
+        },
+        {
+          "image": "jump/frames/jump_02.png"
+        },
+        {
+          "image": "jump/frames/jump_03.png"
+        },
+        {
+          "image": "jump/frames/jump_04.png"
+        }
+      ]
+    },
+    "fall": {
+      "playback": "loop",
+      "fps": 12,
+      "frames": [
+        {
+          "image": "fall/frames/fall_01.png"
+        },
+        {
+          "image": "fall/frames/fall_02.png"
+        },
+        {
+          "image": "fall/frames/fall_03.png"
+        },
+        {
+          "image": "fall/frames/fall_04.png"
+        },
+        {
+          "image": "fall/frames/fall_05.png"
+        },
+        {
+          "image": "fall/frames/fall_06.png"
+        }
+      ]
+    },
+    "landing": {
+      "playback": "once",
+      "fps": 40,
+      "frames": [
+        {
+          "image": "landing/frames/landing_01.png",
+          "events": [
+            "contact"
+          ]
+        },
+        {
+          "image": "landing/frames/landing_02.png"
+        },
+        {
+          "image": "landing/frames/landing_03.png"
+        },
+        {
+          "image": "landing/frames/landing_04.png",
+          "events": [
+            "settled"
+          ]
+        }
       ]
     }
   }

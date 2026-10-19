@@ -39,7 +39,8 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Show pet state, clip, frame, facing, needs | M5–M9 |
 | Frame stats (step time, frame-image memory) from signposts/counters; the measured frame rate is logged instead (see below) | later |
 | Dock offset (done in M6): submenu "Dock offset: +0 pt" with Raise/Lower 1 pt and 5 pt and Reset; persisted (`petscape.dockOffsetAdjustment`) | M6 |
-| Simulation speed (0.25×, 1×, 4×) and single-step while paused | M7 |
+| Jump vertically; short jump left/right (60 pt); jump to Dock; Idle; Walk (implemented). Commands preserve walk/idle return intent; rejected while paused/hidden/suspended, busy, unreachable or in the 2 simulated-second cooldown. Current walk-only art holds a safe fallback pose in flight. No automatic jumping. | M8 |
+| Simulation speed (0.25×, 1×, 4×) and single-step while paused | Deferred |
 | Force events (surface lost, startled, low energy) | M7–M9 |
 | Show window surfaces and tracked windows | M12 |
 
@@ -63,7 +64,7 @@ DEBUG log lines added in M5 (useful predicates: `category == "simulation"`, `cat
 |---|---|
 | `Pet 1 'cat' spawned on screen:<id>:bottom` (notice) | Character handed to the runtime and placed |
 | `Pet 1: walking → turning`, `Pet 1 reached an edge` (debug) | State machine transitions; the turn hold is the time between `walking → turning` and `turning → walking` |
-| `Pet 1 recovered: <reason>` (error) | An invariant failed (surface lost, out of bounds, invalid numbers) |
+| `Pet 1 recovered: <reason>` (error) | An invariant failed (out of bounds, invalid numbers, invalid contact or airborne timeout); ordinary surface loss is a separate physical event |
 | `Mouse down on pet 1 at (x, y)` (debug) | A click reached the overlay over the cat's opaque pixels (AC-M5-02) |
 | `Frames: 60.0 fps, 60.0 steps/s over 10.0 s` (debug, `performance`) | Delivered display-link rate while frames run (T5.7) |
 
@@ -107,3 +108,7 @@ Protocol and targets: [performance.md](../specifications/performance.md).
 | Cat huge or tiny | Layer bounds taken from image pixels | Bounds must come from `displaySize` |
 | CPU high while paused | A timer or monitor still running; display link not paused | Run-state logs; Time Profiler |
 | Accessibility permission "forgotten" | Rebuilt with a different signing identity | Use a stable dev identity |
+
+M7/M8 physical events (`simulation` category): surface lost, landed, took off, apex, jump rejected
+(with typed reason) and jump cancelled. These are emitted once per transition/request; art markers
+never apply impulse or change contact. DEBUG jump commands use the same world validation as tests.

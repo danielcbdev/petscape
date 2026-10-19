@@ -1,3 +1,4 @@
+import AppKit
 import Foundation
 import PetScapeCore
 import PetScapePlatform
@@ -14,6 +15,8 @@ final class AppContainer {
 
     private let model: AppModel
     private let runtime: PetRuntime
+    let settingsModel: SettingsModel
+    private var activationObserver: (any NSObjectProtocol)?
     private let characterLoader = CharacterLoader()
     private var loadTask: Task<Void, Never>?
     private(set) var character: LoadedCharacter?
@@ -25,24 +28,29 @@ final class AppContainer {
 
     init(model: AppModel) {
         self.model = model
-        runtime = PetRuntime(
+        let preferences = Self.makePreferences()
+        let runtime = PetRuntime(
             screenProvider: ScreenProvider(),
             cursorSampler: CursorSampler(),
             systemEvents: SystemEventsMonitor(),
             fullScreenDetector: FullScreenSpaceDetector(),
-            preferences: UserDefaultsPreferencesStore())
+            preferences: preferences)
+        self.runtime = runtime
+        settingsModel = SettingsModel(runtime: runtime, preferences: preferences, loginService: Self.makeLoginService())
+        model.settings = settingsModel
         #if DEBUG
-            debugModel = DebugOverlayModel(runtime: runtime)
+            debugModel = DebugOverlayModel(runtime: runtime, settings: settingsModel)
         #endif
     }
 
     func start() {
         Log.app.notice("PetScape started")
         runtime.start()
-        let runtime = runtime
-        model.bind(
-            isPaused: runtime.userIntent.isPaused, isHidden: runtime.userIntent.isHidden,
-            setPaused: { runtime.setPaused($0) }, setHidden: { runtime.setHidden($0) })
+        activationObserver = NotificationCenter.default.addObserver(
+            forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
+        ) { [weak self] _ in
+            MainActor.assumeIsolated { self?.settingsModel.refreshLoginStatus() }
+        }
         #if DEBUG
             model.openAnimationPreviewAction = { [weak self] in self?.openAnimationPreview() }
             opensPreviewWhenLoaded = LaunchOptions.opensAnimationPreview
@@ -63,6 +71,8 @@ final class AppContainer {
             animationPreview?.close()
             animationPreview = nil
         #endif
+        if let activationObserver { NotificationCenter.default.removeObserver(activationObserver) }
+        activationObserver = nil
         runtime.stop()
         Log.app.notice("PetScape stopped")
     }
@@ -84,6 +94,34 @@ final class AppContainer {
             }
         #endif
     }
+
+    private static func makePreferences() -> any PreferencesStore {
+        #if DEBUG
+            if let suite = LaunchOptions.settingsTestSuite {
+                // A failed test-suite allocation stays in memory; never fall back to the owner's domain.
+                guard let defaults = UserDefaults(suiteName: suite) else { return InMemoryPreferencesStore() }
+                return UserDefaultsPreferencesStore(defaults: defaults)
+            }
+        #endif
+        return UserDefaultsPreferencesStore()
+    }
+
+    private static func makeLoginService() -> any LaunchAtLoginService {
+        #if DEBUG
+            if LaunchOptions.settingsTestSuite != nil { return IsolatedLoginService() }
+        #endif
+        return SystemLaunchAtLoginService()
+    }
+
+    #if DEBUG
+        /// UI-test isolation also covers OS login state, independent of the preferences suite.
+        private final class IsolatedLoginService: LaunchAtLoginService {
+            var status: LaunchAtLoginStatus = .enabled
+            func setEnabled(_ enabled: Bool) throws(LaunchAtLoginError) {
+                status = enabled ? .enabled : .disabled
+            }
+        }
+    #endif
 
     private static func characterPackURL() -> URL {
         #if DEBUG
@@ -109,6 +147,18 @@ final class AppContainer {
         /// DEBUG-only launch arguments for manual checks (docs/development/debugging.md):
         /// `--animation-preview` opens the preview at launch; `--character-pack <folder>` loads another pack.
         private enum LaunchOptions {
+            static var settingsTestSuite: String? {
+                let arguments = ProcessInfo.processInfo.arguments
+                guard let index = arguments.firstIndex(of: "--settings-test-suite"),
+                    arguments.indices.contains(index + 1)
+                else { return nil }
+                let name = arguments[index + 1]
+                let prefix = "PetScapeUITests."
+                guard name.hasPrefix(prefix), UUID(uuidString: String(name.dropFirst(prefix.count))) != nil
+                else { return nil }
+                return name
+            }
+
             static var opensAnimationPreview: Bool {
                 ProcessInfo.processInfo.arguments.contains("--animation-preview")
             }

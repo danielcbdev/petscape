@@ -27,17 +27,21 @@ public struct FixedStepAccumulator: Equatable, Sendable {
     public var interpolation: Double { accumulated / step }
 
     /// The number of steps of `step` seconds to run for the frame at `timestamp` (seconds, monotonic).
-    public mutating func steps(forFrameAt timestamp: Double) -> Int {
+    /// Passive sleep may retain up to 2 s / 120 ticks. The caller must stop that batch on a state change;
+    /// movement uses the unchanged default caps. This never carries a stall backlog into later frames.
+    public mutating func steps(forFrameAt timestamp: Double, allowPassiveCatchUp: Bool = false) -> Int {
         guard timestamp.isFinite else { return 0 }
         defer { lastTimestamp = timestamp }
         guard let lastTimestamp else { return 0 }
         let delta = timestamp - lastTimestamp
         guard delta.isFinite, delta > 0 else { return 0 }
-        accumulated += min(delta, maxFrameDelta)
+        let stepLimit = allowPassiveCatchUp ? 120 : maxStepsPerFrame
+        let deltaLimit = allowPassiveCatchUp ? 2 : maxFrameDelta
+        accumulated += min(delta, deltaLimit)
         let available = Int((accumulated + Self.tolerance) / step)
-        let steps = min(available, maxStepsPerFrame)
+        let steps = min(available, stepLimit)
         accumulated = max(0, accumulated - Double(steps) * step)
-        if available > maxStepsPerFrame {
+        if available > stepLimit {
             accumulated = accumulated.truncatingRemainder(dividingBy: step)
         }
         return steps

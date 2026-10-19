@@ -47,6 +47,17 @@ public struct AnimationController: Sendable {
     @discardableResult
     public mutating func request(_ request: AnimationRequest) -> Bool {
         guard canBeInterrupted(byPriority: request.priority) else { return false }
+        applySelection(request)
+        return true
+    }
+
+    /// Only the world execution state may replace a physical phase and reset its request priority.
+    /// Ordinary animation requests still obey interruptibility through `request(_:)`.
+    mutating func transition(_ request: AnimationRequest) {
+        applySelection(request)
+    }
+
+    private mutating func applySelection(_ request: AnimationRequest) {
         if definition.clips[request.clip] == nil {
             let resolved = definition.resolvedClipName(for: request.clip)
             Log.animation.debug(
@@ -61,7 +72,6 @@ public struct AnimationController: Sendable {
         } else if request.restart || player.isFinished {
             player.restart()
         }
-        return true
     }
 
     /// Turns the pet. Switches to a direction variant when the clip has one (keeping the frame position),
@@ -90,6 +100,11 @@ public struct AnimationController: Sendable {
             start(selection.clip)
             player.advance(by: leftover, into: &events)
         }
+    }
+
+    /// Physical phases are selected by simulation; an asset's `next` must not change the phase's art.
+    mutating func advancePhase(by dt: Double, into events: inout [AnimationEvent]) {
+        player.advance(by: dt, into: &events)
     }
 
     /// Convenience for tests and non-hot paths.

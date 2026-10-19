@@ -44,7 +44,7 @@ struct PreferencesStoreTests {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
         store.isPaused = true
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 1)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
         #expect(suite.defaults.bool(forKey: "petscape.isPaused"))
         #expect(suite.defaults.object(forKey: "petscape.isHidden") == nil)
     }
@@ -60,7 +60,7 @@ struct PreferencesStoreTests {
         #expect(suite.defaults.double(forKey: "petscape.dockOffsetAdjustment") == 40)
         suite.defaults.set(-500.0, forKey: "petscape.dockOffsetAdjustment")  // edited by hand
         #expect(store.dockOffsetAdjustment == -40)
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 1)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
     }
 
     @Test func inMemoryStoreKeepsValues() {
@@ -72,4 +72,65 @@ struct PreferencesStoreTests {
         #expect(store.dockOffsetAdjustment == -40)
         #expect(InMemoryPreferencesStore(dockOffsetAdjustment: 2).dockOffsetAdjustment == 2)
     }
+    @Test func versionOneMigrationPreservesIntentAndDockAndDefaultsToAutonomy() throws {
+        let suite = try Suite()
+        suite.defaults.set(1, forKey: "petscape.preferencesVersion")
+        suite.defaults.set(true, forKey: "petscape.isPaused")
+        suite.defaults.set(true, forKey: "petscape.isHidden")
+        suite.defaults.set(-7.5, forKey: "petscape.dockOffsetAdjustment")
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(store.userIntent == UserIntent(isPaused: true, isHidden: true))
+        #expect(store.dockOffsetAdjustment == -7.5)
+        #expect(store.petSettings == PetSettings())
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
+    }
+
+    @Test func petSettingsPersistClampAndMatchMemoryStore() throws {
+        let suite = try Suite()
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        let settings = PetSettings(
+            scale: 1.4, speed: 1.8,
+            behavior: AutonomySettings(
+                isEnabled: false, jumpsEnabled: false, restEnabled: false, expressionsEnabled: false))
+        store.petSettings = settings
+        #expect(UserDefaultsPreferencesStore(defaults: suite.defaults).petSettings == settings)
+        let memory = InMemoryPreferencesStore(petSettings: settings)
+        #expect(memory.petSettings == settings)
+        suite.defaults.set(9.0, forKey: "petscape.scale")
+        suite.defaults.set(-9.0, forKey: "petscape.speed")
+        #expect(store.petSettings.scale == 1.5)
+        #expect(store.petSettings.speed == 0.5)
+        suite.defaults.set(Double.nan, forKey: "petscape.scale")
+        suite.defaults.set(Double.infinity, forKey: "petscape.speed")
+        #expect(store.petSettings.scale == 1)
+        #expect(store.petSettings.speed == 1)
+    }
+
+    @Test func futureVersionAndUnrelatedKeysSurviveOpeningAndRestore() throws {
+        let suite = try Suite()
+        suite.defaults.set(99, forKey: "petscape.preferencesVersion")
+        suite.defaults.set("future", forKey: "petscape.futureFeature")
+        suite.defaults.set("other", forKey: "unrelated")
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 99)
+        store.isPaused = true
+        store.isHidden = true
+        store.dockOffsetAdjustment = 7
+        store.petSettings = PetSettings(scale: 0.5, speed: 2, behavior: AutonomySettings(isEnabled: false))
+        store.restoreDefaults()
+        #expect(store.userIntent == UserIntent())
+        #expect(store.dockOffsetAdjustment == 0)
+        #expect(store.petSettings == PetSettings())
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 99)
+        #expect(suite.defaults.string(forKey: "petscape.futureFeature") == "future")
+        #expect(suite.defaults.string(forKey: "unrelated") == "other")
+        let memory = InMemoryPreferencesStore(
+            isPaused: true, isHidden: true, dockOffsetAdjustment: -8,
+            petSettings: PetSettings(scale: 1.5, speed: 0.5))
+        memory.restoreDefaults()
+        #expect(memory.userIntent == UserIntent())
+        #expect(memory.dockOffsetAdjustment == 0)
+        #expect(memory.petSettings == PetSettings())
+    }
+
 }

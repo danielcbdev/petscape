@@ -32,7 +32,7 @@ Probability/Impact: L/M/H.
 | D-03 | Final bundle identifier | Keep `io.github.danielcbdev.petscape` unless you own a domain | Before M15 |
 | D-04 | Minimum macOS | 14.0 (ADR-0001) | Now |
 | D-05 | Approve PoC (M1) as the next step | **Decided 2026-10-16: approved** (T1.1–T1.3 started) | — |
-| D-06 | Enable GitHub Actions CI in M2 | Yes for build + package tests (free for public repos) | M2 |
+| D-06 | Enable GitHub Actions CI in M2 | Approved by owner closure instruction 2026-10-18; workflow authored, first remote run follows an authorized push | M2 closed |
 | D-07 | Apple Developer Program enrollment | Needed for notarized releases | Before M15 |
 | D-08 | Art provenance/license for AI-generated sprites | Document source tool and terms; choose an asset license (e.g. CC BY 4.0) if allowed | Before public release |
 | D-09 | Default pet size (96 pt canvas ≈ 75–80 pt visible cat) | Confirm after PoC E3 visual check | M1 |
@@ -60,3 +60,35 @@ Probability/Impact: L/M/H.
 9. Are CGWindowList bounds available without Screen Recording on the current macOS, and are AX move
    notifications continuous during window drags? (T12.1)
 10. Is the cat's walk speed/stride consistent enough for a single `nominalSpeed`? (T5.3)
+
+## M7/M8 planning revision — 2026-10-18 (unvalidated)
+
+The request's directions **D1…D10** are distinct from the historical owner-decision IDs **D-01…**
+in this file. Compatibility: [technical review](m7-m8-technical-review.md). Causes, impacts,
+probabilities, prevention, concrete tests and recovery are owned by the
+[regression matrix](../development/testing.md#m7m8-regression-matrix), not duplicated here.
+
+| ID | Risk | P | I | Mitigation / gate | Where |
+|---|---|---|---|---|---|
+| R-17 | Literal SpriteKit clause conflicts with accepted renderer/code/import checks | H | H | Block literal clause for review; minimum correction retain Core Animation, no rewrite | ADR-0016 review gate |
+| R-18 | New airborne state loses visibility or frame demand (2f7f33f regression) | H | H | Explicit world work demand, state visibility, both side Dock tests | T7.4/6, RG-03/04 |
+| R-19 | Landing at wrong x or using analytic jump prediction misses actual target | M | H | Swept x at contact and bounded discrete replay with same stepper | T7.2/T8.1, RG-02 |
+| R-20 | Frame event controls launch/contact or fallback prevents phase completion | M | H | Simulation deadlines/velocity/contact, art-count-independent tests | ADR-0017, RG-09/10 |
+| R-21 | V4 exceeds MVP image budget or changes character registration | M | M | Proposed 16 MiB approval, measure actual bytes/process footprint, anchor/identity QA | T8.5, RG-11/15 |
+| R-22 | Target geometry mutates during preparation/flight/suspension | M | H | Launch revalidation, cancel target not body, existing recovery on host loss | T7.7/T8.3, RG-07/08 |
+| R-23 | Physics scope expands into unknown Dock shelf ends / multi-display/window behavior | M | M | Keep full-width heuristic, reject unavailable target; later geometry/M9/M14 request | T7.3/5/T8.3 |
+
+### Additional owner approval gates
+
+| ID | Decision | Recommendation / proposed resolution | Needed by |
+|---|---|---|---|
+| D-15 | Approve M7/M8 planning and ADR-0016–0018 | Confirm retaining Core Animation (literal request D4 blocked), stricter dt API, logical box, host floor coexistence/no automatic Dock lift, simulation-timed takeoff/landing, simple weighted M9 preparation | **Approved 2026-10-18** with subsequent continuous M7/M8 engineering authorization; M7/M8 implemented and closed by explicit owner acceptance after reporting all remaining tests complete |
+| D-16 | V4 decoded-image budget above MVP 10 MB | Approve provisional ≤16 MiB for V4 only, total footprint≤100 MB unchanged, actual measurements required; current walk-only budget unchanged | **Approved and measured 2026-10-18**: V4 integrated, 10.125 MiB decoded / 32–33 MB full-app footprint; owner accepted M8 closure |
+| D-17 | M5/M6 evidence/deviation closeout or named early-M7 exception | Complete ≥20-point AC-14; keep resolution owner acceptance plus missing logs and absent external hardware explicit; decide full-screen exposure, CPU >20% vs PoC, paused Dock-height behavior, D-06 CI | M6 acceptance / runtime M7 adoption gate |
+
+Gravity/jump/phase/logical-volume defaults are provisional design parameters; visual calibration
+and performance validation are still required. D-15/D-16 were accepted by the owner on 2026-10-18 after reviewing the planning. D-17 closeout
+remains open; continuous M7/M8 engineering was explicitly authorized later, without accepting
+M5/M6 evidence or deviations.
+No pending M5/M6 evidence has been marked passed. Subsequent owner instruction closed M7/M8
+by test confirmation and explicitly deferred M9; see [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).

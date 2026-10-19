@@ -105,34 +105,407 @@ Man = manual check recorded in the PR). Modules: Core, Plat (Platform), Rend (Re
 
 ## M7 — Basic physics
 
-| ID | Task | Mod | Deps | Size | Verify |
-|---|---|---|---|---|---|
-| T7.1 | `PhysicsTuning` + airborne integration (semi-implicit Euler, terminal velocity) | Core | M6 | S | U |
-| T7.2 | Swept landing against `SurfaceMap` (highest crossed segment) | Core | T7.1 | M | U (speeds up to terminal, stacked segments) |
-| T7.3 | `ScreenEdgeSurfaceProvider`: `.screenBottom` floor for each screen | Plat, Core | M6 | S | U |
-| T7.4 | HSM foundation: `Grounded`/`Airborne` parents, `Falling`, `Landing`; replace respawn on `surfaceLost` | Core | T7.2 | L | U (transition table) |
-| T7.5 | Walk-off decision at Dock ends (turn vs drop, probability from `BehaviorTuning`) | Core | T7.4 | S | U (seeded) |
-| T7.6 | Dock hidden at runtime → fall to floor; Dock shown → remains on floor | Core | T7.4 | S | U + Man |
-| T7.7 | Invariant checks and recovery (NaN, out of bounds, stuck) | Core | T7.4 | S | U |
-| T7.8 | Manifest fallbacks for `fall`/`land`; integrate art when delivered | Assets | T7.4 | S | U (validation) + Man |
+Status: **Done, 2026-10-18: implemented; owner confirmed all remaining tests and explicitly requested closure.** Spec: [Physics Engine](../architecture/physics-engine.md).
+Baseline and proposed API impact: [technical review](m7-m8-technical-review.md).
+
+**Goal:** gravity, visible falls and bounded landing/recovery while preserving walking and desktop behavior.
+**Architecture:** pure Core stepper returns candidate state; existing PetWorld commits Pet.position/velocity;
+Runtime retains its display link, accumulator and recovery coordination. Rendering consumes snapshots.
+**Stack:** Swift 6 (6.2-compatible), CoreGraphics value geometry, Swift Testing; AppKit/QuartzCore at existing edges.
+
+### Shared execution constraints and quality gate
+
+These apply to every T7/T8 task below: macOS 14+, no dependencies/private APIs/new permissions;
+original art read-only; no new schema/preferences keys; Core nonisolated/Sendable, actual world owner
+MainActor. Owner approved planning and then explicitly authorized continuous execution of all M7/M8 tasks on 2026-10-18.
+No commits/pushes/tags/PRs unless separately requested. Paths labelled **Create** identify the original implementation plan; implemented files now exist.
+This authorization permits runtime/M8 engineering before predecessor manual closeout; it does not mark those evidence gaps passed.
+
+During execution: run focused new tests red first, implement, run them green, then
+`make test-core`, `make lint`, `make build`; all must pass with zero Swift warnings. Runtime/App
+slices also run `make test` in existing Automation Mode; never enable a permission as part of the app.
+Record actual output/environment and update task evidence, specs and milestone status only when warranted.
+This shared gate is each task's **Definition of Done**, together with its specific acceptance below;
+no task is complete merely because the next task will make it testable. Keep every slice buildable.
+
+**Review focus:** x at crossing rather than endpoint (T7.2); hidden/still snapshot recovery liveness
+(T7.6); changed geometry during paused flight (T7.7/T8.2); duplicate phase events with fallback art
+(T7.8/T8.4); unknown real Dock ends and non-host displays (T7.3/T7.5/T8.3). Each has tests below.
+
+For concise paths in these task plans, `S/` = `Packages/PetScapeKit/Sources/`,
+`T/` = `Packages/PetScapeKit/Tests/`; names under these prefixes identify real files unless **Create**.
+
+### T7.1 — Bounded physics values and integration (S)
+
+Owner authorized the recommended first task with planning approval on 2026-10-18. Scope is pure
+Core helpers only; M5/M6 evidence/deviations remain open and the later runtime gate is unchanged.
+
+- **Objective/context:** establish reusable tested kinematics before changing live walking. Current Pet has no velocity.
+- **Dependencies:** owner approval of ADR-0016, predecessor M6 gate/explicit exception in implementation-plan.md.
+- **Files:** Create `S/PetScapeCore/Physics/PhysicsTuning.swift`, `ContactGeometry.swift`,
+  `PhysicsStepper.swift`, `MovementIntent.swift`, `PhysicsStepResult.swift` in the same Physics folder;
+  Create `T/PetScapeCoreTests/Physics/PhysicsStepperTests.swift`.
+- **Contracts:** internal Sendable values. `PhysicsStepper.integrate(position: CGPoint, velocity: CGVector,
+  acceleration: CGVector, dt: Double, tuning: PhysicsTuning) -> PhysicsStepResult?`; nil for invalid input.
+  Result contains candidate position/velocity and optional attachment/edge/contact fields for T7.2.
+  ContactGeometry derives stable halfWidth/height from validated displaySize/scale. No stored second body.
+- [x] Write failing `gravityFromRest` (100→99⅓ pt, dy=−40 after 1/60), `horizontalAcceleration`
+  (vx0=0, ax=60 → vx1=1, dx=1/60), `terminalClamp` (dy≥−1800), `invalidStepIsRejected`
+  (0, negative, NaN, infinity, 0.5 → nil), `geometryIndependentOfPose` (96 pt → 48×60, scale 1.5 →72×90).
+- [x] Run focused PhysicsStepperTests; confirm assertions fail for missing implementation.
+- [x] Implement the pure bounded integration and immutable tuning defaults from Physics Engine;
+  preserve existing world behavior because it does not consume this seam yet.
+- [x] Run focused tests green and shared quality gate; document exact tuning/units.
+- **Accept:** AC-M7-04/05/06 core helper subset; no live behavior change.
+- **Risks:** gravity sign/unit confusion or invalid dt contaminating state; nil has no side effects.
+- **DoD:** shared gate + tested helper, old app unchanged, defaults explicitly provisional.
+
+**Verification (2026-10-18):** Complete. New PhysicsStepperTests ran RED against nil-returning
+stubs (10 failed behavior assertions), then GREEN with all 16 tests. `make test-core` passed 299
+package tests (Core 190, Runtime 40, Rendering 44, Platform 25); `make lint` passed; `make build`
+succeeded with zero Swift compiler warnings. Xcode emitted only the known AppIntents metadata
+extraction warning documented in setup.md. Independent read-only review found no actionable issues.
+No existing Swift source/test was edited; five internal Core physics files and one test file added.
+No collision, world integration, live velocity, frame scheduling or recovery behavior is implemented
+yet. No new visual/performance claims, permissions, dependencies, commits or releases.
+
+**Implementation rulings:** reuse FixedStepAccumulator.defaultStep/tolerance rather than duplicate
+loop constants; ContactGeometry uses CGSize points plus scale, rejecting invalid/overflowed size;
+invalid injected tuning returns nil at the step boundary. These clarify the approved bounded-helper
+contract without changing world APIs. M5/M6 remain In review; T7.1 authorization is not a waiver of
+manual acceptance gates. The later continuous-execution instruction authorized the remaining engineering; the following evidence supersedes the isolated-helper snapshot above.
+
+### T7.2 — Swept horizontal support and deterministic contact (M)
+
+- **Objective/context:** implement actual swept crossing; highestWalkable(below:) alone is not a sweep.
+- **Dependencies:** T7.1.
+- **Files:** Modify `S/PetScapeCore/Physics/PhysicsStepper.swift`, `PhysicsStepResult.swift`,
+  `S/PetScapeCore/Surfaces/SurfaceMap.swift`; Create `T/PetScapeCoreTests/Physics/LandingTests.swift`;
+  extend existing `T/PetScapeCoreTests/Surfaces/SurfaceMapTests.swift`.
+- **Contracts:** internal `SurfaceMap.firstLanding(from: CGPoint, to: CGPoint, geometry: ContactGeometry,
+  visualRange: ClosedRange<CGFloat>, tolerance: CGFloat) -> SurfaceContact?`;
+  Create `S/PetScapeCore/Surfaces/SurfaceContact.swift` (surfaceID, position, fraction).
+  Candidate result attachment/landedSurfaceID use existing SurfaceID/SurfaceAttachment.
+- [x] Red tests `terminalDropsNeverTunnel` (10,000 seeded line crossings), `usesXAtImpact`
+  (p0=(0,10), p1=(20,−10), surface at y=0 containing x=10 but not x=20), `firstHitWins`,
+  `tieIndependentOfInsertionOrder`, `ascendingPassesThrough`, `narrowSurfaceRejected`,
+  `exactBoundaryContactOnce`, `nonfiniteSurfaceIgnored`.
+- [x] Run focused LandingTests/SurfaceMapTests; confirm new behavior fails, old lookup tests remain.
+- [x] Implement linear candidate scan, epsilon clamp, stable kind/ID tie rule and whole-support interval;
+  return exact foot y, zero contact velocity, discard remainder. No filter/sort allocations in hot sweep.
+- [x] Run focused tests and shared gate; retain existing query semantics and annotate new query.
+- **Accept:** AC-M7-01/07/08 helper subset; x crossing and tie results stable under reordered surfaces.
+- **Risks:** accepting below/underside contacts or midpoint fallback on too-narrow surfaces; test rejection explicitly.
+- **DoD:** shared gate + deterministic sweep reusable by both solver and live world.
+
+### T7.3 — Persistent floor composition (S)
+
+- **Objective/context:** keep a floor beneath a bottom Dock without lifting already floor-attached pets.
+- **Dependencies:** T7.2. Refines original proposal of a new Platform ScreenEdgeSurfaceProvider;
+  existing ScreenProvider already supplies geometry, so use Core floor construction instead.
+- **Files:** Modify `S/PetScapeCore/Surfaces/SurfaceMap.swift`,
+  `S/PetScapeRuntime/PetRuntime/PetRuntime.swift` (applySurfaces),
+  `T/PetScapeCoreTests/Surfaces/SurfaceMapTests.swift`,
+  `T/PetScapeRuntimeTests/PetRuntime/PetRuntimeTests.swift`.
+- **Contracts:** public static `SurfaceMap.screenBottoms(for screens: [ScreenDescriptor]) -> [Surface]`;
+  runtime merge preferred Dock walkway + hosted floor, unique SurfaceID. DockSurfaceProvider.surface,
+  surfaces and hostScreenID retain current contracts. Pure builder supports all screens; runtime filters host.
+- [x] Red tests `floorAndDockCoexist`, `fallbackFloorNotDuplicated`, `dockAdditionKeepsFloorAttachment`,
+  `floorsRespectNegativeCoordinates`, `onlyHostFloorEntersWorld`, `noScreensProducesNoWork`.
+- [x] Run focused tests; implement floor builder and merge without new observers or polling.
+- [x] Keep spawnSurface Dock-first and M6 resettle behavior until T7.4 replaces lost-contact policy;
+  verify old walk tests still pass, including same-ID reprojection.
+- [x] Run shared gate (including runtime UI suite); document floor/provider contract.
+- **Accept:** AC-M7-09; no unrelated multi-display flight feature.
+- **Risks:** duplicate ID or accidental automatic lift; surviving attachment must win over spawn preference.
+- **DoD:** shared gate + simultaneous floor/Dock, compatible still-walking app.
+
+### T7.4 — Integrate the single world-owned physical state (L)
+
+- **Objective/context:** replace walk position integration and surface-loss respawn with visible flight in existing FSM.
+- **Dependencies:** T7.1–T7.3.
+- **Files:** Modify `S/PetScapeCore/Pets/Pet.swift`, `S/PetScapeCore/Behavior/PetState.swift`,
+  `S/PetScapeCore/World/PetWorld.swift`, `WorldEvent.swift`, `RenderSnapshot.swift` in World;
+  Create `S/PetScapeCore/Behavior/GroundedState.swift`, `AirborneState.swift`;
+  modify `S/PetScapeRuntime/PetRuntime/PetRuntime.swift` for exhaustive switches/logging and initial
+  airborne-demand handling; extend world/snapshot/runtime tests in their existing directories.
+- **Contracts:** Pet.velocity readable CGVector, existing Pet.position remains sole stored position;
+  PetState `.grounded(GroundedState)` / `.airborne(AirborneState)` preserve walking/turning kinds for logs.
+  GroundedState walking/turning/landing; AirborneState falling (M8 adds rising). Add WorldEvent
+  `surfaceLost(PetID, SurfaceID)` / `landed(PetID, SurfaceID)`; runtime consumes exhaustively.
+- [x] Red tests `walkingUsesOneDisplacement`, `turnStillHolds015Seconds`, `lostDockFallsVisibly`,
+  `contactDoesNotRepeat`, `allStatesRespectFinitePosition`, `largeWorldDtHasNoEffects`.
+  Replace 0.5 s test calls with 30 fixed calls retaining speed and rate expected outcomes.
+- [x] Run focused tests red; migrate exhaustive switches in same slice; integrate MovementIntent →
+  candidate → world commit; remove old walk displacement, reuse place/reproject recovery writers.
+- [x] Add same-step landed→Landing, 0.10 s bounded settle→Walking; change snapshot visibility to
+  valid grounded/airborne rather than attachment. Ensure initial falling demand runs until landing.
+- [x] Run shared gate including runtime suite; audit all position assignments are in PetWorld.
+- **Accept:** AC-M7-02/04/05/07/08/10; gravity without new sprites, walking preserved.
+- **Risks:** exhaustive enum breaks, double movement, invisible flight, old respawn assertions becoming obsolete.
+  Preserve test intent; explicitly replace ordinary surface-loss teleport expectations with fall/contact checks.
+- **DoD:** shared gate + runnable gravity slice; no task leaves live airborne cats without frames.
+
+### T7.5 — Movement intent, edges and contact-loss policy (S)
+
+- **Objective/context:** preserve deterministic walking turns and distinguish real support loss from screen boundaries.
+  Original task proposed random drops at Dock ends; unknown shelf extents make that unsupported. That
+  subfeature is deferred to later finite-surface geometry/M9, not silently implemented.
+- **Dependencies:** T7.4.
+- **Files:** Modify `S/PetScapeCore/World/PetWorld.swift`, `S/PetScapeCore/Pets/Pet.swift`
+  for the stable visual margin, and `S/PetScapeCore/Behavior/BehaviorTuning.swift` only if a named movement-policy constant is needed; extend existing PetWorldTests.
+- **Contracts:** current nominalSpeed × speedScale × scale from walk/default definition, stable visual
+  margin captured independently of active pose; no new random edge choice. Explicit unsupported x detaches.
+- [x] Red tests `speedBothFacingsWithinFivePercent`, `hundredTurnsNoDrift`, `tailPoseDoesNotChangeEdge`,
+  `supportLostOnce`, `narrowSupportDoesNotInventContact`, `sideDockStillTurnsAtScreenEdge`.
+- [x] Implement missing policy guards; request hold/walk intent only, no new position writer.
+- [x] Run focused tests and shared gate; record the original random-walk-off deferral in docs.
+- **Accept:** AC-M7-05/08/12 plus existing AC-07/08/09; no random drop beyond a hosted screen.
+- **Risks:** using fall art nominalSpeed or current anchor changes velocity/margins; always use resolved walk reference.
+- **DoD:** shared gate + prior walking quality and explicit edge policy.
+
+### T7.6 — Runtime frame-demand and Dock-side liveness (M)
+
+- **Objective/context:** retain 2f7f33f invariant while decoupling simulation demand from snapshot visibility.
+- **Dependencies:** T7.4–T7.5.
+- **Files:** Modify `S/PetScapeCore/World/PetWorld.swift`, `RenderSnapshot.swift`,
+  `S/PetScapeRuntime/PetRuntime/PetRuntime.swift`, `S/PetScapeRuntime/Overlay/OverlayCoordinator.swift`;
+  extend `T/PetScapeRuntimeTests/PetRuntime/PetRuntimeTests.swift`, world/snapshot tests.
+- **Contracts:** public read-only `PetWorld.needsSimulationSteps`, `needsAnimationFrames`;
+  add `PetRenderState.isAnimating: Bool` (initializer default true preserves existing constructors),
+  snapshot.isAnimating becomes any visible pet with this flag; world derives it from playback state,
+  not physical/timer demand. Runtime sets needsFrames = OR, then existing RunStatus gate. Reset accumulator on demand stop,
+  demand restart and host-driver replacement, not merely still sprite. No second driver/scheduler.
+- [x] Strengthen existing `movingDockToASideKeepsFramesRunningUntilThePetResettles` for **both left/right**:
+  assert driver active at removal, every airborne frame and landing; visible cat reaches floor within
+  60 fixed steps, then walks. Rename test only to reflect falling, preserve regression intent.
+- [x] Red tests `hiddenRecoverySnapshotStillNeedsSteps`, `heldFallFrameStillFalls`, `idleStillNeedsNoSteps`,
+  `noSurfaceWaitsForNotification`, `driverReplacementHasNoCatchup`, `sideToBottomKeepsFloorContact`.
+- [x] Implement demand policy and reset points; keep mask update after same published snapshot.
+- [x] Run focused runtime/world tests and shared gate including UI suite.
+- **Accept:** AC-M7-11/12/13/14, no invisible recovery stall and no polling.
+- **Risks:** RunStatus running means permission rather than actual driver demand; avoid assuming it is enough
+  for cursor idle monitoring. While demand is false and overlay visible, retain event-driven cursor monitoring
+  through coordinator's effective-driver policy (test opaque-pixel pass-through without simulation frames).
+- **DoD:** shared gate + liveness and static-energy/cursor behavior tested independently of art.
+
+### T7.7 — Environment interruption and bounded recovery (M)
+
+- **Objective/context:** extend current validation to all physical states; recover only when continuity is impossible.
+- **Dependencies:** T7.6.
+- **Files:** Modify `S/PetScapeCore/World/PetWorld.swift`, `S/PetScapeCore/Behavior/PetState.swift`,
+  `S/PetScapeRuntime/PetRuntime/PetRuntime.swift`; extend PetWorldTests, PetRuntimeTests and
+  `T/PetScapeCoreTests/Time/FixedStepAccumulatorTests.swift`. Modify
+  `S/PetScapePlatform/Screens/ScreenProvider.swift` to add an injected screen-value reader defaulting to
+  existing NSScreen behavior, only for deterministic environment integration tests.
+- **Contracts:** same recover/place/resettle path; finite velocity/contact validation, host-bound recovery,
+  3 s simulated airborne watchdog; at most one placement attempt per eligible step, no-surface wait.
+  ScreenProvider initializer adds optional injected `@MainActor () -> [ScreenDescriptor]` reader;
+  existing call sites unchanged. No new protocol solely for this test seam.
+- [x] Red tests `pauseMidFallPreservesBody`, `sleepNoCatchup`, `changedSurfaceWhilePausedReconcilesFirst`,
+  `removedHostRecoversOnce`, `invalidVelocityRecovers`, `airborneTimeoutBounded`, `noSurfaceNoRetryLoop`,
+  `raisedSurfaceDoesNotCaptureFromBelow`, `sameIdResizeReprojects`, `seededReplayMatches`.
+- [x] Implement guards and runtime resume/environment ordering. Reset time on frame stop/replacement;
+  use synthetic descriptors for new runtime environment tests instead of relying on machine Dock settings.
+- [x] Close shared gate with package/UI results and owner confirmation of remaining environment tests
+  (2026-10-18). Individual manual logs/hardware details were not supplied; unavailable external hardware remains recorded.
+- **Accept:** AC-M7-03/06/10/11/12/13/15; at most one recovery event per incident.
+- **Risks:** invalid surfaces causing endless retries; no clock polling/watchdog outside simulated steps.
+- **DoD:** shared gate + deterministic interruption coverage and accurate manual evidence.
+
+### T7.8 — Presentation fallbacks and M7 verification gate (M)
+
+- **Objective/context:** finish M7 with walk-only pack/placeholder; new art is optional, never a prerequisite.
+- **Dependencies:** T7.7; separate owner art delivery only if integrating optional assets.
+- **Files:** Modify `S/PetScapeCore/World/PetWorld.swift` animation policy as needed; extend
+  `T/PetScapeCoreTests/Animation/AnimationControllerTests.swift`, PetWorldTests,
+  `T/PetScapeRuntimeTests/Characters/CharacterLoaderTests.swift`, runtime tests; update performance/testing/
+  milestones docs. Optional future manifest integration only when separately authorized; original art immutable.
+- **Contracts:** Falling requests fall, Landing requests landing→legacy land→default; fallback held frame
+  cannot affect physical timing; default walking still loops. Critical safety requests beat noninterruptible clips.
+- [x] Red tests `noFallClipStillLands`, `missingLandingCannotBlock`, `placeholderFalls`,
+  `invalidFrameUsesFallback`, `phaseEventsDoNotRepeat`, `noninterruptibleArtCannotBlockContact`.
+- [x] Implement presentation resolution using CharacterDefinition/AnimationController, no counts hard-coded;
+  request at phase entry, avoid repeated per-frame logging.
+- [x] Close M7 verification by available automated/Release evidence plus explicit owner acceptance
+  after reporting all remaining tests complete. Missing numeric signpost/wakeup/soak/leak-delta
+  records remain evidence limitations, not invented measurements; see the owner closeout below.
+- [x] Obtain owner visual approval and subsequent confirmation of all remaining M7/M8 tests;
+  explicit owner-directed milestone closure, no tag/release.
+- **Accept:** AC-M7-01…15, tests and measured budgets; see acceptance criteria for manual split.
+- **Risks:** declaring missing art a milestone blocker or declaring planned tests executed; evidence must be real.
+- **DoD:** shared gate + measurements/manual record + owner gate, M8 can rely on frozen contracts.
 
 ## M8 — Jumps & landings
 
-| ID | Task | Mod | Deps | Size | Verify |
-|---|---|---|---|---|---|
-| T8.1 | `JumpSolver` (target point + apex height → initial velocity, flight time) | Core | M7 | S | U (tolerance ≤ 1 pt) |
-| T8.2 | Jump states (`JumpStart`, `Rising`, `Falling`, `Landing`) with `takeoff`/`apex`/`contact` events | Core | T8.1 | M | U |
-| T8.3 | Jump target selection between floor and Dock top (reachability, clearance) | Core | T8.2 | M | U |
-| T8.4 | Event-driven takeoff (velocity applied on `takeoff` frame) | Core | T8.2 | S | U |
-| T8.5 | Art integration + tuning session; screen recording for owner review | Assets | T8.4 | M | Man (owner) |
+Status: **Done, 2026-10-18: T8.1–T8.6 engineering/V4 delivered; visual result and remaining test closure accepted by owner.** Spec: [Jump System](../architecture/jump-system.md).
+**Goal:** explicit safe vertical/short horizontal and reachable floor↔Dock jumps, with walk/idle return.
+**Architecture/stack:** reuse M7 state/stepper/sweep/runtime and Core Animation; no animation-controlled force.
+Shared T7/T8 constraints and quality gate above apply. Review focus: discrete solver error (T8.1),
+changes at launch (T8.2), unreachable targets (T8.3), varying/missing art (T8.4), masks/asset memory (T8.5/6).
+
+### T8.1 — Discrete jump planning and replay (M)
+
+- **Objective/context:** meet ≤1 pt actual contact tolerance using M7 integration, not continuous parabola alone.
+- **Dependencies:** M7 accepted; ADR-0017 approved.
+- **Files:** Create `S/PetScapeCore/Physics/JumpTuning.swift`, `JumpPlan.swift`, `JumpSolver.swift`;
+  Create `T/PetScapeCoreTests/Physics/JumpSolverTests.swift`.
+- **Contracts:** `JumpSolver.solve(from:target:targetSurfaceID:surfaces:geometry:screen:physics:tuning:) -> JumpPlan?`
+  as specified in Jump System; immutable plan contains initial velocity/predicted contact/time and captured
+  geometry; no position storage or mutations. Max 120 candidate flight steps and 120 replay steps each.
+- [x] Red tests `verticalReturnsWithinOnePoint`, `shortJumpBothDirections`, `raisedTargetReached`,
+  `tooHighOrFarRejected`, `interveningSurfaceRejected`, `ceilingRejected`, `nanRejected`,
+  `terminalClampDoesNotInvalidateAcceptedPlan` (accepted replay must still meet tolerance).
+- [x] Implement bounded candidate equation + M7 replay, stable tie scoring; no runtime integration yet.
+- [x] Run focused tests and shared gate; measure request-time worst case on the main thread.
+- **Accept:** AC-M8-01/03/04/13/14 helper subset, predicted and executed paths share collision semantics.
+- **Risks:** continuous/discrete mismatch or long planning hitch; reduce replay candidates if measured budget fails.
+- **DoD:** shared gate + bounded safe planner, existing app still runs M7 behavior.
+
+### T8.2 — Explicit jump execution and return intent (M)
+
+- **Objective/context:** execute Walking/Idle → preparation → rising → falling → landing → prior activity.
+- **Dependencies:** T8.1.
+- **Files:** Create `S/PetScapeCore/Behavior/JumpRequest.swift`, `ResumeActivity.swift`;
+  modify `S/PetScapeCore/Pets/Pet.swift`, grounded/airborne/PetState files, PetWorld/WorldInput/WorldEvent,
+  `S/PetScapeRuntime/PetRuntime/PetRuntime.swift` exhaustive consumers; extend world/runtime tests.
+- **Contracts:** public `WorldInput.requestJump(PetID, JumpRequest)`, `setActivity(PetID, ResumeActivity)`;
+  proposed JumpRejection enum in JumpRequest file; add WorldEvent tookOff(PetID), apex(PetID),
+  jumpRejected(PetID, JumpRejection), jumpCancelled(PetID). Store immutable active plan/return intent,
+  consumed ID/cooldown, no second FSM. Runtime drops commands unless runState running.
+- [x] Red tests `walkingJumpReturnsWalking`, `idleJumpReturnsIdle`, `oneTakeoffAndApex`,
+  `duplicateRequestRejected`, `surfaceLossWinsOverLaunch`, `pausePreparationFreezesTimer`,
+  `targetChangedDuringSleepCancelsBeforeLaunch`, `cooldownFrozenWhilePaused`, `idleLoopAtThirtyHzKeepsSimulationTime` (explicit 30/15 Hz
+  callbacks advance correct phase time within one step, held Idle stops driver).
+- [x] Integrate simulation deadline (0.15 s), phase/contact transitions and 0.10 s Landing;
+  add idle hold and explicit work demand for timed phases, 60 fps while physical/timed and
+  30 fps for a real grounded idle loop (held idle stops); no M9 selector/menu.
+- [x] Run focused tests and shared gate including UI suite; default still walks without jump command.
+- **Accept:** AC-M8-02/05/06/07/08/09/10/11/12 execution subset.
+- **Risks:** duplicate event launches, stale target, priority blocking; guard before every commit.
+- **DoD:** shared gate + full deterministic jump/return cycle and interruption handling.
+
+### T8.3 — Target eligibility and Dock transitions (M)
+
+- **Objective/context:** only current-host same-surface/floor↔Dock targets in approved envelope.
+- **Dependencies:** T8.2.
+- **Files:** Modify `S/PetScapeCore/Physics/JumpSolver.swift`, `S/PetScapeCore/World/PetWorld.swift`;
+  extend JumpSolverTests/PetWorldTests/runtime tests. No new Platform target discovery.
+- **Contracts:** JumpRequest target SurfaceID + targetX validated at request and launch; reject outside
+  logical support/stable screen envelope, >80 pt horizontal / >120 pt apex rise, unknown or removed IDs.
+- [x] Red tests `floorToDock`, `dockToFloorOnlyWhenFirstHitIsFloor`, `dockReappearsNoAutomaticLift`,
+  `dockLeftAndRightCancelTargetButKeepFalling`, `hostChangeUsesExistingRecovery`,
+  `resizeDuringFlightDoesNotTeleport`, `noNonHostTarget`, `noUnreachableRetryLoop`.
+- [x] Implement eligibility/current geometry comparison and invalidate plan once; after flight changes,
+  use M7 sweep on current surfaces, preserve velocity. Reject impossible Dock→floor jump where full-width
+  Dock is first hit; do not bypass collisions to make a target reachable.
+- [x] Run shared gate including runtime suite and synthetic geometry scenarios.
+- **Accept:** AC-M8-10/11/13/14; no window jumps/climbing or fabricated Dock shelf ends.
+- **Risks:** full-width Dock prevents some floor targets; safe rejection is required, not a failed feature.
+- **DoD:** shared gate + explicit reachability/cancellation results.
+
+### T8.4 — Simulation-to-animation mapping (S)
+
+- **Objective/context:** replaces the original T8.4 art-frame-driven impulse plan under D8/ADR-0017.
+- **Dependencies:** T8.2–T8.3; no new sprites required.
+- **Files:** Modify PetWorld animation policy, existing AnimationController/CharacterDefinition only if
+  needed for alias lookup; extend AnimationControllerTests/PetWorldTests/CharacterLoaderTests.
+- **Contracts:** semantic requests idle/jump-start/jump/fall/landing; valid legacy jump-air/land resolution;
+  missing clip holds default as specified; frame markers never mutate physics or state timers.
+- [x] Red tests `sameTrajectoryForVariableFrameCounts` (1/8/12/24/32), `noTakeoffMarkerStillLaunches`,
+  `duplicateTakeoffMarkerCannotLaunchTwice`, `loopingFallbackCannotHoldLanding`,
+  `contactStartsLandingSameStep`, `legacyAliasesAndMissingFramesResolve`.
+- [x] Implement entry-only critical requests then normal grounded priority, rate reset to 1 outside walk;
+  avoid physics phase `next` chains. Hold fallback pose without freezing phase timers.
+- [x] Run shared gate; assert exact body/state timing equality across fixture packs.
+- **Accept:** AC-M8-02/09/15/16; no schema edit, art determines appearance only.
+- **Risks:** walk's spawn priority remains 90, controller refuses ordinary transitions, or automatic next changes
+  pose prematurely; test explicit priority restoration and every phase cut.
+- **DoD:** shared gate + art-independent motion and compatible current pack.
+
+### T8.5 — V4 production integration and owner calibration (M, delivery-dependent)
+
+- **Objective/context:** preserve identity/anchors. Owner separately authorized V4 production and integration on 2026-10-18; revision 1 is implemented and its delivered visual result was approved by owner on 2026-10-18. Owner subsequently confirmed all remaining M7/M8 tests and requested closure (2026-10-18).
+- **Dependencies:** T8.4; owner-authorized V4 generation/integration and approved ≤16 MiB budget. Provenance is recorded; redistribution license D-08 remains required before public distribution.
+- **Files:** New clips under `assets/characters/cat/<new-clip>/`, additive `character.json`,
+  `v4/` production metadata/sheets, offline exporter and V4CharacterPackTests. Existing
+  preview, manifest, texture, geometry and mask suites remain in place.
+- **Contracts:** additive schema v1 clips, no original frame/atlas edits; valid regex, cycle-free aliases;
+  512 px source /96 pt display / shared virtual anchor; 28 recommended new frames are not a code requirement.
+- [x] Close [V4 production QA/integration](../specifications/animation-assets-v4.md) using actual-art
+  automated evidence, previews, owner visual approval and subsequent test confirmation. Optional atlas not needed; D-08 remains a distribution decision.
+- [x] Actual revision 1 pack validated/decoded, shared anchor and baseline checked, 10,616,832 decoded bytes; individual PNG delivery, no atlas needed. Original walk-only ≤3 MiB gate retained.
+- [x] Add authorized pack data, run shared gate including UI suite; generate light/dark, both-facing actual-simulation and independent-clip previews.
+- [x] Owner approves the delivered V4 visual result (“está aprovado”, 2026-10-18).
+- [x] Accept native calibration by owner test confirmation; no per-scale recording supplied.
+  Asset redistribution license D-08 remains a project distribution gate, outside M7/M8 implementation.
+- [x] Owner accepts delivered tuning/visual result and reports all remaining tests complete.
+  Existing tuning is unchanged; no recording or Screen Recording request is required for owner acceptance.
+- **Accept:** AC-M8-15/16 visual subset, V4 identity/alpha/bbox/alignment and owner review.
+- **Risks:** memory >MVP image budget, see-through body, art/physics timing mismatch; reject delivery or
+  adjust measured texture/frame budget with owner, no silent size/proportion change.
+- **DoD:** shared gate + approved asset revision/measurements and visual evidence; core M8 remains testable with fallbacks.
+
+### T8.6 — M8 regression, performance and acceptance gate (M)
+
+- **Objective/context:** close physics/jump acceptance without assuming platform or visual results from tests.
+- **Dependencies:** T8.1–T8.4; T8.5 for V4 visual sign-off (or explicit owner art deferral).
+- **Files:** Existing runtime/world/animation tests and docs/development/testing.md,
+  docs/specifications/performance.md, milestones/acceptance evidence; no new testing framework.
+- **Contracts:** all regression rows/AC-M8-01…18 have evidence or explicit owner-accepted exception.
+- [x] Run shared gate and full deterministic scenarios, including both Dock sides, auto-hide during flight,
+  airborne pause/resume, source/target loss, invalid assets, and recovery-demand invariants.
+- [x] Close manual interaction/environment gate by owner report of all remaining M7/M8 tests
+  and explicit acceptance. No per-point count, recording or additional hardware claim is inferred.
+- [x] Accept milestone performance/test closure using recorded Release measurements and owner
+  confirmation. Unrecorded metrics/soak duration and paused CPU variability are retained as evidence
+  limitations in performance.md; no claim that every numeric target was independently measured.
+- [x] Record results/gaps, owner decisions and status; no automatic release/commit/tag or M9 implementation.
+- **Accept:** AC-M8-01…18 and retained MVP non-interference/energy/privacy gates.
+- **Risks:** visual/demo absence mistaken for success, hardware gaps or >20% unexplained regression.
+- **DoD:** shared gate + measured/observed evidence and owner sign-off, next milestone separately authorized.
+
+
+### Execution evidence (2026-10-18)
+
+Owner instruction: proceed through all tasks without pauses. T7.2–T7.6 and T8.1–T8.4 engineering
+is implemented. T7.7/7.8 and T8.6 have automated coverage and recorded measurements. The owner
+subsequently confirmed all remaining M7/M8 tests and explicitly requested milestone closure;
+see [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18) for evidence limitations. Earlier the owner explicitly selected V4
+production/integration. T8.5 revision 1 now adds 24 generated frames, an additive v1 manifest,
+source/prompts/exporter/checksums and actual-art QA; original walk assets are unchanged.
+See the [production record](../../assets/characters/cat/v4/README.md) for previews and owner visual approval. Native test closure is accepted by the subsequent owner report.
+
+| Tasks | Implemented and verified evidence |
+|---|---|
+| T7.2 | LandingTests: 10k seeded terminal drops, x at impact, ascending/unsupported rejection, exact contact, all six permutations of near-equal height chains. Two linear scans anchor ties to the highest eligible crossing. |
+| T7.3 | SurfaceCompositionTests + runtime composition: host floor/Dock coexist, negative origins, unique IDs, no lift when Dock appears. Existing ScreenProvider reused. |
+| T7.4/7.5 | PhysicsWorldTests + retained PetWorldTests: one displacement, visible falls/contact, bounded Landing, both facings, nominal speed, 100 turns; nonzero walk frame preserved after Turning, stable walk anchor/speed independent of fall pose. Old teleport assertions replaced with physical fall/no-respawn checks; large-dt distance tests use fixed steps. |
+| T7.6/7.7 | Runtime/world tests: both Dock sides, pause mid-flight, paused geometry refresh, replaced driver reset, invalid velocity/contact, watchdog/no-surface wait, hidden recovery liveness, held Idle support loss and invalid-body wake. Cursor monitoring follows effective driver demand. |
+| T7.8 | Current walk-only/default fallbacks and physical-phase animation tests: missing art cannot stop falling/timers; phase `next` cannot escape physical state; placeholder/invalid-file loader regressions retained. |
+| T8.1 | JumpSolverTests: vertical, both short directions, raised/blocked/unreachable/ceiling/invalid targets. Optimized request-cost measurement in performance.md; same discrete stepper and sweep as execution. |
+| T8.2/8.3 | JumpWorldTests/runtime tests: one impulse/apex/contact, walk/idle return, duplicate/busy/cooldown rejection, source loss at launch, changed target in flight, actual endpoint error≤1 pt, raised surface rejection. Launch re-solves against current ceiling/all surfaces; unrelated changes leave the body and accepted plan unchanged. |
+| T8.4 | JumpAnimationTests: exact trajectories/timings with 1/8/12/24/32 frames and absent art, duplicate markers, legacy aliases, priority/rate restoration and same-step contact art. Real idle loops tested with 15/30 Hz callbacks. |
+| T8.5 | Existing synthetic 1/8/32-frame compatibility tests retained. V4CharacterPackTests load actual 24 new frames without fallback, test identical art-independent physics, opaque silhouettes, soft-alpha border and individual planted contacts. Reviewer foot-drift/border findings reproduced RED then fixed. Actual decoded total 10.125 MiB; 361 package tests + UI, lint, Debug/Release pass. Owner approved the delivered visual result on 2026-10-18; remaining test closure accepted by owner report. |
+| T8.6 | Full package/UI tests, lint, Debug/Release builds, independent review and accelerated deterministic stress run. Measurements and remaining manual gates are recorded in performance.md and testing.md. |
+
+Independent review found held-Idle liveness, stale launch environment and nontransitive epsilon ties;
+all reproduced RED and fixed. Follow-up found needless reprojection rounding after an unrelated
+surface addition; a RED launch-continuity test now guards it, and only moved attached surfaces reproject.
+All executable changes stay uncommitted. This is the M7/M8 execution record; M9 was subsequently
+reauthorized below.
 
 ## M9 — Autonomous behaviors & Settings v1
+
+**Done by explicit owner acceptance, 2026-10-18.** Implementation, package/build gates and both UI tests passed. Real login-item action, native cadence and installed-app playtest remain unverified evidence limits recorded in the [owner closeout](m9-implementation.md#owner-m9-closeout-2026-10-18). The owner closed M2/M3/M5/M6
+and instructed full M9 implementation through completion without per-task approval stops.
+Follow the [concrete plan](m9-implementation.md) and accepted [Behavior Engine](../architecture/behavior-engine.md).
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
 | T9.1 | `Needs` model and drift rules | Core | M7 | S | U |
 | T9.2 | `Personality` from manifest with defaults | Core | T9.1 | S | U |
-| T9.3 | `ActivitySelector` scoring + weighted top-k choice | Core | T9.2 | M | U (seeded scenarios) |
+| T9.3 | `ActivitySelector`: eligibility/cooldown filtering + simple weighted choice (accepted ADR-0018) | Core | T9.2 | M | U (seeded scenarios) |
 | T9.4 | Resting states: sit-down/sit/stand-up, lie-down/sleep/wake-up | Core | T9.3 | M | U |
 | T9.5 | Expressive states: stretch, look-around | Core | T9.3 | S | U |
 | T9.6 | Cooldowns, novelty, stuck detection | Core | T9.3 | S | U |

@@ -1,5 +1,6 @@
 #if DEBUG
     import Observation
+    import PetScapeCore
     import PetScapeRuntime
 
     /// DEBUG menu state for the overlay and the Dock walkway (debugging.md#debug-menu). Forwards to the runtime;
@@ -7,6 +8,7 @@
     @Observable
     final class DebugOverlayModel {
         @ObservationIgnored private let runtime: PetRuntime
+        private let settings: SettingsModel
 
         var showsOverlayBounds = false {
             didSet { runtime.overlay.showsOverlayBounds = showsOverlayBounds }
@@ -18,20 +20,32 @@
             didSet { runtime.showsWalkway = showsWalkway }
         }
         /// The persisted `dockOffsetAdjustment` in points (T6.3).
-        private(set) var dockOffset: Double
+        var dockOffset: Double { settings.dockOffsetAdjustment }
 
-        init(runtime: PetRuntime) {
+        init(runtime: PetRuntime, settings: SettingsModel) {
             self.runtime = runtime
-            dockOffset = runtime.dockOffsetAdjustment
+            self.settings = settings
+        }
+
+        func jump(horizontalOffset: Double = 0) {
+            runtime.requestJump(to: .horizontal(horizontalOffset))
+        }
+
+        func jumpToDock() {
+            guard let x = runtime.currentSnapshot.pets.first?.position.x else { return }
+            runtime.requestJump(to: .surface(.dock, x: x))
+        }
+
+        func setIdle(_ idle: Bool) {
+            runtime.setActivity(idle ? .idle : .walking)
         }
 
         func adjustDockOffset(by points: Double) {
-            setDockOffset(dockOffset + points)
+            settings.adjustDockOffset(by: points)
         }
 
         func setDockOffset(_ points: Double) {
-            runtime.setDockOffsetAdjustment(points)
-            dockOffset = runtime.dockOffsetAdjustment
+            settings.setDockOffsetAdjustment(points)
         }
     }
 #endif

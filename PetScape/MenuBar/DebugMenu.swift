@@ -7,6 +7,37 @@
 
         var body: some View {
             Menu {
+                Button {
+                    model.jump()
+                } label: {
+                    Text(verbatim: "Jump vertically")
+                }
+                Button {
+                    model.jump(horizontalOffset: -60)
+                } label: {
+                    Text(verbatim: "Short jump left")
+                }
+                Button {
+                    model.jump(horizontalOffset: 60)
+                } label: {
+                    Text(verbatim: "Short jump right")
+                }
+                Button {
+                    model.jumpToDock()
+                } label: {
+                    Text(verbatim: "Jump to Dock")
+                }
+                Button {
+                    model.setIdle(true)
+                } label: {
+                    Text(verbatim: "Idle")
+                }
+                Button {
+                    model.setIdle(false)
+                } label: {
+                    Text(verbatim: "Walk")
+                }
+                Divider()
                 Toggle(isOn: $model.showsOverlayBounds) { Text(verbatim: "Show overlay bounds") }
                 Toggle(isOn: $model.showsPassthroughState) { Text(verbatim: "Show pass-through state") }
                 Toggle(isOn: $model.showsWalkway) { Text(verbatim: "Show walkway") }

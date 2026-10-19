@@ -52,11 +52,32 @@ below should be delivered as a character-pack update (see
 | Needed by | Clips |
 |---|---|
 | M6 (nice to have) | `idle` (breathing loop) |
-| M7 | `fall` (loop), `land` (once) |
-| M8 | `jump-start` (once), `jump-air` (loop), `land` |
+| M7 | Optional `fall`/`landing` (legacy `land` compatible); current pack sufficient for physics |
+| M8 | V4 `idle`, `jump-start` (requested label jump_start), `jump`, `fall`, `landing`; legacy jump-air/land compatible |
 | M9 | `sit-down`, `sit` (loop), `lie-down`, `sleep` (loop), `wake-up`, `stretch`, `look-around` |
 | M10 | `look-up` / head-tracking variants, `startled`, `dangle` (dragged, loop), `run` |
 | M11 | `climb` (loop, vertical alignment), `climb-over` (once) |
 
 Until a clip exists, the manifest's fallback chain maps it to an existing clip (for example
 `fall → walk`), so code never blocks on art.
+
+
+## 2026-10-18 execution status
+
+Owner approved planning and subsequently authorized continuous M7/M8 engineering. Physics, visible
+falls/landings, explicit safe jumps and walk/idle return are implemented and **Done by owner acceptance**
+(2026-10-18). That M7/M8 baseline used walking plus explicit DEBUG jumps. M9 was subsequently
+reauthorized and adds default autonomous activity selection and persisted Settings. [Task evidence](../planning/task-breakdown.md#execution-evidence-2026-10-18) and
+[technical review](../planning/m7-m8-technical-review.md) distinguish automated results from
+manual/performance/owner acceptance. M2/M3/M5/M6 are closed by explicit owner acceptance; missing measurements remain evidence limits.
+
+Core Animation remains the renderer (ADR-0015/0016). V4 uses additive schema v1, variable frame
+counts and the approved design budget. V4 revision 1 is produced/integrated: 24 new frames,
+10.125 MiB decoded images; original walk sources remain unchanged. The additive manifest retains
+legacy aliases. [Production record](../../assets/characters/cat/v4/README.md) includes provenance,
+QA and previews. Owner approved V4 and subsequently confirmed all remaining tests, explicitly
+closing M7/M8. Missing instrumented readings/soak records remain evidence limits, as detailed in
+the [owner closeout](../planning/m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).
+M9 is closed by owner acceptance under its [execution record](../planning/m9-implementation.md#owner-m9-closeout-2026-10-18); remaining real-login, native-cadence and installed-app playtest evidence gaps are explicit. Rest/expression
+phases deliberately hold an idle fallback when dedicated art is absent. No commit, release or tag
+is implied by engineering completion.

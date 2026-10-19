@@ -93,18 +93,23 @@ Metadata extraction skipped, no AppIntents.framework dependency found` (printed 
 
 ### UI tests and Automation Mode
 
-XCUITest on macOS needs **Automation Mode**. On this Mac, `automationmodetool` reports "This device
-requires user authentication to enable Automation Mode". If nobody answers the password prompt,
-the run fails with "Timed out while enabling automation mode". Either run `make test` (or ⌘U in
-Xcode) at the machine and authenticate when asked, or allow it once for this user (admin password,
-changes a system security setting):
-
-```bash
-sudo automationmodetool enable-automationmode-without-authentication
-```
+XCUITest on macOS needs **Automation Mode**. Earlier runs on this Mac timed out while enabling it
+when authentication was not completed. The 2026-10-18 M9 rerun passed in an authenticated Automation
+Mode session. `make test` is the canonical local command; if the authentication prompt appears, finish
+it interactively before retrying. Do not change app privacy permissions to run tests.
 
 ## Repository hygiene
 
 - `.DS_Store` files are ignored; the 5 committed before the `.gitignore` existed were untracked in T0.2.
 - Never commit signing material (`.p12`, profiles), `.env`, or `DerivedData`.
 - Branches: `main` (releases), `develop` (integration), `feature/T<id>-<slug>`, `fix/…`, `spike/…`, `docs/…`.
+
+## Continuous integration (T2.8)
+
+The owner authorized closing M2 on 2026-10-18. `.github/workflows/ci.yml` runs lint/module-boundary
+checks, package tests and the Debug app build on develop pushes/PRs, with read-only checkout
+credentials and bounded concurrency/time. It uses Xcode 26.2 on macos-26, matching the minimum
+Swift 6.2 compatibility requirement; selection follows the [official runner inventory](https://github.com/actions/runner-images/blob/main/images/macos/macos-26-Readme.md).
+The checkout action is pinned to its verified official v5 commit. UI tests remain local because
+they require an interactive Automation Mode session. No hosted run is claimed before changes
+are pushed under a separate owner instruction.

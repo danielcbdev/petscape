@@ -29,7 +29,12 @@ assets/characters/cat/
         ├── walk_01.png … walk_08.png
 ```
 
-Future clips follow the same shape: `assets/characters/cat/<clip>/frames/<clip>_NN.png`.
+Additional clips follow the same shape: `assets/characters/cat/<clip>/frames/<clip>_NN.png`.
+V4 revision 1 adds `idle`, `jump-start`, `jump`, `fall`, `landing` (24 new frames), with immutable
+generated sources/provenance under `v4/`. See the [production record](../../assets/characters/cat/v4/README.md)
+for final checksums, all-frame QA and previews. The runtime manifest stays schema v1; the historical
+walk audit below remains unchanged. The current folder-copy build also bundles V4 production
+metadata/sheets; only manifest-referenced PNGs are decoded. Selective bundling remains M14.
 
 ## Image rules (for new art)
 

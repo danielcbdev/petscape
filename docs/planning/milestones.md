@@ -10,20 +10,24 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 |---|---|---|---|
 | M0 | Repository preparation & planning | — | **Done** (approved 2026-10-16; commit pending, T0.6) |
 | M1 | Overlay proof of concept | — | **Done** (2026-10-16; recommendation: go for M2 — see [conclusion](proof-of-concept.md#conclusion-t19)) |
-| M2 | App skeleton | v0.1.0 | In review (2026-10-18: `make test` and UI launch/Quit test passed in Automation Mode; T2.8 CI awaits D-06) |
-| M3 | Transparent overlay | v0.1.0 | In review (owner approved the manual matrix; resolution-change log evidence still missing, PoC S8) |
+| M2 | App skeleton | v0.1.0 | **Done** (2026-10-18: owner explicitly confirmed correct operation and directed closure; detailed evidence limits preserved in m5-m6-closeout.md) |
+| M3 | Transparent overlay | v0.1.0 | **Done** (2026-10-18: owner explicitly confirmed correct operation and directed closure; detailed evidence limits preserved in m5-m6-closeout.md) |
 | M4 | Animation system | v0.1.0 | **Done** (2026-10-18: lint, package tests, build, 9.00 fps DEBUG preview and owner anchor check verified) |
-| M5 | Rendering & automatic walking | v0.1.0 | In review (2026-10-18: lint, 256 package tests, build and owner visual checks passed; full AC-14 click-through matrix around the walking cat remains) |
-| M6 | Dock integration & MVP hardening | v0.1.0 | In review (2026-10-18: implementation checks and owner manual checks passed; resolution-change log evidence remains missing and external-display checks are unavailable — see the M6 block) |
-| M7 | Basic physics | v0.2.0 | Not started |
-| M8 | Jumps & landings | v0.2.0 | Not started |
-| M9 | Autonomous behaviors & Settings v1 | v0.3.0 | Not started |
+| M5 | Rendering & automatic walking | v0.1.0 | **Done** (2026-10-18: owner explicitly confirmed correct operation and directed closure; detailed evidence limits preserved in m5-m6-closeout.md) |
+| M6 | Dock integration & MVP hardening | v0.1.0 | **Done** (2026-10-18: owner explicitly confirmed correct operation and directed closure; detailed evidence limits preserved in m5-m6-closeout.md) |
+| M7 | Basic physics | v0.2.0 | **Done** (2026-10-18: implemented; automated evidence plus owner confirmation of all remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
+| M8 | Jumps & landings | v0.2.0 | **Done** (2026-10-18: jumps/V4 implemented and approved; automated evidence plus owner confirmation of remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
+| M9 | Autonomous behaviors & Settings v1 | v0.3.0 | **Done by owner acceptance** (2026-10-18: 400 package tests, 2 UI tests, lint and Debug/Release pass; owner accepted documented gaps in real login-item action, native sleep cadence and installed-app playtest — [closeout](m9-implementation.md#owner-m9-closeout-2026-10-18)) |
 | M10 | Cursor interaction & dragging | v0.4.0 | Not started |
 | M11 | Edge climbing | v0.4.0 | Not started |
 | M12 | Window detection | v0.5.0 | Not started |
 | M13 | Window interaction | v0.5.0 | Not started |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | Not started |
 | M15 | Release pipeline | v1.0.0 | Not started |
+
+M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
+Baseline HEAD is 2f7f33f; M6 is merged, but v0.1.0 remains unreleased. M9 is reauthorized; no
+commit/push/tag/PR is authorized by milestone acceptance.
 
 Status values: Not started · In progress · In review · Done · Blocked (reason).
 
@@ -207,36 +211,65 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 
 ## M7 — Basic physics
 
-- **Objective:** gravity, falling and landing; robust surface loss handling.
-- **Scope:** kinematic airborne integration, swept landing, floor surfaces, HSM foundation (Grounded/Airborne), walk-off and Dock-hide falls, invariant recovery.
-- **Prerequisites:** M6.
-- **Modules:** Core (Physics, Behavior, Surfaces), Platform (screen edges).
-- **Dependencies:** `fall`/`land` art optional (fallbacks).
-- **Risks:** tunneling; feel tuning.
-- **Tests:** physics tables, landing at speeds, surface removal, NaN guards.
-- **DoD:** FR-20 met; no respawn-based recovery remains for surface loss.
+- **Objective:** gravity, visible falling/landing and bounded recovery; preserve walking/energy/non-interference.
+- **Status of design:** owner approved 2026-10-18; [technical review](m7-m8-technical-review.md),
+  [Physics Engine](../architecture/physics-engine.md), ADR-0016. Owner subsequently authorized continuous M7/M8 engineering. Physics, floor composition, visible fall/landing,
+  recovery and demand are implemented. Automated/package/UI checks pass; see task evidence and performance.md.
+  Owner subsequently reported all remaining M7/M8 tests completed and explicitly requested closure.
+  **Done**, by owner acceptance; instrumented evidence limitations remain in the [closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).
+- **Scope:** Pet.position remains sole position, add velocity, semi-implicit stepper/swept first-hit,
+  host floor+Dock, grounded/airborne refinement, explicit frame demand, existing recovery for exceptional
+  invalid/host-loss cases. Side Dock/hide detach into fall; Dock shown retains existing floor contact.
+- **Prerequisites:** accepted M6 or explicitly named owner exception per implementation-plan.md;
+  planning approval and explicit T7 instruction. Planning itself is not blocked by M5/M6 evidence gaps.
+- **Modules:** Core and Runtime; existing Platform ScreenProvider reader injection for deterministic tests.
+  No new module, provider observer or second scheduler. Rendering consumes state-based visible flight.
+- **Dependencies:** no new sprites. Fall/landing requests use default/legacy fallbacks.
+- **Tasks:** T7.1–T7.8 in task-breakdown.md; original T7.3 provider refined into Core floor builder;
+  original T7.5 random Dock-end drop deferred because real shelf ends are unknown (ADR-0009).
+- **Tests:** AC-M7-01…15, deterministic time/seed/synthetic screens, both-side 2f7f33f liveness;
+  manual matrix, Release measurements and 2 h soak/leaks.
+- **DoD:** FR-20 and retained MVP contracts verified; ordinary surface loss uses physical fall, not
+  respawn. Exceptional invalid-state/removed-display placement still allowed and logged; no no-surface loop.
+  Owner accepts measured/visual evidence and exceptions. No automatic tag/release.
 
 ## M8 — Jumps & landings
 
-- **Objective:** purposeful jumps between surfaces with animation-synchronized takeoff/landing.
-- **Scope:** jump solver, jump states, target selection (floor ↔ Dock), event-driven takeoff, art integration.
-- **Prerequisites:** M7.
-- **Modules:** Core (Physics, Behavior, Animation events).
-- **Dependencies:** `jump-*`/`land` art (fallbacks otherwise).
-- **Risks:** unconvincing arcs → tuning session.
-- **Tests:** solver accuracy, state transitions, event timing.
-- **DoD:** FR-21 met; recorded demo reviewed by owner.
+- **Objective:** vertical/short horizontal and reachable floor↔Dock jumps with safe walk/idle return.
+- **Status:** **Done**, owner-directed closure 2026-10-18 after confirming all remaining tests.
+  Jumps and V4 (24 new frames) are implemented; 361 package tests + UI passed, visual result approved.
+  See [closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18) for owner-reported versus instrumented evidence. [Jump System](../architecture/jump-system.md), ADR-0017.
+- **Scope:** discrete-replayed bounded solver, explicit commands, PreparingJump/Rising/Falling/Landing,
+  cooldown/cancellation/return intent, simulation-driven animation. No windows/climbing/M9 selector.
+- **Prerequisites:** owner continuous-execution instruction authorized engineering before M7 sign-off;
+  acceptance of M7 and retained MVP evidence is still required for release.
+- **Modules:** Core physics/existing HSM/animation, Runtime integration; existing Core Animation renderer.
+- **Dependencies:** engineering uses current pack/fallbacks; [V4 art](../specifications/animation-assets-v4.md)
+  produced/integrated and approved by owner on 2026-10-18; remaining tests accepted by owner report.
+  No schema modification required, underscore name mapped to jump-start.
+- **Tasks:** T8.1–T8.6. Historical event-driven takeoff T8.4/AC-M8-02 revised under D8: simulation deadline
+  applies velocity, physical contact starts landing; art events are presentation only.
+- **Tests:** AC-M8-01…18, solver actual impact≤1 pt, one launch/apex/contact, interrupted targets,
+  identical trajectories with variable/missing clips, manual mask/typing/VoiceOver and Release measurements.
+- **DoD:** FR-21 within current-host reachable surfaces, no stuck/tunnel states, owner-reviewed demo,
+  art integration or explicit art deferral; all regressions/measurements documented and accepted.
 
 ## M9 — Autonomous behaviors & Settings v1
 
-- **Objective:** the cat feels alive: rests, sleeps, stretches, observes; users can tune it.
-- **Scope:** needs, personality, activity selector, resting/expressive states, cooldowns, adaptive render per state, Settings window, launch at login.
-- **Prerequisites:** M7 (M8 recommended).
-- **Modules:** Core (Behavior), Platform (LoginItem, Preferences), App (Settings), Rendering.
-- **Dependencies:** idle/sit/sleep/stretch art.
-- **Risks:** behavior feels random/repetitive.
-- **Tests:** seeded scenario tests; settings persistence; UI tests for Settings.
-- **DoD:** FR-22, FR-23 met; playtest notes recorded.
+- **Objective:** autonomous walk/idle/jump/rest/sleep/wake/observe/explore and native Settings.
+- **Current scope:** reauthorized by owner on 2026-10-18 after predecessor closure; follow the
+  [concrete implementation plan](m9-implementation.md). Core needs, selector and HSM are implemented
+  and reviewed; Runtime/Settings integration and full verification are in progress.
+- **Direction:** hierarchical execution + simple weighted choices after availability/cooldowns,
+  stable order/injected randomness and typed requests/events. No full Behavior Trees, utility top-k or LLM.
+- **Prerequisites:** M7/M8 accepted; explicit M9 instruction received. Owner delegated reversible tuning.
+- **Modules:** Core behavior, Platform preferences/login service, App Settings, Runtime adaptive demand.
+- **Dependencies:** optional rest/expression clips use deliberate held idle fallbacks; dedicated rest art
+  is optional, and no new art is claimed. Original files remain unchanged.
+- **Risks/tests:** repeat/cooldown/rejection bounds, seeded low-energy sleep/wake, support loss,
+  settings persistence/live changes, fake login service, low-rate time preservation, native UI and playtest.
+- **DoD:** FR-22/23, AC-M9 evidence, recorded ≥2 h playtest/tuning and full regression gates.
+  No release/tag/commit is implied by completion.
 
 ## M10 — Cursor interaction & dragging
 

@@ -18,7 +18,7 @@ ADRs marked *pending PoC* are confirmed or revised with the PoC results
 | [0003](0003-overlay-window-strategy.md) | Per-screen transparent overlay panels with dynamic mouse pass-through | Accepted (PoC-confirmed; level Dock − 1, full-screen rule) |
 | [0004](0004-spritekit-as-renderer.md) | SpriteKit as renderer only | Superseded by 0015 |
 | [0005](0005-kinematic-physics.md) | Custom kinematic physics instead of SpriteKit physics | Proposed |
-| [0006](0006-behavior-model.md) | Hierarchical FSM + utility-based activity selection | Proposed |
+| [0006](0006-behavior-model.md) | Hierarchical FSM + utility-based activity selection | Superseded by 0018 (2026-10-18) |
 | [0007](0007-character-packs.md) | Data-driven character packs (JSON + PNG) | Proposed |
 | [0008](0008-coordinate-system.md) | Canonical AppKit global coordinate space | Proposed |
 | [0009](0009-dock-geometry.md) | Dock geometry from public-API heuristics + manual offset | Accepted (PoC-confirmed) |
@@ -28,6 +28,19 @@ ADRs marked *pending PoC* are confirmed or revised with the PoC results
 | [0013](0013-simulation-loop.md) | Fixed-timestep simulation driven by the display frame | Proposed (driver amended by 0015) |
 | [0014](0014-ai-agent-instructions.md) | AGENTS.md as the single source of agent instructions | Proposed |
 | [0015](0015-core-animation-renderer.md) | Core Animation renderer (supersedes 0004) | Accepted |
+
+## 2026-10-18 planning additions (design accepted; runtime unvalidated)
+
+| ADR | Title | Status |
+|---|---|---|
+| [0016](0016-physics-state-and-recovery.md) | Single-owner kinematics, fixed steps and bounded recovery (D1–D9) | Accepted (2026-10-18); retain 0015, incompatible literal SpriteKit clause resolved by approval |
+| [0017](0017-simulation-driven-jumps.md) | Simulation-timed jump phases and animation presentation (D7/D8) | Accepted (2026-10-18); replaces older planned frame-triggered takeoff |
+| [0018](0018-simple-weighted-behaviors.md) | HSM with simple weighted M9 selection (D10) | Accepted (2026-10-18); supersedes 0006 |
+
+Original ADR IDs/decision text are preserved; 0006 status now records its successor. The owner
+approved the completed planning on 2026-10-18, including the renderer wording correction. Runtime
+behavior remains unvalidated until implemented/tested. D1–D10 compatibility and original blocked
+renderer wording are recorded in [technical review](../planning/m7-m8-technical-review.md).
 
 ## Template
 

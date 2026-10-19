@@ -3,7 +3,15 @@
 Surfaces are the walkable/climbable geometry pets interact with. Decision on the Dock:
 [ADR-0009](../decisions/0009-dock-geometry.md). Windows: [window-tracking.md](../architecture/window-tracking.md).
 
-## Model (Core)
+## Current model and proposed extensions
+
+At HEAD 2f7f33f Surface contains id/kind/horizontal segment; SurfaceMap implements lookup/diffs,
+spawnSurface and highestWalkable(below: CGPoint). Orientation/walkableSide/isMoving/source and rich
+queries in the target sketch below are **future design, not implemented API**. The M7/M8 working tree adds the
+swept query and pure floor builder specified by [Physics Engine](../architecture/physics-engine.md);
+no new Platform observer. Existing surface IDs/geometry/offset preference contract is reused.
+
+## Target model (future beyond M6)
 
 ```text
 Surface (Sendable, Equatable)
@@ -35,7 +43,7 @@ step, so attached pets can ride moved surfaces and react to removed ones
 | Provider | Surfaces | Milestone |
 |---|---|---|
 | `DockSurfaceProvider` | `.dockTop` or fallback `.screenBottom` on the Dock's screen | M6 |
-| `ScreenEdgeSurfaceProvider` | `.screenBottom` for every screen (always present — the floor of last resort); `.screenLeft/.screenRight` walls | M7 / M11 |
+| Core `SurfaceMap.screenBottoms(for:)` (M7 proposal) | Pure descriptor→floor values, runtime merges host floor + Dock; no new observer/provider. Walls remain a separate M11 design | M7 / M11 |
 | `WindowSurfaceProvider` | `.windowTop` visible segments | M12–M13 |
 
 ## Dock geometry estimation
@@ -83,7 +91,9 @@ Pets and walkway changes: a resized Dock keeps the `dock` ID, so an attached pet
 and clamped (`edgeReached` fires on the next step if it hit an end). A Dock hidden, shown or moved to a side
 swaps `dock` and a screen bottom: the pet goes through `recovering(surfaceLost)` and re-settles on the new
 surface at the same x (clamped, same facing) when that surface spans its x, else it respawns at random (e.g.
-its screen disappeared). M7 replaces this with falling (AC-M7-02).
+its screen disappeared). M7 proposes falling for removed support (AC-M7-02), with floor retained when a Dock appears;
+exceptional host loss/invalid body still uses the existing recovery path. Full rules, including
+paused/airborne geometry changes and first-hit collision, are in Physics Engine. No M7 code exists yet.
 
 `dockOffsetAdjustment` (points, default 0, range −40…+40) is a user/debug preference for visual
 alignment with the shelf. Exposed in a DEBUG menu in the MVP (Debug › Dock offset: ±1/±5 pt, reset; Debug ›

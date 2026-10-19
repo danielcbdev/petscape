@@ -13,5 +13,8 @@ struct PetScapeApp: App {
                 MenuBarContent(model: appDelegate.model)
             #endif
         }
+        Settings {
+            SettingsView(model: appDelegate.container.settingsModel)
+        }
     }
 }

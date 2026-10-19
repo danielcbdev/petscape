@@ -1,113 +1,74 @@
 # Pet Engine
 
-The pet engine is the core simulation in `PetScapeCore/World`, `Pets`, plus the systems it calls
-(behavior, physics, animation, surfaces). It has **no dependency on SwiftUI, AppKit or Core Animation**.
+Current implementation: M7–M9 working tree over HEAD `2f7f33f` (M6), 2026-10-18.
+M7/M8 are Done by owner acceptance; M9 implementation/verification follows its [plan](../planning/m9-implementation.md).
+Code inventory: [technical review](../planning/m7-m8-technical-review.md).
 
-## Responsibilities
+## Implemented model
 
-Identity, position, orientation, velocity, state, current surface, current animation, personality,
-events, lifecycle — for every pet in a `PetWorld`.
+PetWorld is a Sendable struct, mutated by PetRuntime on MainActor. It contains an ordered `[Pet]`,
+SurfaceMap, screens, `time: Double`, BehaviorTuning and an injected RandomSource. Needs, Personality
+and activity bookkeeping are Sendable pet values; ActivitySelector is a pure weighted selection system.
+There is no dictionary registry or separate KinematicBody.
 
-## Model options evaluated
+Pet contains identity, `position: CGPoint` (canonical global foot contact), optional
+SurfaceAttachment(surfaceID, parameter), Facing, PetState, stateElapsed, AnimationController and
+world-owned scale, velocity, simulated airborne/cooldown counters, immutable pending jump plan,
+walk/idle return intent, energy/personality and the current activity/deadline/cooldowns. CharacterDefinition is reached through the animation controller. `Pet.size`
+comes from definition.displaySize × scale, not decoded image pixels.
 
-| Option | Pros | Cons | Verdict |
-|---|---|---|---|
-| Entity Component System | Scales to thousands of entities; data-oriented | Heavy for 1–5 pets; indirection obscures logic; no first-party Swift ECS outside GameplayKit | Rejected |
-| GameplayKit (`GKEntity`/`GKComponent`, `GKStateMachine`) | First-party, integrates with SpriteKit | Class-based, reference semantics, not `Sendable`; hard to snapshot and test deterministically; ties domain to an Apple game framework | Rejected |
-| Class hierarchy (`Cat: Pet`) | Familiar | New characters need code; fragile base class | Rejected |
-| **Value-type composition** (struct `Pet` composed of small structs; systems as functions over `PetWorld`) | Deterministic, snapshot-able, `Sendable`, trivial to test, characters as data | Needs discipline to keep systems separate | **Chosen** |
+Current APIs: spawn(definition, scale:), apply(WorldInput), step(dt:into:), writeSnapshot(into:).
+Settings/wake inputs are configureBehavior, setDisplayScale, setSpeedScale and wake. A default
+PetWorld remains explicit-command only; production PetRuntime restores enabled autonomy by default.
+Environment inputs are complete screens/surfaces, applied as surface diffs; same-ID surfaces
+reproject attachments. PetState refines grounded/airborne phases; ordinary support loss falls visibly, while exceptional
+invalid/host-loss states reuse recovering/spawning/resettle/place. Rendering never mutates world state.
+Snapshot fields include isVisible/isAnimating independently: valid airborne pets remain visible.
 
-## Data model
-
-```mermaid
-classDiagram
-  class PetWorld {
-    +pets: [PetID: Pet] (ordered)
-    +surfaces: SurfaceMap
-    +bounds: [ScreenDescriptor]
-    +time: SimulationTime
-    +apply(WorldInput)
-    +step(dt) [WorldEvent]
-    +snapshot() RenderSnapshot
-  }
-  class Pet {
-    +id: PetID
-    +characterID: CharacterID
-    +body: KinematicBody
-    +attachment: SurfaceAttachment?
-    +facing: Facing
-    +state: PetState
-    +animation: AnimationController
-    +needs: Needs
-    +personality: Personality
-    +stateEnteredAt: SimulationTime
-    +cooldowns: Cooldowns
-  }
-  class KinematicBody {
-    +position: CGPoint (contact point, global)
-    +velocity: CGVector
-  }
-  class SurfaceAttachment {
-    +surfaceID: SurfaceID
-    +parameter: Double (0...1 along segment)
-  }
-  PetWorld "1" o-- "*" Pet
-  Pet *-- KinematicBody
-  Pet *-- SurfaceAttachment
-```
-
-- `PetWorld` is a `struct`. `step` is `mutating` and returns the `WorldEvent`s produced in the step.
-- `CharacterDefinition`s are immutable, shared, and looked up by `CharacterID` from a
-  `CharacterRegistry` passed into the world (no globals).
-- Position is the **contact point** in the canonical global space
-  ([coordinate-system.md](../specifications/coordinate-system.md)).
-
-## Step order
-
-Each fixed step (`dt = 1/60 s`) runs systems in a fixed order, which keeps behavior deterministic:
-
-1. **Environment apply** – surface updates queued since last step (moved/removed surfaces re-project
-   attached pets or detach them).
-2. **Perception** – build a read-only `Perception` per pet (nearby surfaces, cursor, other pets as values).
-3. **Behavior** – state machine reacts to events/perception; may request animation and movement intents.
-4. **Physics** – integrate the kinematic body according to state (walk along surface, fall, jump, climb).
-5. **Surface resolution** – landings, edge reached, surface lost → emit events for next step.
-6. **Animation** – advance `AnimationController`; collect frame events (e.g. `footstep`, `apex`).
-7. **Validation** – invariants (finite numbers, inside some screen, attachment valid); recovery if violated.
-
-## Lifecycle
+## Implemented M7/M8 ownership
 
 ```mermaid
-stateDiagram-v2
-  [*] --> Spawning: spawn(character, near surface)
-  Spawning --> Active: placed on a surface
-  Active --> Active: step
-  Active --> Despawning: remove / character unloaded
-  Despawning --> [*]
+flowchart LR
+  Runtime[Runtime environment + clock] --> World[PetWorld: sole mutable state owner]
+  World --> Policy[Existing FSM: activity and movement intent]
+  Policy --> Stepper[Pure PhysicsStepper]
+  Stepper --> Result[Candidate position / velocity / contact / events]
+  Result --> World
+  World --> Animation[Simulation-selected clip / frame]
+  World --> Snapshot[RenderSnapshot]
+  Animation --> Snapshot
+  Snapshot --> Renderer[Core Animation + matching hit masks]
 ```
 
-Spawn chooses the best surface (MVP: Dock top / screen bottom of the Dock's screen), places the pet
-at a random parameter, random facing.
+Pet.position and velocity are world-owned; PetState declares physical phases. SurfaceAttachment remains the only contact
+reference; there is no independent body position or stored ContactState. PhysicsStepper is a pure
+system in Core; Runtime commands recovery/environment through WorldInput and never assigns pet
+coordinates itself. Geometry and step contracts live in [Physics Engine](physics-engine.md).
 
-## Events
+World step order: reconcile environment/invariants → existing FSM/intention → physics candidate and
+swept contact → single world commit → physical events/phase transition → animation selection and
+advance → final validation. Runtime publishes one final snapshot after fixed steps; the same result
+feeds rendering/hit testing. Frame demand is explicit for physical/timed/pending work independently
+of visible art. See [Data Flow](data-flow.md) for operational ordering.
 
-Typed, not stringly: `enum WorldEvent { case stateChanged(PetID, from: PetStateKind, to: PetStateKind), surfaceLost(PetID), landed(PetID, SurfaceID), animationEvent(PetID, AnimationEvent), recovered(PetID, reason: RecoveryReason) … }`.
-Used for logging, debug overlays and tests; future pet interactions consume them via perception.
+M7 Grounded/Airborne handles fall/land; M8 adds Idle, preparation/rising and an immutable jump plan
+with return intent, all within the same state hierarchy. [Jump System](jump-system.md) owns phase
+transitions, cancellation and solver. M9 adds rest/expression phases and boundary-only weighted
+choices within that same hierarchy. [Behavior Engine](behavior-engine.md) owns energy, eligibility,
+durations, cooldowns and held fallback poses. No second FSM or scheduler is added.
 
-## Preparing for multiple pets (not in MVP)
+## Lifecycle, invariants and recovery
 
-- Pets are stored in an ordered collection keyed by `PetID`; all systems already iterate.
-- Pets never hold references to each other. Interactions go through `Perception.otherPets`
-  (values) and typed intents (`.approach(PetID)`, `.chase(PetID)`), resolved by the world.
-- Rendering keys nodes by `PetID`; hit testing returns a `PetID`.
-- Adding a character = adding a character pack + optional personality defaults; no engine change.
+Existing place/resettle/reproject methods stay the only lifecycle/environment correction mechanisms.
+M7 ordinary support removal detaches in place and falls visibly; adding Dock cannot teleport a
+floor pet. Invalid numbers, host loss and out-of-bounds use bounded exceptional placement. No
+usable surface means pending spawn waiting for an environment event, no recurring retry/timer.
 
-## Invariants and recovery
+Every position/velocity is finite, grounded attachment exists/supports the pet, airborne attachment
+is nil, and the foot stays in the hosted screen plus existing margin. Animation always resolves to
+a playable clip/default/placeholder. Airborne watchdog and phase durations use simulated time,
+which freezes on pause/hide/suspension. Full recovery policy/test limits are owned by Physics Engine.
 
-| Invariant | Recovery |
-|---|---|
-| Position/velocity finite (no NaN/∞) | Reset to last valid state, `recovered(.invalidNumbers)` |
-| Position within the union of screen frames (with margin) | Respawn on nearest valid surface |
-| Attached surface exists | Detach → falling (M7+) or respawn (MVP) |
-| State has a valid animation | Resolve fallback / default clip |
-| State duration below a per-state max (stuck detection) | Force transition to idle/walk |
+Multiple-pet interactions remain future work. Existing stable pet IDs and value snapshots already
+provide the necessary boundary; pets must never hold references to other pets. Do not add ECS,
+GameplayKit, subclasses or new modules for M7–M9.

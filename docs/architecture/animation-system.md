@@ -2,7 +2,7 @@
 
 Specs: [animation-schema.md](../specifications/animation-schema.md) (manifest format),
 [asset-format.md](../specifications/asset-format.md) (image rules and current asset audit).
-Decisions: [ADR-0004](../decisions/0004-spritekit-as-renderer.md),
+Decisions: [ADR-0015](../decisions/0015-core-animation-renderer.md) (supersedes ADR-0004),
 [ADR-0007](../decisions/0007-character-packs.md).
 
 ## Goals
@@ -148,3 +148,20 @@ is visible.
    bundled pack).
 4. Reference the clip name from a behavior state (only if new behavior is needed; replacing art
    for an existing clip needs no code).
+
+
+## Implemented M7/M8 simulation presentation contract
+
+Status: **Implemented; M8/V4 Done by owner acceptance (2026-10-18)**. [Jump System](jump-system.md) owns phase
+selection and timing; [Assets V4](../specifications/animation-assets-v4.md) owns production.
+Physics emits tookOff/apex/landed, state deadlines bound preparation/settle. AnimationFrameRef only
+presents the result. The existing schema v1 event table's future “takeoff applies velocity” sentence
+is historical planning, superseded for M8 by [ADR-0017](../decisions/0017-simulation-driven-jumps.md)
+(accepted). No existing takeoff consumer was changed; schema fields/decoder remain unchanged.
+
+Use semantic requests jump-start/jump/fall/landing/idle and legacy jump-air/land resolution. New
+assets must keep a shared virtual foot reference/displaySize. Missing clips use safe held fallback
+frames while physical/timed steps continue. Do not use automatic next chaining for physical phases;
+retain unrelated next support. Entry-only critical requests and explicit return priority/rate avoid
+noninterruptible art blocking safety or a spawn priority locking later states. Old pack continues
+walking without new art or a schema migration; variable frame counts must not alter trajectories.

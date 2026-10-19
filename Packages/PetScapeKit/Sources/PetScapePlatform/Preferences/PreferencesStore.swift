@@ -1,7 +1,11 @@
 import PetScapeCore
 
-/// The user's persisted choices (FR-18, data-flow.md#persistence). MVP: pause, hide and the Dock offset.
+/// The user's persisted choices (FR-18, data-flow.md#persistence). M9: pet settings, pause, hide and the Dock offset.
 public protocol PreferencesStore: AnyObject {
+    var petSettings: PetSettings { get set }
+    /// Resets only the keys owned by this version of PetScape.
+    func restoreDefaults()
+
     var isPaused: Bool { get set }
     var isHidden: Bool { get set }
     /// Points added to the estimated Dock top (surface-detection.md), kept within
