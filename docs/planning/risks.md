@@ -92,3 +92,25 @@ remains open; continuous M7/M8 engineering was explicitly authorized later, with
 M5/M6 evidence or deviations.
 No pending M5/M6 evidence has been marked passed. Subsequent owner instruction closed M7/M8
 by test confirmation and explicitly deferred M9; see [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).
+
+## M10 planning risks
+
+Status: proposed mitigations, no native M10 results. [Full contracts/tasks and regression gates](m10-implementation.md#acceptance-risk-and-regression-matrix).
+
+| Risk | Likelihood / impact | Mitigation, verification and owner |
+|---|---|---|
+| M10-R1 Off-mask input swallowed by stale window gate | High / High | Compare full overlay vs bounded input; POC-02/03, zero swallowed actions; T10.0/9. No-go if failure |
+| M10-R2 Focus theft despite nonactivation flags | Medium / High | No key/main/activate, foreground typing matrix POC-05; T10.0/9 |
+| M10-R3 Lost up, secondary masking primary release, teardown without frames | High / High | Exact primary sample + synchronous pre-teardown cancel, session IDs; T10.6a |
+| M10-R4 Two position writers or final move after release | Medium / High | World-only authority, atomic final target+release; T10.3b/4 deterministic tests |
+| M10-R5 Sleep cadence/input events add energy cost | Medium / High | Shared frame reads, event-driven route, 10/2 Hz behavior, no timer; paired Instruments CPU/wakeup/WindowServer profile; T10.1/9 |
+| M10-R6 Held invisibility, stopped demand, airborne timeout | Medium / High | Audit all enum switches/snapshot/work/passive sleep; >10 s held test; T10.3b |
+| M10-R7 Constant curiosity or expired activity on resumption | Medium / Medium | Dwell/hysteresis/3 s cap/cooldown, save remaining duration; T10.2/5 |
+| M10-R8 Display/Dock/Space invalidates target midgesture | Medium / High | Cancel before panel/geometry changes, single-host clamp, existing recovery; T10.4/6a plus native matrix |
+| M10-R9 V5 absent/invalid changes trajectory or memory | Medium / Medium | Held fallback, art-independent replay and ≤16 MiB reference budget; T10.7/8 |
+| M10-R10 New toggles/migration/accessibility leave live capture | Medium / High | v3 preserve/restore tests, live cancellation, VoiceOver/Reduce Motion; T10.6b |
+| M10-R11 Native mouse monitoring refused or privilege behavior differs | Low / High | Fail direct acquisition closed, no privilege escalation, awareness fallback; POC + T10.1 |
+| M10-R12 Baseline warnings or missing hardware confused with clean gates | Medium / Medium | Record current UI actor warnings, distinguish package/native results, explicitly accept named hardware gaps; T10.9 |
+
+No new permissions, event injection, Dock-level elevation or silent requirement weakening may
+be used to hide these failures. M9 evidence gaps remain accepted historical limits, not M10 work.

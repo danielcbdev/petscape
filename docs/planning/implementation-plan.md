@@ -120,3 +120,15 @@ Current scope and evidence are recorded in [m9-implementation.md](m9-implementat
 
 The initial recommendation was T0.5 owner planning review, then T1.1 PoC on spike/overlay-poc.
 The PoC is now Done; those steps are retained as history, not the next implementation action.
+
+## M10 planning revision (2026-10-18)
+
+M10 remains **Not started**; owner requested documentation only. Read the
+[M10 task plan](m10-implementation.md), [native PoC gate](m10-native-poc.md),
+[interaction contracts](../specifications/interaction.md) and Proposed ADR-0019–0021.
+Recommended first implementation task is **T10.0**, only after explicit authorization.
+A prototype result and owner-approved routing topology precede production input changes.
+Awareness/direct/drag engineering reuses Core Animation, one PetWorld and existing physics/HSM.
+Throwing, chase/approach/startle and cross-display handoff are deferred in the first scope;
+V5 curious/picked-up/held art requires separate authorization and optional fallbacks preserve
+engineering independence. No code, test, asset, schema or dependency changes were made in planning.

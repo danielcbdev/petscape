@@ -124,8 +124,40 @@ accepted ADR-0017: simulation causes motion; visual synchronization remains a ma
 Owner closeout (2026-10-18): M9 is **Done by explicit owner acceptance**. Package/UI tests pass; the owner accepts that native sleep cadence (AC-M9-02), real OS login-item registration/approval (AC-M9-04) and the ≥2-hour installed-app playtest (T9.10) remain unverified. This records accepted evidence gaps, not passing measurements.
 
 ### M10 — Cursor & drag
-- AC-M10-01: Dragging the cat moves it under the cursor with the grab offset preserved; releasing throws it with the release velocity.
-- AC-M10-02: AC-14 and AC-21 still pass (no click-through regressions).
+Status: **Done by owner acceptance (2026-10-22); documented evidence limits accepted at closeout.** Original IDs retained. AC-M10-01 historically
+required release velocity; current planning brief explicitly defers throwing. Initial scope is
+preserved-offset pickup and **zero-impulse** drop through existing physics. AC-M10-02 retains
+AC-14/21 and adds explicit click correctness. [Exact thresholds, scenarios and task ownership](m10-implementation.md#acceptance-risk-and-regression-matrix).
+A = deterministic automated, N = native/manual, P = measured performance.
+
+| ID | Acceptance | Method |
+|---|---|---|
+| AC-M10-01 | Cursor dwell/hysteresis/finite interest and preserved-offset drag, zero-impulse release | A + N |
+| AC-M10-02 | One valid primary click reaction; no click for drag; AC-14 and AC-21 retained | A + N |
+| AC-M10-03 | Transparent regions pass click/right/scroll/external drags, ≥20 points +100 rapid sweeps | N |
+| AC-M10-04 | No focus/key/main/typing theft, 50 cat sequences with two foreground apps | N |
+| AC-M10-05 | Bottom/side Dock, auto-hide and magnification remain usable | N |
+| AC-M10-06 | Cursor respects sleep/flight/transitions/energy; bounded saved-context return | A |
+| AC-M10-07 | No repeated reaction loop, per-event RNG or competing behavior engine | A |
+| AC-M10-08 | <4 pt press versus ≥4 pt pickup; primary only, no externally started drag acquisition | A + N |
+| AC-M10-09 | Offset/target correct within 1e-9 before clamp, scaled/mirrored/negative origins | A + N |
+| AC-M10-10 | Final up target consumed once; zero velocity then existing gravity; stale moves rejected | A |
+| AC-M10-11 | First valid landing or bounded existing recovery, no invisible/stuck/no-surface loop | A + N |
+| AC-M10-12 | Lost primary up ends once by next delivered frame, native target≤50 ms; secondary release safe | A + N |
+| AC-M10-13 | Gates/teardown cancel ownership; no inactive simulation/catch-up | A + N |
+| AC-M10-14 | Dock/display/Space/resolution changes remain safe; no implicit cross-display handoff | A + N |
+| AC-M10-15 | Existing clips preserved, held visible, physics independent of art/events | A + N |
+| AC-M10-16 | Missing/invalid V5 and pack fallbacks safe; Reduce Motion supported | A + N |
+| AC-M10-17 | Both settings work live/after relaunch; v3 migration/restore/future keys; VoiceOver controls | A + N |
+| AC-M10-18 | Relevant tests/lint/Debug/Release pass, warnings and limitations explicitly recorded | A |
+| AC-M10-19 | Native PoC/topology approval before adoption; public APIs/no new permission | N + review |
+| AC-M10-20 | Paired performance, latency, footprint/allocation/leak/soak gates measured and reviewed | P |
+
+Automated results are recorded per task in the [M10 implementation record](m10-implementation.md).
+The owner confirmed all tests approved and directed closure on 2026-10-22. Specific native/performance
+measurement values were not supplied in that message; see the [owner closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)
+for accepted evidence limits. Existing baseline check results are separately recorded in the
+[M10 planning verification](m10-implementation.md#current-baseline-verification-2026-10-18).
 
 ### M11 — Climbing
 - AC-M11-01: The cat climbs both screen edges with paws aligned to the edge (±3 pt) and transitions back to the floor without teleporting.

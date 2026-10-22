@@ -5,5 +5,6 @@ public enum GroundedState: Equatable, Sendable {
     case landing
     case idle
     case sittingDown, sitting, standingUp, lyingDown, sleeping, wakingUp, stretching, observing
+    case reactingToCursor, reactingToClick
     case preparingJump
 }

@@ -58,4 +58,18 @@ struct SystemEventsMonitorTests {
         try? await Task.sleep(for: .milliseconds(50))
         #expect(count == 0)
     }
+
+    @Test func reduceMotionPreferenceIsReadObservedAndRemoved() async {
+        let workspace = NotificationCenter()
+        let monitor = SystemEventsMonitor(workspaceCenter: workspace, distributedCenter: NotificationCenter())
+        var values: [Bool] = []
+        monitor.start(onChange: { _, _ in }, onReduceMotionChange: { values.append($0) })
+        #expect(values.count == 1)
+        workspace.post(name: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil)
+        await waitUntil { values.count == 2 }
+        monitor.stop()
+        workspace.post(name: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification, object: nil)
+        try? await Task.sleep(for: .milliseconds(50))
+        #expect(values.count == 2)
+    }
 }

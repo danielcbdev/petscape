@@ -44,8 +44,12 @@ public final class SystemEventsMonitor {
     public var isStarted: Bool { !observers.isEmpty }
 
     /// Calls `onChange(reason, isActive)` for every mapped notification, on the main actor.
-    public func start(onChange: @escaping @MainActor (SuspensionReason, Bool) -> Void) {
+    public func start(
+        onChange: @escaping @MainActor (SuspensionReason, Bool) -> Void,
+        onReduceMotionChange: (@MainActor (Bool) -> Void)? = nil
+    ) {
         guard observers.isEmpty else { return }
+        onReduceMotionChange?(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
         let sources = [(workspaceCenter, Self.workspaceMappings), (distributedCenter, Self.lockMappings)]
         for (center, mappings) in sources {
             for mapping in mappings {
@@ -59,6 +63,18 @@ public final class SystemEventsMonitor {
                 }
                 observers.append((center, token))
             }
+        }
+        if let onReduceMotionChange {
+            let token = workspaceCenter.addObserver(
+                forName: NSWorkspace.accessibilityDisplayOptionsDidChangeNotification,
+                object: nil,
+                queue: .main
+            ) { _ in
+                MainActor.assumeIsolated {
+                    onReduceMotionChange(NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
+                }
+            }
+            observers.append((workspaceCenter, token))
         }
     }
 

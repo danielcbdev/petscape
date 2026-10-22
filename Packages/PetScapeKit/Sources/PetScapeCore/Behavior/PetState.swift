@@ -3,6 +3,7 @@ public enum PetState: Equatable, Sendable {
     case spawning
     case grounded(GroundedState)
     case airborne(AirborneState)
+    case held
     case recovering(RecoveryReason)
 
     /// Source-compatible construction of the existing walking/turning states.
@@ -25,9 +26,12 @@ public enum PetState: Equatable, Sendable {
         case .grounded(.wakingUp): .wakingUp
         case .grounded(.stretching): .stretching
         case .grounded(.observing): .observing
+        case .grounded(.reactingToCursor): .reactingToCursor
+        case .grounded(.reactingToClick): .reactingToClick
         case .airborne(.falling): .falling
         case .airborne(.rising): .rising
         case .recovering: .recovering
+        case .held: .held
         }
     }
 
@@ -36,6 +40,7 @@ public enum PetState: Equatable, Sendable {
         case .grounded(.walking): 80
         case .grounded(.idle): 10
         case .recovering: Int.max
+        case .held: Int.max
         case .spawning, .grounded, .airborne: 90
         }
     }
@@ -44,6 +49,7 @@ public enum PetState: Equatable, Sendable {
 public enum PetStateKind: String, Sendable {
     case spawning, walking, turning, falling, landing, recovering, idle, preparingJump, rising
     case sittingDown, sitting, standingUp, lyingDown, sleeping, wakingUp, stretching, observing
+    case reactingToCursor, reactingToClick, held
 }
 
 public enum RecoveryReason: String, Sendable {

@@ -13,4 +13,7 @@ public enum WorldEvent: Equatable, Sendable {
     case jumpCancelled(PetID)
     case recovered(PetID, reason: RecoveryReason)
     case animationEvent(PetID, AnimationEvent)
+    case interactionAccepted(PetID, InteractionID)
+    case interactionEnded(PetID, InteractionID)
+    case interactionRejected(PetID, InteractionID)
 }

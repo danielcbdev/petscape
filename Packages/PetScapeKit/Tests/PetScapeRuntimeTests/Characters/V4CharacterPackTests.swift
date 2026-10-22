@@ -43,6 +43,22 @@ struct V4CharacterPackTests {
         }
     }
 
+    @Test func missingV5InteractionClipsResolveToTheExistingIdlePose() async throws {
+        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        #expect(character.failure == nil)
+        let idle = character.definition.clip(named: "idle")
+        for name in ["curious", "picked-up", "held"] {
+            #expect(character.definition.clips[name] == nil)
+            #expect(character.definition.resolvedClipName(for: name) == "idle")
+            #expect(character.definition.clip(named: name) == idle)
+            var animation = AnimationController(definition: character.definition)
+            let accepted = animation.request(AnimationRequest(clip: name, priority: 100))
+            #expect(accepted)
+            #expect(animation.currentFrame.clip == "idle")
+            #expect(character.frame(animation.currentFrame) != nil)
+        }
+    }
+
     @Test func productionArtDoesNotChangeTheExecutedTrajectory() async throws {
         let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
         let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))

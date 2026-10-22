@@ -10,14 +10,22 @@ public struct OverlayMouseEvent: Equatable, Sendable {
         case up
     }
 
+    public enum Button: Equatable, Sendable {
+        case primary
+        case secondary
+        case other(Int)
+    }
+
     public var kind: Kind
     public var location: CGPoint
     /// System uptime (`NSEvent.timestamp`).
     public var timestamp: TimeInterval
+    public var button: Button
 
-    public init(kind: Kind, location: CGPoint, timestamp: TimeInterval) {
+    public init(kind: Kind, location: CGPoint, timestamp: TimeInterval, button: Button = .primary) {
         self.kind = kind
         self.location = location
         self.timestamp = timestamp
+        self.button = button
     }
 }

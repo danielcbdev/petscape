@@ -65,9 +65,23 @@ public final class OverlayContentView: NSView {
     override public func mouseDown(with event: NSEvent) { forward(.down, event) }
     override public func mouseDragged(with event: NSEvent) { forward(.dragged, event) }
     override public func mouseUp(with event: NSEvent) { forward(.up, event) }
+    override public func rightMouseDown(with event: NSEvent) { forward(.down, event) }
+    override public func rightMouseDragged(with event: NSEvent) { forward(.dragged, event) }
+    override public func rightMouseUp(with event: NSEvent) { forward(.up, event) }
+    override public func otherMouseDown(with event: NSEvent) { forward(.down, event) }
+    override public func otherMouseDragged(with event: NSEvent) { forward(.dragged, event) }
+    override public func otherMouseUp(with event: NSEvent) { forward(.up, event) }
 
     private func forward(_ kind: OverlayMouseEvent.Kind, _ event: NSEvent) {
-        onMouseEvent?(OverlayMouseEvent(kind: kind, location: NSEvent.mouseLocation, timestamp: event.timestamp))
+        let origin = event.window?.frame.origin ?? .zero
+        let location = CGPoint(x: origin.x + event.locationInWindow.x, y: origin.y + event.locationInWindow.y)
+        let button: OverlayMouseEvent.Button =
+            switch event.buttonNumber {
+            case 0: .primary
+            case 1: .secondary
+            default: .other(event.buttonNumber)
+            }
+        onMouseEvent?(OverlayMouseEvent(kind: kind, location: location, timestamp: event.timestamp, button: button))
     }
 
     #if DEBUG
