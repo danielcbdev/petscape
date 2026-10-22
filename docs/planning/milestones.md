@@ -18,7 +18,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M7 | Basic physics | v0.2.0 | **Done** (2026-10-18: implemented; automated evidence plus owner confirmation of all remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M8 | Jumps & landings | v0.2.0 | **Done** (2026-10-18: jumps/V4 implemented and approved; automated evidence plus owner confirmation of remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | **Done by owner acceptance** (2026-10-18: 400 package tests, 2 UI tests, lint and Debug/Release pass; owner accepted documented gaps in real login-item action, native sleep cadence and installed-app playtest — [closeout](m9-implementation.md#owner-m9-closeout-2026-10-18)) |
-| M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22: owner confirmed all tests approved and directed closure; known evidence limits and V5 art non-delivery are recorded in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
+| M10 | Cursor interaction & dragging | v0.4.0 | **Implementation complete; V5 art integrated 2026-10-22; final visual review pending** (native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
 | M11 | Edge climbing | v0.4.0 | Not started |
 | M12 | Window detection | v0.5.0 | Not started |
 | M13 | Window interaction | v0.5.0 | Not started |
@@ -277,10 +277,11 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Planning:** [M10 implementation plan](m10-implementation.md), [native PoC](m10-native-poc.md),
   [interaction architecture](../architecture/interaction-system.md), [contracts](../specifications/interaction.md),
   [V5 brief](../specifications/animation-assets-v5.md). Engineering implementation and automated gates
-  are complete; owner accepted closure on 2026-10-22 with detailed native/performance evidence limits
-  and V5 art non-delivery retained in the closeout.
+  are complete; owner accepted behavior/tests on 2026-10-22. V5 interaction art was subsequently
+  produced and integrated; final owner visual review and existing native/performance evidence limits
+  remain recorded in the closeout.
 - **Scope delivered:** M10.0 native review → M10.1 awareness → M10.2 direct input → M10.3 drag/drop →
-  M10.4 optional V5 fallbacks. Historical throwing and approach/startle are deferred by the current brief;
+  M10.4 V5 `curious` / `picked-up` / `held` clips plus safe fallbacks. Historical throwing and approach/startle are deferred by the current brief;
   do not claim full original FR-24/25 coverage. IDs are preserved with scope notes.
 - **Prerequisites:** M9/M7/M8 accepted; owner planning review and explicit task authorization;
   production capture requires owner acceptance of PoC evidence and ADR-0020 topology.
@@ -288,8 +289,9 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** swallowed transparent clicks, focus theft, lost-up capture, simultaneous position writers.
 - **Tests:** deterministic per-task tests, native focus/Dock/click-through matrix, paired Release measurements.
 - **DoD:** revised AC-M10 criteria, explicit deferred requirements/art acceptance, native owner
-  review. **Status: Done by owner acceptance (2026-10-22)**; see the implementation record for accepted
-  evidence limits. No commit or release.
+  review. **Status: implementation complete; final visual review pending**; see the implementation
+  record for accepted evidence limits. The V5 feature branch is merged into `develop` under the
+  owner's Git instruction; no release or tag was created.
 
 ## M11 — Edge climbing
 

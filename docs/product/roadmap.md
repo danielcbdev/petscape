@@ -55,7 +55,7 @@ below should be delivered as a character-pack update (see
 | M7 | Optional `fall`/`landing` (legacy `land` compatible); current pack sufficient for physics |
 | M8 | V4 `idle`, `jump-start` (requested label jump_start), `jump`, `fall`, `landing`; legacy jump-air/land compatible |
 | M9 | `sit-down`, `sit` (loop), `lie-down`, `sleep` (loop), `wake-up`, `stretch`, `look-around` |
-| M10 | Proposed V5 `curious`, `picked-up`, `held` art was not delivered; owner accepted safe existing fallbacks at M10 closeout. Extra look/startle/run/petting art deferred — [brief](../specifications/animation-assets-v5.md) |
+| M10 | V5 `curious`, `picked-up`, `held` art integrated on 2026-10-22; final owner visual review pending. Extra look/startle/run/petting art deferred — [brief](../specifications/animation-assets-v5.md) |
 | M11 | `climb` (loop, vertical alignment), `climb-over` (once) |
 
 Until a clip exists, the manifest's fallback chain maps it to an existing clip (for example
@@ -78,16 +78,16 @@ legacy aliases. [Production record](../../assets/characters/cat/v4/README.md) in
 QA and previews. Owner approved V4 and subsequently confirmed all remaining tests, explicitly
 closing M7/M8. Missing instrumented readings/soak records remain evidence limits, as detailed in
 the [owner closeout](../planning/m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18).
-M9 is closed by owner acceptance under its [execution record](../planning/m9-implementation.md#owner-m9-closeout-2026-10-18); remaining real-login, native-cadence and installed-app playtest evidence gaps are explicit. Rest/expression
-phases deliberately hold an idle fallback when dedicated art is absent. No commit, release or tag
-is implied by engineering completion.
+M9 is closed by owner acceptance under its [execution record](../planning/m9-implementation.md#owner-m9-closeout-2026-10-18); remaining real-login, native-cadence and installed-app playtest evidence gaps are explicit. Non-M10 rest/expression
+phases continue to use idle fallbacks when dedicated art is absent. No release or tag is implied by
+engineering completion.
 
 ## M10 scope and closeout (2026-10-22)
 
 [Technical plan](../planning/m10-implementation.md) was implemented under explicit owner
 authorization and M10 was closed by owner acceptance on 2026-10-22. Delivery includes bounded cursor
 awareness, click, pickup and zero-impulse drop on the current host display, with existing physics
-and behavior. V5 production art was not delivered; the owner accepted the safe existing fallbacks
-for this milestone, without visual approval of rejected candidates. Historical FR-24
+and behavior. V5 production clips have since been generated and integrated; owner visual approval
+of the delivered frames is pending. Historical FR-24
 approach/startle and FR-25 throwing remain deferred, not claimed complete. M14 retains actual
 display-to-display handoff. No release or tag is implied by milestone acceptance.

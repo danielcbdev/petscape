@@ -7,7 +7,7 @@ import Testing
 
 @testable import PetScapeRuntime
 
-@Suite("Cat V4 production pack")
+@Suite("Cat V4 and V5 production pack")
 struct V4CharacterPackTests {
     static let phaseNames = ["idle", "jump-start", "jump", "fall", "landing"]
 
@@ -21,6 +21,7 @@ struct V4CharacterPackTests {
             let clip = try #require(character.definition.clips[name], "Missing production clip \(name)")
             #expect(clip.frames.count > 1)
             #expect(clip.anchor == .init(x: 0.5, y: 0.074))
+            #expect(clip.mirrorable)
             #expect(character.frames[name]?.count == clip.frames.count)
             #expect(clip.next == nil, "Physical phase changes remain simulation-owned")
         }
@@ -29,7 +30,7 @@ struct V4CharacterPackTests {
     @Test func semanticRestAndExpressionFallbacksUseTheExistingIdlePose() async throws {
         let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
         #expect(character.failure == nil)
-        #expect(character.decodedByteCount == 10_616_832)
+        #expect(character.decodedByteCount <= 16 * 1024 * 1024)
         let idle = character.definition.clip(named: "idle")
         for name in [
             "sit-down", "sit", "stand-up", "lie-down", "sleep", "wake-up", "stretch", "observe", "look-around",
@@ -43,19 +44,80 @@ struct V4CharacterPackTests {
         }
     }
 
-    @Test func missingV5InteractionClipsResolveToTheExistingIdlePose() async throws {
+    @Test func productionV5InteractionClipsLoadWithoutFallbackAndFitTheBudget() async throws {
         let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
         #expect(character.failure == nil)
-        let idle = character.definition.clip(named: "idle")
+        #expect(character.issues.isEmpty)
+        #expect(character.decodedByteCount <= 16 * 1024 * 1024)
+        #expect(character.decodedByteCount == 15_925_248)
+        let expected: [(String, Int, Double, AnimationClip.Playback)] = [
+            ("curious", 6, 6, .loop),
+            ("picked-up", 4, 20, .once),
+            ("held", 6, 6, .loop),
+        ]
+        for (name, frameCount, fps, playback) in expected {
+            let clip = try #require(character.definition.clips[name])
+            #expect(clip.frames.count == frameCount)
+            #expect(abs(clip.frames[0].duration - (1 / fps)) < 0.000_001)
+            #expect(clip.playback == playback)
+            #expect(clip.anchor == .init(x: 0.5, y: 0.074))
+            #expect(character.frames[name]?.count == frameCount)
+            #expect(character.definition.resolvedClipName(for: name) == name)
+            #expect(clip.next == nil, "Art timing cannot control held physics")
+        }
+    }
+
+    @Test func productionV5FramesHaveTransparentMarginsAndAlignedVirtualFootRows() throws {
+        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
         for name in ["curious", "picked-up", "held"] {
-            #expect(character.definition.clips[name] == nil)
-            #expect(character.definition.resolvedClipName(for: name) == "idle")
-            #expect(character.definition.clip(named: name) == idle)
-            var animation = AnimationController(definition: character.definition)
-            let accepted = animation.request(AnimationRequest(clip: name, priority: 100))
-            #expect(accepted)
-            #expect(animation.currentFrame.clip == "idle")
-            #expect(character.frame(animation.currentFrame) != nil)
+            let frames = try #require(manifest.animations[name]?.frames)
+            for frame in frames {
+                let path = try #require(frame.image)
+                let url = TestPacks.catPackURL.appending(path: path)
+                let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
+                let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
+                #expect(image.width == 512 && image.height == 512)
+                var alpha = [UInt8](repeating: 0, count: 512 * 512)
+                let drew = alpha.withUnsafeMutableBytes { bytes -> Bool in
+                    guard
+                        let context = CGContext(
+                            data: bytes.baseAddress, width: 512, height: 512,
+                            bitsPerComponent: 8, bytesPerRow: 512, space: CGColorSpaceCreateDeviceGray(),
+                            bitmapInfo: CGImageAlphaInfo.alphaOnly.rawValue)
+                    else { return false }
+                    context.draw(image, in: CGRect(x: 0, y: 0, width: 512, height: 512))
+                    return true
+                }
+                #expect(drew)
+                #expect(alpha.allSatisfy { $0 == 0 } == false)
+                #expect(
+                    alpha.indices.allSatisfy { index in
+                        let x = index % 512
+                        let y = index / 512
+                        return alpha[index] == 0 || (x >= 8 && x < 504 && y >= 8 && y < 504)
+                    }, "Every V5 frame retains at least an 8 px transparent border: \(path)")
+                let solid = alpha.indices.filter { alpha[$0] >= 128 }
+                #expect(solid.count > 30_000)
+                #expect(alpha.filter { $0 == 255 }.count > solid.count * 95 / 100)
+                let lowest = try #require(solid.map { $0 / 512 }.max())
+                #expect(abs(lowest - 474) <= 1, "Virtual foot row drift: \(path), row \(lowest)")
+            }
+        }
+    }
+
+    @Test func missingV5InteractionClipsStillResolveToIdle() throws {
+        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        var manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
+        for name in ["curious", "picked-up", "held"] {
+            manifest.animations[name] = nil
+        }
+        let definition = try CharacterDefinition.resolve(
+            manifest, report: ManifestValidator.validate(manifest))
+        let idle = definition.clip(named: "idle")
+        for name in ["curious", "picked-up", "held"] {
+            #expect(definition.resolvedClipName(for: name) == "idle")
+            #expect(definition.clip(named: name) == idle)
         }
     }
 

@@ -1,10 +1,10 @@
 # Animation Assets V5 — interaction briefs
 
-Status: **Production attempted; no usable V5 clips integrated.** 2026-10-18. Multiple generated
-concepts and sheets were reviewed and rejected for opaque backgrounds, touching/overlapping frame
-bounds, registration, or incomplete animation. One pickup single-frame concept has usable margins
-after reframing but does not satisfy clip delivery. Previews are retained in
-[docs/assets/v5](../assets/v5/). No `assets/` source or manifest was changed.
+Status: **Three V5 interaction clips generated and integrated; owner visual review pending.**
+2026-10-22. This supersedes the earlier rejected-generation history below. The delivered pack is
+documented in [cat V5 production record](../../assets/characters/cat/v5/README.md); rejected previews
+remain in [docs/assets/v5](../assets/v5/) as historical evidence. Integration preserves V4 sources,
+schema v1, display size and anchor.
 [Interaction states](interaction.md), [schema](animation-schema.md),
 [asset rules](asset-format.md), [tasks T10.7/T10.8](../planning/m10-implementation.md).
 
@@ -127,8 +127,9 @@ V5 events are likewise presentation observations, never input or force commands.
    generation is not a prerequisite or an optimization claim.
 6. T10.8 references approved new paths in character.json with unchanged schema/display size/anchor.
    Additive fallbacks remain for absent/invalid optional files. Do not replace V4 clip definitions.
-7. Run existing loader/manifest/real-mask audits and new V5CharacterPackTests, then DEBUG Animation
-   preview and native pickup/release with grounded and airborne starts.
+7. Run the loader/manifest/real-mask audits, V5 assertions in `V4CharacterPackTests` and the
+   connected-silhouette audit in `CatArtAuditTests`, then use DEBUG Animation preview and verify
+   native pickup/release with grounded and airborne starts.
 8. Compare identical seeded command streams using no V5, delivered V5, invalid optional V5 and
    1/8/12/24/32-frame synthetic clips. Body position, velocity, contact, phase timers and resulting
    autonomous return must match exactly.
@@ -139,6 +140,16 @@ V5 events are likewise presentation observations, never input or force commands.
 10. Record provenance, frame-level QA, byte totals, previews, original-file hash preservation and
     owner approval in the new V5 production record; synchronize task/acceptance evidence.
 
-Dedicated art is optional for engineering completion, but M10.4 cannot be marked produced or
-visually approved while only fallbacks exist. Final M10 visual closure requires V5 acceptance or
-an explicit owner deferral naming these clips. No performance or visual pass is implied here.
+### Production update — 2026-10-22
+
+Delivered `curious` (6 frames / 6 fps / loop), `picked-up` (4 / 20 fps / once) and `held`
+(6 / 6 fps / loop) under `assets/characters/cat/v5/`. Each generated pose was normalized to a
+512×512 RGBA canvas with transparent margin and solid-alpha virtual foot row 474. Runtime clip
+metadata was added to the existing schema-v1 manifest. Loader, timing, frame-count, memory-budget,
+border and registration audits are covered by the V5 pack tests. See the
+[production record](../../assets/characters/cat/v5/README.md).
+
+This is engineering integration, not owner visual approval. Color-fringe antialiasing remains
+faintly visible around some source-scale edges; it is reduced when rendered at the app's 96 pt
+display size. Final owner review should use the DEBUG Animation preview before visually approving
+the pack. Earlier text in this brief records the state before the 2026-10-22 production update.
