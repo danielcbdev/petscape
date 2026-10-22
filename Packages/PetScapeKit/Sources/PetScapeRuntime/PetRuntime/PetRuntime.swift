@@ -18,6 +18,12 @@ public final class PetRuntime {
     private let preferences: any PreferencesStore
     private let hitTester: PetHitTester
     private var world: PetWorld
+    private lazy var interactionController = InteractionController(
+        hitTest: { [weak self] location in self?.hitTester.petID(at: location) },
+        footPosition: { [weak self] id in self?.snapshot.pets.first(where: { $0.id == id })?.position },
+        submit: { [weak self] id, command in self?.submitInteraction(id, command: command) ?? false },
+        setCapture: { [weak self] id in self?.overlay.setInteractionCapture(id) }
+    )
     private var accumulator = FixedStepAccumulator()
     private var character: LoadedCharacter?
     private var renderer: PetRenderer?
@@ -46,6 +52,7 @@ public final class PetRuntime {
         world = PetWorld(tuning: tuning, random: random)
         world.apply(.configureBehavior(preferences.petSettings.behavior))
         world.apply(.setSpeedScale(preferences.petSettings.speed))
+        world.apply(.setCursorReactionsEnabled(preferences.petSettings.interaction.cursorReactionsEnabled))
         events.reserveCapacity(16)
         overlay = OverlayCoordinator(
             screenProvider: screenProvider, cursorSampler: cursorSampler, systemEvents: systemEvents,
@@ -53,6 +60,7 @@ public final class PetRuntime {
             runState: RunStateController(intent: preferences.userIntent),
             dock: DockSurfaceProvider(offsetAdjustment: preferences.dockOffsetAdjustment), hitTester: hitTester,
             makeFrameDriver: makeFrameDriver)
+        overlay.directInteractionsEnabled = preferences.petSettings.interaction.directInteractionEnabled
     }
 
     /// Pause and hide as the user last chose them (restored from preferences at launch).
@@ -67,10 +75,13 @@ public final class PetRuntime {
 
     /// Applies persisted choices between fixed steps, including while paused or hidden.
     public func setPetSettings(_ settings: PetSettings) {
+        interactionController.cancel(.settingsChanged)
         preferences.petSettings = settings
         world.apply(.setDisplayScale(settings.scale))
         world.apply(.setSpeedScale(settings.speed))
         world.apply(.configureBehavior(settings.behavior))
+        world.apply(.setCursorReactionsEnabled(settings.interaction.cursorReactionsEnabled))
+        overlay.directInteractionsEnabled = settings.interaction.directInteractionEnabled
         accumulator.reset()
         renderNow()
     }
@@ -86,7 +97,21 @@ public final class PetRuntime {
         overlay.onScreensChange = { [weak self] in self?.screensDidChange() }
         overlay.onStatusChange = { [weak self] status in self?.statusDidChange(status) }
         overlay.onFrameDriverChange = { [weak self] _ in self?.accumulator.reset() }
-        overlay.onMouseEvent = { [weak self] event in self?.handle(event) }
+        overlay.onMouseEvent = { [weak self] event in
+            self?.handle(event)
+            self?.interactionController.handle(event)
+        }
+        overlay.onWillInvalidateInteraction = { [weak self] reason in
+            self?.interactionController.cancel(reason)
+        }
+        overlay.onCursorSample = { [weak self] sample in
+            self?.interactionController.update(with: sample)
+            self?.world.apply(.setCursorLocation(sample.location))
+        }
+        overlay.onReduceMotionChange = { [weak self] enabled in
+            self?.world.apply(.setReduceMotion(enabled))
+            self?.renderNow()
+        }
         overlay.needsFrames = false
         overlay.start()
         Log.simulation.notice(
@@ -158,6 +183,7 @@ public final class PetRuntime {
 
     /// Puts one pet of `character` into the world (replacing any previous one) and shows it, even while paused.
     public func show(_ character: LoadedCharacter) {
+        interactionController.cancel(.petUnavailable)
         self.character = character
         world.removeAllPets()
         let id = world.spawn(character.definition, scale: preferences.petSettings.scale)
@@ -199,6 +225,34 @@ public final class PetRuntime {
     private func statusDidChange(_ status: RunStatus) {
         // Frames stopped: the next frame after they resume only records its timestamp (no catch-up).
         if !status.isFrameDriverRunning { accumulator.reset() }
+    }
+
+    /// Applies interaction facts through PetWorld and acknowledges them before native capture is latched.
+    private func submitInteraction(_ id: PetID, command: InteractionCommand) -> Bool {
+        guard world.pet(id) != nil else { return false }
+        let isCancellation: Bool
+        if case .cancel = command { isCancellation = true } else { isCancellation = false }
+        if !isCancellation {
+            guard overlay.runState.status.state == .running,
+                preferences.petSettings.interaction.directInteractionEnabled
+            else { return false }
+        }
+        world.apply(.interaction(id, command))
+        events.removeAll(keepingCapacity: true)
+        world.drainEvents(into: &events)
+        let rejected = events.contains {
+            if case .interactionRejected(let rejectedID, _) = $0 { return rejectedID == id }
+            return false
+        }
+        let acceptedPress = events.contains {
+            if case .interactionAccepted(let acceptedID, _) = $0 { return acceptedID == id }
+            return false
+        }
+        if !events.isEmpty { log(events) }
+        guard !rejected else { return false }
+        if case .press = command, !acceptedPress { return false }
+        renderNow()
+        return true
     }
 
     private func frame(_ timestamp: TimeInterval) {
@@ -306,6 +360,12 @@ public final class PetRuntime {
                 Log.simulation.info("Pet \(id, privacy: .public) jump cancelled after environment change")
             case .animationEvent:
                 break
+            case .interactionAccepted(let id, _):
+                Log.simulation.debug("Pet \(id, privacy: .public) interaction accepted")
+            case .interactionEnded(let id, _):
+                Log.simulation.debug("Pet \(id, privacy: .public) interaction ended")
+            case .interactionRejected(let id, _):
+                Log.simulation.debug("Pet \(id, privacy: .public) interaction rejected")
             }
         }
     }

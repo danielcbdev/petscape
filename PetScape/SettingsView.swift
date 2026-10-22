@@ -67,6 +67,27 @@ struct SettingsView: View {
                         .accessibilityIdentifier("settings.loginError")
                 }
             }
+            Section("Interaction") {
+                Toggle(
+                    "React to cursor",
+                    isOn: Binding(
+                        get: { model.petSettings.interaction.cursorReactionsEnabled },
+                        set: model.setCursorReactionsEnabled)
+                )
+                .accessibilityIdentifier("settings.cursorReactions")
+                Toggle(
+                    "Allow click and drag",
+                    isOn: Binding(
+                        get: { model.petSettings.interaction.directInteractionEnabled },
+                        set: model.setDirectInteractionEnabled)
+                )
+                .accessibilityIdentifier("settings.directInteraction")
+                Text(
+                    "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            }
             Section("Advanced") {
                 Slider(
                     value: Binding(get: { model.dockOffsetAdjustment }, set: model.setDockOffsetAdjustment),
@@ -86,7 +107,7 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .frame(width: 440)
-        .fixedSize(horizontal: false, vertical: true)
+        .frame(maxHeight: 720, alignment: .top)
         .onAppear {
             model.refreshLoginStatus()
             NSApplication.shared.activate(ignoringOtherApps: true)

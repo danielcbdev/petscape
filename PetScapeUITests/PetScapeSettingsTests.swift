@@ -2,6 +2,7 @@ import XCTest
 
 /// Uses an isolated preferences suite AND a fake login service; Restore Defaults never changes the owner.
 final class PetScapeSettingsTests: XCTestCase {
+    @MainActor
     private func integerValue(of element: XCUIElement) -> Int? {
         if let number = element.value as? NSNumber { return number.intValue }
         if let string = element.value as? String { return Int(string) }
@@ -34,13 +35,20 @@ final class PetScapeSettingsTests: XCTestCase {
         XCTAssertEqual(integerValue(of: autonomy), 1)
         autonomy.click()
         XCTAssertEqual(integerValue(of: autonomy), 0)
-        let size = window.sliders["settings.scale"]
-        XCTAssertTrue(size.exists)
-        size.adjust(toNormalizedSliderPosition: 0)
-        let changedSize = String(describing: size.value)
+        let cursor = window.switches["settings.cursorReactions"]
+        XCTAssertTrue(cursor.waitForExistence(timeout: 3))
+        XCTAssertEqual(integerValue(of: cursor), 1)
+        cursor.click()
+        XCTAssertEqual(integerValue(of: cursor), 0)
+        let direct = window.switches["settings.directInteraction"]
+        XCTAssertTrue(direct.waitForExistence(timeout: 3))
+        XCTAssertEqual(integerValue(of: direct), 1)
+        direct.click()
+        XCTAssertEqual(integerValue(of: direct), 0)
         window.buttons["Restore Defaults"].click()
         XCTAssertEqual(integerValue(of: autonomy), 1)
-        XCTAssertNotEqual(String(describing: size.value), changedSize)
+        XCTAssertEqual(integerValue(of: cursor), 1)
+        XCTAssertEqual(integerValue(of: direct), 1)
         XCTAssertEqual(integerValue(of: window.switches["settings.login"]), 0)
         window.buttons[XCUIIdentifierCloseWindow].click()
         XCTAssertFalse(window.exists)

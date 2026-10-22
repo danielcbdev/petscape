@@ -40,6 +40,23 @@ public struct Pet: Sendable {
     var activityCooldowns: [Activity: Double] = [:]
     var noProgressElapsed: Double = 0
     var progressPosition: CGPoint = .zero
+    var cursorInterest = CursorInterest()
+    var cursorEvaluationElapsed = 0.0
+    var cursorSavedActivity: Activity?
+    var cursorSavedActivityRemaining = 0.0
+    var interactionID: InteractionID?
+    var interactionIsHeld = false
+    var heldPickupPresentationActive = false
+    var interactionTarget: CGPoint?
+    var interactionSavedState: PetState?
+    var interactionSavedStateElapsed = 0.0
+    var interactionSavedActivity: Activity?
+    var interactionSavedActivityRemaining = 0.0
+    var clickCooldownUntil = 0.0
+    var clickSavedState: PetState?
+    var clickSavedStateElapsed = 0.0
+    var clickSavedActivity: Activity?
+    var clickSavedActivityRemaining = 0.0
 
     init(id: PetID, definition: CharacterDefinition, scale: Double) {
         self.id = id

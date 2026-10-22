@@ -130,6 +130,9 @@ World defaults to explicit-command mode; production Runtime restores autonomous 
 | WakingUp | wake-up | grounded hold | 90 | 0.5 s → bounded Idle |
 | Stretching | stretch | grounded hold | 90 | 1.5 s → bounded Idle |
 | Observing | observe | grounded hold; ambient look-around | 90 | 3–5 s → bounded Idle; cursor interaction remains M10 |
+| ReactingToCursor | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 80 | bounded 1–3 s, restores saved activity with remaining duration |
+| ReactingToClick | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 90 | 0.6 s, restores saved activity; 0.5 s repeat cooldown |
+| Held | M10 | picked-up for 0.2 s, then held; each has idle fallback | world-owned cursor target, no attachment or gravity | critical | while primary is down; release immediately enters Falling |
 
 Rest/expression semantic clips are optional. The current pack aliases all requests above to
 existing idle; dedicated artwork is not claimed. Missing semantic clips hold the resolved frame,
@@ -155,3 +158,12 @@ and bounds before implementation. Historical utility/top-k tuning remains supers
 - Deterministic scenarios with `SeededRandomSource` (e.g. "tired cat sleeps", "sleeping cat
   survives a Dock resize").
 - Stuck detection: any state exceeding `maxDuration` transitions to `Idle`/`Recovering`.
+
+## Proposed M10 refinements (not implemented)
+
+The [interaction contract](interaction.md#state-priorities-and-resumption) defines press reservation,
+held and finite cursor/click reaction states, exact motion/clip/interrupt/duration rules. Existing
+Falling/Landing/Recovering are reused. Operational safety/RunState checks precede input, regardless
+of historical grab=100 versus safety=90 presentation priority numbers. No throwing impulse in first
+M10, no drag while paused; phase timers remain simulation-driven. These proposals require owner
+approval and native routing evidence, [ADR-0021](../decisions/0021-interaction-authority-and-recovery.md).

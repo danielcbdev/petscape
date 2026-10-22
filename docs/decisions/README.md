@@ -62,3 +62,14 @@ renderer wording are recorded in [technical review](../planning/m7-m8-technical-
 
 Rules: never edit the decision of an Accepted ADR in place; write a new ADR that supersedes it.
 Typos and links may be fixed.
+
+## M10 planning additions (2026-10-18, all Proposed)
+
+| ADR | Title | Status |
+|---|---|---|
+| [0019](0019-cursor-observation.md) | Shared cursor sampling with event-driven routing | Accepted by owner authorization; native delivery validation pending |
+| [0020](0020-selective-input-and-focus.md) | Bounded selective input, alpha hit testing and nonactivation | Proposed; would amend 0003 only after native comparison/owner approval |
+| [0021](0021-interaction-authority-and-recovery.md) | World-owned pickup, priorities, release/recovery and V5 presentation | Accepted by owner authorization; native validation pending |
+
+No accepted ADR decision text was changed. Production architecture remains governed by existing
+accepted records; native behavior and M10 implementation are not claimed by these proposals.

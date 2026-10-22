@@ -518,12 +518,27 @@ Follow the [concrete plan](m9-implementation.md) and accepted [Behavior Engine](
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
-| T10.1 | Cursor perception (position, velocity) in `WorldInput` | Core, Run | M9 | S | U |
-| T10.2 | Observe/approach/startle behaviors | Core | T10.1 | M | U |
-| T10.3 | Drag: grab on mouse-down over pet, `Dragged` state, grab offset; pass-through stays interactive until mouse-up | Core, Run, Rend | T10.1 | M | U + Man |
-| T10.4 | Throw: release velocity estimate → `Airborne` | Core | T10.3 | S | U |
-| T10.5 | Click reaction (single, minimal) | Core | T10.3 | S | U + Man |
-| T10.6 | Edge cases: drag while paused (allowed, resumes simulation for the pet? decide), drag beyond screen, app quit during drag | Run | T10.3 | S | Man |
+| T10.0 | Isolated native routing/focus PoC; owner go/no-go | Docs, native spike | Owner authorization | M | Man + measurements |
+| T10.1 | Shared cursor/primary-button values and monitor lifecycle | Core, Plat, Run, Rend | T10.0 accepted | S | U |
+| T10.2 | Bounded cursor observation in existing HSM; approach/startle deferred | Core, Run | T10.1 | M | U |
+| T10.3 | Drag parent task, completed only by both slices below | Core, Run, Rend | T10.3a/b | — | U + Man |
+| T10.3a | Target/sequence acquisition, press reservation, selected native capture | Core, Run, Rend | T10.1, native topology approval | M | U + Man |
+| T10.3b | ≥4 pt pickup, preserved offset, world-owned held body | Core, Run | T10.3a | M | U + Man |
+| T10.4 | Zero-impulse release → existing falling/contact/landing | Core, Run | T10.3b | S | U + Man |
+| T10.5 | Primary click/hover; bounded reaction or explicit wake | Core, Run | T10.3a, T10.2 | S | U + Man |
+| T10.6 | Lifecycle/settings parent, completed by both slices below | All | T10.6a/b | — | U + Man |
+| T10.6a | Cancellation before teardown, lost primary-up, host/Dock changes | Core, Plat, Run | T10.2/3b/4/5 | M | U + Man |
+| T10.6b | Two toggles, preference v3, Reduce Motion/VoiceOver | Core, Plat, Run, App | T10.6a | M | U + UI + Man |
+| T10.7 | Produce minimum V5 art, separately authorized | Assets | Owner art authorization | M | Art QA + owner |
+| T10.8 | Optional V5 integration, safe missing-art replay | Core, Run, Assets | T10.6b, approved art for real integration | S | U + Man |
+| T10.9 | Regression/performance/soak and owner acceptance | All, Docs | T10.6b, T10.8 or explicit V5 deferral | M | All |
+
+**2026-10-18 planning revision, not implementation:** executable details, exact files/interfaces,
+RED/GREEN steps, risks and DoD live in [m10-implementation.md](m10-implementation.md).
+Original T10.1–6 IDs are retained. T10.4 historically required a throw estimator; the current brief
+explicitly makes impulse optional/future, so its first-delivery task is zero-velocity drop.
+T10.2 approach/startle locomotion is deferred; T10.6 resolves paused dragging as disabled to
+preserve the no-step paused contract. No native PoC, Swift, tests or assets changed in planning.
 
 ## M11 — Edge climbing
 

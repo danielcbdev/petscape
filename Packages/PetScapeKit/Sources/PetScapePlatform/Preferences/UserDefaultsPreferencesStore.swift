@@ -16,10 +16,12 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         public static let isHidden = "petscape.isHidden"
         /// Added in M6 without a version bump: absent means 0, the default.
         public static let dockOffsetAdjustment = "petscape.dockOffsetAdjustment"
+        public static let cursorReactions = "petscape.cursorReactions"
+        public static let directInteraction = "petscape.directInteraction"
     }
 
     /// Bump with a migration in `migrate()` when keys or meanings change.
-    public static let currentVersion = 2
+    public static let currentVersion = 3
 
     private let defaults: UserDefaults
 
@@ -51,7 +53,10 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
                 speed: defaults.object(forKey: Key.speed) == nil ? 1 : defaults.double(forKey: Key.speed),
                 behavior: AutonomySettings(
                     isEnabled: enabled(Key.autonomy), jumpsEnabled: enabled(Key.jumps),
-                    restEnabled: enabled(Key.rest), expressionsEnabled: enabled(Key.expressions)))
+                    restEnabled: enabled(Key.rest), expressionsEnabled: enabled(Key.expressions)),
+                interaction: InteractionSettings(
+                    cursorReactionsEnabled: enabled(Key.cursorReactions),
+                    directInteractionEnabled: enabled(Key.directInteraction)))
         }
         set {
             defaults.set(newValue.scale, forKey: Key.scale)
@@ -60,6 +65,8 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
             defaults.set(newValue.behavior.jumpsEnabled, forKey: Key.jumps)
             defaults.set(newValue.behavior.restEnabled, forKey: Key.rest)
             defaults.set(newValue.behavior.expressionsEnabled, forKey: Key.expressions)
+            defaults.set(newValue.interaction.cursorReactionsEnabled, forKey: Key.cursorReactions)
+            defaults.set(newValue.interaction.directInteractionEnabled, forKey: Key.directInteraction)
         }
     }
 
@@ -67,6 +74,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         for key in [
             Key.isPaused, Key.isHidden, Key.dockOffsetAdjustment,
             Key.scale, Key.speed, Key.autonomy, Key.jumps, Key.rest, Key.expressions,
+            Key.cursorReactions, Key.directInteraction,
         ] {
             defaults.removeObject(forKey: key)
         }
@@ -76,7 +84,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         defaults.object(forKey: key) == nil || defaults.bool(forKey: key)
     }
 
-    /// V2 adds keys with absence defaults; V1 intent and offset require no rewrite.
+    /// V2 adds autonomy and V3 interaction keys with absence defaults; older values need no rewrite.
     /// An unknown newer schema is retained, including its version and unknown keys.
     private func migrate() {
         let stored = defaults.integer(forKey: Key.version)

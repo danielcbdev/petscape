@@ -209,3 +209,19 @@ approval requests. See [performance.md](../specifications/performance.md) for th
 V4 runtime scenarios and same-binary full-app resource control.
 Release resource hashes also match the workspace manifest and all 32 PNGs. A fresh export
 reproduced all 24 V4 PNGs byte-for-byte; the exporter compiled in Swift 6 with warnings as errors.
+
+## M10 planned tests and native gates
+
+No M10 tests implemented or PoC executed by the planning request. The existing suite was rerun:
+400 package tests +2 UI tests and lint passed; UI compilation emitted existing actor-isolation
+warnings, documented in [baseline evidence](../planning/m10-implementation.md#current-baseline-verification-2026-10-18).
+
+Canonical new test specification and task owners: [M10 tasks](../planning/m10-implementation.md).
+Native matrix and zero-swallowed-input go/no-go: [M10.0 PoC](../planning/m10-native-poc.md).
+Full acceptance/risk/regression matrix: [M10 verification](../planning/m10-implementation.md#acceptance-risk-and-regression-matrix).
+Use explicit dt/seeded randomness, synthetic origins/scales, fake cursor/button/monitor/frame
+sources and isolated preferences. Unit hit masks/flags never substitute for underlying-app native
+input/focus tests. Include primary-up while secondary remains held, no-frame teardown, final up
+before next frame, missing V5 identical physics, v3 migration and live disable/resize.
+Installed ≥2 h interaction soak and paired CPU/WindowServer/allocations/leak measurement are future
+M10 validation, not evidence supplied by baseline tests or M9's offscreen harness.

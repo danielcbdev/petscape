@@ -32,7 +32,10 @@
     "wake-up": "idle",
     "stretch": "idle",
     "look-around": "idle",
-    "observe": "idle"
+    "observe": "idle",
+    "curious": "idle",
+    "picked-up": "idle",
+    "held": "idle"
   },
   "animations": {
     "walk": {

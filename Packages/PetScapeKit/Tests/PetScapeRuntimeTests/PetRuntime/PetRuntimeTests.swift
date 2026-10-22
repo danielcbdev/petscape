@@ -182,6 +182,42 @@ struct PetRuntimeTests {
         #expect(!tester.containsPet(at: CGPoint(x: rect.maxX + 5, y: rect.midY)))
     }
 
+    @Test func runtimeWiresPrimaryClickThroughWorldAcknowledgement() async throws {
+        let h = Harness()
+        try await h.start()
+        h.frames(2)
+        let pet = try #require(h.pet)
+        #expect(pet.isVisible)
+        let location = CGPoint(x: pet.spriteRect.midX, y: pet.spriteRect.midY)
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .down, location: location, timestamp: h.time))
+        #expect(h.runtime.pets.first?.state == .walking)
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .up, location: location, timestamp: h.time + 0.01))
+        #expect(h.runtime.pets.first?.state == .grounded(.reactingToClick))
+    }
+
+    @Test func pauseClearsWorldReservationBeforeFramesStop() async throws {
+        let h = Harness()
+        try await h.start()
+        h.frames(2)
+        let pet = try #require(h.pet)
+        let location = CGPoint(x: pet.spriteRect.midX, y: pet.spriteRect.midY)
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .down, location: location, timestamp: h.time))
+
+        h.runtime.setPaused(true)
+        #expect(h.driver.isPaused)
+        h.runtime.setPaused(false)
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .up, location: location, timestamp: h.time + 0.01))
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .down, location: location, timestamp: h.time + 0.02))
+        h.runtime.overlay.onMouseEvent?(
+            OverlayMouseEvent(kind: .up, location: location, timestamp: h.time + 0.03))
+        #expect(h.runtime.pets.first?.state == .grounded(.reactingToClick))
+    }
+
     @Test func pauseFreezesStopsFramesPersistsAndResumesWithoutCatchingUp() async throws {
         let h = Harness()
         try await h.start()

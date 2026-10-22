@@ -64,3 +64,14 @@ sequenceDiagram
   no disabled library validation, no Apple Events).
 - No `Info.plist` usage-description keys are needed for the MVP. Accessibility has no usage
   string; the system shows its own prompt.
+
+## M10 proposed input boundary
+
+[ADR-0019](../decisions/0019-cursor-observation.md) proposes current cursor reads, mouse-only
+local/global movement monitoring and native view down/drag/up. No keyboard/event tap/AX/screen
+capture or new permission request. Global monitors observe other apps asynchronously, local
+monitors cover this app and return events unchanged. Native permission-free delivery is a
+[M10.0 PoC gate](../planning/m10-native-poc.md), not assumed from API names alone. If a mouse
+monitor cannot install, stop direct acquisition and retain frame-based awareness; do not ask for
+Input Monitoring/Accessibility/Automation as a workaround. Store no cursor history; touched DEBUG
+input logs must omit cursor coordinates. Existing M12 opt-in AX flow remains separate.

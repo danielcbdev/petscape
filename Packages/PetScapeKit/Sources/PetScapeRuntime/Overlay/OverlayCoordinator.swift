@@ -23,6 +23,19 @@ public final class OverlayCoordinator {
     public var onFrameDriverChange: ((Bool) -> Void)?
     /// Mouse events the overlay received (only while pass-through is off, i.e. over a pet).
     public var onMouseEvent: ((OverlayMouseEvent) -> Void)?
+    /// Cursor facts shared with simulation without adding a sampling timer.
+    public var onCursorSample: ((CursorSample) -> Void)?
+    /// System Reduce Motion preference, read and observed by Platform.
+    public var onReduceMotionChange: ((Bool) -> Void)?
+    /// Cancels an active world interaction before geometry, visibility or monitor lifecycle changes.
+    public var onWillInvalidateInteraction: ((InteractionCancellation) -> Void)?
+    /// User preference combined with run-state permission before passive cursor routing.
+    public var directInteractionsEnabled = true {
+        didSet {
+            if !directInteractionsEnabled { onWillInvalidateInteraction?(.settingsChanged) }
+            updatePassthroughPermission()
+        }
+    }
 
     /// `false` stops the frame driver even while running, when nothing on screen changes (no pet placed).
     public var needsFrames = true {
@@ -50,6 +63,7 @@ public final class OverlayCoordinator {
     private var frameDriver: (any FrameDriver)?
     private var isStarted = false
     private var hasEffectiveFrames = false
+    private var activeInteractionID: InteractionID?
 
     public init(
         screenProvider: ScreenProvider,
@@ -96,7 +110,10 @@ public final class OverlayCoordinator {
         overlays.onMouseEvent = { [weak self] _, event in self?.handle(event) }
         apply(screens: screenProvider.currentScreens())
         screenProvider.start { [weak self] screens in self?.apply(screens: screens) }
-        systemEvents.start { [weak self] reason, isActive in self?.setCondition(reason, isActive: isActive) }
+        systemEvents.start(
+            onChange: { [weak self] reason, isActive in self?.setCondition(reason, isActive: isActive) },
+            onReduceMotionChange: { [weak self] enabled in self?.onReduceMotionChange?(enabled) }
+        )
         fullScreenDetector.start { [weak self] isFullScreen in
             self?.setCondition(.fullScreenSpace, isActive: isFullScreen)
         }
@@ -106,6 +123,7 @@ public final class OverlayCoordinator {
     /// Removes every observer and monitor, stops the display link and closes the overlays (FR-13).
     public func stop() {
         guard isStarted else { return }
+        onWillInvalidateInteraction?(.stopped)
         isStarted = false
         fullScreenDetector.stop()
         systemEvents.stop()
@@ -119,6 +137,9 @@ public final class OverlayCoordinator {
         onFrameDriverChange = nil
         hasEffectiveFrames = false
         onMouseEvent = nil
+        onCursorSample = nil
+        onReduceMotionChange = nil
+        onWillInvalidateInteraction = nil
         runState.onChange = nil
         overlays.onOcclusionChange = nil
         overlays.onMouseEvent = nil
@@ -129,6 +150,7 @@ public final class OverlayCoordinator {
     // MARK: Screens
 
     private func apply(screens: [ScreenDescriptor]) {
+        onWillInvalidateInteraction?(.geometryChanged)
         self.screens = screens
         converter = CoordinateConverter(screens: screens)
         dock.update(screens: screens)
@@ -182,7 +204,7 @@ public final class OverlayCoordinator {
         guard isStarted else { return }
         let status = runState.status
         if status.isOverlayVisible && !hasEffectiveFrames && !runState.reasons.contains(.overlayOccluded) {
-            cursorSampler.startMonitoring { [weak self] sample in self?.passthrough.update(with: sample) }
+            cursorSampler.startMonitoring { [weak self] sample in self?.receive(sample) }
         } else {
             cursorSampler.stopMonitoring()
         }
@@ -206,23 +228,36 @@ public final class OverlayCoordinator {
     }
 
     private func apply(_ status: RunStatus) {
+        switch status.state {
+        case .running: break
+        case .paused: onWillInvalidateInteraction?(.paused)
+        case .hidden: onWillInvalidateInteraction?(.hidden)
+        case .suspended: onWillInvalidateInteraction?(.suspended)
+        }
+        passthrough.isEnabled = directInteractionsEnabled && status.state == .running
         overlays.setVisible(status.isOverlayVisible)
         updateFrameDriver()
         if !status.isOverlayVisible {
             passthrough.reset()
         } else if !hasEffectiveFrames {
             // No frames: take one sample now so the state is right before the first mouse move.
-            passthrough.update(with: cursorSampler.sample())
+            receive(cursorSampler.sample())
         }
         onStatusChange?(status)
+    }
+
+    private func updatePassthroughPermission() {
+        passthrough.isEnabled = directInteractionsEnabled && runState.status.state == .running
     }
 
     // MARK: Per frame and mouse
 
     private func frame(_ timestamp: TimeInterval) {
         Signposts.measure(Signposts.Interval.frame) {
+            let sample = cursorSampler.sample()
+            onCursorSample?(sample)
             onFrame?(timestamp)
-            passthrough.update(with: cursorSampler.sample())
+            passthrough.update(with: sample)
         }
     }
 
@@ -230,17 +265,26 @@ public final class OverlayCoordinator {
         onMouseEvent?(event)
         switch event.kind {
         case .moved:
-            passthrough.update(
-                with: CursorSample(location: event.location, isButtonDown: false, timestamp: event.timestamp))
+            receive(CursorSample(location: event.location, isButtonDown: false, timestamp: event.timestamp))
         case .down:
             logReceived(event)
-            passthrough.mouseDown(at: event.location)
+            if event.button == .primary { passthrough.mouseDown(at: event.location) }
         case .dragged:
-            break  // Dragging the pet arrives in M10.
+            break  // Runtime consumes the gesture; routing remains latched by the primary down.
         case .up:
             logReceived(event)
-            passthrough.mouseUp(at: event.location)
+            if event.button == .primary { passthrough.mouseUp(at: event.location) }
         }
+    }
+
+    /// Records the world-owned session associated with the currently delivered responder sequence.
+    public func setInteractionCapture(_ id: InteractionID?) {
+        activeInteractionID = id
+    }
+
+    private func receive(_ sample: CursorSample) {
+        onCursorSample?(sample)
+        passthrough.update(with: sample)
     }
 
     private func applyIgnoresMouseEvents(_ ignores: Bool) {

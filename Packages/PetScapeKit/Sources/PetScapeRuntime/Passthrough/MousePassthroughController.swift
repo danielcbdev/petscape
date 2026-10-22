@@ -22,6 +22,11 @@ public final class MousePassthroughController {
     /// Replaceable so M5 can swap the DEBUG rectangle for the real alpha-mask hit tester.
     public var hitTester: any PetHitTesting
     public private(set) var state: State = .passThrough
+    public var isEnabled = true {
+        didSet {
+            if !isEnabled { reset() }
+        }
+    }
 
     /// Applies `ignoresMouseEvents` to the overlays; called only on changes.
     private let applyIgnoresMouseEvents: (Bool) -> Void
@@ -42,6 +47,7 @@ public final class MousePassthroughController {
 
     /// A cursor sample from the frame loop or the idle mouse monitor.
     public func update(with sample: CursorSample) {
+        guard isEnabled else { return }
         Signposts.measure(Signposts.Interval.passthroughUpdate) {
             defer { lastSampleTimestamp = sample.timestamp }
             switch state {
@@ -66,11 +72,13 @@ public final class MousePassthroughController {
 
     /// Mouse down delivered to the overlay (only possible while interactive).
     public func mouseDown(at location: CGPoint) {
+        guard isEnabled else { return }
         guard state == .interactive else { return }
         transition(to: .dragging, reason: "mouse down on the pet", sample: nil)
     }
 
     public func mouseUp(at location: CGPoint) {
+        guard isEnabled else { return }
         guard state == .dragging else { return }
         finishDrag(at: location, reason: "mouse up", sample: nil)
     }

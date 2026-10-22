@@ -46,6 +46,12 @@ public final class SettingsModel {
     public func setJumpsEnabled(_ enabled: Bool) { update { $0.behavior.jumpsEnabled = enabled } }
     public func setRestEnabled(_ enabled: Bool) { update { $0.behavior.restEnabled = enabled } }
     public func setExpressionsEnabled(_ enabled: Bool) { update { $0.behavior.expressionsEnabled = enabled } }
+    public func setCursorReactionsEnabled(_ enabled: Bool) {
+        update { $0.interaction.cursorReactionsEnabled = enabled }
+    }
+    public func setDirectInteractionEnabled(_ enabled: Bool) {
+        update { $0.interaction.directInteractionEnabled = enabled }
+    }
     public func setPaused(_ paused: Bool) { runtime.setPaused(paused) }
     public func setHidden(_ hidden: Bool) { runtime.setHidden(hidden) }
     public func wakePet() { runtime.wakePet() }

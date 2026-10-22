@@ -142,3 +142,13 @@ full screen width.
 | Global mouse monitor may require permission on some macOS versions | Pet not draggable while paused | Low-rate fallback timer only while paused |
 | Occlusion notification unreliable for full-screen transparent windows | Missed energy savings | Combine with screens/space notifications; measure |
 | `visibleFrame` does not reflect the floating Dock's real shape | Pet floats a few points above/below the Dock shelf | Manual offset; AX-based Dock frame (optional, M12+) |
+
+## Proposed M10 extension (not adopted)
+
+[Interaction architecture](interaction-system.md) records the inspected input implementation,
+API comparison and routing limitations. [ADR-0020](../decisions/0020-selective-input-and-focus.md)
+proposes comparing the current full-screen gate to a small input panel while rendering remains
+static/click-through. ADR-0003 still governs production; no second panel is approved by planning.
+Native focus, transparent-hole/Dock input and drag continuity must pass the
+[M10.0 PoC](../planning/m10-native-poc.md) before owner-approved adoption. Returning nil from
+NSView.hitTest does not resend WindowServer-selected input to another application.

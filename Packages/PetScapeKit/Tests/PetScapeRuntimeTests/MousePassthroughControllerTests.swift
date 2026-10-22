@@ -37,6 +37,19 @@ struct MousePassthroughControllerTests {
         #expect(!h.controller.isInteractive)
     }
 
+    @Test func disabledDirectInteractionAlwaysPassesThrough() {
+        let h = Harness()
+        h.controller.isEnabled = false
+        h.move(Self.onPet)
+        h.controller.mouseDown(at: Self.onPet)
+        #expect(h.controller.state == .passThrough)
+        #expect(h.applied.isEmpty)
+        h.controller.isEnabled = true
+        h.move(Self.onPet)
+        #expect(h.controller.state == .interactive)
+        #expect(h.applied == [false])
+    }
+
     @Test func enterAndLeaveTogglesOncePerCrossing() {
         let h = Harness()
         h.move(Self.offPet)

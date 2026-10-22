@@ -44,7 +44,7 @@ struct PreferencesStoreTests {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
         store.isPaused = true
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
         #expect(suite.defaults.bool(forKey: "petscape.isPaused"))
         #expect(suite.defaults.object(forKey: "petscape.isHidden") == nil)
     }
@@ -60,7 +60,7 @@ struct PreferencesStoreTests {
         #expect(suite.defaults.double(forKey: "petscape.dockOffsetAdjustment") == 40)
         suite.defaults.set(-500.0, forKey: "petscape.dockOffsetAdjustment")  // edited by hand
         #expect(store.dockOffsetAdjustment == -40)
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
     }
 
     @Test func inMemoryStoreKeepsValues() {
@@ -82,7 +82,25 @@ struct PreferencesStoreTests {
         #expect(store.userIntent == UserIntent(isPaused: true, isHidden: true))
         #expect(store.dockOffsetAdjustment == -7.5)
         #expect(store.petSettings == PetSettings())
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 2)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+    }
+
+    @Test func interactionDefaultsAndVersionTwoMigrationPreserveOldValues() throws {
+        let suite = try Suite()
+        suite.defaults.set(2, forKey: "petscape.preferencesVersion")
+        suite.defaults.set(false, forKey: "petscape.autonomy")
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(store.petSettings.interaction == InteractionSettings())
+        #expect(!store.petSettings.behavior.isEnabled)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+
+        store.petSettings = PetSettings(
+            interaction: InteractionSettings(
+                cursorReactionsEnabled: false, directInteractionEnabled: false))
+        #expect(
+            UserDefaultsPreferencesStore(defaults: suite.defaults).petSettings.interaction
+                == InteractionSettings(
+                    cursorReactionsEnabled: false, directInteractionEnabled: false))
     }
 
     @Test func petSettingsPersistClampAndMatchMemoryStore() throws {
@@ -121,6 +139,8 @@ struct PreferencesStoreTests {
         #expect(store.userIntent == UserIntent())
         #expect(store.dockOffsetAdjustment == 0)
         #expect(store.petSettings == PetSettings())
+        #expect(suite.defaults.object(forKey: "petscape.cursorReactions") == nil)
+        #expect(suite.defaults.object(forKey: "petscape.directInteraction") == nil)
         #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 99)
         #expect(suite.defaults.string(forKey: "petscape.futureFeature") == "future")
         #expect(suite.defaults.string(forKey: "unrelated") == "other")

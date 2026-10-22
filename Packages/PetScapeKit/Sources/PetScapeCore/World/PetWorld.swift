@@ -17,6 +17,10 @@ public struct PetWorld: Sendable {
     /// Simulation time in seconds (sum of all step `dt`s).
     public private(set) var time: Double = 0
     public private(set) var behavior = AutonomySettings(isEnabled: false)
+    private var interactionTuning: InteractionTuning
+    private var cursorLocation: CGPoint?
+    private var cursorReactionsEnabled = true
+    private var reduceMotion = false
     public var tuning: BehaviorTuning
     var physics = PhysicsTuning()
     var jumpTuning = JumpTuning()
@@ -27,8 +31,12 @@ public struct PetWorld: Sendable {
     /// Reused per step so stepping does not allocate.
     private var animationEvents: [AnimationEvent] = []
 
-    public init(tuning: BehaviorTuning = BehaviorTuning(), random: any RandomSource) {
+    public init(
+        tuning: BehaviorTuning = BehaviorTuning(), interactionTuning: InteractionTuning = .default,
+        random: any RandomSource
+    ) {
         self.tuning = tuning
+        self.interactionTuning = interactionTuning
         self.random = random
         animationEvents.reserveCapacity(8)
         pendingEvents.reserveCapacity(16)
@@ -66,6 +74,31 @@ public struct PetWorld: Sendable {
     /// on their next step; unplaced pets are placed when a surface appears.
     public mutating func apply(_ input: WorldInput) {
         switch input {
+        case .setCursorLocation(let location):
+            cursorLocation = location.flatMap { $0.x.isFinite && $0.y.isFinite ? $0 : nil }
+        case .setCursorReactionsEnabled(let enabled):
+            cursorReactionsEnabled = enabled
+            if !enabled {
+                var events: [WorldEvent] = []
+                for index in pets.indices where pets[index].state == .grounded(.reactingToCursor) {
+                    var pet = pets[index]
+                    pet.cursorInterest.cancel()
+                    finishCursorReaction(&pet, allowResume: false, events: &events)
+                    pets[index] = pet
+                }
+                pendingEvents.append(contentsOf: events)
+            }
+        case .setReduceMotion(let enabled):
+            reduceMotion = enabled
+            if enabled {
+                for index in pets.indices
+                where pets[index].state == .grounded(.reactingToCursor)
+                    || pets[index].state == .grounded(.reactingToClick)
+                {
+                    pets[index].animation.transition(
+                        AnimationRequest(clip: "idle", priority: AnimationRequest.criticalPriority))
+                }
+            }
         case .configureBehavior(let settings):
             behavior = settings
             var events: [WorldEvent] = []
@@ -98,6 +131,17 @@ public struct PetWorld: Sendable {
                     // cooldown once at the simulated cancellation time, including Rising/Landing.
                     finishActivity(&pet)
                 }
+                if !settings.expressionsEnabled,
+                    pet.state == .grounded(.reactingToCursor)
+                        || pet.state == .grounded(.reactingToClick)
+                {
+                    pet.cursorInterest.cancel()
+                    if pet.state == .grounded(.reactingToCursor) {
+                        finishCursorReaction(&pet, allowResume: false, events: &events)
+                    } else {
+                        finishClickReaction(&pet, events: &events)
+                    }
+                }
                 pets[index] = pet
             }
             pendingEvents.append(contentsOf: events)
@@ -107,6 +151,10 @@ public struct PetWorld: Sendable {
             for index in pets.indices {
                 var pet = pets[index]
                 guard pet.scale != scale else { continue }
+                if let interactionID = pet.interactionID {
+                    endInteraction(&pet, events: &events, fallingIfHeld: true)
+                    events.append(.interactionEnded(pet.id, interactionID))
+                }
                 pet.scale = scale
                 let size = pet.animation.definition.displaySize
                 pet.contactGeometry = ContactGeometry(
@@ -142,8 +190,16 @@ public struct PetWorld: Sendable {
             }
         case .screens(let screens):
             let old = self.screens.first
-            self.screens = screens
             var events: [WorldEvent] = []
+            for index in pets.indices {
+                var pet = pets[index]
+                if let interactionID = pet.interactionID {
+                    endInteraction(&pet, events: &events, fallingIfHeld: true)
+                    events.append(.interactionEnded(pet.id, interactionID))
+                }
+                pets[index] = pet
+            }
+            self.screens = screens
             for index in pets.indices {
                 var pet = pets[index]
                 if let old, let next = screens.first, old.id != next.id {
@@ -157,8 +213,16 @@ public struct PetWorld: Sendable {
         case .surfaces(let newSurfaces):
             let changes = surfaces.changes(to: newSurfaces)
             guard !changes.isEmpty else { return }
-            surfaces.apply(changes)
             var events: [WorldEvent] = []
+            for index in pets.indices {
+                var pet = pets[index]
+                if let interactionID = pet.interactionID {
+                    endInteraction(&pet, events: &events, fallingIfHeld: true)
+                    events.append(.interactionEnded(pet.id, interactionID))
+                }
+                pets[index] = pet
+            }
+            surfaces.apply(changes)
             for index in pets.indices {
                 var pet = pets[index]
                 if pet.attachment == nil {
@@ -200,7 +264,191 @@ public struct PetWorld: Sendable {
             enter(activity == .walking ? .walking : .grounded(.idle), pet: &pet, events: &events)
             pets[index] = pet
             pendingEvents.append(contentsOf: events)
+        case .interaction(let id, let command):
+            applyInteraction(id, command: command)
         }
+    }
+
+    private mutating func applyInteraction(_ petID: PetID, command: InteractionCommand) {
+        if case .observeCursor(let location) = command {
+            cursorLocation = location.x.isFinite && location.y.isFinite ? location : nil
+            return
+        }
+        guard let index = pets.firstIndex(where: { $0.id == petID }) else { return }
+        var pet = pets[index]
+        var events: [WorldEvent] = []
+        switch command {
+        case .press(let id):
+            guard id.isValid, pet.interactionID == nil,
+                pet.attachment != nil || isAirborne(pet.state)
+            else {
+                if id.isValid { events.append(.interactionRejected(petID, id)) }
+                break
+            }
+            pet.interactionID = id
+            pet.interactionIsHeld = false
+            pet.interactionSavedState = pet.state
+            pet.interactionSavedStateElapsed = pet.stateElapsed
+            pet.interactionSavedActivity = pet.activity
+            pet.interactionSavedActivityRemaining = max(0, pet.activityDeadline - time)
+            events.append(.interactionAccepted(petID, id))
+        case .beginHold(let id, let target):
+            guard pet.interactionID == id, !pet.interactionIsHeld else {
+                if id.isValid { events.append(.interactionRejected(petID, id)) }
+                break
+            }
+            guard isFinite(target), let clamped = heldTarget(target, for: pet) else {
+                endInteraction(&pet, events: &events, fallingIfHeld: false)
+                events.append(.interactionRejected(petID, id))
+                events.append(.interactionEnded(petID, id))
+                break
+            }
+            cancelJump(&pet, events: &events)
+            finishActivity(&pet)
+            pet.cursorInterest.cancel()
+            pet.cursorSavedActivity = nil
+            pet.cursorSavedActivityRemaining = 0
+            pet.attachment = nil
+            pet.velocity = .zero
+            pet.airborneElapsed = 0
+            pet.activity = nil
+            pet.interactionIsHeld = true
+            pet.heldPickupPresentationActive = true
+            pet.interactionTarget = clamped
+            pet.position = clamped
+            enter(.held, pet: &pet, events: &events)
+        case .moveHold(let id, let target):
+            guard pet.interactionID == id, pet.interactionIsHeld, isFinite(target) else {
+                if id.isValid { events.append(.interactionRejected(petID, id)) }
+                break
+            }
+            pet.interactionTarget = target
+        case .release(let id, let target):
+            guard pet.interactionID == id, pet.interactionIsHeld else {
+                if id.isValid { events.append(.interactionRejected(petID, id)) }
+                break
+            }
+            if isFinite(target), let clamped = heldTarget(target, for: pet) { pet.position = clamped }
+            clearInteraction(&pet)
+            pet.heldPickupPresentationActive = false
+            pet.velocity = .zero
+            pet.attachment = nil
+            pet.airborneElapsed = 0
+            enter(.airborne(.falling), pet: &pet, events: &events)
+            events.append(.interactionEnded(petID, id))
+        case .cancel(let id, _):
+            guard pet.interactionID == id else {
+                if id.isValid { events.append(.interactionRejected(petID, id)) }
+                break
+            }
+            endInteraction(&pet, events: &events, fallingIfHeld: true)
+            events.append(.interactionEnded(petID, id))
+        case .click:
+            if let id = pet.interactionID, !pet.interactionIsHeld {
+                endInteraction(&pet, events: &events, fallingIfHeld: false)
+                events.append(.interactionEnded(petID, id))
+            }
+            if pet.state == .grounded(.sleeping) || pet.state == .grounded(.lyingDown) {
+                finishActivity(&pet)
+                enter(.grounded(.wakingUp), pet: &pet, events: &events)
+            } else if behavior.expressionsEnabled,
+                time >= pet.clickCooldownUntil,
+                pet.state == .walking || pet.state == .grounded(.idle)
+                    || pet.state == .grounded(.observing)
+            {
+                pet.clickSavedState = pet.state
+                pet.clickSavedStateElapsed = pet.stateElapsed
+                pet.clickSavedActivity = pet.activity
+                pet.clickSavedActivityRemaining = max(0, pet.activityDeadline - time)
+                enter(.grounded(.reactingToClick), pet: &pet, events: &events)
+            }
+        case .observeCursor:
+            break
+        }
+        pets[index] = pet
+        pendingEvents.append(contentsOf: events)
+    }
+
+    private mutating func endInteraction(
+        _ pet: inout Pet, events: inout [WorldEvent], fallingIfHeld: Bool
+    ) {
+        let wasHeld = pet.interactionIsHeld
+        let savedState = pet.interactionSavedState
+        let savedElapsed = pet.interactionSavedStateElapsed
+        let savedActivity = pet.interactionSavedActivity
+        let remaining = pet.interactionSavedActivityRemaining
+        if wasHeld, fallingIfHeld, let target = pet.interactionTarget,
+            let clamped = heldTarget(target, for: pet)
+        {
+            pet.position = clamped
+        }
+        clearInteraction(&pet)
+        if wasHeld, fallingIfHeld {
+            pet.velocity = .zero
+            pet.attachment = nil
+            pet.airborneElapsed = 0
+            enter(.airborne(.falling), pet: &pet, events: &events)
+        } else if !wasHeld, let savedState {
+            pet.state = savedState
+            pet.stateElapsed = savedElapsed
+            if let savedActivity {
+                pet.activity = savedActivity
+                pet.activityDuration = remaining
+                pet.activityDeadline = time + remaining
+            }
+        }
+    }
+
+    private func clearInteraction(_ pet: inout Pet) {
+        pet.interactionID = nil
+        pet.interactionIsHeld = false
+        pet.heldPickupPresentationActive = false
+        pet.interactionTarget = nil
+        pet.interactionSavedState = nil
+        pet.interactionSavedStateElapsed = 0
+        pet.interactionSavedActivity = nil
+        pet.interactionSavedActivityRemaining = 0
+    }
+
+    private mutating func finishClickReaction(_ pet: inout Pet, events: inout [WorldEvent]) {
+        pet.clickCooldownUntil = time + interactionTuning.clickRepeatCooldown
+        guard let savedState = pet.clickSavedState else {
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        let savedElapsed = pet.clickSavedStateElapsed
+        let savedActivity = pet.clickSavedActivity
+        let remaining = pet.clickSavedActivityRemaining
+        pet.clickSavedState = nil
+        pet.clickSavedActivity = nil
+        pet.clickSavedStateElapsed = 0
+        pet.clickSavedActivityRemaining = 0
+        enter(savedState, pet: &pet, events: &events)
+        pet.stateElapsed = savedElapsed
+        if let savedActivity {
+            pet.activity = savedActivity
+            pet.activityDuration = remaining
+            pet.activityDeadline = time + remaining
+        }
+    }
+
+    private func isAirborne(_ state: PetState) -> Bool {
+        if case .airborne = state { return true }
+        return false
+    }
+
+    private func isFinite(_ point: CGPoint) -> Bool { point.x.isFinite && point.y.isFinite }
+
+    private func heldTarget(_ target: CGPoint, for pet: Pet) -> CGPoint? {
+        guard let screen = screens.first else { return target }
+        let anchor = pet.animation.currentFrame.anchor
+        let size = pet.size
+        let minX = screen.frame.minX + CGFloat(anchor.x) * size.width
+        let maxX = screen.frame.maxX - (1 - CGFloat(anchor.x)) * size.width
+        let minY = screen.frame.minY + CGFloat(anchor.y) * size.height
+        let maxY = screen.frame.maxY - (1 - CGFloat(anchor.y)) * size.height
+        guard minX <= maxX, minY <= maxY else { return nil }
+        return CGPoint(x: min(max(target.x, minX), maxX), y: min(max(target.y, minY), maxY))
     }
 
     /// Environment/command events can be logged even when the resulting pose requires no frames.
@@ -238,8 +486,9 @@ public struct PetWorld: Sendable {
 
     private mutating func step(_ pet: inout Pet, dt: Double, events: inout [WorldEvent]) {
         guard validate(&pet, events: &events) else { return }
+        if pet.interactionID != nil, !pet.interactionIsHeld { return }
         pet.stateElapsed += dt
-        if behavior.isEnabled {
+        if behavior.isEnabled, !pet.interactionIsHeld {
             pet.needs.advance(by: dt, sleeping: pet.state == .grounded(.sleeping))
         }
         if let attachment = pet.attachment, attachedSurface(of: pet) == nil {
@@ -248,6 +497,13 @@ public struct PetWorld: Sendable {
             finishActivity(&pet)
             enter(.airborne(.falling), pet: &pet, events: &events)
             events.append(.surfaceLost(pet.id, attachment.surfaceID))
+        }
+        pet.cursorEvaluationElapsed += dt
+        let cursorInterval = pet.state == .grounded(.sleeping) ? 0.5 : 0.1
+        if pet.cursorEvaluationElapsed + FixedStepAccumulator.tolerance >= cursorInterval {
+            let evaluationDt = pet.cursorEvaluationElapsed
+            pet.cursorEvaluationElapsed = 0
+            updateCursorInterest(&pet, dt: evaluationDt, events: &events)
         }
         if behavior.isEnabled, attachedSurface(of: pet) != nil,
             pet.state == .walking || pet.state == .grounded(.idle),
@@ -347,6 +603,11 @@ public struct PetWorld: Sendable {
                 if time + FixedStepAccumulator.tolerance >= pet.activityDeadline {
                     boundedIdle(&pet, events: &events)
                 }
+            case .reactingToCursor:
+                hold(&pet, dt: dt, events: &events)
+            case .reactingToClick:
+                hold(&pet, dt: dt, events: &events)
+                if elapsed(pet, atLeast: 0.6) { finishClickReaction(&pet, events: &events) }
             case .preparingJump:
                 pet.velocity = .zero
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.preparationDuration {
@@ -375,6 +636,19 @@ public struct PetWorld: Sendable {
             }
         case .airborne:
             fall(&pet, dt: dt, events: &events)
+        case .held:
+            if pet.heldPickupPresentationActive,
+                elapsed(pet, atLeast: interactionTuning.pickupPresentationDuration)
+            {
+                pet.heldPickupPresentationActive = false
+                pet.animation.transition(
+                    AnimationRequest(clip: "held", priority: AnimationRequest.criticalPriority))
+            }
+            if let target = pet.interactionTarget, let clamped = heldTarget(target, for: pet) {
+                pet.position = clamped
+            }
+            pet.velocity = .zero
+            advancePresentation(of: &pet, dt: dt, events: &events)
         case .recovering:
             enter(.spawning, pet: &pet, events: &events)
             if !resettle(&pet, events: &events) { place(&pet, events: &events) }
@@ -435,6 +709,71 @@ public struct PetWorld: Sendable {
         pet.animation.advance(by: dt, into: &animationEvents)
         for event in animationEvents {
             events.append(.animationEvent(pet.id, event))
+        }
+    }
+
+    private mutating func updateCursorInterest(_ pet: inout Pet, dt: Double, events: inout [WorldEvent]) {
+        let eligibleState: Bool
+        switch pet.state {
+        case .walking, .grounded(.idle), .grounded(.observing): eligibleState = true
+        default: eligibleState = false
+        }
+        let anchor = pet.animation.currentFrame.anchor
+        let size = pet.size
+        let spriteRect = CGRect(
+            x: pet.position.x - CGFloat(anchor.x) * size.width,
+            y: pet.position.y - CGFloat(anchor.y) * size.height,
+            width: size.width, height: size.height)
+        let context = CursorInterestContext(
+            spriteRect: spriteRect, scale: pet.scale, curiosity: pet.personality.curiosity,
+            energy: pet.needs.energy,
+            isEligible: cursorReactionsEnabled && cursorLocation != nil && eligibleState
+                && pet.stateElapsed >= 0.5 && attachedSurface(of: pet) != nil,
+            expressionsEnabled: behavior.expressionsEnabled)
+        let event = pet.cursorInterest.advance(location: cursorLocation ?? .zero, dt: dt, context: context)
+        switch event {
+        case .began(let location, let duration):
+            pet.cursorSavedActivity = pet.activity
+            pet.cursorSavedActivityRemaining = max(0, pet.activityDeadline - time)
+            pet.activity = nil
+            pet.activityDuration = duration
+            pet.activityDeadline = time + duration
+            let horizontal = location.x - pet.position.x
+            if horizontal >= 8 { pet.facing = .right; pet.animation.setFacing(.right) }
+            if horizontal <= -8 { pet.facing = .left; pet.animation.setFacing(.left) }
+            enter(.grounded(.reactingToCursor), pet: &pet, events: &events)
+        case .ended:
+            finishCursorReaction(&pet, allowResume: true, events: &events)
+        case nil:
+            break
+        }
+    }
+
+    private mutating func finishCursorReaction(
+        _ pet: inout Pet, allowResume: Bool, events: inout [WorldEvent]
+    ) {
+        let savedActivity = pet.cursorSavedActivity
+        let remaining = pet.cursorSavedActivityRemaining
+        pet.cursorSavedActivity = nil
+        pet.cursorSavedActivityRemaining = 0
+        guard allowResume, let savedActivity, attachedSurface(of: pet) != nil else {
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        pet.activity = savedActivity
+        pet.activityDuration = remaining
+        pet.activityDeadline = time + remaining
+        switch savedActivity {
+        case .walk, .explore:
+            pet.resumeActivity = .walking
+            enter(.walking, pet: &pet, events: &events)
+        case .idle:
+            pet.resumeActivity = .idle
+            enter(.grounded(.idle), pet: &pet, events: &events)
+        case .observe where behavior.expressionsEnabled:
+            enter(.grounded(.observing), pet: &pet, events: &events)
+        default:
+            boundedIdle(&pet, events: &events)
         }
     }
 
@@ -593,8 +932,8 @@ public struct PetWorld: Sendable {
                 } else {
                     demand = 4
                 }
-            case .grounded(.idle), .grounded(.sitting), .grounded(.observing), .grounded(.stretching), .spawning,
-                .recovering:
+            case .grounded(.idle), .grounded(.sitting), .grounded(.observing), .grounded(.stretching),
+                .grounded(.reactingToCursor), .spawning, .recovering, .held:
                 demand = 30
             case .grounded, .airborne: demand = 60
             }
@@ -706,6 +1045,8 @@ public struct PetWorld: Sendable {
         case .grounded(.wakingUp): clip = "wake-up"
         case .grounded(.stretching): clip = "stretch"
         case .grounded(.observing): clip = "observe"
+        case .grounded(.reactingToCursor), .grounded(.reactingToClick): clip = reduceMotion ? "idle" : "curious"
+        case .held: clip = pet.heldPickupPresentationActive ? "picked-up" : "held"
         case .spawning, .recovering, .grounded(.turning): clip = nil
         }
         if state == .grounded(.idle) || state == .grounded(.preparingJump) { pet.velocity = .zero }
@@ -741,12 +1082,13 @@ public struct PetWorld: Sendable {
     private func validate(_ pet: inout Pet, events: inout [WorldEvent]) -> Bool {
         switch pet.state {
         case .spawning, .recovering: return true
-        case .grounded, .airborne: break
+        case .grounded, .airborne, .held: break
         }
         let invalidContact: Bool
         switch pet.state {
         case .airborne: invalidContact = pet.attachment != nil
         case .grounded: invalidContact = pet.attachment == nil
+        case .held: invalidContact = pet.attachment != nil
         case .spawning, .recovering: invalidContact = false
         }
         if invalidContact {
@@ -786,6 +1128,7 @@ public struct PetWorld: Sendable {
                                 .contains(pet.position)
                         })
                     || pet.lastJumpLaunchTime.map { time < $0 + jumpTuning.cooldown } == true
+            case .held: return true
             case .grounded, .airborne: return surfaces.surfaces.contains { $0.isUsable }
             }
         }
@@ -801,8 +1144,12 @@ public struct PetWorld: Sendable {
         case .grounded(.landing), .grounded(.idle), .grounded(.preparingJump), .airborne:
             return pet.animation.definition.clips[pet.animation.requestedClip] != nil
                 && pet.animation.rate > 0 && !pet.animation.player.isFinished
+        case .held:
+            return pet.animation.definition.clips[pet.animation.requestedClip] != nil
+                && pet.animation.rate > 0 && !pet.animation.player.isFinished
         case .grounded(.sittingDown), .grounded(.sitting), .grounded(.standingUp), .grounded(.lyingDown),
-            .grounded(.sleeping), .grounded(.wakingUp), .grounded(.stretching), .grounded(.observing):
+            .grounded(.sleeping), .grounded(.wakingUp), .grounded(.stretching), .grounded(.observing),
+            .grounded(.reactingToCursor), .grounded(.reactingToClick):
             return pet.animation.definition.clips[pet.animation.requestedClip] != nil
                 && pet.animation.rate > 0 && !pet.animation.player.isFinished
         case .grounded(.turning), .spawning, .recovering: return false
@@ -819,7 +1166,8 @@ public struct PetWorld: Sendable {
                 PetRenderState(
                     id: pet.id, characterID: pet.characterID, position: pet.position, size: pet.size,
                     frame: pet.animation.currentFrame,
-                    isVisible: pet.attachment != nil || { if case .airborne = pet.state { true } else { false } }(),
+                    isVisible: pet.attachment != nil || { if case .airborne = pet.state { true } else { false } }()
+                        || pet.state == .held,
                     isAnimating: isAnimating(pet)))
         }
     }

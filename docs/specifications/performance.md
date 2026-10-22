@@ -196,3 +196,18 @@ A single restricted `leaks` snapshot reported 417 allocations / 20,016 bytes, wi
 appearing in Apple `LNDaemonApplicationInterface` / AppIntents XPC connection cycles. macOS allowed
 only a partial read-only report, and there was no ending snapshot; leak growth and PetScape-owned roots
 are therefore not established. No native UI/login-item result is claimed. See the [M9 execution record](../planning/m9-implementation.md#execution-record-2026-10-18).
+
+## M10 measurement plan and limited result
+
+The [M10 plan](../planning/m10-implementation.md#acceptance-risk-and-regression-matrix) defines paired
+baseline/new Release scenarios: idle, walking, pet sleep, press, held/drag, paused, hidden and
+suspended; 30 s warmup +≥60 s windows ×3. Keep OS/hardware/Dock/prefs/art constant and measure
+WindowServer/GPU cost of the bounded input-panel candidate, input latency, event volume,
+steady allocations, token/window leak growth and ≥2 h installed-app footprint delta.
+Existing absolute limits remain; proposed pack budget≤16 MiB at reference 2× and event→visible
+drag p95≤33.4 ms/max≤50 ms. >20% paired regressions need explanation/owner acceptance.
+Planning-time baseline build/tests did not establish runtime input latency, cadence, focus or resource
+success. A later limited same-Mac Release sample recorded only app CPU and resident memory for three
+60 s windows per build; its results and strict limitations are in the [M10 implementation
+record](../planning/m10-implementation.md#limited-release-cpurss-comparison--2026-10-18). It does
+not close the broader performance or native gates.
