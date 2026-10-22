@@ -591,5 +591,14 @@ not partially implemented behind undocumented behavior.
   0021 (physics/priorities/cancel/animation), all Proposed.
 - [x] Contracts, cancellation/release matrix, V5 brief, dependency DAG and task-level tests defined.
 - [x] Historical throw/paused-drag wording revised explicitly, stable IDs preserved.
-- [x] No Swift/test/asset/dependency changes, no PoC execution or repository publication.
+- [x] At the initial planning review no Swift/test/asset/dependency changes, PoC execution or repository publication had occurred; subsequent implementation and the owner's Git instruction are recorded below.
 - [x] Full M10 authorization received from owner on 2026-10-18.
+
+## V5 implementation and Git closeout — 2026-10-22
+
+The owner later reauthorized V5 generation/integration and requested a feature branch merged into
+`develop`. The implementation is on `feature/m10-v5-assets` and contains the three clips, 16 raw
+source images with checksums under `docs/assets/v5/production-source/`, runtime-size PNGs, manifest,
+tests and this documentation. Package/UI tests, lint and Debug/Release builds pass. The feature
+branch has been pushed and merged into `develop`; no release or tag was created. Owner visual review
+of the final clips remains pending and is not claimed here.

@@ -289,8 +289,9 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** swallowed transparent clicks, focus theft, lost-up capture, simultaneous position writers.
 - **Tests:** deterministic per-task tests, native focus/Dock/click-through matrix, paired Release measurements.
 - **DoD:** revised AC-M10 criteria, explicit deferred requirements/art acceptance, native owner
-  review. **Status: Done by owner acceptance (2026-10-22)**; see the implementation record for accepted
-  evidence limits. No commit or release.
+  review. **Status: implementation complete; final visual review pending**; see the implementation
+  record for accepted evidence limits. The V5 feature branch is merged into `develop` under the
+  owner's Git instruction; no release or tag was created.
 
 ## M11 — Edge climbing
 
