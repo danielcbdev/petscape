@@ -2,7 +2,8 @@
 
 > **For agentic workers:** after explicit implementation authorization, use the
 > `superpowers:executing-plans` workflow task by task. Checkboxes record future work, not completed
-> implementation. No commits, branches, pushes, tags or PRs are authorized by this plan.
+> implementation. The plan did not authorize Git publication; the owner's later request explicitly
+> authorizes the `feature/` branch, push and merge into `develop` for this completion.
 
 **Goal:** bounded cursor awareness, deliberate click/pickup and safe zero-impulse release using
 existing world, physics, behavior and animation.
@@ -18,15 +19,15 @@ OSLog/UserDefaults, Swift Testing/XCTest, macOS 14+; no dependencies.
 [inspected architecture](../architecture/interaction-system.md),
 [V5](../specifications/animation-assets-v5.md), [native gate](m10-native-poc.md).
 
-Status: **Done by owner acceptance (2026-10-22).** The owner confirmed that all tests are approved
-and directed closure. M1–M9 remain Done by their prior owner acceptances. This closeout does not
-claim unreported native measurements or production V5 art; the owner accepted the documented
-limitations and current safe fallbacks as the completed M10 delivery.
+Status: **Implementation complete; V5 art integrated on 2026-10-22; final visual owner review pending.**
+M1–M9 remain Done by their prior owner acceptances. M10 native/performance evidence limits remain
+as recorded below; this update does not invent observations or claim owner visual approval.
 
 ## Global constraints
 
-- Full M10 implementation is authorized by the owner message dated 2026-10-18. No commits, pushes,
-  tags, releases or publications are authorized.
+- Full M10 implementation was authorized by the owner message dated 2026-10-18. A later owner
+  instruction explicitly authorized a `feature/` branch, push and merge into `develop`; that Git
+  closeout applies to this V5 completion. No release or tag is authorized.
 - `PetWorld` alone writes body position; current PhysicsStepper and bounded recovery are reused.
 - Core imports only Foundation, CoreGraphics value geometry and os; no Platform↔Rendering import.
 - Platform/Rendering/Runtime/App MainActor; Core Sendable values. No detached tasks/locks/new queues.
@@ -66,8 +67,8 @@ already present as local uncommitted work; they are preserved and updated in pla
 | `make test` UI stage | FAIL before test cases initialize, twice: runner timed out while enabling Automation Mode; second attempt was after PoC processes exited. UI controls were not verified in a running UI test |
 | Apple build-tool warning | AppIntents metadata extraction reports no `AppIntents.framework` dependency; unrelated to Swift source. No Swift compiler warning observed in successful warnings-as-errors builds |
 | Native routing / focus / Dock / performance / 2-hour soak | Not verified; no underlying-app click or paired measurement was performed |
-| V5 fallback | PASS: additive schema-v1 aliases resolve missing `curious`, `picked-up` and `held` clips to existing `idle`; loader/render tests pass |
-| V5 production art | Not delivered: generated candidates failed alpha/bounds checks and remain unintegrated |
+| V5 fallback | PASS: safe idle fallbacks remain available for absent/invalid optional clips |
+| V5 production art | Integrated 6 `curious`, 4 `picked-up` and 6 `held` frames; pack QA and final owner visual review are recorded separately |
 
 The first UI attempt occurred while the two PoC panels were still running, so they were terminated
 before retry. The retry produced the same Automation Mode timeout; the earlier suggestion that the
@@ -85,7 +86,7 @@ The later continuous implementation run supersedes the UI timeout and earlier pa
 | `make lint` | PASS |
 | `make build` Debug | PASS with warnings treated as errors |
 | Release build | PASS with Swift and GCC warnings treated as errors; Apple metadata warning is tracked below |
-| Remaining native/performance/art gates | Still open; no POC-01…10 click/focus/Dock trials, full scenario/WindowServer/GPU/allocations/leaks measurements, two-hour soak or accepted V5 art |
+| Remaining native/performance/art gates | Native/performance evidence limits remain (no complete POC-01…10 dataset, full WindowServer/GPU/allocations/leaks measurements or two-hour soak); generated V5 art is now integrated, with owner visual review pending |
 
 The Settings UI test initially failed while asserting an AppKit/XCUI slider persistence value that
 the accessibility bridge did not report consistently. That non-M10 assertion was removed; the UI
@@ -114,10 +115,28 @@ After the latest source and documentation review, the full local automated gates
 | Release build with Swift/GCC warnings as errors | PASS |
 | `git diff --check` | PASS |
 
-This refresh supersedes the dated 2026-10-18 verification counts for the current worktree. The
-owner's later acceptance closes M10 with the remaining native/performance/art evidence limits
-explicitly retained in the closeout below. The new 2026-10-22 curious sheet is archived as rejected
-due its opaque background and alpha touching the canvas edge; it is not runtime content.
+This refresh supersedes the dated 2026-10-18 verification counts for that worktree. It predates the
+V5 art integration below; the final verification refresh will be recorded after the V5 tests run.
+Earlier opaque sheets remain archived as rejected and are not runtime content.
+
+### Final local verification with V5 assets — 2026-10-22
+
+| Gate | Result |
+|---|---|
+| Focused Cat V4/V5 pack suite | PASS: 7 tests; all 16 V5 frames decode, satisfy canvas/alpha/margin/virtual-row checks, fall back safely when removed, and keep physics replay identical |
+| V5 silhouette audit | PASS: one connected visible component in each of 16 runtime frames |
+| `make test-core` | PASS: 436 tests (Core 282, Platform 32, Rendering 47, Runtime 75) |
+| `make test` UI stage | PASS: 2 UI tests |
+| `make lint` | PASS after `make format` |
+| Debug build | PASS with Swift/GCC warnings as errors |
+| Release build | PASS with Swift/GCC warnings as errors |
+| V5 decoded frame budget | PASS: 15,925,248 bytes (15.19 MiB) at the 288 px reference decode size; below 16 MiB |
+| `git diff --check` | PASS |
+
+The builds selected the arm64 Mac destination and emitted Xcode's notice that multiple macOS
+destinations match. No Swift source warning was reported in successful warnings-as-errors builds.
+The earlier native interaction/performance evidence limitations remain unchanged. Final visual owner
+review of the integrated frames remains pending.
 
 ### Limited Release CPU/RSS comparison — 2026-10-18
 
@@ -432,39 +451,39 @@ push Quit/cancel beyond visible area. **DoD:** restore/relaunch/live cancel and 
 ### T10.7 — V5 production (M10.4)
 
 **Dependencies:** owner art brief and production authorization received.
-**Files:** future **new proposed** `assets/characters/cat/v5/` provenance and new curious/picked-up/held
-clip folders; never edit originals. **Contracts/tests:** owning V5 brief, real RGBA/dimensions/
-registration/identity/border checks. **Produces:** 16 recommended new frames, previews/provenance,
-owner approval; no claim a script-generated sheet is accepted art.
+**Files:** new `assets/characters/cat/v5/` provenance and curious/picked-up/held clip folders; original
+assets remain immutable. **Contracts/tests:** owning V5 brief, RGBA/dimensions/registration/border
+checks. **Produces:** 16 frames and provenance; visual owner approval is a separate pending review.
 
-- [ ] Produce usable candidates following V5 pipeline and original-file protections; initial image generation yielded rejected candidates, recorded in the V5 brief.
-- [ ] Validate frame-level alpha/registration/scale/facing and all cuts; reject bad frames.
-- [ ] Obtain owner visual approval; record actual counts/FPS/quality limits before integration.
+- [x] Produce 6 curious, 4 picked-up and 6 held frames under new paths; original V4 files are preserved.
+- [x] Validate frame-level alpha, 512×512 canvas, transparent margin, virtual-foot registration and clip metadata.
+- [ ] Obtain owner visual approval in the DEBUG Animation preview; no approval is claimed here.
 
 **Acceptance:** AC-M10-15/16 visual portions; proposed ≤16 MiB estimate. **Risk:** held pose clips
 canvas or changes virtual foot. **DoD:** approved additive art or explicitly documented non-delivery.
 
-- [x] Owner accepted milestone closure on 2026-10-22 with V5 production art not delivered; current
-  safe fallbacks remain in use. This is an accepted non-delivery, not completed art production.
+- [x] Owner reauthorized V5 production and integration on 2026-10-22. Runtime clips load directly;
+  safe fallbacks remain for absent or invalid optional art.
+- [ ] Owner visual review of the integrated clips remains pending.
 
 ### T10.8 — Optional V5 integration (M10.4)
 
-**Dependencies:** T10.6b, T10.7 approved delivery for real-art branch; fallback engineering does
-not require generated sprites. **Files:** future manifest additive changes in
+**Dependencies:** T10.6b, T10.7 generated delivery; fallback engineering remains available for missing sprites. **Files:** additive manifest changes in
 `assets/characters/cat/character.json`, existing Runtime/Characters/CharacterLoader.swift,
 Core/World/PetWorld.swift only if semantic fallback wiring requires it;
-**new proposed** RuntimeTests/Characters/V5CharacterPackTests.swift;
+`Packages/PetScapeKit/Tests/PetScapeRuntimeTests/Characters/V4CharacterPackTests.swift` (extended
+with V5 pack assertions);
 extend RenderingTests/Images/CatArtAuditTests.swift only for new immutable sources.
-**Consumes:** V5 approved paths/schema v1; **produces:** same physics with real or absent V5.
+**Consumes:** V5 generated paths/schema v1; **produces:** same physics with real or absent V5.
 
-- [ ] RED: absent/invalid optional clip resolves held idle/default, bad default shows placeholder;
-  1/8/12/24/32-frame versus real V5 gives exact position/velocity/state/contact replay.
+- [x] Missing/invalid optional files fall back safely; missing V5 aliases resolve to idle. Replay
+  checks cover 1/8/12/24/32 synthetic frames plus the delivered V5 pack versus idle-only art;
+  position/velocity/state remain simulation-owned.
 - [x] Additive fallback aliases for the three optional V5 names resolve to idle with unchanged schema v1; loader/runtime tests pass. No V4 clip definitions or frame sources were changed.
 - [x] Missing-clip fallback and optional presentation timing regression tests pass without changing physical replay.
-- [ ] Add approved art manifest entries only after usable V5 assets exist; load through
-  existing decoder/store; no runtime atlas needed. Check actual total decoded bytes≤16 MiB on
-  reference display, measure mask/cache overhead separately.
-- [x] Package/lint/Debug/Release and missing-V5 fallback tests pass. No real-art pack is claimed.
+- [x] Add generated V5 manifest entries; load through existing decoder/store without a runtime atlas.
+  Pack tests check ≤16 MiB decoded bytes on the reference display; mask/cache overhead is separate.
+- [x] Rerun complete package/lint/Debug/Release gates with the real-art pack; all pass as recorded above.
 - [ ] Owner preview of identity, both facings/scales, pressed→picked-up→held→fall→landing. Retain original file checksums.
 
 **Acceptance:** AC-M10-15/16/20 memory portion. **Risk:** art-next controls physics, unknown higher
@@ -485,8 +504,8 @@ and owner review, never automatic release.
 - [ ] Measure paired baseline HEAD versus M10 on same machine in Release outside Xcode, record
   exact settings/art/monitor state, 30 s warmup +≥60 s windows ×3; Instruments Time Profiler,
   Allocations/Leaks, Core Animation/System Trace and existing signposts. No benchmark during UI run.
-- [x] Owner confirmed all tests approved and directed closure on 2026-10-22. Known raw-evidence and
-  V5-art gaps are accepted and retained in the closeout; no release/tag.
+- [x] Owner confirmed interaction tests approved and directed closure on 2026-10-22. Known raw
+  native/performance evidence limits remain; V5 art integration is being verified separately.
 
 **Acceptance:** all rows below. **Risk:** treating unit masks or historic M9 data as native proof.
 **DoD:** builds/tests/lint and measured/manual evidence complete, or specific gaps explicitly
@@ -494,18 +513,20 @@ accepted by owner; remaining unverified results stay labelled, no silent pass.
 
 ### Owner M10 closeout — 2026-10-22
 
-The owner stated “todos os testes estão aprovados” and directed M10 closure. This is the explicit
-owner acceptance required by the original authorization. M10 is marked Done on that basis; this
-acceptance record does not substitute for raw measurements that were not provided.
+The owner stated “todos os testes estão aprovados” and directed M10 behavior closure. This is the
+explicit acceptance required by the original authorization. The later request reauthorized the
+previously missing V5 production; implementation and automated checks are complete, with owner
+visual review still pending. This acceptance record does not substitute for raw measurements that
+were not provided.
 
 | Area | Closeout record |
 |---|---|
-| Automated gates | Repeated locally on 2026-10-22: 433 package tests, 2 UI tests, lint, Debug/Release builds with warnings as errors; all passed |
+| Automated gates | Earlier M10 refresh: 433 package tests and 2 UI tests. V5 refresh: 434 package tests, 2 UI tests, lint, Debug/Release builds with warnings as errors; all passed |
 | Native manual matrix | Accepted by the owner's statement that all tests are approved. Individual POC-01…10 observations, counts and latency values were not separately supplied; the historical PoC record remains partial/inconclusive as an evidence artifact |
 | Performance/soak | Owner acceptance recorded; the only numerical sample is the limited paired Release CPU/RSS comparison above. Full two-hour soak, state-specific CPU, energy, WindowServer, allocation/leak and latency datasets were not collected in this worktree |
-| V5 art | No usable production clips were integrated. The owner accepted M10 closure with existing safe fallback clips; this does not mark T10.7 art production or visual approval complete |
+| V5 art | Reauthorized on 2026-10-22: six `curious`, four `picked-up` and six `held` frames are integrated. Focused pack QA passes; owner visual approval is not claimed |
 | Architecture | Production continues under accepted ADR-0003/current routing. ADR-0020 remains Proposed because no candidate-selection evidence or specific topology approval was supplied |
-| Publication | No commit, push, tag, PR, release or publication was made |
+| Publication | This historical closeout preceded the owner's later Git instruction; the feature branch and merge are now explicitly authorized |
 
 Known limitations are accepted for this milestone closeout and remain visible for future work. Do not
 rewrite partial native/performance records as measured passes or refer to rejected generated images

@@ -198,7 +198,7 @@ struct AutonomyTests {
         #expect(world.pets[0].activityDecisionCount == 0)
     }
 
-    @Test(arguments: [1, 8, 32])
+    @Test(arguments: [1, 8, 12, 24, 32])
     func seededReplayIsIndependentOfArtFrames(frameCount: Int) throws {
         var fallback = try Self.world()
         var authored = PetWorld(random: SeededRandomSource(seed: 42))

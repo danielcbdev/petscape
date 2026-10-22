@@ -188,6 +188,40 @@
           ]
         }
       ]
+    },
+    "curious": {
+      "playback": "loop",
+      "fps": 6,
+      "frames": [
+        { "image": "v5/curious/frames/curious_01.png" },
+        { "image": "v5/curious/frames/curious_02.png" },
+        { "image": "v5/curious/frames/curious_03.png" },
+        { "image": "v5/curious/frames/curious_04.png", "events": ["blink"] },
+        { "image": "v5/curious/frames/curious_05.png" },
+        { "image": "v5/curious/frames/curious_06.png" }
+      ]
+    },
+    "picked-up": {
+      "playback": "once",
+      "fps": 20,
+      "frames": [
+        { "image": "v5/picked-up/frames/picked-up_01.png" },
+        { "image": "v5/picked-up/frames/picked-up_02.png" },
+        { "image": "v5/picked-up/frames/picked-up_03.png" },
+        { "image": "v5/picked-up/frames/picked-up_04.png" }
+      ]
+    },
+    "held": {
+      "playback": "loop",
+      "fps": 6,
+      "frames": [
+        { "image": "v5/held/frames/held_01.png" },
+        { "image": "v5/held/frames/held_02.png" },
+        { "image": "v5/held/frames/held_03.png", "events": ["blink"] },
+        { "image": "v5/held/frames/held_04.png" },
+        { "image": "v5/held/frames/held_05.png" },
+        { "image": "v5/held/frames/held_06.png" }
+      ]
     }
   }
 }
