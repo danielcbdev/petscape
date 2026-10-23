@@ -16,6 +16,7 @@ public final class PetRuntime {
     public let overlay: OverlayCoordinator
 
     private let preferences: any PreferencesStore
+    private let windowTracker: CompositeWindowTracker
     private let hitTester: PetHitTester
     private var world: PetWorld
     private lazy var interactionController = InteractionController(
@@ -31,6 +32,9 @@ public final class PetRuntime {
     /// Reused every frame (no per-frame allocation once warm).
     private var snapshot = RenderSnapshot()
     private var events: [WorldEvent] = []
+    public private(set) var trackedWindowSurfaces: [Surface] = []
+    public var onTrackedWindowSurfacesChange: (([Surface]) -> Void)?
+    public var onWindowPermissionRevoked: (() -> Void)?
     #if DEBUG
         private var frameRateWindow = FrameRateWindow()
     #endif
@@ -41,6 +45,7 @@ public final class PetRuntime {
         systemEvents: SystemEventsMonitor,
         fullScreenDetector: FullScreenSpaceDetector,
         preferences: any PreferencesStore,
+        windowTracker: CompositeWindowTracker = CompositeWindowTracker(),
         overlays: OverlayWindowManager = OverlayWindowManager(),
         makeFrameDriver: @escaping (NSView) -> any FrameDriver = { DisplayLinkFrameDriver(view: $0) },
         random: any RandomSource = SystemRandomNumberGenerator(),
@@ -49,6 +54,7 @@ public final class PetRuntime {
         let hitTester = PetHitTester()
         self.hitTester = hitTester
         self.preferences = preferences
+        self.windowTracker = windowTracker
         world = PetWorld(tuning: tuning, random: random)
         world.apply(.configureBehavior(preferences.petSettings.behavior))
         world.apply(.setSpeedScale(preferences.petSettings.speed))
@@ -61,6 +67,16 @@ public final class PetRuntime {
             dock: DockSurfaceProvider(offsetAdjustment: preferences.dockOffsetAdjustment), hitTester: hitTester,
             makeFrameDriver: makeFrameDriver)
         overlay.directInteractionsEnabled = preferences.petSettings.interaction.directInteractionEnabled
+        windowTracker.onChange = { [weak self] windows in
+            guard let self else { return }
+            let surfaces = WindowSurfaceBuilder.build(windows: windows, screens: self.overlay.screens)
+            self.trackedWindowSurfaces = surfaces
+            #if DEBUG
+                self.overlay.setWindowSurfaceDiagnostics(surfaces)
+            #endif
+            self.onTrackedWindowSurfacesChange?(surfaces)
+        }
+        windowTracker.onPermissionRevoked = { [weak self] in self?.onWindowPermissionRevoked?() }
     }
 
     /// Pause and hide as the user last chose them (restored from preferences at launch).
@@ -121,6 +137,7 @@ public final class PetRuntime {
 
     /// Stops frames, observers and overlays (FR-13) and drops the pet layers.
     public func stop() {
+        windowTracker.stop()
         overlay.stop()
         renderer?.removeAll()
         renderer = nil
@@ -197,6 +214,7 @@ public final class PetRuntime {
     // MARK: - Overlay callbacks
 
     private func screensDidChange() {
+        refreshWindowTracking()
         world.apply(.screens(overlay.hostScreen.map { [$0] } ?? []))
         applySurfaces()
         let view = overlay.hostContentView
@@ -224,8 +242,24 @@ public final class PetRuntime {
     }
 
     private func statusDidChange(_ status: RunStatus) {
+        refreshWindowTracking()
         // Frames stopped: the next frame after they resume only records its timestamp (no catch-up).
         if !status.isFrameDriverRunning { accumulator.reset() }
+    }
+
+    /// Tracking runs only while explicitly enabled, Accessibility-trusted, and in the active run state.
+    public func refreshWindowTracking() {
+        guard preferences.isWindowInteractionEnabled, overlay.runState.status.state == .running,
+            let converter = overlay.converter
+        else {
+            windowTracker.stop()
+            return
+        }
+        if windowTracker.isAvailable {
+            windowTracker.updateScreens(converter)
+        } else {
+            windowTracker.start(converter: converter)
+        }
     }
 
     /// Applies interaction facts through PetWorld and acknowledges them before native capture is latched.

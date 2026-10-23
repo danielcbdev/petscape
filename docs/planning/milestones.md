@@ -20,7 +20,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | **Done by owner acceptance** (2026-10-18: 400 package tests, 2 UI tests, lint and Debug/Release pass; owner accepted documented gaps in real login-item action, native sleep cadence and installed-app playtest — [closeout](m9-implementation.md#owner-m9-closeout-2026-10-18)) |
 | M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
 | M11 | Edge climbing | v0.4.0 | **Done by owner acceptance** (2026-10-22 — [record](m11-implementation.md#owner-closeout--2026-10-22)) |
-| M12 | Window detection | v0.5.0 | Not started |
+| M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
 | M13 | Window interaction | v0.5.0 | Not started |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | Not started |
 | M15 | Release pipeline | v1.0.0 | Not started |
@@ -312,6 +312,46 @@ fall; the owner confirmed the climb was visible and approved the visual result. 
 verification details and evidence limits.
 
 ## M12 — Window detection
+
+- **Progress (2026-10-23):** D-11 was decided by the owner: Accessibility is required, with no CG-only
+  degraded mode. Core window values, frame correlator, visible-top builder and geometry tests are
+  implemented; Settings has an opt-in preference and explicit Accessibility confirmation flow; CG
+  snapshots, focused-window AX observers, run-state tracking and DEBUG surface lines are implemented.
+  The owner accepted M12 closure with native evidence gaps recorded below; this does not claim that
+  AC-M12-02 or AC-M12-03 passed. See
+  [spike record](../architecture/window-tracking.md#m12-spike-findings-2026-10-22) and
+  [ADR-0022](../decisions/0022-window-tracking-consent-and-sources.md).
+- **Task evidence:** T12.1 documentation complete; partial native experiments recorded below. T12.2 implementation
+  complete; owner granted Accessibility and the opted-in Debug app recognized the permission. T12.3
+  adapter and fixture filters implemented. T12.4 focused-app/focused-window observer implemented;
+  native event/timeout behavior unverified. T12.5 tracker is gated by opt-in, trust and running state,
+  with 1 Hz snapshots; native lifecycle/revocation behavior remains unverified. T12.6
+  pure builder/correlation tests pass. T12.7 DEBUG-only diagnostic lines implemented; native visual
+  check pending. T12.8 activation/API-disabled paths implemented; revocation test and owner check
+  pending.
+- **Acceptance evidence:** AC-M12-01 is covered by a permission-spy unit test (disabled status refresh
+  does not call trust/prompt APIs), a UI test that observes the toggle initially off, and a manual
+  check on 2026-10-22: after the owner granted Accessibility, the Debug app accepted the opt-in without
+  showing another permission alert. A 2026-10-23 inventory now sees 14 on-screen windows from 14
+  external app owners, but AC-M12-02 remains unverified because their tracked tops were not compared
+  with AX frames to the 2 pt tolerance. AC-M12-03 has no valid idle profile; the preliminary samples
+  below do not establish a pass.
+- **Local verification (2026-10-22, macOS 27.0.1 / Xcode 27.1):** `make lint` passed;
+  `make test-core` passed (294 package tests); `make build` succeeded with the existing App Intents
+  metadata-extraction warning (the app has no AppIntents dependency); `make test` passed (2 UI tests)
+  on retry. Two earlier integrated UI runs had automation failures: one timed out waiting for the
+  menu-open notification; another reported `Unable to update application state promptly for Application
+  'com.SMI-Inc.InstantView'`. The latest full verification passed before native permission testing.
+
+### M12 owner closeout — 2026-10-23
+
+The owner explicitly accepted M12 closure on 2026-10-23 after reviewing the implementation and
+remaining validation limits. Accessibility was granted, the opt-in was enabled, and a later inventory
+counted 14 eligible on-screen windows across 14 external app owners. That count does not prove the
+2 pt frame accuracy requirement. The short CPU runs used an active pet and do not establish the idle
+target. The DEBUG visualization, AX drag/event cadence, hung-app timeout, and permission revocation
+and recovery were not verified. These gaps are accepted for M12 closure and must remain visible as
+limitations if M13 relies on this tracking behavior.
 
 - **Objective:** opt-in, reliable, cheap tracking of other apps' windows.
 - **Scope:** spike, permission flow, CGWindowList and AX adapters, tracker, surface builder, debug visualization, revocation.

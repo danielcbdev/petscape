@@ -37,6 +37,7 @@ final class AppContainer {
             preferences: preferences)
         self.runtime = runtime
         settingsModel = SettingsModel(runtime: runtime, preferences: preferences, loginService: Self.makeLoginService())
+        runtime.onWindowPermissionRevoked = { [weak settingsModel] in settingsModel?.windowPermissionWasRevoked() }
         model.settings = settingsModel
         #if DEBUG
             debugModel = DebugOverlayModel(runtime: runtime, settings: settingsModel)
@@ -49,7 +50,10 @@ final class AppContainer {
         activationObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
         ) { [weak self] _ in
-            MainActor.assumeIsolated { self?.settingsModel.refreshLoginStatus() }
+            MainActor.assumeIsolated {
+                self?.settingsModel.refreshLoginStatus()
+                self?.settingsModel.refreshWindowPermissionStatus()
+            }
         }
         #if DEBUG
             model.openAnimationPreviewAction = { [weak self] in self?.openAnimationPreview() }

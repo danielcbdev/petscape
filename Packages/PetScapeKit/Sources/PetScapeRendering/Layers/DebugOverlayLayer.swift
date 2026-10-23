@@ -1,5 +1,6 @@
 #if DEBUG
     import AppKit
+    import PetScapeCore
     import QuartzCore
 
     /// DEBUG-only visuals of an overlay (debugging.md#debug-menu): overlay outline, pass-through tint and the
@@ -11,12 +12,16 @@
         private let outline = CAShapeLayer()
         private let tint = CALayer()
         private let walkway = CALayer()
+        private let windowSurfaces = CAShapeLayer()
 
         var showsBounds = false { didSet { update() } }
         var showsPassthroughState = false { didSet { update() } }
         var isInteractive = false { didSet { if isInteractive != oldValue { update() } } }
         /// Overlay-local y of the walkway; `nil` hides the line.
         var walkwayY: CGFloat? { didSet { if walkwayY != oldValue { update() } } }
+        var windowSurfaceSegments: [Surface] = [] { didSet { update() } }
+        var screenFrame = CGRect.zero { didSet { update() } }
+        var showsWindowSurfaces = false { didSet { update() } }
 
         init() {
             outline.fillColor = nil
@@ -24,7 +29,11 @@
             outline.lineWidth = 2
             tint.backgroundColor = NSColor.systemBlue.withAlphaComponent(0.08).cgColor
             walkway.backgroundColor = NSColor.systemGreen.cgColor
-            for each in [layer, outline, tint, walkway] {
+            windowSurfaces.fillColor = nil
+            windowSurfaces.strokeColor = NSColor.systemPink.cgColor
+            windowSurfaces.lineWidth = 2
+            windowSurfaces.lineDashPattern = [4, 3]
+            for each in [layer, outline, tint, walkway, windowSurfaces] {
                 // Discrete changes only (ADR-0015): no implicit animations.
                 each.actions = [
                     "position": NSNull(), "bounds": NSNull(), "frame": NSNull(), "hidden": NSNull(),
@@ -35,6 +44,7 @@
             layer.addSublayer(tint)
             layer.addSublayer(outline)
             layer.addSublayer(walkway)
+            layer.addSublayer(windowSurfaces)
             update()
         }
 
@@ -55,6 +65,18 @@
             // 1 pt tall, its top edge on the walkway: paws resting on the surface touch the line's top.
             walkway.frame = CGRect(x: bounds.minX, y: (walkwayY ?? 0) - 1, width: bounds.width, height: 1)
             walkway.isHidden = walkwayY == nil
+            let path = CGMutablePath()
+            for surface in windowSurfaceSegments where surface.kind == .windowTop {
+                let lower = max(surface.minX, screenFrame.minX)
+                let upper = min(surface.maxX, screenFrame.maxX)
+                guard upper > lower, surface.y >= screenFrame.minY, surface.y <= screenFrame.maxY else { continue }
+                let y = surface.y - screenFrame.minY
+                path.move(to: CGPoint(x: lower - screenFrame.minX, y: y))
+                path.addLine(to: CGPoint(x: upper - screenFrame.minX, y: y))
+            }
+            windowSurfaces.frame = bounds
+            windowSurfaces.path = path
+            windowSurfaces.isHidden = !showsWindowSurfaces || windowSurfaceSegments.isEmpty
             CATransaction.commit()
         }
     }

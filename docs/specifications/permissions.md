@@ -58,6 +58,13 @@ sequenceDiagram
 
 ## Sandbox and runtime implications
 
+The M12 preference `petscape.windowInteraction` defaults off. Enabling it without Accessibility
+trust first presents a confirmation explaining the read-only geometry use; only the affirmative
+action invokes Apple's informational trust prompt and opens the Accessibility privacy pane. No
+other permission is requested. The tracker and AX observers start only while the preference is enabled,
+permission is trusted and `RunStatus` is running; see
+[M12 progress](../planning/milestones.md#m12-window-detection).
+
 - App Sandbox is **off** ([ADR-0010](../decisions/0010-distribution-no-sandbox.md)): sandboxed
   apps cannot use the AX API to observe other apps.
 - Hardened Runtime is **on**. No exception entitlements are required (no JIT, no unsigned memory,

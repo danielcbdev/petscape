@@ -18,6 +18,19 @@ struct SettingsModelTests {
         }
     }
 
+    @MainActor
+    final class AccessibilityPermissionStub: AccessibilityPermissionProviding {
+        private(set) var trustChecks = 0
+        private(set) var promptCalls = 0
+        private(set) var settingsCalls = 0
+        var isTrusted: Bool {
+            trustChecks += 1
+            return false
+        }
+        func openSettings() -> Bool { settingsCalls += 1; return true }
+        func requestAuthorizationPrompt() { promptCalls += 1 }
+    }
+
     @Test func openingAndRefreshingReadsActualLoginStateWithoutRegistering() {
         let h = PetRuntimeTests.Harness()
         let login = LoginService()
@@ -31,6 +44,26 @@ struct SettingsModelTests {
         #expect(model.loginStatus == .notFound)
         #expect(!model.isLaunchAtLoginEnabled)
         #expect(login.changes.isEmpty)
+    }
+
+    @Test func disabledWindowInteractionDoesNotCheckPermissionOrPrompt() {
+        let h = PetRuntimeTests.Harness()
+        let permission = AccessibilityPermissionStub()
+        let model = SettingsModel(
+            runtime: h.runtime, preferences: h.preferences, loginService: LoginService(),
+            accessibilityPermission: permission)
+        model.refreshWindowPermissionStatus()
+        #expect(permission.trustChecks == 0)
+        #expect(permission.promptCalls == 0)
+        model.setWindowInteractionEnabled(true)
+        #expect(permission.trustChecks > 0)
+        #expect(permission.promptCalls == 0)
+        #expect(permission.settingsCalls == 0)
+        #expect(model.isWindowPermissionConfirmationPresented)
+        model.cancelWindowPermissionRequest()
+        #expect(!h.preferences.isWindowInteractionEnabled)
+        #expect(permission.promptCalls == 0)
+        h.runtime.stop()
     }
 
     @Test func explicitLoginToggleReflectsActualFailureAndCanRecover() {

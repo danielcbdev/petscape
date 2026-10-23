@@ -10,15 +10,23 @@ public final class SettingsModel {
     public private(set) var dockOffsetAdjustment: Double
     public private(set) var loginStatus: LaunchAtLoginStatus
     public private(set) var loginError: LaunchAtLoginError?
+    public var isWindowInteractionEnabled: Bool { preferences.isWindowInteractionEnabled }
+    public private(set) var isWindowPermissionMissing = false
+    public var isWindowPermissionConfirmationPresented = false
 
     @ObservationIgnored private let runtime: PetRuntime
     @ObservationIgnored private let preferences: any PreferencesStore
     @ObservationIgnored private let loginService: any LaunchAtLoginService
+    @ObservationIgnored private let accessibilityPermission: any AccessibilityPermissionProviding
 
-    public init(runtime: PetRuntime, preferences: any PreferencesStore, loginService: any LaunchAtLoginService) {
+    public init(
+        runtime: PetRuntime, preferences: any PreferencesStore, loginService: any LaunchAtLoginService,
+        accessibilityPermission: any AccessibilityPermissionProviding = AccessibilityPermission()
+    ) {
         self.runtime = runtime
         self.preferences = preferences
         self.loginService = loginService
+        self.accessibilityPermission = accessibilityPermission
         petSettings = runtime.petSettings
         userIntent = runtime.userIntent
         dockOffsetAdjustment = runtime.dockOffsetAdjustment
@@ -31,6 +39,48 @@ public final class SettingsModel {
     }
 
     public func refreshLoginStatus() { loginStatus = loginService.status }
+
+    /// Permission checks are intentionally skipped until the opt-in preference is enabled.
+    public func refreshWindowPermissionStatus() {
+        guard preferences.isWindowInteractionEnabled else {
+            isWindowPermissionMissing = false
+            runtime.refreshWindowTracking()
+            return
+        }
+        isWindowPermissionMissing = !accessibilityPermission.isTrusted
+        runtime.refreshWindowTracking()
+    }
+
+    public func setWindowInteractionEnabled(_ enabled: Bool) {
+        preferences.isWindowInteractionEnabled = enabled
+        guard enabled else {
+            isWindowPermissionMissing = false
+            isWindowPermissionConfirmationPresented = false
+            runtime.refreshWindowTracking()
+            return
+        }
+        refreshWindowPermissionStatus()
+        if isWindowPermissionMissing { isWindowPermissionConfirmationPresented = true }
+        runtime.refreshWindowTracking()
+    }
+
+    public func confirmWindowPermissionRequest() {
+        guard preferences.isWindowInteractionEnabled, isWindowPermissionMissing else { return }
+        isWindowPermissionConfirmationPresented = false
+        accessibilityPermission.requestAuthorizationPrompt()
+        _ = accessibilityPermission.openSettings()
+    }
+
+    public func cancelWindowPermissionRequest() {
+        preferences.isWindowInteractionEnabled = false
+        isWindowPermissionMissing = false
+        isWindowPermissionConfirmationPresented = false
+        runtime.refreshWindowTracking()
+    }
+
+    public func windowPermissionWasRevoked() {
+        isWindowPermissionMissing = preferences.isWindowInteractionEnabled
+    }
 
     public func setLaunchAtLogin(_ enabled: Bool) {
         loginError = nil
@@ -73,6 +123,8 @@ public final class SettingsModel {
         setDockOffsetAdjustment(preferences.dockOffsetAdjustment)
         setPaused(preferences.isPaused)
         setHidden(preferences.isHidden)
+        isWindowPermissionMissing = false
+        runtime.refreshWindowTracking()
         setLaunchAtLogin(false)
     }
 

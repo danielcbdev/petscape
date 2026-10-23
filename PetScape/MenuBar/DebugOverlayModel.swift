@@ -19,6 +19,9 @@
         var showsWalkway = false {
             didSet { runtime.showsWalkway = showsWalkway }
         }
+        var showsWindowSurfaces = false {
+            didSet { runtime.overlay.showsWindowSurfaces = showsWindowSurfaces }
+        }
         /// The persisted `dockOffsetAdjustment` in points (T6.3).
         var dockOffset: Double { settings.dockOffsetAdjustment }
 

@@ -42,7 +42,7 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Jump vertically; short jump left/right (60 pt); jump to Dock; Idle; Walk (implemented). Commands preserve walk/idle return intent; rejected while paused/hidden/suspended, busy, unreachable or in the 2 simulated-second cooldown. Current walk-only art holds a safe fallback pose in flight. No automatic jumping. | M8 |
 | Simulation speed (0.25×, 1×, 4×) and single-step while paused | Deferred |
 | Force events (surface lost, startled, low energy) | M7–M9 |
-| Show window surfaces and tracked windows | M12 |
+| Show window surfaces (DEBUG-only pink dashed segments; no names or titles) | M12 |
 
 DEBUG launch arguments (ignored in Release):
 
