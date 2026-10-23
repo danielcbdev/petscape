@@ -26,7 +26,19 @@ struct PreferencesStoreTests {
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
         #expect(!store.isPaused)
         #expect(!store.isHidden)
+        #expect(!store.isWindowInteractionEnabled)
         #expect(store.userIntent == UserIntent())
+    }
+
+    @Test func windowInteractionOptInDefaultsOffAndPersists() throws {
+        let suite = try Suite()
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(!store.isWindowInteractionEnabled)
+        #expect(suite.defaults.object(forKey: "petscape.windowInteraction") == nil)
+        store.isWindowInteractionEnabled = true
+        #expect(UserDefaultsPreferencesStore(defaults: suite.defaults).isWindowInteractionEnabled)
+        store.restoreDefaults()
+        #expect(!store.isWindowInteractionEnabled)
     }
 
     @Test func valuesSurviveANewStore() throws {

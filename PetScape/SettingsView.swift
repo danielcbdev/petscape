@@ -69,6 +69,23 @@ struct SettingsView: View {
             }
             Section("Interaction") {
                 Toggle(
+                    "Interact with windows",
+                    isOn: Binding(get: { model.isWindowInteractionEnabled }, set: model.setWindowInteractionEnabled)
+                )
+                .accessibilityIdentifier("settings.windowInteraction")
+                Text(
+                    "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .accessibilityIdentifier("settings.windowInteractionExplanation")
+                if model.isWindowPermissionMissing {
+                    Text("Window interaction paused — permission missing")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("settings.windowPermissionStatus")
+                }
+                Toggle(
                     "React to cursor",
                     isOn: Binding(
                         get: { model.petSettings.interaction.cursorReactionsEnabled },
@@ -110,7 +127,22 @@ struct SettingsView: View {
         .frame(maxHeight: 720, alignment: .top)
         .onAppear {
             model.refreshLoginStatus()
+            model.refreshWindowPermissionStatus()
             NSApplication.shared.activate(ignoringOtherApps: true)
+        }
+        .confirmationDialog(
+            "Allow PetScape to use Accessibility?",
+            isPresented: Binding(
+                get: { model.isWindowPermissionConfirmationPresented },
+                set: { if !$0 { model.cancelWindowPermissionRequest() } }),
+            titleVisibility: .visible
+        ) {
+            Button("Open Accessibility Settings") { model.confirmWindowPermissionRequest() }
+            Button("Cancel", role: .cancel) { model.cancelWindowPermissionRequest() }
+        } message: {
+            Text(
+                "PetScape reads window positions so pets can walk on them. It does not move, click, close, resize, or activate windows, and does not read titles or contents. You can allow access in Privacy & Security › Accessibility."
+            )
         }
     }
 

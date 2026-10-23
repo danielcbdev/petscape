@@ -89,7 +89,7 @@ live in Core so they can be tested.
 | `SystemEvents/` | `SystemEventsMonitor` (sleep/wake, screens sleep, session resign/become active, lock), `FullScreenSpaceDetector` (`activeSpaceDidChange` → two `CGWindowList` reads → `FullScreenSpaceRule`) |
 | `Preferences/` | `PreferencesStore` protocol + `UserDefaultsPreferencesStore`, `InMemoryPreferencesStore` (tests) |
 | `Permissions/` | `AccessibilityPermission` (M12) |
-| `WindowTracking/` | `WindowTracker` protocol + implementations (M12) |
+| `WindowTracking/` | Geometry-only `CGWindowSnapshotSource` is implemented; `WindowTracker` protocol, AX observer and lifecycle coordinator remain M12 work |
 | `Login/` | injected login-item service via public `SMAppService.mainApp` (M9) |
 
 ### PetScapeRendering — Core Animation renderer and overlay windows

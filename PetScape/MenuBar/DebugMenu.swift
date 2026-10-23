@@ -41,6 +41,7 @@
                 Toggle(isOn: $model.showsOverlayBounds) { Text(verbatim: "Show overlay bounds") }
                 Toggle(isOn: $model.showsPassthroughState) { Text(verbatim: "Show pass-through state") }
                 Toggle(isOn: $model.showsWalkway) { Text(verbatim: "Show walkway") }
+                Toggle(isOn: $model.showsWindowSurfaces) { Text(verbatim: "Show window surfaces") }
                 // A menu cannot host a live Stepper, so the stepper is a submenu of fixed steps (T6.3).
                 Menu {
                     Button {

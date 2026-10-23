@@ -18,6 +18,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         public static let dockOffsetAdjustment = "petscape.dockOffsetAdjustment"
         public static let cursorReactions = "petscape.cursorReactions"
         public static let directInteraction = "petscape.directInteraction"
+        public static let windowInteraction = "petscape.windowInteraction"
     }
 
     /// Bump with a migration in `migrate()` when keys or meanings change.
@@ -44,6 +45,11 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
     public var dockOffsetAdjustment: Double {
         get { DockGeometryEstimator.clampedOffset(defaults.double(forKey: Key.dockOffsetAdjustment)) }
         set { defaults.set(DockGeometryEstimator.clampedOffset(newValue), forKey: Key.dockOffsetAdjustment) }
+    }
+
+    public var isWindowInteractionEnabled: Bool {
+        get { defaults.bool(forKey: Key.windowInteraction) }
+        set { defaults.set(newValue, forKey: Key.windowInteraction) }
     }
 
     public var petSettings: PetSettings {
@@ -75,6 +81,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
             Key.isPaused, Key.isHidden, Key.dockOffsetAdjustment,
             Key.scale, Key.speed, Key.autonomy, Key.jumps, Key.rest, Key.expressions,
             Key.cursorReactions, Key.directInteraction,
+            Key.windowInteraction,
         ] {
             defaults.removeObject(forKey: key)
         }

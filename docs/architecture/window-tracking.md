@@ -14,7 +14,7 @@ when the user enables it ([permissions.md](../specifications/permissions.md)).
 
 | API | Gives | Permission | Limitations |
 |---|---|---|---|
-| `CGWindowListCopyWindowInfo(.optionOnScreenOnly, …)` | All on-screen windows: `kCGWindowNumber`, owner PID, bounds (Quartz global), layer, alpha, front-to-back order | Bounds/PID/layer expected **without** permission; window *names* require Screen Recording (not needed) **[validate on macOS 27]** | Snapshot only (polling); no change notifications; minimized windows disappear (not distinguishable from closed without AX) |
+| `CGWindowListCopyWindowInfo(.optionOnScreenOnly, …)` | On-screen windows and front-to-back ordering. Apple's required-key list includes window number, owner PID, bounds, layer and alpha | Apple documents required keys, but does not specify their Accessibility/Screen Recording authorization behavior. Window-name keys are optional and are never read here. | Snapshot only; no change notifications; minimized windows disappear (not distinguishable from closed without AX) |
 | `AXUIElement` (per app) + `AXObserver` | Window position/size attributes; notifications: `kAXWindowMovedNotification`, `kAXWindowResizedNotification`, `kAXUIElementDestroyedNotification`, `kAXWindowMiniaturizedNotification`, `kAXFocusedWindowChangedNotification` | Accessibility (user must grant in System Settings) | Synchronous IPC that can block on hung apps (bound with `AXUIElementSetMessagingTimeout`); some apps expose incomplete AX trees; move notifications may be coalesced during drags **[validate]** |
 | `NSWorkspace` notifications | App launch/terminate/activate/hide/unhide | None | App-level only |
 | ScreenCaptureKit `SCShareableContent` | Windows with metadata | Screen Recording | Rejected: heavier permission than needed, privacy-sensitive |
@@ -85,5 +85,29 @@ window ID so attached pets survive moves.
 
 ## Performance budget
 
-Window tracking must add **< 1% CPU** on average while enabled and idle, and must be fully stopped
+Window tracking must add **≤ 1% CPU** on average while enabled and idle, and must be fully stopped
 when the feature is disabled, the app is paused/hidden, or the system is suspended.
+
+## M12 spike findings (2026-10-22)
+
+### Apple API documentation
+
+- `CGWindowListCopyWindowInfo` returns window dictionaries; `.optionOnScreenOnly` orders entries front-to-back. The required-key reference lists window number, owner PID, bounds, layer and alpha. The API reference warns that generating window dictionaries is relatively expensive, so callers must profile and limit use. It does not specify a permission matrix for the required fields. [CGWindowListCopyWindowInfo](https://developer.apple.com/documentation/coregraphics/cgwindowlistcopywindowinfo%28_%3A_%3A%29), [required keys](https://developer.apple.com/documentation/coregraphics/required-window-list-keys?language=objc), [on-screen ordering](https://developer.apple.com/documentation/coregraphics/cgwindowlistoption/optiononscreenonly).
+- `AXIsProcessTrustedWithOptions` checks trust; its prompt option asynchronously informs the user. `AXUIElementSetMessagingTimeout` sets a per-element timeout (or a global timeout when passed the system-wide element). It does not provide a hard real-time guarantee for UI responsiveness. [trust check](https://developer.apple.com/documentation/applicationservices/1459186-axisprocesstrustedwithoptions), [timeout](https://developer.apple.com/documentation/applicationservices/1459345-axuielementsetmessagingtimeout).
+- AX observer registration may fail for unsupported notifications or unresponsive apps; treat registration and delivery as best-effort. [AXObserverAddNotification](https://developer.apple.com/documentation/applicationservices/1462089-axobserveraddnotification).
+
+### Measured observations
+
+The owner granted Accessibility on 2026-10-22 and the opted-in Debug app accepted the grant after a fresh launch. Short native CPU samples were collected while the pet remained active: with tracking disabled, five one-second `top` samples on 2026-10-22 were 0.0–1.5% (mean 1.1%); with tracking enabled, ten samples on 2026-10-22 were 0.0–3.2% (mean 2.2%), ten samples on 2026-10-23 were 0.0–3.4% (mean 2.34%), and a further ten samples on 2026-10-23 were 0.0–3.5% (mean 1.81%). These do not isolate tracking overhead because the pet was active and the runs were brief; they do not establish the ≤1% idle target. An on-screen window inventory on 2026-10-23 saw 14 eligible windows across 14 external app owners, meeting the count threshold but not the named app matrix or accuracy check. It did not compare tracked surfaces to AX frames. No DEBUG surface visualization, drag cadence, timeout, or revocation experiment was completed. Those remain manual gates; no measurement is inferred from API documentation.
+
+### Implementation findings and inference
+
+- The adapter reads only required identity/geometry/order fields and never accesses optional owner-name or window-name keys. It filters the current process, nonzero normal layers, transparent/invalid/tiny frames, and frames outside known screens. Quartz-to-canonical conversion uses `CoordinateConverter`'s primary-screen height, including negative secondary-screen origins.
+- PID plus geometric frame matching is an inference, not a documented AX-to-CG identity mapping. It can be ambiguous for same-process overlapping windows and must be revalidated after every relevant notification/snapshot. Private `_AXUIElementGetWindow` is prohibited.
+- A throttled CG-only mode could provide stale positions between snapshots, but its movement lag, cost and cross-version behavior were not measured. D-11 was decided by the owner on 2026-10-22: Accessibility is required, and CG-only tracking is not offered.
+- AX notifications, including move/resize, have not been proven continuous during native drags. Until measured, they cannot replace a bounded refresh of the CG snapshot. Calls that may block must not run on the UI path without an approved concurrency design.
+- Current implementation gives AX elements a 0.25 s messaging timeout and performs initial focused-window registration/attribute reads from the main-run-loop observer path. This bounds each call but can still cause a perceptible stall; native hang/latency testing is required before treating T12.4 as validated. No new worker-thread model was introduced.
+
+### Limitations / remaining spike work
+
+Native tests still required: availability of geometry fields on this OS without Screen Recording; AX event cadence while dragging; AX/CG correlation and ambiguity on the ten named app classes; timeout behavior on an intentionally unresponsive target; repeatable Instruments CPU measurements. Do not log window titles, app names, or frame histories.

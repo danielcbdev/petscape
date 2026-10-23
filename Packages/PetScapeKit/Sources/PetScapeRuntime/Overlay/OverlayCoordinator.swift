@@ -59,7 +59,7 @@ public final class OverlayCoordinator {
 
     private var hostScreenID: ScreenID?
     /// The screens last applied, to skip re-reads that change nothing.
-    private var screens: [ScreenDescriptor] = []
+    public private(set) var screens: [ScreenDescriptor] = []
     private var frameDriver: (any FrameDriver)?
     private var isStarted = false
     private var hasEffectiveFrames = false
@@ -168,6 +168,10 @@ public final class OverlayCoordinator {
             for id in overlays.screenIDs {
                 overlays.contentView(for: id)?.showsBounds = showsOverlayBounds
                 overlays.contentView(for: id)?.showsPassthroughState = showsPassthroughState
+                if let screen = screens.first(where: { $0.id == id }) {
+                    overlays.contentView(for: id)?.setWindowSurfaceDebug(
+                        windowSurfaceDiagnostics, on: screen, visible: showsWindowSurfaces)
+                }
             }
         #endif
         onScreensChange?()
@@ -316,6 +320,24 @@ public final class OverlayCoordinator {
                 for id in overlays.screenIDs {
                     overlays.contentView(for: id)?.showsPassthroughState = showsPassthroughState
                 }
+            }
+        }
+
+        public var showsWindowSurfaces = false {
+            didSet { updateWindowSurfaceDiagnostics() }
+        }
+
+        private var windowSurfaceDiagnostics: [Surface] = []
+
+        public func setWindowSurfaceDiagnostics(_ surfaces: [Surface]) {
+            windowSurfaceDiagnostics = surfaces
+            updateWindowSurfaceDiagnostics()
+        }
+
+        private func updateWindowSurfaceDiagnostics() {
+            for screen in screens {
+                overlays.contentView(for: screen.id)?.setWindowSurfaceDebug(
+                    windowSurfaceDiagnostics, on: screen, visible: showsWindowSurfaces)
             }
         }
     #endif

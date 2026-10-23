@@ -8,6 +8,8 @@ public enum SurfaceKind: String, Sendable {
     case screenLeft
     /// Right vertical edge of a screen (M11).
     case screenRight
+    /// The visible top edge of another application's window (M12).
+    case windowTop
 }
 
 /// Screen edge a climbing pet is attached to.

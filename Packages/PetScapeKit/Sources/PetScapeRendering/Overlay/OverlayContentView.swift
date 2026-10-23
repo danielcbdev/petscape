@@ -103,6 +103,12 @@ public final class OverlayContentView: NSView {
             set { debugLayer.walkwayY = newValue }
         }
 
+        public func setWindowSurfaceDebug(_ surfaces: [Surface], on screen: ScreenDescriptor, visible: Bool) {
+            debugLayer.windowSurfaceSegments = surfaces
+            debugLayer.screenFrame = screen.frame
+            debugLayer.showsWindowSurfaces = visible
+        }
+
         public func setInteractive(_ isInteractive: Bool) {
             debugLayer.isInteractive = isInteractive
         }

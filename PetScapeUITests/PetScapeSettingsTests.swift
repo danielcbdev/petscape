@@ -21,15 +21,15 @@ final class PetScapeSettingsTests: XCTestCase {
         app.launch()
         let statusItem = app.statusItems.firstMatch
         XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
-        statusItem.click()
-        // SwiftUI also exposes Settings… in the app menu, so select the status-menu copy.
-        let settings = app.menuItems
-            .matching(NSPredicate(format: "title == %@", "Settings…"))
-            .element(boundBy: 1)
-        XCTAssertTrue(settings.waitForExistence(timeout: 5))
-        settings.click()
+        // The same Settings title is exposed in the status menu and the system app menu.
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
         let window = app.windows.firstMatch
         XCTAssertTrue(window.waitForExistence(timeout: 5))
+        let windowInteraction = window.switches["settings.windowInteraction"]
+        XCTAssertTrue(windowInteraction.waitForExistence(timeout: 5))
+        XCTAssertEqual(integerValue(of: windowInteraction), 0)
+        XCTAssertTrue(window.staticTexts["settings.windowInteractionExplanation"].exists)
         let autonomy = window.switches["settings.autonomy"]
         XCTAssertTrue(autonomy.waitForExistence(timeout: 5))
         XCTAssertEqual(integerValue(of: autonomy), 1)
