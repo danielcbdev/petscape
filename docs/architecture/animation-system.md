@@ -94,8 +94,11 @@ own `duration` or `1 / clip.fps`.
   image's pixel size (`contentsGravity = .resize` scales the frame image into those bounds).
 - The anchor is the contact point (e.g. between the paws for walking) in normalized canvas space.
   The pet's world position *is* the contact point, so placing a pet on a surface is trivial.
-- `alignment` (`bottom`, `left`, `right`, `top`) says which canvas side touches the surface; the
-  renderer rotates/mirrors accordingly (used by climbing in M11).
+- `alignment` (`bottom`, `left`, `right`, `top`) and the clip anchor travel in `AnimationFrameRef`;
+  the clip is authored in its support orientation and the anchor identifies its contact point. The
+  existing facing mirror keeps that point fixed. M11's `climb` art is authored upright with its
+  right-side paws registered to the right canvas edge; horizontal mirroring makes the same contact
+  meet the left screen wall.
 
 ## Loading, caching, memory
 

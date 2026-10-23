@@ -544,10 +544,10 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
-| T11.1 | Wall surfaces (screen left/right) | Core, Plat | M8 | S | U |
-| T11.2 | Climbing motion mode and states; alignment-aware rendering (rotation/anchor) | Core, Rend | T11.1 | L | U + Man |
+| T11.1 | Wall surfaces (screen left/right) | Core, Run | M8 | S | U |
+| T11.2 | Climbing motion mode and states; alignment-aware rendering (authored orientation, mirroring, anchor) | Core, Rend | T11.1 | L | U + Man |
 | T11.3 | Transitions: walk into wall → climb; climb to height → descend or drop | Core | T11.2 | M | U |
-| T11.4 | `climb` art integration | Assets | T11.2 | S | Man |
+| T11.4 | `climb` art integration (2-frame loop) | Assets | T11.2 | S | U + Man |
 
 ## M12 — Window detection
 

@@ -18,8 +18,8 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M7 | Basic physics | v0.2.0 | **Done** (2026-10-18: implemented; automated evidence plus owner confirmation of all remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M8 | Jumps & landings | v0.2.0 | **Done** (2026-10-18: jumps/V4 implemented and approved; automated evidence plus owner confirmation of remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | **Done by owner acceptance** (2026-10-18: 400 package tests, 2 UI tests, lint and Debug/Release pass; owner accepted documented gaps in real login-item action, native sleep cadence and installed-app playtest — [closeout](m9-implementation.md#owner-m9-closeout-2026-10-18)) |
-| M10 | Cursor interaction & dragging | v0.4.0 | **Implementation complete; V5 art integrated 2026-10-22; final visual review pending** (native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
-| M11 | Edge climbing | v0.4.0 | Not started |
+| M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
+| M11 | Edge climbing | v0.4.0 | **Done by owner acceptance** (2026-10-22 — [record](m11-implementation.md#owner-closeout--2026-10-22)) |
 | M12 | Window detection | v0.5.0 | Not started |
 | M13 | Window interaction | v0.5.0 | Not started |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | Not started |
@@ -303,6 +303,13 @@ Status values: Not started · In progress · In review · Done · Blocked (reaso
 - **Risks:** rotation/anchor visuals.
 - **Tests:** climbing transitions, alignment math.
 - **DoD:** FR-26 met.
+
+**2026-10-22 closeout:** M11 adds canonical left/right wall surfaces, fixed-step climbing in the
+existing `PetState`/`SurfaceAttachment`/PhysicsStepper flow, and the two-frame V6 `climb` art with a
+schema-v1 fallback. Automated checks cover both wall directions, alignment, top exit and continuous
+fall; the owner confirmed the climb was visible and approved the visual result. See the
+[implementation and acceptance record](m11-implementation.md#owner-closeout--2026-10-22) for
+verification details and evidence limits.
 
 ## M12 — Window detection
 

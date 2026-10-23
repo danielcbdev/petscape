@@ -7,6 +7,32 @@ import Testing
 /// T7.1: pure airborne integration and pose-independent contact geometry (physics-engine.md).
 @Suite("PhysicsStepper")
 struct PhysicsStepperTests {
+    @Test func climbingAdvancesAtFixedRateAndClampsAtTheTop() throws {
+        let wall = Surface(id: .screenRight(of: ScreenID(1)), kind: .screenRight, x: 800, minY: 0, maxY: 900)
+        var position = CGPoint(x: 800, y: 100)
+        var result: PhysicsStepResult?
+        for _ in 0..<10 {
+            result = PhysicsStepper.climbing(
+                position: position, on: wall, verticalRange: 50...110, speed: 120, dt: 1.0 / 60)
+            position = try #require(result?.position)
+        }
+        #expect(position == CGPoint(x: 800, y: 110))
+        #expect(result?.edgeReached == true)
+        #expect(result?.attachment?.surfaceID == wall.id)
+        #expect(result?.attachment?.parameter == wall.parameter(atY: 110))
+        #expect(result?.velocity == .zero)
+    }
+
+    @Test func climbingRejectsInvalidInputsAndNonverticalSurfaces() {
+        let floor = Surface(id: SurfaceID("floor"), kind: .screenBottom, y: 0, minX: 0, maxX: 100)
+        let wall = Surface(id: .screenLeft(of: ScreenID(1)), kind: .screenLeft, x: 0, minY: 0, maxY: 100)
+        #expect(
+            PhysicsStepper.climbing(position: .zero, on: floor, verticalRange: 0...100, speed: 100, dt: 1.0 / 60) == nil
+        )
+        #expect(
+            PhysicsStepper.climbing(position: .zero, on: wall, verticalRange: 0...100, speed: 0, dt: 1.0 / 60) == nil)
+    }
+
     @Test func gravityFromRest() throws {
         let result = try #require(
             PhysicsStepper.integrate(

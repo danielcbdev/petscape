@@ -40,7 +40,8 @@ public struct AnimationController: Sendable {
     /// What the renderer should show now.
     public var currentFrame: AnimationFrameRef {
         AnimationFrameRef(
-            clip: player.clip.name, frameIndex: player.frameIndex, mirrored: isMirrored, anchor: player.clip.anchor)
+            clip: player.clip.name, frameIndex: player.frameIndex, mirrored: isMirrored,
+            anchor: player.clip.anchor, alignment: player.clip.alignment)
     }
 
     /// Applies `request` if the acceptance rule allows it; returns whether it was accepted.
@@ -132,11 +133,17 @@ public struct AnimationFrameRef: Equatable, Sendable {
     public var mirrored: Bool
     /// Normalized contact point of the clip (layer `anchorPoint`).
     public var anchor: AnimationClip.Point
+    /// Which canvas side is authored to touch its support surface.
+    public var alignment: AnimationClip.Alignment
 
-    public init(clip: String, frameIndex: Int, mirrored: Bool, anchor: AnimationClip.Point) {
+    public init(
+        clip: String, frameIndex: Int, mirrored: Bool, anchor: AnimationClip.Point,
+        alignment: AnimationClip.Alignment = .bottom
+    ) {
         self.clip = clip
         self.frameIndex = frameIndex
         self.mirrored = mirrored
         self.anchor = anchor
+        self.alignment = alignment
     }
 }

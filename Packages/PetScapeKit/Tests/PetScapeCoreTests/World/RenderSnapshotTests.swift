@@ -25,6 +25,25 @@ struct RenderSnapshotTests {
         #expect(Self.state(anchorX: 0.5, mirrored: true).spriteRect == CGRect(x: 452, y: 46, width: 96, height: 96))
     }
 
+    @Test func wallAlignedAnchorKeepsTheContactAtTheScreenEdgeWhenMirrored() {
+        let rightWall = PetRenderState(
+            id: PetID(2), characterID: CharacterID("cat"), position: CGPoint(x: 800, y: 400),
+            size: CGSize(width: 96, height: 96),
+            frame: AnimationFrameRef(
+                clip: "climb", frameIndex: 0, mirrored: false, anchor: .init(x: 0.977, y: 0.5),
+                alignment: .right), isVisible: true)
+        let leftWall = PetRenderState(
+            id: PetID(3), characterID: CharacterID("cat"), position: CGPoint(x: 0, y: 400),
+            size: CGSize(width: 96, height: 96),
+            frame: AnimationFrameRef(
+                clip: "climb", frameIndex: 0, mirrored: true, anchor: .init(x: 0.977, y: 0.5),
+                alignment: .right), isVisible: true)
+        #expect(rightWall.frame.alignment == .right)
+        #expect(abs(rightWall.spriteRect.minX - (800 - 0.977 * 96)) < 1e-9)
+        #expect(abs(leftWall.spriteRect.minX - (-0.023 * 96)) < 1e-9)
+        #expect(rightWall.spriteRect.width == 96 && leftWall.spriteRect.width == 96)
+    }
+
     @Test func snapshotCarriesSizeFrameAndVisibility() throws {
         var world = PetWorld(random: SeededRandomSource(seed: 3))
         world.apply(.surfaces([Surface(id: SurfaceID("f"), kind: .screenBottom, y: 0, minX: 0, maxX: 800)]))

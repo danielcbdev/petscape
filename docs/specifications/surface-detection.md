@@ -5,11 +5,13 @@ Surfaces are the walkable/climbable geometry pets interact with. Decision on the
 
 ## Current model and proposed extensions
 
-At HEAD 2f7f33f Surface contains id/kind/horizontal segment; SurfaceMap implements lookup/diffs,
-spawnSurface and highestWalkable(below: CGPoint). Orientation/walkableSide/isMoving/source and rich
-queries in the target sketch below are **future design, not implemented API**. The M7/M8 working tree adds the
-swept query and pure floor builder specified by [Physics Engine](../architecture/physics-engine.md);
-no new Platform observer. Existing surface IDs/geometry/offset preference contract is reused.
+`Surface` contains a stable ID, kind and normalized segment in canonical global coordinates.
+Horizontal `.dockTop`/`.screenBottom` segments support walking and landing; M11 adds vertical
+`.screenLeft`/`.screenRight` screen-edge segments for climbing. `SurfaceAttachment.parameter` runs
+from the first endpoint to the second: left→right for horizontal segments and bottom→top for walls.
+`SurfaceMap` retains ID-based add/move/remove diffs, floor queries and swept horizontal landing;
+vertical walls are not landing candidates. `screenBottoms(for:)` and `screenWalls(for:)` are pure
+builders over `ScreenDescriptor` values, without a new Platform observer.
 
 ## Target model (future beyond M6)
 
@@ -43,7 +45,7 @@ step, so attached pets can ride moved surfaces and react to removed ones
 | Provider | Surfaces | Milestone |
 |---|---|---|
 | `DockSurfaceProvider` | `.dockTop` or fallback `.screenBottom` on the Dock's screen | M6 |
-| Core `SurfaceMap.screenBottoms(for:)` (M7 proposal) | Pure descriptor→floor values, runtime merges host floor + Dock; no new observer/provider. Walls remain a separate M11 design | M7 / M11 |
+| Core `SurfaceMap.screenBottoms(for:)` / `screenWalls(for:)` | Pure descriptor→floor/wall values, runtime merges hosted floor + Dock + both walls; no new observer/provider | M7 / M11 |
 | `WindowSurfaceProvider` | `.windowTop` visible segments | M12–M13 |
 
 ## Dock geometry estimation
@@ -122,5 +124,6 @@ behind the same `DockGeometryProvider` interface.
 - Estimator: bottom Dock (inset 70), left/right Docks, autohide (inset 0–4), two screens with the
   Dock on the secondary, menu-bar-only inset at the top ignored, negative-coordinate screens.
 - Surface selection for each estimate, including the offset adjustment and half-width margins.
-- `SurfaceMap` diffs: moved surface keeps ID; removed surface emits removal; queries return the
-  highest crossed segment.
+- Wall builders: both vertical edges, negative origins, stable IDs and invalid-frame rejection.
+- `SurfaceMap` diffs: moved wall keeps its ID; removed wall emits removal; walls never become
+  landing contacts; horizontal queries retain their prior behavior.

@@ -7,7 +7,7 @@ import Testing
 
 @testable import PetScapeRuntime
 
-@Suite("Cat V4 and V5 production pack")
+@Suite("Cat V4, V5 and V6 production pack")
 struct V4CharacterPackTests {
     static let phaseNames = ["idle", "jump-start", "jump", "fall", "landing"]
 
@@ -49,7 +49,7 @@ struct V4CharacterPackTests {
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty)
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)
-        #expect(character.decodedByteCount == 15_925_248)
+        #expect(character.decodedByteCount == 16_588_800)
         let expected: [(String, Int, Double, AnimationClip.Playback)] = [
             ("curious", 6, 6, .loop),
             ("picked-up", 4, 20, .once),
@@ -65,6 +65,82 @@ struct V4CharacterPackTests {
             #expect(character.definition.resolvedClipName(for: name) == name)
             #expect(clip.next == nil, "Art timing cannot control held physics")
         }
+    }
+
+    @Test func productionClimbClipUsesWallAlignmentAndKeepsPawsWithinThreePoints() async throws {
+        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        #expect(character.failure == nil)
+        let clip = try #require(character.definition.clips["climb"])
+        #expect(clip.frames.count == 2)
+        #expect(clip.playback == .loop)
+        #expect(clip.alignment == .right)
+        #expect(clip.anchor == .init(x: 0.977, y: 0.5))
+        #expect(clip.interruptible == false)
+        #expect(character.definition.resolvedClipName(for: "climb") == "climb")
+        #expect(character.decodedByteCount < 17 * 1024 * 1024)
+
+        let manifestData = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let manifest = try CharacterManifest.decode(manifestData).manifest
+        for (index, frame) in try #require(manifest.animations["climb"]?.frames).enumerated() {
+            let path = try #require(frame.image)
+            let source = try #require(
+                CGImageSourceCreateWithURL(TestPacks.catPackURL.appending(path: path) as CFURL, nil))
+            let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
+            #expect(image.width == 512 && image.height == 512)
+            var alpha = [UInt8](repeating: 0, count: 512 * 512)
+            let drew = alpha.withUnsafeMutableBytes { bytes -> Bool in
+                guard
+                    let context = CGContext(
+                        data: bytes.baseAddress, width: 512, height: 512, bitsPerComponent: 8,
+                        bytesPerRow: 512, space: CGColorSpaceCreateDeviceGray(),
+                        bitmapInfo: CGImageAlphaInfo.alphaOnly.rawValue)
+                else { return false }
+                context.draw(image, in: CGRect(x: 0, y: 0, width: 512, height: 512))
+                return true
+            }
+            #expect(drew)
+            let borderWidth = 8
+            #expect(alpha[0..<borderWidth * 512].allSatisfy { $0 == 0 }, "First edge margin, frame \(index + 1)")
+            #expect(
+                alpha[(512 - borderWidth) * 512..<512 * 512].allSatisfy { $0 == 0 },
+                "Opposite edge margin, frame \(index + 1)")
+            #expect(
+                (0..<512).allSatisfy { y in
+                    (0..<borderWidth).allSatisfy { x in alpha[y * 512 + x] == 0 }
+                        && (512 - borderWidth..<512).allSatisfy { x in alpha[y * 512 + x] == 0 }
+                }, "Side margins, frame \(index + 1)")
+            let solid = alpha.indices.filter { alpha[$0] >= 128 }
+            #expect(!solid.isEmpty)
+            let rightmost = try #require(solid.map { $0 % 512 }.max())
+            #expect(abs(Double(rightmost) - clip.anchor.x * 512) * 96 / 512 <= 3, "Frame \(index + 1)")
+        }
+    }
+
+    @Test func missingClimbFrameFallsBackToIdle() async throws {
+        let packURL = FileManager.default.temporaryDirectory.appending(
+            path: "PetScapeClimbFallback-\(UUID().uuidString)")
+        try FileManager.default.createDirectory(at: packURL, withIntermediateDirectories: true)
+        defer { try? FileManager.default.removeItem(at: packURL) }
+        let idleFrame = TestPacks.catPackURL.appending(path: "idle/frames/idle_01.png")
+        try Data(contentsOf: idleFrame).write(to: packURL.appending(path: "idle.png"))
+
+        let manifest = CharacterManifest(
+            id: "climb-fallback", displayName: "Climb fallback", defaultAnimation: "walk",
+            canvas: .init(width: 512, height: 512), displaySize: .init(width: 96, height: 96),
+            anchor: .init(x: 0.5, y: 0.074), fallbacks: ["climb": "idle"],
+            animations: [
+                "walk": .init(fps: 1, frames: [.init(image: "idle.png")]),
+                "idle": .init(fps: 1, frames: [.init(image: "idle.png")]),
+                "climb": .init(
+                    fps: 8, frames: [.init(image: "missing-climb.png")], anchor: .init(x: 0.977, y: 0.5),
+                    alignment: .right),
+            ])
+        try JSONEncoder().encode(manifest).write(to: packURL.appending(path: "character.json"))
+
+        let character = await CharacterLoader().load(packURL: packURL)
+        #expect(character.failure == nil)
+        #expect(character.definition.resolvedClipName(for: "climb") == "idle")
+        #expect(character.definition.clip(named: "climb").name == "idle")
     }
 
     @Test func productionV5FramesHaveTransparentMarginsAndAlignedVirtualFootRows() throws {

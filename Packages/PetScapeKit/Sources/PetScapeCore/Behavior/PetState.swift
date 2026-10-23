@@ -14,6 +14,7 @@ public enum PetState: Equatable, Sendable {
         switch self {
         case .spawning: .spawning
         case .grounded(.walking): .walking
+        case .grounded(.climbing): .climbing
         case .grounded(.turning): .turning
         case .grounded(.landing): .landing
         case .grounded(.idle): .idle
@@ -38,6 +39,7 @@ public enum PetState: Equatable, Sendable {
     public var interruptThreshold: Int {
         switch self {
         case .grounded(.walking): 80
+        case .grounded(.climbing): 90
         case .grounded(.idle): 10
         case .recovering: Int.max
         case .held: Int.max
@@ -47,7 +49,7 @@ public enum PetState: Equatable, Sendable {
 }
 
 public enum PetStateKind: String, Sendable {
-    case spawning, walking, turning, falling, landing, recovering, idle, preparingJump, rising
+    case spawning, walking, climbing, turning, falling, landing, recovering, idle, preparingJump, rising
     case sittingDown, sitting, standingUp, lyingDown, sleeping, wakingUp, stretching, observing
     case reactingToCursor, reactingToClick, held
 }

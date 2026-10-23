@@ -34,6 +34,18 @@ public struct SurfaceMap: Equatable, Sendable {
         }
     }
 
+    /// Pure left/right wall construction from canonical global screen frames.
+    public static func screenWalls(for screens: [ScreenDescriptor]) -> [Surface] {
+        var seen: Set<SurfaceID> = []
+        return screens.flatMap { screen in
+            [Surface.screenLeft(of: screen), Surface.screenRight(of: screen)].filter { wall in
+                wall.isUsable && screen.frame.width.isFinite && screen.frame.width > 0
+                    && screen.frame.height.isFinite && screen.frame.height > 0
+                    && seen.insert(wall.id).inserted
+            }
+        }
+    }
+
     /// Swept one-way horizontal support, using x at impact rather than at the step endpoint.
     func firstLanding(
         from start: CGPoint, to end: CGPoint, geometry: ContactGeometry,
@@ -80,7 +92,7 @@ public struct SurfaceMap: Equatable, Sendable {
         _ surface: Surface, start: CGPoint, descent: CGFloat, horizontal: CGFloat,
         geometry: ContactGeometry, visualRange: ClosedRange<CGFloat>, tolerance: CGFloat
     ) -> SurfaceContact? {
-        guard surface.isUsable, start.y >= surface.y - tolerance,
+        guard !surface.isVertical, surface.isUsable, start.y >= surface.y - tolerance,
             start.y - descent <= surface.y + tolerance
         else { return nil }
         let lower = max(surface.minX + geometry.halfWidth, visualRange.lowerBound)

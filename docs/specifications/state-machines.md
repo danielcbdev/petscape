@@ -147,7 +147,7 @@ midflight cancels only autonomous activity bookkeeping; gravity/contact continue
 cooldown is retained. Three consecutive selections exclude the same action when a valid alternative
 exists; forced safety/critical-energy fallback and single-eligible-action cases remain bounded.
 
-M10 adds Dragged and cursor-driven observation; M11 adds Climbing. Neither is implemented by M9.
+M10 adds Dragged and cursor-driven observation; M11 adds Climbing within the same PetState hierarchy.
 Window surfaces/riding remain M12/M13. Future states must declare clip, motion, interrupt threshold
 and bounds before implementation. Historical utility/top-k tuning remains superseded ADR-0006.
 
@@ -158,6 +158,26 @@ and bounds before implementation. Historical utility/top-k tuning remains supers
 - Deterministic scenarios with `SeededRandomSource` (e.g. "tired cat sleeps", "sleeping cat
   survives a Dock resize").
 - Stuck detection: any state exceeding `maxDuration` transitions to `Idle`/`Recovering`.
+
+## M11 climbing execution
+
+`GroundedState.climbing(wall:)` begins when walking reaches a screen edge that spans the pet's
+current height. The same fixed step attaches the contact point at the wall without crossing the
+edge. On a wall, upward speed is 120 pt/s; the valid range keeps the display bounds inside the
+hosted screen. Wall contact selects the authored-right `climb` pose, mirrored on the left; the
+vertical anchor change preserves the rendered bounds. Reaching the top detaches once and enters
+existing Falling toward the screen interior. Surface removal or a changed wall too short to contain
+the pet also falls inward. No new scheduler, independent motion enum, or renderer-owned
+timer is introduced.
+
+| State | Clip / fallback | Motion / contact | Interrupt threshold | Min / max duration |
+|---|---|---|---|---|
+| Climbing | `climb` loop; missing/invalid art falls back to `idle` | attached vertical ascent; top exits to Falling | 90 | positive fixed-step progress; at most screen height / 120 pt/s + one step |
+
+The optional `climb` clip is noninterruptible for ordinary animation requests; physical state
+transitions use priority 90, so wall loss, out-of-bounds and top exit cannot be held by the art.
+Pause/hidden/suspended state freezes both phases. The subsequent Falling phase uses the existing
+three-second airborne watchdog and swept floor/Dock contact.
 
 ## Proposed M10 refinements (not implemented)
 

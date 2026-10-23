@@ -21,7 +21,8 @@ world's explicit demand and composes a persistent hosted floor with the optional
 Use small custom kinematics in Core. No rigid bodies, materials, polygon solver, SKPhysicsWorld,
 SKAction, CAAnimation trajectories or extra module. Core Animation only draws snapshots. Preserve
 world ownership, existing callbacks and the single CADisplayLink. M8 reuses this stepper via
-[Jump System](jump-system.md); windows/climbing remain M11–M13.
+[Jump System](jump-system.md); M11 adds attached wall motion to the same PhysicsStepper and
+SurfaceAttachment; windows remain M12–M13.
 
 ## Data and ownership
 
@@ -35,7 +36,7 @@ world ownership, existing callbacks and the single CADisplayLink. M8 reuses this
 | ContactState / SurfaceReference | Existing optional SurfaceAttachment(surfaceID, parameter) is the sole contact representation; grounded requires non-nil valid attachment, airborne requires nil. No separate mutable ContactState |
 | SimulationStep | Existing `Double dt` in seconds + FixedStepAccumulator.step; no new clock/time wrapper |
 | Result | Proposed internal `PhysicsStepResult`: position, velocity, attachment, edgeReached, landedSurfaceID; computed, consumed once by PetWorld |
-| Motion input | Proposed internal `MovementIntent`: `.hold`, `.walk(speed: Double, facing: Facing)`, `.airborne(acceleration: CGVector)`; never writes position |
+| Motion input | Internal `MovementIntent`: `.hold`, `.walk(speed: Double, facing: Facing)`, `.airborne(acceleration: CGVector)`; climbing is a bounded attached step on the same PhysicsStepper and never writes position |
 
 PhysicsTuning is an injected Sendable value (not global mutable state); reuse BehaviorTuning for
 speed/turn policy. PhysicsStepper and result remain Core internal. No new preferences keys or
@@ -205,6 +206,30 @@ policy against this cap before adding lower rates. M8 preparatory/landing timers
 even with a held fallback. No interpolation now: snapshot and hit masks
 match exactly. Consider only if measured judder justifies it; future interpolation must flush history
 on recovery/reprojection, or it draws through the Dock and desynchronizes hit tests.
+
+## M11 wall climbing
+
+The hosted screen contributes one vertical segment at each frame edge. Wall contact is the pet's
+canonical anchor point: `x = frame.minX` on the left and `x = frame.maxX` on the right. Existing
+walk ranges still protect the visual bounds. When walking reaches that range beside a wall,
+When walking reaches its screen-edge limit, the same step attaches the pet to that wall without
+crossing it. The contact anchor is moved to the wall; the small sprite-bounds change is bounded by
+the 3 pt alignment tolerance. The left wall uses a mirrored right-authored `climb` pose, and the
+right wall uses it as authored. The vertical anchor change preserves the rendered sprite bounds.
+
+On the wall, `SurfaceAttachment.parameter` maps bottom→top and each fixed step advances upward at
+120 pt/s. The valid contact interval subtracts the `climb` frame's anchor-to-edge canvas extents
+from screen minY/maxY, using manifest `displaySize × scale`; the canvas stays within the host. The
+top is terminal: detach once, enter existing Falling and add 150 pt/s velocity toward the screen
+interior. Swept collision lands on the highest valid horizontal support (Dock or screen floor).
+Removing/loss of the wall uses the same inward fall path; moving a wall reprojects the normalized
+attachment parameter and clamps to the new valid interval. If a changed wall becomes too short for
+the display bounds, or the wall disappears, support loss enters the same bounded inward fall. Pause, hide and suspension stop this
+motion through the existing fixed-step gate. The existing airborne watchdog bounds the fall to
+three simulated seconds.
+
+The `climb` clip is presentation only and cannot block safety transitions. If its optional art is
+unavailable, the existing idle fallback is shown while the same deterministic physical path runs.
 
 ## Verification and measurement contract
 
