@@ -35,7 +35,8 @@
     "observe": "idle",
     "curious": "idle",
     "picked-up": "idle",
-    "held": "idle"
+    "held": "idle",
+    "climb": "idle"
   },
   "animations": {
     "walk": {
@@ -221,6 +222,17 @@
         { "image": "v5/held/frames/held_04.png" },
         { "image": "v5/held/frames/held_05.png" },
         { "image": "v5/held/frames/held_06.png" }
+      ]
+    },
+    "climb": {
+      "playback": "loop",
+      "fps": 8,
+      "anchor": { "x": 0.977, "y": 0.5 },
+      "alignment": "right",
+      "interruptible": false,
+      "frames": [
+        { "image": "v6/climb/frames/climb_01.png" },
+        { "image": "v6/climb/frames/climb_02.png" }
       ]
     }
   }

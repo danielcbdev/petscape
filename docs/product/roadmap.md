@@ -55,8 +55,8 @@ below should be delivered as a character-pack update (see
 | M7 | Optional `fall`/`landing` (legacy `land` compatible); current pack sufficient for physics |
 | M8 | V4 `idle`, `jump-start` (requested label jump_start), `jump`, `fall`, `landing`; legacy jump-air/land compatible |
 | M9 | `sit-down`, `sit` (loop), `lie-down`, `sleep` (loop), `wake-up`, `stretch`, `look-around` |
-| M10 | V5 `curious`, `picked-up`, `held` art integrated on 2026-10-22; final owner visual review pending. Extra look/startle/run/petting art deferred — [brief](../specifications/animation-assets-v5.md) |
-| M11 | `climb` (loop, vertical alignment), `climb-over` (once) |
+| M10 | V5 `curious`, `picked-up`, `held` art integrated and accepted by owner on 2026-10-22. Extra look/startle/run/petting art deferred — [brief](../specifications/animation-assets-v5.md) |
+| M11 | `climb` (2-frame loop, right-side alignment mirrored for the left wall) |
 
 Until a clip exists, the manifest's fallback chain maps it to an existing clip (for example
 `fall → walk`), so code never blocks on art.

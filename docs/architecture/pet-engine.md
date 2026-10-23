@@ -52,7 +52,8 @@ feeds rendering/hit testing. Frame demand is explicit for physical/timed/pending
 of visible art. See [Data Flow](data-flow.md) for operational ordering.
 
 M7 Grounded/Airborne handles fall/land; M8 adds Idle, preparation/rising and an immutable jump plan
-with return intent, all within the same state hierarchy. [Jump System](jump-system.md) owns phase
+with return intent; M11 adds Grounded climbing on the same `PetState` hierarchy and
+`SurfaceAttachment`. [Jump System](jump-system.md) owns phase
 transitions, cancellation and solver. M9 adds rest/expression phases and boundary-only weighted
 choices within that same hierarchy. [Behavior Engine](behavior-engine.md) owns energy, eligibility,
 durations, cooldowns and held fallback poses. No second FSM or scheduler is added.

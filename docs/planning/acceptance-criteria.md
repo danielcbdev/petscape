@@ -160,7 +160,11 @@ for accepted evidence limits. Existing baseline check results are separately rec
 [M10 planning verification](m10-implementation.md#current-baseline-verification-2026-10-18).
 
 ### M11 — Climbing
+- **Status:** Done by owner acceptance (2026-10-22). The owner confirmed the cat climbed and approved the visual result; automated tests cover both wall directions, mirrored alignment, top exit and continuous fall. No quantitative native paw-offset measurement was reported.
 - AC-M11-01: The cat climbs both screen edges with paws aligned to the edge (±3 pt) and transitions back to the floor without teleporting.
+  Verify both sides at the bundled 96 pt display size, including the mirrored left-wall pose,
+  top exit, valid support contact and a continuous fall trajectory; unit alpha/anchor tests alone do
+  not satisfy the native visual criterion.
 
 ### M12 — Window detection
 - AC-M12-01: Without the feature enabled, no AX calls are made and no permission is requested.

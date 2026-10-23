@@ -16,5 +16,13 @@ public struct SurfaceID: Hashable, Sendable, CustomStringConvertible {
         SurfaceID("screen:\(screen):bottom")
     }
 
+    public static func screenLeft(of screen: ScreenID) -> SurfaceID {
+        SurfaceID("screen:\(screen):left")
+    }
+
+    public static func screenRight(of screen: ScreenID) -> SurfaceID {
+        SurfaceID("screen:\(screen):right")
+    }
+
     public var description: String { rawValue }
 }

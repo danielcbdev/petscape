@@ -52,6 +52,28 @@ struct PetLayerTests {
         #expect(petLayer.layer.affineTransform() == .identity)
     }
 
+    @Test func climbAlignmentKeepsThePawAnchorAtEitherScreenEdge() {
+        let layer = PetLayer()
+        let climb = PetRenderState(
+            id: PetID(2), characterID: CharacterID("cat"), position: CGPoint(x: 900, y: 400),
+            size: CGSize(width: 96, height: 96),
+            frame: AnimationFrameRef(
+                clip: "climb", frameIndex: 0, mirrored: false, anchor: .init(x: 0.977, y: 0.5),
+                alignment: .right), isVisible: true)
+        layer.apply(climb, overlayPosition: CGPoint(x: 900, y: 400), image: nil)
+        #expect(layer.layer.anchorPoint == CGPoint(x: 0.977, y: 0.5))
+        #expect(layer.layer.position == CGPoint(x: 900, y: 400))
+        #expect(layer.layer.affineTransform() == .identity)
+
+        var mirrored = climb
+        mirrored.position.x = 0
+        mirrored.frame.mirrored = true
+        layer.apply(mirrored, overlayPosition: .zero, image: nil)
+        #expect(layer.layer.anchorPoint == CGPoint(x: 0.977, y: 0.5))
+        #expect(layer.layer.affineTransform() == CGAffineTransform(scaleX: -1, y: 1))
+        #expect(layer.layer.position == .zero)
+    }
+
     @Test func implicitAnimationsAreDisabled() {
         let layer = PetLayer().layer
         for key in ["contents", "bounds", "position", "transform", "anchorPoint", "hidden"] {

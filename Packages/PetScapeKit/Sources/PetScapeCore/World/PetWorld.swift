@@ -160,14 +160,8 @@ public struct PetWorld: Sendable {
                 pet.contactGeometry = ContactGeometry(
                     displaySize: CGSize(width: size.width, height: size.height), scale: scale)
                 cancelJump(&pet, events: &events)
-                // Keep the canonical foot fixed whenever it still fits; only clamp at a support edge.
-                if let attachment = pet.attachment, let surface = surfaces.surface(attachment.surfaceID),
-                    surface.isUsable
-                {
-                    let range = surface.walkableRange(margin: pet.edgeMargin)
-                    let x = min(max(pet.position.x, range.lowerBound), range.upperBound)
-                    if x.isFinite { setPosition(of: &pet, x: x, on: surface) }
-                }
+                // Keep the canonical contact fixed whenever it still fits; clamp to the new surface bounds.
+                reproject(&pet)
                 pets[index] = pet
             }
             pendingEvents.append(contentsOf: events)
@@ -492,10 +486,19 @@ public struct PetWorld: Sendable {
             pet.needs.advance(by: dt, sleeping: pet.state == .grounded(.sleeping))
         }
         if let attachment = pet.attachment, attachedSurface(of: pet) == nil {
+            let lostClimbSide: WallSide?
+            if case .grounded(.climbing(let side)) = pet.state { lostClimbSide = side } else { lostClimbSide = nil }
             pet.attachment = nil
             pet.airborneElapsed = 0
             finishActivity(&pet)
-            enter(.airborne(.falling), pet: &pet, events: &events)
+            if let lostClimbSide {
+                pet.velocity = CGVector(dx: lostClimbSide == .left ? 150 : -150, dy: 0)
+                enterPreservingSpriteRect(
+                    .airborne(.falling), facing: lostClimbSide == .left ? .right : .left,
+                    pet: &pet, events: &events)
+            } else {
+                enter(.airborne(.falling), pet: &pet, events: &events)
+            }
             events.append(.surfaceLost(pet.id, attachment.surfaceID))
         }
         pet.cursorEvaluationElapsed += dt
@@ -549,7 +552,28 @@ public struct PetWorld: Sendable {
                 }
                 if result.edgeReached, pet.state == .walking {
                     events.append(.edgeReached(pet.id))
-                    enter(.turning(to: pet.facing.opposite), pet: &pet, events: &events)
+                    if let wall = wall(at: pet.position, facing: pet.facing) {
+                        let side: WallSide = wall.kind == .screenLeft ? .left : .right
+                        let facing: Facing = side == .left ? .left : .right
+                        let climbClip = pet.animation.definition.clip(named: "climb", facing: facing).clip
+                        let anchorY = CGFloat(climbClip.anchor.y)
+                        let climbY =
+                            pet.position.y + (anchorY - CGFloat(pet.animation.currentFrame.anchor.y))
+                            * pet.size.height
+                        guard let range = verticalRange(for: pet, on: wall, anchorY: anchorY),
+                            range.contains(climbY)
+                        else {
+                            enter(.turning(to: pet.facing.opposite), pet: &pet, events: &events)
+                            return
+                        }
+                        pet.position = CGPoint(x: wall.segment.start.x, y: climbY)
+                        pet.attachment = SurfaceAttachment(surfaceID: wall.id, parameter: wall.parameter(atY: climbY))
+                        pet.facing = facing
+                        pet.animation.setFacing(facing)
+                        enter(.grounded(.climbing(wall: side)), pet: &pet, events: &events)
+                    } else {
+                        enter(.turning(to: pet.facing.opposite), pet: &pet, events: &events)
+                    }
                 }
             case .turning(let newFacing):
                 pet.velocity = .zero
@@ -558,6 +582,32 @@ public struct PetWorld: Sendable {
                     pet.facing = newFacing
                     pet.animation.setFacing(newFacing)
                     enter(.walking, pet: &pet, events: &events)
+                }
+            case .climbing(let side):
+                guard let attachment = pet.attachment, let support = surfaces.surface(attachment.surfaceID) else {
+                    pet.attachment = nil
+                    pet.airborneElapsed = 0
+                    pet.velocity = CGVector(dx: side == .left ? 150 : -150, dy: 0)
+                    enterPreservingSpriteRect(
+                        .airborne(.falling), facing: side == .left ? .right : .left,
+                        pet: &pet, events: &events)
+                    fall(&pet, dt: dt, events: &events)
+                    return
+                }
+                guard support.isVertical, support.kind == (side == .left ? .screenLeft : .screenRight),
+                    let range = verticalRange(for: pet, on: support),
+                    let result = PhysicsStepper.climbing(
+                        position: pet.position, on: support, verticalRange: range, speed: 120, dt: dt)
+                else { return recover(&pet, reason: .invalidContact, events: &events) }
+                commit(result, to: &pet)
+                advancePresentation(of: &pet, dt: dt, events: &events)
+                if result.edgeReached {
+                    pet.attachment = nil
+                    pet.airborneElapsed = 0
+                    pet.velocity = CGVector(dx: side == .left ? 150 : -150, dy: 0)
+                    enterPreservingSpriteRect(
+                        .airborne(.falling), facing: side == .left ? .right : .left,
+                        pet: &pet, events: &events)
                 }
             case .landing:
                 pet.velocity = .zero
@@ -980,9 +1030,19 @@ public struct PetWorld: Sendable {
     /// fires on the next walking step).
     private func reproject(_ pet: inout Pet) {
         guard let attachment = pet.attachment, let surface = surfaces.surface(attachment.surfaceID),
-            surface.isUsable, let geometry = pet.contactGeometry,
-            surface.width >= max(geometry.halfWidth, pet.edgeMargin) * 2
+            surface.isUsable
         else { return }
+        if surface.isVertical {
+            guard let range = verticalRange(for: pet, on: surface) else { return }
+            let y = min(max(surface.point(atParameter: attachment.parameter).y, range.lowerBound), range.upperBound)
+            pet.position = CGPoint(x: surface.segment.start.x, y: y)
+            pet.velocity = .zero
+            pet.attachment = SurfaceAttachment(surfaceID: surface.id, parameter: surface.parameter(atY: y))
+            return
+        }
+        guard let geometry = pet.contactGeometry, surface.width >= max(geometry.halfWidth, pet.edgeMargin) * 2 else {
+            return
+        }
         let range = surface.walkableRange(margin: pet.edgeMargin)
         let x = min(max(surface.point(atParameter: attachment.parameter).x, range.lowerBound), range.upperBound)
         setPosition(of: &pet, x: x, on: surface)
@@ -997,14 +1057,39 @@ public struct PetWorld: Sendable {
 
     private func attachedSurface(of pet: Pet) -> Surface? {
         pet.attachment.flatMap { attachment in
-            guard let surface = surfaces.surface(attachment.surfaceID), surface.isUsable,
-                let geometry = pet.contactGeometry, surface.width >= geometry.halfWidth * 2,
+            guard let surface = surfaces.surface(attachment.surfaceID), surface.isUsable else { return nil }
+            if surface.isVertical {
+                guard case .grounded(.climbing(let side)) = pet.state,
+                    surface.kind == (side == .left ? .screenLeft : .screenRight),
+                    let range = verticalRange(for: pet, on: surface),
+                    abs(pet.position.x - surface.segment.start.x) <= physics.contactTolerance,
+                    range.contains(pet.position.y)
+                else { return nil }
+                return surface
+            }
+            guard let geometry = pet.contactGeometry, surface.width >= geometry.halfWidth * 2,
                 pet.position.x >= surface.minX + geometry.halfWidth - physics.contactTolerance,
                 pet.position.x <= surface.maxX - geometry.halfWidth + physics.contactTolerance,
                 abs(pet.position.y - surface.y) <= physics.contactTolerance
             else { return nil }
             return surface
         }
+    }
+
+    private func wall(at position: CGPoint, facing: Facing) -> Surface? {
+        let kind: SurfaceKind = facing == .left ? .screenLeft : .screenRight
+        return surfaces.surfaces.first {
+            $0.kind == kind && $0.isVertical && $0.minY <= position.y && position.y <= $0.maxY
+        }
+    }
+
+    /// The contact point moves far enough from either end that the climbing canvas remains in the hosted frame.
+    private func verticalRange(for pet: Pet, on wall: Surface, anchorY: CGFloat? = nil) -> ClosedRange<CGFloat>? {
+        let anchorY = anchorY ?? CGFloat(pet.animation.currentFrame.anchor.y)
+        let size = pet.size.height
+        let lower = wall.minY + anchorY * size
+        let upper = wall.maxY - (1 - anchorY) * size
+        return lower <= upper ? lower...upper : nil
     }
 
     private func placementSurface(for pet: Pet) -> Surface? {
@@ -1023,6 +1108,24 @@ public struct PetWorld: Sendable {
 
     // MARK: - Transitions and invariants
 
+    /// Changes pose anchors without shifting the rendered body, keeping walk↔climb and climb↔fall continuous.
+    private func enterPreservingSpriteRect(
+        _ state: PetState, facing: Facing?, pet: inout Pet, events: inout [WorldEvent]
+    ) {
+        let previous = pet.animation.currentFrame
+        let size = pet.size
+        let previousAnchorX = previous.mirrored ? 1 - previous.anchor.x : previous.anchor.x
+        if let facing {
+            pet.facing = facing
+            pet.animation.setFacing(facing)
+        }
+        enter(state, pet: &pet, events: &events)
+        let current = pet.animation.currentFrame
+        let currentAnchorX = current.mirrored ? 1 - current.anchor.x : current.anchor.x
+        pet.position.x += CGFloat(currentAnchorX - previousAnchorX) * size.width
+        pet.position.y += CGFloat(current.anchor.y - previous.anchor.y) * size.height
+    }
+
     private func enter(_ state: PetState, pet: inout Pet, events: inout [WorldEvent]) {
         let previous = pet.state.kind
         pet.state = state
@@ -1030,6 +1133,7 @@ public struct PetWorld: Sendable {
         let clip: String?
         switch state {
         case .grounded(.walking): clip = BehaviorTuning.walkClip
+        case .grounded(.climbing): clip = "climb"
         case .grounded(.landing):
             clip = pet.animation.definition.clips["landing"] != nil ? "landing" : "land"
         case .airborne(.falling): clip = "fall"
@@ -1140,7 +1244,7 @@ public struct PetWorld: Sendable {
 
     private func isAnimating(_ pet: Pet) -> Bool {
         switch pet.state {
-        case .grounded(.walking): return true
+        case .grounded(.walking), .grounded(.climbing): return true
         case .grounded(.landing), .grounded(.idle), .grounded(.preparingJump), .airborne:
             return pet.animation.definition.clips[pet.animation.requestedClip] != nil
                 && pet.animation.rate > 0 && !pet.animation.player.isFinished

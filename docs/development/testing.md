@@ -175,6 +175,7 @@ fallback/placeholder behavior. Real Idle loops at 15/30 Hz preserve simulation t
 | ≥20 transparent flight/landing points, all event kinds, desktop targets; typing/VoiceOver | Not verified. Existing mask tests are retained; synthetic images are not V4 silhouettes. |
 | Dock auto-hide/both sides/resizing, displays/Spaces/full-screen/sleep/lock | Synthetic interruption/demand tests pass. Full manual matrix and external-display/resolution evidence remain pending. |
 | V4 identity/alpha/bbox/anchor/masks/byte budget | V4 revision 1 actual PNG containment, alpha, baseline/paw registration and 10.125 MiB decoded budget tests pass. Owner approved delivered identity/style on 2026-10-18; original walk unchanged. |
+| M11 screen-edge climbing | Automated wall geometry, two-side transitions, 120 pt/s fixed-step travel, mirrored edge anchor and loss-of-wall fall are covered. Native left/right paw alignment (±3 pt), top exit and continuous return to Dock await the M11 playtest record. |
 | Release CPU/memory, pacing, energy, idle wakeups, leaks/2 h app soak | Walking 0.83%, hidden 0.00%, paused 0.08–0.63% (one window above target), M6 paused control 0.00%; acceptance pending. Footprint 21.2 MB. Accelerated stress is not real-time soak/leak-growth evidence; details in performance.md. |
 
 At that historical checkpoint, continuous engineering authorization had not accepted those

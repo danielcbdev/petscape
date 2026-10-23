@@ -44,6 +44,36 @@ struct SurfaceMapTests {
         #expect(surface.maxX == 0)
     }
 
+    @Test func screenWallsUseCanonicalGlobalEdgesAndStableIDs() {
+        let screen = ScreenDescriptor(
+            id: ScreenID(9), frame: CGRect(x: -1280, y: -120, width: 1280, height: 800),
+            visibleFrame: CGRect(x: -1280, y: -70, width: 1280, height: 750), backingScale: 2, isPrimary: false)
+        let walls = SurfaceMap.screenWalls(for: [screen])
+        #expect(walls.map(\.id) == [.screenLeft(of: screen.id), .screenRight(of: screen.id)])
+        #expect(walls[0].kind == .screenLeft && walls[0].isVertical)
+        #expect(walls[0].segment.start == CGPoint(x: -1280, y: -120))
+        #expect(walls[0].segment.end == CGPoint(x: -1280, y: 680))
+        #expect(walls[1].segment.start.x == 0 && walls[1].segment.end.x == 0)
+        #expect(walls[1].minY == -120 && walls[1].maxY == 680)
+    }
+
+    @Test func wallDiffsPreserveIdentityWhenMovedAndRemoveCleanly() {
+        var wall = Surface(id: .screenLeft(of: ScreenID(1)), kind: .screenLeft, x: -100, minY: -50, maxY: 850)
+        var map = SurfaceMap([wall])
+        wall = Surface(id: wall.id, kind: .screenLeft, x: -120, minY: -50, maxY: 950)
+        #expect(map.changes(to: [wall]) == [.moved(wall)])
+        map.apply(map.changes(to: [wall]))
+        #expect(map.surface(wall.id) == wall)
+        #expect(map.changes(to: []) == [.removed(wall.id)])
+    }
+
+    @Test func verticalParameterAndPointRoundTrip() {
+        let wall = Surface(id: .screenRight(of: ScreenID(2)), kind: .screenRight, x: 100, minY: -100, maxY: 900)
+        #expect(wall.point(atParameter: 0.25) == CGPoint(x: 100, y: 150))
+        #expect(wall.parameter(atY: 300) == 0.4)
+        #expect(wall.point(atParameter: wall.parameter(atY: 433)).y == 433)
+    }
+
     @Test func lookupByID() {
         let map = SurfaceMap([Self.floor, Self.shelf])
         #expect(map.surface(SurfaceID("shelf")) == Self.shelf)

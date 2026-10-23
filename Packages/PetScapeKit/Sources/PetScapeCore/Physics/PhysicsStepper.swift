@@ -29,6 +29,27 @@ enum PhysicsStepper {
             edgeReached: edge)
     }
 
+    /// Moves a pet's contact point upward on a vertical screen wall, clamped before the canvas exits the host.
+    static func climbing(
+        position: CGPoint, on wall: Surface, verticalRange: ClosedRange<CGFloat>, speed: Double, dt: Double
+    ) -> PhysicsStepResult? {
+        guard wall.isUsable, wall.isVertical, speed.isFinite, speed > 0,
+            position.x.isFinite, position.y.isFinite, dt.isFinite, dt > 0,
+            dt <= FixedStepAccumulator.defaultStep + FixedStepAccumulator.tolerance,
+            verticalRange.lowerBound.isFinite, verticalRange.upperBound.isFinite,
+            verticalRange.lowerBound <= verticalRange.upperBound
+        else { return nil }
+        let nextY = position.y + CGFloat(speed * dt)
+        guard nextY.isFinite else { return nil }
+        let y = min(max(nextY, verticalRange.lowerBound), verticalRange.upperBound)
+        let reachedTop = y >= verticalRange.upperBound
+        let point = CGPoint(x: wall.segment.start.x, y: y)
+        return PhysicsStepResult(
+            position: point, velocity: CGVector(dx: 0, dy: reachedTop ? 0 : CGFloat(speed)),
+            attachment: SurfaceAttachment(surfaceID: wall.id, parameter: wall.parameter(atY: y)),
+            edgeReached: reachedTop)
+    }
+
     /// Integration and first-hit resolution shared by the live world and M8 trajectory replay.
     static func airborne(
         position: CGPoint, velocity: CGVector, acceleration: CGVector, dt: Double,

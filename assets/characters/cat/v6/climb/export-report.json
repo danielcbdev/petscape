@@ -1,0 +1,51 @@
+{
+  "frames" : [
+    {
+      "frame" : 1,
+      "scale" : 0.3745928338762215,
+      "solidRight" : 500,
+      "sourceAlphaBounds" : [
+        0,
+        9,
+        1236,
+        1254
+      ],
+      "sourceCropBounds" : [
+        166,
+        7,
+        1149,
+        1235
+      ],
+      "sourceSolidBounds" : [
+        174,
+        15,
+        1141,
+        1227
+      ]
+    },
+    {
+      "frame" : 2,
+      "scale" : 0.3745928338762215,
+      "solidRight" : 500,
+      "sourceAlphaBounds" : [
+        0,
+        9,
+        1253,
+        1254
+      ],
+      "sourceCropBounds" : [
+        177,
+        9,
+        1189,
+        1198
+      ],
+      "sourceSolidBounds" : [
+        185,
+        17,
+        1181,
+        1190
+      ]
+    }
+  ],
+  "scale" : 0.3745928338762215
+}

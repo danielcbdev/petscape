@@ -212,9 +212,10 @@ public final class PetRuntime {
     /// a Dock hidden, shown or moved to a side replaces it (the pet re-settles below or above, T6.4).
     private func applySurfaces() {
         let floors = SurfaceMap.screenBottoms(for: overlay.hostScreen.map { [$0] } ?? [])
+        let walls = SurfaceMap.screenWalls(for: overlay.hostScreen.map { [$0] } ?? [])
         var surfaces = overlay.dock.surfaces
-        for floor in floors where !surfaces.contains(where: { $0.id == floor.id }) {
-            surfaces.append(floor)
+        for surface in floors + walls where !surfaces.contains(where: { $0.id == surface.id }) {
+            surfaces.append(surface)
         }
         world.apply(.surfaces(surfaces))
         #if DEBUG
