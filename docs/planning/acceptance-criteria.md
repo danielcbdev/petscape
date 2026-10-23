@@ -175,6 +175,10 @@ for accepted evidence limits. Existing baseline check results are separately rec
 - AC-M13-01: The cat stays on a window being dragged slowly (≤ 1 frame lag visually) and falls when the window is closed/minimized.
 - AC-M13-02: With autonomy and window interaction enabled, the cat sometimes selects a visible window at random, jumps to an exposed vertical side below the top (never directly to the top), climbs onto the top, walks there for a bounded random interval, then jumps back to Dock. With several eligible windows, each is selectable; unavailable or unsafe routes are skipped without teleporting or getting stuck.
 
+Owner closeout (2026-10-23): the owner validated and accepted M13. The documented ≤2 Hz tracker cadence
+does not establish AC-M13-01's one-frame target; the owner accepts this evidence limitation for the
+milestone closeout. See the [M13 closeout](milestones.md#m13-owner-closeout--2026-10-23).
+
 ### M14 — Stabilization
 - AC-M14-01: 8 h soak: no crash, memory growth < 10 MB.
 - AC-M14-02: Manual matrix passes on macOS 14 (VM) and current macOS.

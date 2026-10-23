@@ -21,7 +21,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
 | M11 | Edge climbing | v0.4.0 | **Done by owner acceptance** (2026-10-22 — [record](m11-implementation.md#owner-closeout--2026-10-22)) |
 | M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
-| M13 | Window interaction | v0.5.0 | **In progress** (2026-10-23: Core/Runtime integration complete; one-frame cadence decision, native checks and paired T13.6 measurements remain open) |
+| M13 | Window interaction | v0.5.0 | **Done by owner acceptance** (2026-10-23 — [closeout](#m13-owner-closeout--2026-10-23)) |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | Not started |
 | M15 | Release pipeline | v1.0.0 | Not started |
 
@@ -373,11 +373,10 @@ limitations if M13 relies on this tracking behavior.
 - **Implementation record (2026-10-23):** Runtime now feeds visible host-screen window surfaces into the
   existing world map; Core uses those surfaces for spawn/contact/jumps, re-projects moved/resized
   attachments, detaches when visible support is occluded, and applies the 240 pt/s ride / 1.5 s sample-gap
-  guards. Deterministic tests cover these paths. This is **not a closeout**: the 0.5 s refresh throttle
-  (≤2 Hz) cannot demonstrate AC-M13-01's ≤1-frame visual lag; no native drag/close/minimize/revocation
-  checks have been run. One exploratory 60 s Debug CPU sample with the already-enabled preference
-  is recorded in [performance.md](../specifications/performance.md#m13-tracking-measurements); it is
-  unpaired and does not satisfy T13.6. Details and the needed concurrency review are in
+  guards. Deterministic tests cover these paths. The 0.5 s refresh throttle (≤2 Hz) cannot demonstrate
+  AC-M13-01's ≤1-frame visual lag; the existing exploratory 60 s Debug CPU sample is unpaired and does
+  not independently satisfy T13.6. These evidence limits were explicitly accepted by the owner at the
+  M13 closeout below. Details and the needed concurrency review are in
   [window-tracking.md](../architecture/window-tracking.md#m13-interaction-behavior) and
   [ADR-0023](../decisions/0023-window-interaction-cadence.md). `make lint`, `make test-core` (309 Core
   tests plus all package suites), `make test` (2 UI tests) and `make build` pass.
@@ -390,7 +389,16 @@ limitations if M13 relies on this tracking behavior.
   selectable when the cat already stood outside the window's horizontal span, so a cat beneath the
   window could never approach its jump point. Seeded coverage now starts beneath the window and checks
   side contact, climbing, top walking, Dock return, and selection across multiple windows. Build and
-  automated verification pass; native autonomous playtest on the owner desktop remains unverified.
+  automated verification pass; the owner subsequently confirmed native validation of the complete
+  autonomous flow.
+
+### M13 owner closeout — 2026-10-23
+
+The owner confirmed that M13 behavior and tests are validated and accepted closure. Native validation
+includes the window interaction and autonomous side-climb flow. The owner accepts the documented
+tracking-cadence and paired-performance evidence limits for this milestone. No new latency or CPU
+measurements are claimed here; the ≤1-frame target and unpaired Debug sample remain recorded as limits
+in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/performance.md#m13-tracking-measurements).
 
 ## M14 — Multi-display, optimization & stabilization
 

@@ -591,12 +591,14 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
   `make build` passed. No warning was introduced by the changed code. Xcode emitted its existing
   AppIntents metadata-extraction warning during UI-test build; build also reports multiple matching
   macOS destinations and selects the arm64 host.
-- Pending: native AC-M13-01 drag latency, manual close/minimize/hide/revocation/occlusion/jump and
-  autonomous climb/return checks, and paired Release tracking CPU measurements. One exploratory Debug idle sample is recorded in
-  [performance.md](../specifications/performance.md#m13-tracking-measurements), but does not isolate
-  tracking. Current tracker refresh is ≤2 Hz, so one-frame lag is not
-  currently supportable or verified. Proposed smallest event-driven correction and the required
-  concurrency approval are recorded in [ADR-0023](../decisions/0023-window-interaction-cadence.md).
+- **Owner closeout (2026-10-23):** The owner confirmed M13 behavior and tests are validated and accepted
+  closure, including native validation of window interaction and the autonomous climb/return flow. The
+  owner accepts the documented ≤2 Hz tracker cadence and lack of paired Release CPU measurements for
+  this milestone. The existing Debug sample remains exploratory and no new quantitative result is
+  claimed; see the [M13 closeout](milestones.md#m13-owner-closeout--2026-10-23),
+  [performance record](../specifications/performance.md#m13-tracking-measurements),
+  [window-tracking contract](../architecture/window-tracking.md#m13-interaction-behavior) and
+  [ADR-0023](../decisions/0023-window-interaction-cadence.md).
 
 ## M14 — Multi-display, optimization & stabilization
 
