@@ -7,7 +7,9 @@ Surfaces are the walkable/climbable geometry pets interact with. Decision on the
 
 `Surface` contains a stable ID, kind and normalized segment in canonical global coordinates.
 Horizontal `.dockTop`/`.screenBottom` segments support walking and landing; M11 adds vertical
-`.screenLeft`/`.screenRight` screen-edge segments for climbing. `SurfaceAttachment.parameter` runs
+`.screenLeft`/`.screenRight` screen-edge segments for climbing. M13 adds visible `.windowTop`
+segments and occlusion-clipped `.windowLeft`/`.windowRight` segments to the same contact map.
+`SurfaceAttachment.parameter` runs
 from the first endpoint to the second: left→right for horizontal segments and bottom→top for walls.
 `SurfaceMap` retains ID-based add/move/remove diffs, floor queries and swept horizontal landing;
 vertical walls are not landing candidates. `screenBottoms(for:)` and `screenWalls(for:)` are pure
@@ -17,8 +19,8 @@ builders over `ScreenDescriptor` values, without a new Platform observer.
 
 ```text
 Surface (Sendable, Equatable)
-  id: SurfaceID            // stable identity (e.g. "dock", "screen:<id>:bottom", "window:<id>:top")
-  kind: SurfaceKind        // .dockTop, .screenBottom, .screenLeft, .screenRight, .windowTop
+  id: SurfaceID            // stable identity (e.g. "dock", screen edge or window edge)
+  kind: SurfaceKind        // Dock/floor, screen walls, window top and visible window sides
   segment: Segment         // two points in canonical global space
   orientation: .horizontal | .vertical
   walkableSide: .above | .left | .right   // where the pet stands relative to the segment
@@ -40,13 +42,20 @@ Updates are applied as **diffs** keyed by `SurfaceID` (added / moved / removed) 
 step, so attached pets can ride moved surfaces and react to removed ones
 ([physics-engine.md](../architecture/physics-engine.md)).
 
+Window surfaces use stable source-boundary identities so a window move or resize retains its
+attachment, while a changed occluding boundary removes the covered support. Window riding accepts
+translated samples up to 240 canonical points per second and treats samples delayed beyond 1.5 s as
+discontinuous; those guards are conservative policy for the current ≤2 Hz source, not observed
+native limits. Spawn and landing use the logical contact width and the existing swept solver. The
+window builder is scoped to the currently hosted screen until M14 adds overlay hand-off.
+
 ## Providers
 
 | Provider | Surfaces | Milestone |
 |---|---|---|
 | `DockSurfaceProvider` | `.dockTop` or fallback `.screenBottom` on the Dock's screen | M6 |
 | Core `SurfaceMap.screenBottoms(for:)` / `screenWalls(for:)` | Pure descriptor→floor/wall values, runtime merges hosted floor + Dock + both walls; no new observer/provider | M7 / M11 |
-| `WindowSurfaceProvider` | `.windowTop` visible segments | M12–M13 |
+| `WindowSurfaceBuilder` | visible window top and side segments with IDs tied to the window and occluding boundaries | M12–M13 |
 
 ## Dock geometry estimation
 

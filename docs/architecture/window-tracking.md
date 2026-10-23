@@ -6,7 +6,7 @@ architecture does not block it. Items marked **[validate]** need the M12 spike.
 ## Requirements recap
 
 FR-27, FR-28: detect other apps' windows (position, size, z-order, moves, resizes, minimize, close,
-focus changes) so pets can walk on window top edges and react. **Purely visual**: PetScape never
+focus changes) so pets can walk on top edges, climb exposed sides and react. **Purely visual**: PetScape never
 manipulates real windows. The feature is **opt-in**; the Accessibility permission is requested only
 when the user enables it ([permissions.md](../specifications/permissions.md)).
 
@@ -66,9 +66,43 @@ protocol WindowTracker: AnyObject {            // Platform, @MainActor
 ```
 
 `WindowSurfaceBuilder` (Core, pure) converts `[TrackedWindow]` + screens into `Surface`s:
-the **visible portions** of each window's top edge (subtract segments covered by windows above it
-in z-order), excluding segments under the menu bar or off-screen. Surface IDs derive from the
-window ID so attached pets survive moves.
+the **visible portions** of each window's top and vertical side edges (subtract segments covered by
+windows above it in z-order), excluding segments under the menu bar or off-screen. Surface IDs derive from the
+window ID so attached pets survive moves. Segment IDs encode the stable window and occluding-boundary
+identities; if a cover changes the segment supporting a pet, its old support is removed rather than
+reusing an index for a different visible segment.
+
+## M13 interaction behavior
+
+The runtime feeds builder output for the hosted screen into the existing `PetWorld` surface map,
+alongside Dock, floor and wall surfaces. The builder's front-to-back subtraction is the visibility
+gate for spawn, landing, jump destinations and window-side climb targets. Side segments are clipped
+vertically where front windows cover them. Placement requires the existing logical contact width;
+transparent art pixels and the tail are not collision geometry. Dock remains the preferred spawn
+surface, then an eligible visible window, then existing host surfaces.
+
+Same-ID window movement and resize re-project the existing attachment parameter through
+`PetWorld.apply(.surfaces)`. A translated window moving faster than 240 canonical points per second,
+or any changed window sample delayed more than 1.5 seconds, is treated as a discontinuity: its
+surfaces are omitted for that update and the existing physical fall begins. These bounds are
+deterministic and cap what a delayed sample may excuse; they are safety policy, not a measured native
+drag cadence. Resize changes are re-projected. If a cover's visible boundary moves over the pet's
+logical support interval, the attachment is removed once and the same physics fall runs. The
+surface IDs preserve window identity while distinguishing those visible segments.
+
+With autonomy and window tracking enabled, `WindowExcursion` is an ordinary weighted activity. It
+chooses an eligible visible window at random, jumps to a reachable exposed side below the top,
+reuses M11 climbing, walks on the top for a bounded random interval, and returns to Dock by jump.
+If needed, it first walks along Dock to a safe launch point and later along the window top until the
+Dock return is reachable. A blocked, removed or unsafe route is abandoned through normal fall and
+bounded behavior recovery; no window is manipulated.
+
+Tracking remains opt-in, permission-gated and bound to the running state. The current tracker emits
+CG snapshots at 1 Hz with a 0.5 s refresh throttle; AX notifications only invalidate and request a
+bounded refresh. This is at least 30× slower than a 60 Hz display and cannot establish AC-M13-01's
+one-frame visual lag. Raising synchronous AX reads to frame cadence would violate the current
+MainActor/timeout contract; a separate concurrency design and native evidence are required before
+changing that boundary. No title, app name, window content or frame history is captured.
 
 ## Edge cases
 
@@ -110,4 +144,4 @@ The owner granted Accessibility on 2026-10-22 and the opted-in Debug app accepte
 
 ### Limitations / remaining spike work
 
-Native tests still required: availability of geometry fields on this OS without Screen Recording; AX event cadence while dragging; AX/CG correlation and ambiguity on the ten named app classes; timeout behavior on an intentionally unresponsive target; repeatable Instruments CPU measurements. Do not log window titles, app names, or frame histories.
+Native tests still required: availability of geometry fields on this OS without Screen Recording; AX event cadence while dragging; AX/CG correlation and ambiguity on the ten named app classes; timeout behavior on an intentionally unresponsive target; repeatable Instruments CPU measurements. M13 also needs its slow-drag latency, teleport, minimize/close, occlusion, jump and tracking-enabled performance checks. Do not log window titles, app names, or frame histories.

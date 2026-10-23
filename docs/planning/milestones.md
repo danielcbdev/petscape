@@ -21,7 +21,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
 | M11 | Edge climbing | v0.4.0 | **Done by owner acceptance** (2026-10-22 — [record](m11-implementation.md#owner-closeout--2026-10-22)) |
 | M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
-| M13 | Window interaction | v0.5.0 | Not started |
+| M13 | Window interaction | v0.5.0 | **In progress** (2026-10-23: Core/Runtime integration complete; one-frame cadence decision, native checks and paired T13.6 measurements remain open) |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | Not started |
 | M15 | Release pipeline | v1.0.0 | Not started |
 
@@ -363,13 +363,34 @@ limitations if M13 relies on this tracking behavior.
 
 ## M13 — Window interaction
 
-- **Objective:** the cat walks on, rides and jumps between windows.
-- **Scope:** window surfaces in the world, riding, close/minimize falls, jumps between windows, occlusion changes.
+- **Objective:** the cat walks on, rides and jumps between windows, including occasional autonomous side climbs.
+- **Scope:** window surfaces in the world, riding, close/minimize falls, jumps between windows, occlusion changes, and randomized Dock-to-window climbing excursions with a return jump to Dock.
 - **Prerequisites:** M12, M8.
 - **Modules:** Core, Runtime.
 - **Risks:** jitter when riding; surprising behavior with many windows.
 - **Tests:** riding/teleport/removal tests; manual matrix.
 - **DoD:** FR-28 met.
+- **Implementation record (2026-10-23):** Runtime now feeds visible host-screen window surfaces into the
+  existing world map; Core uses those surfaces for spawn/contact/jumps, re-projects moved/resized
+  attachments, detaches when visible support is occluded, and applies the 240 pt/s ride / 1.5 s sample-gap
+  guards. Deterministic tests cover these paths. This is **not a closeout**: the 0.5 s refresh throttle
+  (≤2 Hz) cannot demonstrate AC-M13-01's ≤1-frame visual lag; no native drag/close/minimize/revocation
+  checks have been run. One exploratory 60 s Debug CPU sample with the already-enabled preference
+  is recorded in [performance.md](../specifications/performance.md#m13-tracking-measurements); it is
+  unpaired and does not satisfy T13.6. Details and the needed concurrency review are in
+  [window-tracking.md](../architecture/window-tracking.md#m13-interaction-behavior) and
+  [ADR-0023](../decisions/0023-window-interaction-cadence.md). `make lint`, `make test-core` (309 Core
+  tests plus all package suites), `make test` (2 UI tests) and `make build` pass.
+- **T13.7 implementation (2026-10-23):** Visible window sides are added with front-window occlusion
+  clipping. The autonomous weighted activity randomly chooses an eligible window, approaches its side
+  along the Dock when needed, jumps to an intermediate point on the side with a bounded discrete solver,
+  leaving a substantial section to climb with M11, walks on the top for a random 5–17 simulated seconds,
+  then moves to a safe launch point
+  and jumps back to the Dock. A native playtest exposed and fixed an eligibility bug: sides were only
+  selectable when the cat already stood outside the window's horizontal span, so a cat beneath the
+  window could never approach its jump point. Seeded coverage now starts beneath the window and checks
+  side contact, climbing, top walking, Dock return, and selection across multiple windows. Build and
+  automated verification pass; native autonomous playtest on the owner desktop remains unverified.
 
 ## M14 — Multi-display, optimization & stabilization
 

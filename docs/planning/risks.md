@@ -77,6 +77,7 @@ probabilities, prevention, concrete tests and recovery are owned by the
 | R-21 | V4 exceeds MVP image budget or changes character registration | M | M | Proposed 16 MiB approval, measure actual bytes/process footprint, anchor/identity QA | T8.5, RG-11/15 |
 | R-22 | Target geometry mutates during preparation/flight/suspension | M | H | Launch revalidation, cancel target not body, existing recovery on host loss | T7.7/T8.3, RG-07/08 |
 | R-23 | Physics scope expands into unknown Dock shelf ends / multi-display/window behavior | M | M | Keep full-width heuristic, reject unavailable target; later geometry/M9/M14 request | T7.3/5/T8.3 |
+| R-24 | Window snapshots are too sparse for smooth riding or stale geometry can reappear | H | H | Current refresh is ≤2 Hz, so AC-M13-01 cannot be inferred; reject delayed samples, preserve IDs by visible boundary, run physical support-loss path, profile only with owner opt-in | T13.2/3/5/6; ADR-0012 review if frame-cadence AX is proposed |
 
 ### Additional owner approval gates
 

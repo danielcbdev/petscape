@@ -36,6 +36,21 @@ struct JumpWorldTests {
         #expect(world.pets[0].state == .walking)
         #expect(world.pets[0].attachment?.surfaceID == PetWorldTests.floor.id)
     }
+
+    @Test func jumpCanLandOnVisibleWindowSurface() throws {
+        let window = Surface(
+            id: SurfaceID("window:9:top:0"), kind: .windowTop, y: 80, minX: 300, maxX: 1100)
+        var world = try PetWorldTests.makeWorld(surfaces: [PetWorldTests.floor, window]).world
+        let id = world.pets[0].id
+        PetWorldTests.set(&world, x: 600, facing: .right)
+        world.apply(.requestJump(id, JumpRequest(target: .surface(window.id, x: 650))))
+        #expect(world.pets[0].state.kind == .preparingJump)
+        var events: [WorldEvent] = []
+        for _ in 0..<130 { world.step(dt: Self.dt, into: &events) }
+        #expect(events.contains(.landed(id, window.id)))
+        #expect(world.pets[0].attachment?.surfaceID == window.id)
+        #expect(world.pets[0].position.y == window.y)
+    }
     @Test func idleJumpReturnsIdleAndEventuallyStopsFrames() throws {
         var world = try Self.world()
         let id = world.pets[0].id

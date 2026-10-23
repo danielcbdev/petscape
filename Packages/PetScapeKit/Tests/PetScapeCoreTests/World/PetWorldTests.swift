@@ -71,6 +71,92 @@ struct PetWorldTests {
         #expect(world.snapshot().pets.first?.isVisible == true)
     }
 
+    @Test func windowSurfaceCanSpawnAndRemovalStartsOneContinuousFall() throws {
+        let window = Surface(
+            id: SurfaceID("window:42:top:0"), kind: .windowTop, y: 300, minX: 200, maxX: 1000)
+        var (world, id) = try Self.makeWorld(surfaces: [Self.floor, window])
+        #expect(world.pet(id)?.attachment?.surfaceID == window.id)
+        world.apply(.surfaces([Self.floor]))
+        var events: [WorldEvent] = []
+        for _ in 0..<80 { world.step(dt: Self.dt, into: &events) }
+        #expect(events.filter { $0 == .surfaceLost(id, window.id) }.count == 1)
+        #expect(events.filter { $0 == .landed(id, Self.floor.id) }.count == 1)
+        #expect(world.pet(id)?.attachment?.surfaceID == Self.floor.id)
+        #expect(world.pet(id)?.state == .walking)
+    }
+
+    @Test func windowNarrowerThanTheLogicalBodyIsNotAPlacementTarget() throws {
+        let narrow = Surface(
+            id: SurfaceID("window:43:top:0"), kind: .windowTop, y: 300, minX: 200, maxX: 240)
+        let (world, id) = try Self.makeWorld(surfaces: [narrow])
+        #expect(world.pet(id)?.attachment == nil)
+        #expect(world.pet(id)?.state == .spawning)
+        #expect(world.needsSimulationSteps == false)
+    }
+
+    @Test func windowSupportUsesLogicalWidthRatherThanVisualTailWidth() throws {
+        let narrow = Surface(
+            id: SurfaceID("window:48:top:0"), kind: .windowTop, y: 300, minX: 200, maxX: 280)
+        let (world, id) = try Self.makeWorld(surfaces: [narrow])
+        let pet = try #require(world.pet(id))
+        #expect(pet.attachment?.surfaceID == narrow.id)
+        #expect((224...256).contains(pet.position.x))
+    }
+
+    @Test func movingAndResizingAWindowReprojectsTheSameAttachment() throws {
+        let original = Surface(
+            id: SurfaceID("window:44:top:0"), kind: .windowTop, y: 300, minX: 100, maxX: 900)
+        var (world, id) = try Self.makeWorld(surfaces: [original])
+        let parameter = try #require(world.pet(id)?.attachment?.parameter)
+        let moved = Surface(id: original.id, kind: .windowTop, y: 340, minX: 200, maxX: 1000)
+        world.apply(.surfaces([moved]))
+        #expect(world.pet(id)?.attachment?.surfaceID == moved.id)
+        #expect(abs((world.pet(id)?.attachment?.parameter ?? 0) - parameter) < 1e-12)
+        let expectedMoved = moved.point(atParameter: parameter)
+        #expect(
+            hypot(
+                (world.pet(id)?.position.x ?? 0) - expectedMoved.x, (world.pet(id)?.position.y ?? 0) - expectedMoved.y)
+                < 1e-10)
+
+        let resized = Surface(id: moved.id, kind: .windowTop, y: 340, minX: 200, maxX: 800)
+        world.apply(.surfaces([resized]))
+        #expect(world.pet(id)?.attachment?.surfaceID == resized.id)
+        #expect(abs((world.pet(id)?.position.x ?? 0) - resized.point(atParameter: parameter).x) < 1e-10)
+    }
+
+    @Test func sameWindowReturningAfterTrackingPauseReprojectsBeforeTheNextStep() throws {
+        let original = Surface(
+            id: SurfaceID("window:47:top:0"), kind: .windowTop, y: 300, minX: 100, maxX: 900)
+        var (world, id) = try Self.makeWorld(surfaces: [original])
+        let parameter = try #require(world.pet(id)?.attachment?.parameter)
+        world.apply(.surfaces([]))
+        let moved = Surface(id: original.id, kind: .windowTop, y: 320, minX: 200, maxX: 1000)
+        world.apply(.surfaces([moved]))
+        #expect(world.pet(id)?.attachment?.surfaceID == moved.id)
+        #expect(world.pet(id)?.position == moved.point(atParameter: parameter))
+    }
+
+    @Test func movedOccluderDetachesThePetOnceWhenItCoversLogicalSupport() throws {
+        let id = SurfaceID("window:45:top:window:45:left:cover:46:left")
+        let visible = Surface(id: id, kind: .windowTop, y: 300, minX: 100, maxX: 500)
+        let (initialWorld, petID) = try Self.makeWorld(surfaces: [visible])
+        var world = initialWorld
+        var pet = try #require(world.pet(petID))
+        pet.position = CGPoint(x: 400, y: 300)
+        pet.attachment = SurfaceAttachment(surfaceID: id, parameter: visible.parameter(atX: 400))
+        world.pets[0] = pet
+
+        let covered = Surface(id: id, kind: .windowTop, y: 300, minX: 100, maxX: 350)
+        world.apply(.surfaces([covered]))
+        #expect(world.pet(petID)?.attachment == nil)
+        #expect(world.pet(petID)?.state == .airborne(.falling))
+        var events: [WorldEvent] = []
+        world.drainEvents(into: &events)
+        #expect(events.filter { $0 == .surfaceLost(petID, id) }.count == 1)
+        for _ in 0..<10 { world.step(dt: Self.dt, into: &events) }
+        #expect(events.filter { $0 == .surfaceLost(petID, id) }.count == 1)
+    }
+
     @Test func spawningWalksAfterOneStep() throws {
         var (world, id) = try Self.makeWorld()
         let events = world.step(dt: Self.dt)

@@ -148,8 +148,15 @@ cooldown is retained. Three consecutive selections exclude the same action when 
 exists; forced safety/critical-energy fallback and single-eligible-action cases remain bounded.
 
 M10 adds Dragged and cursor-driven observation; M11 adds Climbing within the same PetState hierarchy.
-Window surfaces/riding remain M12/M13. Future states must declare clip, motion, interrupt threshold
-and bounds before implementation. Historical utility/top-k tuning remains superseded ADR-0006.
+M13 uses visible window-top support and window-side targets. Autonomous window excursions are chosen
+at ordinary activity boundaries, jump to an exposed side below the top, reuse the Climbing state,
+walk on the top for a seeded-random bounded interval, then jump toward the Dock. The bounded side
+launch solver uses the existing fixed-step airborne integrator and screen bounds; it never targets the
+top directly. Occluded/unreachable sides are skipped, and the cat walks along the top until a safe
+Dock return jump is available. Window support removal, including a cover entering the logical support
+interval, clears the attachment once and enters the existing Falling state. No second FSM or
+renderer-owned timer is added. Future states must declare clip, motion, interrupt threshold and bounds.
+Historical utility/top-k tuning remains superseded ADR-0006.
 
 ## Test obligations
 
@@ -172,7 +179,7 @@ timer is introduced.
 
 | State | Clip / fallback | Motion / contact | Interrupt threshold | Min / max duration |
 |---|---|---|---|---|
-| Climbing | `climb` loop; missing/invalid art falls back to `idle` | attached vertical ascent; top exits to Falling | 90 | positive fixed-step progress; at most screen height / 120 pt/s + one step |
+| Climbing | `climb` loop; missing/invalid art falls back to `idle` | attached vertical ascent; screen-wall top exits to Falling; M13 window-side top transfers to adjacent window top | 90 | positive fixed-step progress; at most support height / 120 pt/s + one step |
 
 The optional `climb` clip is noninterruptible for ordinary animation requests; physical state
 transitions use priority 90, so wall loss, out-of-bounds and top exit cannot be held by the art.

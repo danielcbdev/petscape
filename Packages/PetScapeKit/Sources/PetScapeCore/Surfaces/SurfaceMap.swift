@@ -4,6 +4,10 @@ import Foundation
 /// The current set of surfaces and the queries pets need (surface-detection.md). Updated with diffs keyed by
 /// `SurfaceID`, so a moved surface keeps its identity and attached pets can follow it.
 public struct SurfaceMap: Equatable, Sendable {
+    /// Window motion above this speed is treated as a discontinuity and the pet lets go.
+    /// The interval is bounded so a delayed snapshot cannot legitimize a teleport.
+    public static let maximumWindowRideSpeed: CGFloat = 240
+    public static let maximumWindowSampleGap: TimeInterval = 1.5
     /// One difference between two surface sets.
     public enum Change: Equatable, Sendable {
         case added(Surface)
@@ -44,6 +48,47 @@ public struct SurfaceMap: Equatable, Sendable {
                     && seen.insert(wall.id).inserted
             }
         }
+    }
+
+    /// Returns window identities whose unchanged-size frames moved too far between snapshots.
+    /// Distances are canonical global points and the decision is independent of collection order.
+    public static func teleportedWindowIDs(
+        from previous: [TrackedWindow], to current: [TrackedWindow], elapsed: TimeInterval
+    ) -> Set<String> {
+        guard elapsed.isFinite, elapsed > 0 else { return [] }
+        var old: [UInt32: TrackedWindow] = [:]
+        var new: [UInt32: TrackedWindow] = [:]
+        for window in previous where old[window.id] == nil { old[window.id] = window }
+        for window in current where new[window.id] == nil { new[window.id] = window }
+        let limit = maximumWindowRideSpeed * CGFloat(min(elapsed, maximumWindowSampleGap))
+        var moved: Set<String> = []
+        for id in old.keys.sorted() {
+            guard let before = old[id], let after = new[id], before.frame != after.frame else { continue }
+            if elapsed > maximumWindowSampleGap {
+                moved.insert("window:\(id)")
+                continue
+            }
+            guard before.frame.size == after.frame.size else { continue }  // Timely resize is re-projected.
+            let displacement = hypot(
+                after.frame.minX - before.frame.minX, after.frame.minY - before.frame.minY)
+            if displacement > limit {
+                moved.insert("window:\(id)")
+            }
+        }
+        return moved
+    }
+
+    public static func belongsToWindow(_ surface: Surface, identities: Set<String>) -> Bool {
+        guard let identity = windowIdentity(for: surface.id) else { return false }
+        return identities.contains(identity)
+    }
+
+    static func windowIdentity(for id: SurfaceID) -> String? {
+        let parts = id.rawValue.split(separator: ":", omittingEmptySubsequences: false)
+        guard parts.count >= 4, parts[0] == "window",
+            ["top", "left", "right"].contains(parts[2])
+        else { return nil }
+        return "\(parts[0]):\(parts[1])"
     }
 
     /// Swept one-way horizontal support, using x at impact rather than at the step endpoint.

@@ -104,10 +104,13 @@ public struct PetWorld: Sendable {
             var events: [WorldEvent] = []
             for index in pets.indices {
                 var pet = pets[index]
-                if (!settings.isEnabled || !settings.jumpsEnabled), pet.activity == .jump,
+                if (!settings.isEnabled || !settings.jumpsEnabled),
+                    (pet.activity == .jump || pet.activity == .windowExcursion),
                     pet.state == .grounded(.preparingJump)
                 {
                     cancelJump(&pet, events: &events)
+                    pet.windowClimbPlan = nil
+                    pet.windowExcursionPhase = nil
                     boundedIdle(&pet, events: &events)
                 }
                 if !settings.isEnabled || !settings.restEnabled {
@@ -207,6 +210,25 @@ public struct PetWorld: Sendable {
         case .surfaces(let newSurfaces):
             let changes = surfaces.changes(to: newSurfaces)
             guard !changes.isEmpty else { return }
+            let occludedWindowSegments = Set(
+                pets.compactMap { pet -> SurfaceID? in
+                    guard let attachment = pet.attachment,
+                        let previous = surfaces.surface(attachment.surfaceID),
+                        SurfaceMap.windowIdentity(for: previous.id) != nil,
+                        changes.contains(where: { change in
+                            guard case .moved(let next) = change, next.id == attachment.surfaceID,
+                                next.id.rawValue.contains(":cover:")
+                            else { return false }
+                            if previous.isVertical {
+                                let height = pet.contactGeometry?.height ?? 0
+                                return pet.position.y < next.minY + height || pet.position.y > next.maxY
+                            }
+                            let halfWidth = pet.contactGeometry?.halfWidth ?? 0
+                            return pet.position.x < next.minX + halfWidth || pet.position.x > next.maxX - halfWidth
+                        })
+                    else { return nil }
+                    return attachment.surfaceID
+                })
             var events: [WorldEvent] = []
             for index in pets.indices {
                 var pet = pets[index]
@@ -221,9 +243,20 @@ public struct PetWorld: Sendable {
                 var pet = pets[index]
                 if pet.attachment == nil {
                     if pet.state == .spawning { place(&pet, events: &events) }
+                } else if let attachment = pet.attachment, occludedWindowSegments.contains(attachment.surfaceID) {
+                    pet.attachment = nil
+                    pet.velocity = .zero
+                    pet.airborneElapsed = 0
+                    cancelJump(&pet, events: &events)
+                    finishActivity(&pet)
+                    enter(.airborne(.falling), pet: &pet, events: &events)
+                    events.append(.surfaceLost(pet.id, attachment.surfaceID))
                 } else if let attachment = pet.attachment,
-                    changes.contains(where: {
-                        if case .moved(let surface) = $0 { surface.id == attachment.surfaceID } else { false }
+                    changes.contains(where: { change in
+                        switch change {
+                        case .added(let surface), .moved(let surface): surface.id == attachment.surfaceID
+                        case .removed: false
+                        }
                     })
                 {
                     reproject(&pet)
@@ -233,6 +266,14 @@ public struct PetWorld: Sendable {
                         || pet.jumpSource.map({ surfaces.surface($0.id) != $0 }) == true
                 {
                     cancelJump(&pet, events: &events)
+                }
+                if let plan = pet.windowClimbPlan, surfaces.surface(plan.target.id) != plan.target {
+                    pet.windowClimbPlan = nil
+                    pet.windowExcursionPhase = nil
+                    if pet.state == .grounded(.preparingJump) {
+                        finishActivity(&pet)
+                        enter(.grounded(.idle), pet: &pet, events: &events)
+                    }
                 }
                 pets[index] = pet
             }
@@ -492,7 +533,7 @@ public struct PetWorld: Sendable {
             pet.airborneElapsed = 0
             finishActivity(&pet)
             if let lostClimbSide {
-                pet.velocity = CGVector(dx: lostClimbSide == .left ? 150 : -150, dy: 0)
+                pet.velocity = CGVector(dx: climbFallVelocityX(side: lostClimbSide, pet: pet), dy: 0)
                 enterPreservingSpriteRect(
                     .airborne(.falling), facing: lostClimbSide == .left ? .right : .left,
                     pet: &pet, events: &events)
@@ -594,7 +635,7 @@ public struct PetWorld: Sendable {
                     fall(&pet, dt: dt, events: &events)
                     return
                 }
-                guard support.isVertical, support.kind == (side == .left ? .screenLeft : .screenRight),
+                guard support.isVertical, isClimbable(support.kind, on: side),
                     let range = verticalRange(for: pet, on: support),
                     let result = PhysicsStepper.climbing(
                         position: pet.position, on: support, verticalRange: range, speed: 120, dt: dt)
@@ -602,12 +643,32 @@ public struct PetWorld: Sendable {
                 commit(result, to: &pet)
                 advancePresentation(of: &pet, dt: dt, events: &events)
                 if result.edgeReached {
-                    pet.attachment = nil
-                    pet.airborneElapsed = 0
-                    pet.velocity = CGVector(dx: side == .left ? 150 : -150, dy: 0)
-                    enterPreservingSpriteRect(
-                        .airborne(.falling), facing: side == .left ? .right : .left,
-                        pet: &pet, events: &events)
+                    if support.kind == .windowLeft || support.kind == .windowRight,
+                        let identity = SurfaceMap.windowIdentity(for: support.id),
+                        let geometry = pet.contactGeometry,
+                        let top = windowTop(for: support, identity: identity, geometry: geometry)
+                    {
+                        let direction: Facing = support.kind == .windowLeft ? .right : .left
+                        let x =
+                            support.kind == .windowLeft
+                            ? top.minX + geometry.halfWidth
+                            : top.maxX - geometry.halfWidth
+                        enterPreservingSpriteRect(.walking, facing: direction, pet: &pet, events: &events)
+                        setPosition(of: &pet, x: x, on: top)
+                        events.append(.landed(pet.id, top.id))
+                        let duration = 5 + nextUnitRandom() * 12
+                        pet.activity = .windowExcursion
+                        pet.activityDuration = duration
+                        pet.activityDeadline = time + duration
+                        pet.windowExcursionPhase = .walkingOnTop(identity, side)
+                    } else {
+                        pet.attachment = nil
+                        pet.airborneElapsed = 0
+                        pet.velocity = CGVector(dx: climbFallVelocityX(side: side, pet: pet), dy: 0)
+                        enterPreservingSpriteRect(
+                            .airborne(.falling), facing: side == .left ? .right : .left,
+                            pet: &pet, events: &events)
+                    }
                 }
             case .landing:
                 pet.velocity = .zero
@@ -661,21 +722,36 @@ public struct PetWorld: Sendable {
             case .preparingJump:
                 pet.velocity = .zero
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.preparationDuration {
-                    guard let plan = pet.jumpPlan, pet.jumpRequestID > pet.consumedJumpID,
-                        pet.jumpSource == surface, surfaces.surface(plan.target.id) == plan.target,
-                        let geometry = pet.contactGeometry, let screen = screens.first,
-                        JumpSolver.solve(
-                            from: pet.position, target: plan.requestedTarget, targetSurfaceID: plan.target.id,
-                            surfaces: surfaces, geometry: geometry, screen: screen, physics: physics,
-                            tuning: jumpTuning, visualMargin: pet.edgeMargin) == plan
-                    else {
-                        cancelJump(&pet, events: &events)
-                        return
+                    let launchVelocity: CGVector
+                    if let plan = pet.windowClimbPlan {
+                        guard pet.jumpSource == surface, surfaces.surface(plan.target.id) == plan.target,
+                            pet.windowExcursionPhase == .jumpingToSide(plan.target.id)
+                        else {
+                            cancelJump(&pet, events: &events)
+                            pet.windowClimbPlan = nil
+                            pet.windowExcursionPhase = nil
+                            boundedIdle(&pet, events: &events)
+                            return
+                        }
+                        launchVelocity = plan.initialVelocity
+                    } else {
+                        guard let plan = pet.jumpPlan, pet.jumpRequestID > pet.consumedJumpID,
+                            pet.jumpSource == surface, surfaces.surface(plan.target.id) == plan.target,
+                            let geometry = pet.contactGeometry, let screen = screens.first,
+                            JumpSolver.solve(
+                                from: pet.position, target: plan.requestedTarget, targetSurfaceID: plan.target.id,
+                                surfaces: surfaces, geometry: geometry, screen: screen, physics: physics,
+                                tuning: jumpTuning, visualMargin: pet.edgeMargin) == plan
+                        else {
+                            cancelJump(&pet, events: &events)
+                            return
+                        }
+                        pet.consumedJumpID = pet.jumpRequestID
+                        launchVelocity = plan.initialVelocity
                     }
-                    pet.consumedJumpID = pet.jumpRequestID
                     pet.lastJumpLaunchTime = time
                     pet.attachment = nil
-                    pet.velocity = plan.initialVelocity
+                    pet.velocity = launchVelocity
                     pet.airborneElapsed = 0
                     enter(.airborne(.rising), pet: &pet, events: &events)
                     events.append(.tookOff(pet.id))
@@ -723,7 +799,8 @@ public struct PetWorld: Sendable {
         guard let geometry = pet.contactGeometry,
             let result = PhysicsStepper.airborne(
                 position: pet.position, velocity: pet.velocity, acceleration: .zero, dt: dt,
-                tuning: physics, surfaces: surfaces, geometry: geometry, visualRange: visualRange(for: pet))
+                tuning: physics, surfaces: surfaces, geometry: geometry, visualRange: visualRange(for: pet),
+                wallTarget: pet.windowClimbPlan?.target)
         else { return recover(&pet, reason: .invalidNumbers, events: &events) }
         let wasRising = pet.state == .airborne(.rising)
         commit(result, to: &pet)
@@ -732,10 +809,36 @@ public struct PetWorld: Sendable {
             enter(.airborne(.falling), pet: &pet, events: &events)
         }
         if let surfaceID = result.landedSurfaceID {
-            pet.jumpPlan = nil
-            pet.jumpSource = nil
             events.append(.landed(pet.id, surfaceID))
-            enter(.grounded(.landing), pet: &pet, events: &events)
+            let landedSurface = surfaces.surface(surfaceID)
+            if let surface = landedSurface, surface.isVertical,
+                (surface.kind == .windowLeft || surface.kind == .windowRight)
+            {
+                let side: WallSide = surface.kind == .windowLeft ? .left : .right
+                pet.windowClimbPlan = nil
+                pet.jumpPlan = nil
+                pet.jumpSource = nil
+                pet.windowExcursionPhase = .climbing(surfaceID)
+                enter(.grounded(.climbing(wall: side)), pet: &pet, events: &events)
+                pet.position.x = surface.segment.start.x
+                pet.attachment = SurfaceAttachment(
+                    surfaceID: surface.id, parameter: surface.parameter(atY: pet.position.y))
+            } else {
+                pet.windowClimbPlan = nil
+                pet.jumpPlan = nil
+                pet.jumpSource = nil
+                if case .jumpingToSide = pet.windowExcursionPhase {
+                    pet.windowExcursionPhase = nil
+                    finishActivity(&pet)
+                }
+                if case .returningToDock = pet.windowExcursionPhase,
+                    landedSurface?.kind == .dockTop
+                {
+                    pet.windowExcursionPhase = nil
+                    finishActivity(&pet)
+                }
+                enter(.grounded(.landing), pet: &pet, events: &events)
+            }
         }
         advancePresentation(of: &pet, dt: dt, events: &events)
     }
@@ -858,6 +961,20 @@ public struct PetWorld: Sendable {
     }
 
     private mutating func chooseActivity(_ pet: inout Pet, events: inout [WorldEvent]) {
+        if case .approachingWindowSide(let surfaceID) = pet.windowExcursionPhase {
+            attemptWindowClimb(to: surfaceID, for: &pet, events: &events)
+            return
+        }
+        if case .walkingOnTop(let identity, let side) = pet.windowExcursionPhase,
+            time + FixedStepAccumulator.tolerance >= pet.activityDeadline
+        {
+            finishActivity(&pet)
+            pet.windowExcursionPhase = .returningToDock(identity, side)
+        }
+        if case .returningToDock(_, let side) = pet.windowExcursionPhase {
+            attemptWindowReturn(&pet, toward: side, events: &events)
+            return
+        }
         finishActivity(&pet)
         let forcedSleep = behavior.restEnabled && pet.needs.energy <= 0.08
         var candidates: [ActivityCandidate] = []
@@ -865,6 +982,7 @@ public struct PetWorld: Sendable {
             guard (pet.activityCooldowns[activity] ?? 0) <= time + FixedStepAccumulator.tolerance else { continue }
             switch activity {
             case .jump where !behavior.jumpsEnabled || screens.isEmpty: continue
+            case .windowExcursion where !behavior.jumpsEnabled || eligibleWindowSideSurfaces(for: pet).isEmpty: continue
             case .sit where !behavior.restEnabled, .sleep where !behavior.restEnabled: continue
             case .stretch where !behavior.expressionsEnabled, .observe where !behavior.expressionsEnabled: continue
             default: break
@@ -882,6 +1000,7 @@ public struct PetWorld: Sendable {
                 case .stretch: weight = 0.5 * (0.5 + pet.personality.playfulness)
                 case .observe: weight = 1 * (0.5 + pet.personality.curiosity)
                 case .explore: weight = 0.8 * (0.5 + pet.personality.curiosity)
+                case .windowExcursion: weight = 0.6 * (0.5 + pet.personality.curiosity)
                 }
             }
             candidates.append(ActivityCandidate(activity, weight: weight))
@@ -912,11 +1031,199 @@ public struct PetWorld: Sendable {
         case .jump:
             requestJump(JumpRequest(returnActivity: .idle), pet: &pet, events: &events)
             if pet.state != .grounded(.preparingJump) { boundedIdle(&pet, events: &events) }
+        case .windowExcursion:
+            if !startWindowExcursion(&pet, events: &events) {
+                pet.activityCooldowns[.windowExcursion] = time + 20
+                boundedIdle(&pet, events: &events)
+            }
         case .sit: enter(.grounded(.sittingDown), pet: &pet, events: &events)
         case .sleep: enter(.grounded(.lyingDown), pet: &pet, events: &events)
         case .stretch: enter(.grounded(.stretching), pet: &pet, events: &events)
         case .observe: enter(.grounded(.observing), pet: &pet, events: &events)
         }
+    }
+
+    private func eligibleWindowSideSurfaces(for pet: Pet) -> [Surface] {
+        guard attachedSurface(of: pet)?.kind == .dockTop else { return [] }
+        return surfaces.surfaces.filter { side in
+            guard side.isVertical, (side.kind == .windowLeft || side.kind == .windowRight),
+                let identity = SurfaceMap.windowIdentity(for: side.id),
+                side.id.rawValue.hasSuffix(":\(identity):top"),
+                let geometry = pet.contactGeometry,
+                windowTop(for: side, identity: identity, geometry: geometry) != nil
+            else { return false }
+            return true
+        }
+    }
+
+    private mutating func startWindowExcursion(_ pet: inout Pet, events: inout [WorldEvent]) -> Bool {
+        guard let source = attachedSurface(of: pet), source.kind == .dockTop,
+            pet.contactGeometry != nil, screens.first != nil
+        else { return false }
+        let targets = eligibleWindowSideSurfaces(for: pet).sorted { $0.id.rawValue < $1.id.rawValue }
+        let identities = Array(Set(targets.compactMap { SurfaceMap.windowIdentity(for: $0.id) })).sorted()
+        guard !identities.isEmpty else { return false }
+        let startIndex = Int(random.next() % UInt64(identities.count))
+        for offset in 0..<identities.count {
+            let identity = identities[(startIndex + offset) % identities.count]
+            let sides = targets.filter { SurfaceMap.windowIdentity(for: $0.id) == identity }
+                .sorted { abs($0.minX - pet.position.x) < abs($1.minX - pet.position.x) }
+            for side in sides {
+                if launchWindowClimb(to: side, source: source, pet: &pet, events: &events) { return true }
+                guard let launchX = windowLaunchX(for: side, on: source, pet: pet),
+                    let targetY = windowClimbTargetY(for: side, startY: source.y, pet: pet),
+                    let geometry = pet.contactGeometry, let screen = screens.first,
+                    WindowClimbSolver.solve(
+                        from: CGPoint(x: launchX, y: source.y), target: side, targetY: targetY,
+                        surfaces: surfaces, geometry: geometry, screen: screen, physics: physics,
+                        tuning: jumpTuning, visualMargin: pet.edgeMargin) != nil
+                else { continue }
+                pet.windowExcursionPhase = .approachingWindowSide(side.id)
+                pet.activity = .windowExcursion
+                pet.activityDeadline = time
+                attemptWindowClimb(to: side.id, for: &pet, events: &events)
+                return true
+            }
+        }
+        return false
+    }
+
+    private mutating func attemptWindowClimb(
+        to surfaceID: SurfaceID, for pet: inout Pet, events: inout [WorldEvent]
+    ) {
+        guard let side = surfaces.surface(surfaceID),
+            eligibleWindowSideSurfaces(for: pet).contains(where: { $0.id == surfaceID }),
+            let source = attachedSurface(of: pet), source.kind == .dockTop
+        else {
+            pet.windowExcursionPhase = nil
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        if launchWindowClimb(to: side, source: source, pet: &pet, events: &events) { return }
+        guard let launchX = windowLaunchX(for: side, on: source, pet: pet) else {
+            pet.windowExcursionPhase = nil
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        let delta = launchX - pet.position.x
+        guard abs(delta) > physics.contactTolerance else {
+            pet.windowExcursionPhase = nil
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        let facing: Facing = delta > 0 ? .right : .left
+        pet.facing = facing
+        pet.animation.setFacing(facing)
+        pet.activity = .windowExcursion
+        let speed = max(1, tuning.fallbackWalkSpeed * tuning.speedScale * pet.scale)
+        pet.activityDuration = Double(abs(delta) / CGFloat(speed))
+        pet.activityDeadline = time + pet.activityDuration
+        enter(.walking, pet: &pet, events: &events)
+    }
+
+    private mutating func launchWindowClimb(
+        to side: Surface, source: Surface, pet: inout Pet, events: inout [WorldEvent]
+    ) -> Bool {
+        guard let geometry = pet.contactGeometry, let screen = screens.first,
+            let targetY = windowClimbTargetY(for: side, startY: pet.position.y, pet: pet),
+            let plan = WindowClimbSolver.solve(
+                from: pet.position, target: side, targetY: targetY, surfaces: surfaces,
+                geometry: geometry, screen: screen, physics: physics, tuning: jumpTuning,
+                visualMargin: pet.edgeMargin)
+        else { return false }
+        pet.windowClimbPlan = plan
+        pet.jumpPlan = nil
+        pet.jumpSource = source
+        let facing: Facing = side.kind == .windowLeft ? .right : .left
+        pet.facing = facing
+        pet.animation.setFacing(facing)
+        pet.windowExcursionPhase = .jumpingToSide(side.id)
+        pet.resumeActivity = .walking
+        enter(.grounded(.preparingJump), pet: &pet, events: &events)
+        return true
+    }
+
+    private func windowLaunchX(for side: Surface, on source: Surface, pet: Pet) -> CGFloat? {
+        guard let range = horizontalPlacementRange(for: pet, on: source) else { return nil }
+        let desired = side.kind == .windowLeft ? side.minX - 40 : side.minX + 40
+        return min(max(desired, range.lowerBound), range.upperBound)
+    }
+
+    private func windowClimbTargetY(for side: Surface, startY: CGFloat, pet: Pet) -> CGFloat? {
+        guard let geometry = pet.contactGeometry else { return nil }
+        let facing: Facing = side.kind == .windowLeft ? .right : .left
+        let climbAnchorY = pet.animation.definition.clip(named: "climb", facing: facing).clip.anchor.y
+        let lowerContact = max(side.minY + geometry.height, startY)
+        let upperContact = side.maxY - CGFloat(1 - climbAnchorY) * pet.size.height - 1
+        guard upperContact > lowerContact else { return nil }
+        // Jump to the middle of the climbable span, leaving a substantial wall section to climb.
+        let targetY = lowerContact + (upperContact - lowerContact) * 0.5
+        guard targetY >= side.minY + geometry.height,
+            targetY >= startY + 48,
+            targetY.isFinite
+        else { return nil }
+        return targetY
+    }
+
+    private mutating func attemptWindowReturn(
+        _ pet: inout Pet, toward side: WallSide, events: inout [WorldEvent]
+    ) {
+        guard let source = attachedSurface(of: pet), source.kind == .windowTop,
+            let dock = surfaces.surfaces.first(where: { $0.kind == .dockTop }),
+            let geometry = pet.contactGeometry, let screen = screens.first,
+            let range = horizontalPlacementRange(for: pet, on: dock)
+        else {
+            pet.windowExcursionPhase = nil
+            boundedIdle(&pet, events: &events)
+            return
+        }
+        let jumpOffset = side == .left ? -jumpTuning.maxHorizontalDisplacement : jumpTuning.maxHorizontalDisplacement
+        let targetX = min(max(pet.position.x + CGFloat(jumpOffset), range.lowerBound), range.upperBound)
+        let target = CGPoint(x: targetX, y: dock.y)
+        if abs(targetX - pet.position.x) <= jumpTuning.maxHorizontalDisplacement,
+            JumpSolver.solve(
+                from: pet.position, target: target, targetSurfaceID: dock.id, surfaces: surfaces,
+                geometry: geometry, screen: screen, physics: physics, tuning: jumpTuning,
+                visualMargin: pet.edgeMargin) != nil
+        {
+            requestJump(
+                JumpRequest(target: .surface(dock.id, x: targetX), returnActivity: .walking),
+                pet: &pet, events: &events)
+            if pet.state == .grounded(.preparingJump) { return }
+        }
+
+        let edgeX = side == .left ? source.minX + geometry.halfWidth : source.maxX - geometry.halfWidth
+        let direction: Facing = pet.position.x > edgeX ? .left : .right
+        pet.facing = direction
+        pet.animation.setFacing(direction)
+        pet.activity = .windowExcursion
+        pet.activityDuration = 2
+        pet.activityDeadline = time + 2
+        enter(.walking, pet: &pet, events: &events)
+    }
+
+    private func windowTop(for side: Surface, identity: String, geometry: ContactGeometry) -> Surface? {
+        let contactX = side.kind == .windowLeft ? side.minX + geometry.halfWidth : side.minX - geometry.halfWidth
+        return surfaces.surfaces.first {
+            $0.kind == .windowTop && SurfaceMap.windowIdentity(for: $0.id) == identity
+                && $0.y == side.maxY
+                && contactX >= $0.minX + geometry.halfWidth && contactX <= $0.maxX - geometry.halfWidth
+        }
+    }
+
+    private func isClimbable(_ kind: SurfaceKind, on side: WallSide) -> Bool {
+        switch (kind, side) {
+        case (.screenLeft, .left), (.windowLeft, .left), (.screenRight, .right), (.windowRight, .right): true
+        default: false
+        }
+    }
+
+    private func climbFallVelocityX(side: WallSide, pet: Pet) -> CGFloat {
+        if case .climbing(let surfaceID) = pet.windowExcursionPhase {
+            if surfaceID.rawValue.contains(":left:") { return -150 }
+            if surfaceID.rawValue.contains(":right:") { return 150 }
+        }
+        return side == .left ? 150 : -150
     }
 
     // MARK: - Explicit jump commands
@@ -996,7 +1303,7 @@ public struct PetWorld: Sendable {
     /// Puts an unplaced pet on the spawn surface at a random position and facing, walk clip at frame 0.
     private mutating func place(_ pet: inout Pet, events: inout [WorldEvent]) {
         guard let surface = placementSurface(for: pet) else { return }
-        let range = surface.walkableRange(margin: pet.edgeMargin)
+        guard let range = horizontalPlacementRange(for: pet, on: surface) else { return }
         let x = range.lowerBound + CGFloat(nextUnitRandom()) * (range.upperBound - range.lowerBound)
         let facing: Facing = random.next() & 1 == 0 ? .right : .left
         pet.facing = facing
@@ -1015,7 +1322,7 @@ public struct PetWorld: Sendable {
         guard let surface = placementSurface(for: pet), x.isFinite, surface.minX <= x, x <= surface.maxX else {
             return false
         }
-        let range = surface.walkableRange(margin: pet.edgeMargin)
+        guard let range = horizontalPlacementRange(for: pet, on: surface) else { return false }
         setPosition(of: &pet, x: min(max(x, range.lowerBound), range.upperBound), on: surface)
         events.append(.placed(pet.id, surface.id))
         return true
@@ -1040,10 +1347,14 @@ public struct PetWorld: Sendable {
             pet.attachment = SurfaceAttachment(surfaceID: surface.id, parameter: surface.parameter(atY: y))
             return
         }
-        guard let geometry = pet.contactGeometry, surface.width >= max(geometry.halfWidth, pet.edgeMargin) * 2 else {
+        guard let geometry = pet.contactGeometry else {
             return
         }
-        let range = surface.walkableRange(margin: pet.edgeMargin)
+        let requiredHalfWidth =
+            surface.kind == .windowTop ? geometry.halfWidth : max(geometry.halfWidth, pet.edgeMargin)
+        guard surface.width >= requiredHalfWidth * 2,
+            let range = horizontalPlacementRange(for: pet, on: surface)
+        else { return }
         let x = min(max(surface.point(atParameter: attachment.parameter).x, range.lowerBound), range.upperBound)
         setPosition(of: &pet, x: x, on: surface)
     }
@@ -1060,7 +1371,7 @@ public struct PetWorld: Sendable {
             guard let surface = surfaces.surface(attachment.surfaceID), surface.isUsable else { return nil }
             if surface.isVertical {
                 guard case .grounded(.climbing(let side)) = pet.state,
-                    surface.kind == (side == .left ? .screenLeft : .screenRight),
+                    isClimbable(surface.kind, on: side),
                     let range = verticalRange(for: pet, on: surface),
                     abs(pet.position.x - surface.segment.start.x) <= physics.contactTolerance,
                     range.contains(pet.position.y)
@@ -1095,15 +1406,33 @@ public struct PetWorld: Sendable {
     private func placementSurface(for pet: Pet) -> Surface? {
         guard let geometry = pet.contactGeometry else { return nil }
         func usable(_ surface: Surface) -> Bool {
-            guard surface.isUsable, surface.width >= max(geometry.halfWidth, pet.edgeMargin) * 2 else { return false }
-            return screens.isEmpty
+            let requiredHalfWidth =
+                surface.kind == .windowTop
+                ? geometry.halfWidth : max(geometry.halfWidth, pet.edgeMargin)
+            guard surface.isUsable, surface.width >= requiredHalfWidth * 2 else { return false }
+            let onHostedScreen =
+                screens.isEmpty
                 || screens.contains {
                     surface.y >= $0.frame.minY && surface.y < $0.frame.maxY
                         && surface.maxX > $0.frame.minX && surface.minX < $0.frame.maxX
                 }
+            return onHostedScreen
+                && (surface.kind != .windowTop || horizontalPlacementRange(for: pet, on: surface) != nil)
         }
         return surfaces.surfaces.first { $0.kind == .dockTop && usable($0) }
+            ?? surfaces.surfaces.first { $0.kind == .windowTop && usable($0) }
             ?? surfaces.surfaces.first { usable($0) }
+    }
+
+    private func horizontalPlacementRange(for pet: Pet, on surface: Surface) -> ClosedRange<CGFloat>? {
+        guard let geometry = pet.contactGeometry else { return nil }
+        let supportMargin = surface.kind == .windowTop ? geometry.halfWidth : max(geometry.halfWidth, pet.edgeMargin)
+        let supportRange = surface.walkableRange(margin: supportMargin)
+        guard surface.kind == .windowTop else { return supportRange }
+        let visibleRange = visualRange(for: pet)
+        let lower = max(supportRange.lowerBound, visibleRange.lowerBound)
+        let upper = min(supportRange.upperBound, visibleRange.upperBound)
+        return lower <= upper ? lower...upper : nil
     }
 
     // MARK: - Transitions and invariants

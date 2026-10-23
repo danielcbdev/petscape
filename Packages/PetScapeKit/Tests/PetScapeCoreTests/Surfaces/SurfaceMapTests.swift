@@ -123,4 +123,25 @@ struct SurfaceMapTests {
         #expect(SurfaceMap([Self.floor]).spawnSurface?.id == SurfaceID("floor"))
         #expect(SurfaceMap().spawnSurface == nil)
     }
+
+    @Test func windowRideThresholdUsesCanonicalDistanceAndRejectsDelayedSamples() {
+        let before = TrackedWindow(
+            id: 7, ownerPID: 3, frame: CGRect(x: 100, y: 300, width: 400, height: 200), zIndex: 0)
+        let slow = TrackedWindow(id: 7, ownerPID: 3, frame: CGRect(x: 100, y: 340, width: 400, height: 200), zIndex: 0)
+        let fast = TrackedWindow(id: 7, ownerPID: 3, frame: CGRect(x: 100, y: 500, width: 400, height: 200), zIndex: 0)
+        #expect(SurfaceMap.teleportedWindowIDs(from: [before], to: [slow], elapsed: 0.5).isEmpty)
+        #expect(SurfaceMap.teleportedWindowIDs(from: [before], to: [fast], elapsed: 0.5) == ["window:7"])
+        #expect(SurfaceMap.teleportedWindowIDs(from: [before], to: [slow], elapsed: 2) == ["window:7"])
+        #expect(SurfaceMap.teleportedWindowIDs(from: [before], to: [before], elapsed: 2).isEmpty)
+        let windowSurface = Surface(id: SurfaceID("window:7:top:0"), kind: .windowTop, y: 340, minX: 100, maxX: 500)
+        #expect(SurfaceMap.belongsToWindow(windowSurface, identities: ["window:7"]))
+    }
+
+    @Test func resizingWindowReprojectsInsteadOfClassifyingAsTeleport() {
+        let before = TrackedWindow(
+            id: 8, ownerPID: 3, frame: CGRect(x: 100, y: 300, width: 400, height: 200), zIndex: 0)
+        let resized = TrackedWindow(
+            id: 8, ownerPID: 3, frame: CGRect(x: 100, y: 300, width: 600, height: 200), zIndex: 0)
+        #expect(SurfaceMap.teleportedWindowIDs(from: [before], to: [resized], elapsed: 0.5).isEmpty)
+    }
 }

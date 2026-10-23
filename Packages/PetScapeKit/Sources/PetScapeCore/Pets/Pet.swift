@@ -1,6 +1,14 @@
 import CoreGraphics
 import Foundation
 
+enum WindowExcursionPhase: Equatable, Sendable {
+    case approachingWindowSide(SurfaceID)
+    case jumpingToSide(SurfaceID)
+    case climbing(SurfaceID)
+    case walkingOnTop(String, WallSide)
+    case returningToDock(String, WallSide)
+}
+
 /// One pet: identity, placement, state and animation (pet-engine.md#data-model). A value; only `PetWorld`
 /// changes it.
 ///
@@ -14,6 +22,8 @@ public struct Pet: Sendable {
     var airborneElapsed: Double = 0
     var jumpPlan: JumpPlan?
     var jumpSource: Surface?
+    var windowClimbPlan: WindowClimbPlan?
+    var windowExcursionPhase: WindowExcursionPhase?
     public internal(set) var resumeActivity: ResumeActivity = .walking
     var lastJumpLaunchTime: Double?
     var jumpRequestID = 0

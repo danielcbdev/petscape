@@ -64,7 +64,7 @@ flush prior state on reprojection/recovery, never draw through a changed Dock.
 | Overlay occlusion | `OverlayWindowManager` (`NSWindow.didChangeOcclusionStateNotification` on its panels) | Notification | `RunState.suspended` on/off |
 | Full-screen Space | `FullScreenSpaceDetector` (`activeSpaceDidChange` → `CGWindowList` read twice) | Notification + delayed reads | `RunState.suspended` on/off |
 | User intents | Menu / Settings via `AppModel` | Direct method call | `RunState`, preferences |
-| Other apps' windows | `CompositeWindowTracker` (M12) | Opt-in 1 Hz CG snapshots; focused-window AX events may trigger a throttled refresh (≤2 Hz) | `TrackedWindow` → `WindowSurfaceBuilder` → diagnostic window-top surfaces. Feeding these surfaces into the world is M13. |
+| Other apps' windows | `CompositeWindowTracker` (M12) | Opt-in 1 Hz CG snapshots; focused-window AX events may trigger a throttled refresh (≤2 Hz) | `TrackedWindow` → host-screen `WindowSurfaceBuilder` → `PetRuntime.applySurfaces` → world `SurfaceMap`; surface diffs drive re-projection, support loss, contacts and jump targets. |
 
 ## Run state
 

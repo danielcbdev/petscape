@@ -101,6 +101,29 @@ test passed in Automation Mode on 2026-10-18 (`make test`; 174 package tests plu
 
 Post-MVP milestones extend this matrix (drag, climbing, windows, multi-display).
 
+### M13 native window matrix
+
+| Scenario | Expected |
+|---|---|
+| Enable Interact with windows and autonomy; place a visible window above the Dock; wait through several activity choices | Cat occasionally jumps to a visible side below the top, climbs up, walks on the top, then jumps back to Dock |
+| Open several eligible windows and observe repeated excursions | Destination varies across windows; covered or unreachable sides are skipped |
+| Cover, move, minimize or close the selected window during the excursion | Cat detaches or falls safely; no window is moved or activated |
+| Disable Interact with windows or autonomy during a Dock approach | No new climb starts; existing physical motion resolves safely |
+
+Automated deterministic tests do not replace these native visual checks.
+
+## M13 window interaction coverage
+
+Deterministic package tests cover visible-segment construction and occlusion identities, logical-width
+placement, window spawn and support loss, parameter re-projection during move/resize, teleport
+classification, a single occlusion detach, swept landing and the existing discrete jump path to a
+window. T13.7 tests cover window-side jump solving, climbing from the side to the top, timed walking,
+Dock return and seeded selection across multiple windows. Tracker permission tests continue to assert
+that disabled opt-in makes no trust/prompt call.
+These tests do not establish native AX delivery cadence, frame lag, app hide/minimize behavior,
+revocation, visible-side accuracy, the rendered climb, or CPU overhead; those require the manual M13
+matrix and Release measurements below.
+
 
 ## M7/M8 regression matrix
 

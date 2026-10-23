@@ -39,10 +39,10 @@ Inspect with Instruments › os_signpost / Points of Interest.
 | Show pet state, clip, frame, facing, needs | M5–M9 |
 | Frame stats (step time, frame-image memory) from signposts/counters; the measured frame rate is logged instead (see below) | later |
 | Dock offset (done in M6): submenu "Dock offset: +0 pt" with Raise/Lower 1 pt and 5 pt and Reset; persisted (`petscape.dockOffsetAdjustment`) | M6 |
-| Jump vertically; short jump left/right (60 pt); jump to Dock; Idle; Walk (implemented). Commands preserve walk/idle return intent; rejected while paused/hidden/suspended, busy, unreachable or in the 2 simulated-second cooldown. Current walk-only art holds a safe fallback pose in flight. No automatic jumping. | M8 |
+| Jump vertically; short jump left/right (60 pt); jump to Dock; Idle; Walk (implemented). Commands preserve walk/idle return intent; rejected while paused/hidden/suspended, busy, unreachable or in the 2 simulated-second cooldown. Current walk-only art holds a safe fallback pose in flight. | M8 |
 | Simulation speed (0.25×, 1×, 4×) and single-step while paused | Deferred |
 | Force events (surface lost, startled, low energy) | M7–M9 |
-| Show window surfaces (DEBUG-only pink dashed segments; no names or titles) | M12 |
+| Show window surfaces (DEBUG-only pink dashed top and side segments; no names or titles) | M12–M13 |
 
 DEBUG launch arguments (ignored in Release):
 
@@ -108,6 +108,7 @@ Protocol and targets: [performance.md](../specifications/performance.md).
 | Cat huge or tiny | Layer bounds taken from image pixels | Bounds must come from `displaySize` |
 | CPU high while paused | A timer or monitor still running; display link not paused | Run-state logs; Time Profiler |
 | Accessibility permission "forgotten" | Rebuilt with a different signing identity | Use a stable dev identity |
+| DEBUG "Show window surfaces" displays nothing | It draws only surfaces already delivered by the opt-in tracker | The submenu now reports whether interaction is off, Accessibility is missing, or zero visible top/side segments were found; check Settings › Interact with windows |
 
 M7/M8 physical events (`simulation` category): surface lost, landed, took off, apex, jump rejected
 (with typed reason) and jump cancelled. These are emitted once per transition/request; art markers

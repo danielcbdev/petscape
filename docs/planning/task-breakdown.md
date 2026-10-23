@@ -572,6 +572,31 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
 | T13.4 | Jumps between windows (targets include window tops) | Core | T13.1, M8 | M | U |
 | T13.5 | Occlusion changes (window raised over the pet's segment) → detach | Core | T13.1 | S | U |
 | T13.6 | Performance validation with tracking enabled | All | T13.1–T13.5 | S | Measurements entry |
+| T13.7 | Autonomous window excursion: randomly choose a visible window, jump to an exposed side below its top, climb the side, walk on its top, then jump back to Dock | Core, Run | T13.1–T13.5, M11 | L | U + Man |
+
+### M13 implementation evidence (2026-10-23)
+
+- Implemented: host-screen visible window surfaces enter `PetWorld` through `PetRuntime`; spawn and
+  swept contacts use logical body width; same-ID move/resize reprojects the attachment; translated
+  samples above the documented speed/gap guard drop that window's support; moved occlusion boundaries
+  invalidate covered support; window destinations use the existing `JumpSolver` and return phases.
+- Automated coverage added for window spawn, undersized support rejection, move/resize re-projection,
+  support removal with one continuous fall, occlusion detach-once, jump landing on a window, segment
+  identities, and deterministic teleport classification. T13.7 adds visible-side clipping, bounded
+  jump-to-side solving, reuse of M11 climbing, randomized visible-window selection, top walking and a
+  Dock return jump. New seeded coverage exercises the complete excursion and selection across multiple
+  windows. Existing package regressions are retained.
+- Verification (2026-10-23): `make lint` passed; `make test-core` passed (309 Core tests plus the
+  Runtime, Platform and Rendering package suites); `make test` passed (package suites and 2 UI tests);
+  `make build` passed. No warning was introduced by the changed code. Xcode emitted its existing
+  AppIntents metadata-extraction warning during UI-test build; build also reports multiple matching
+  macOS destinations and selects the arm64 host.
+- Pending: native AC-M13-01 drag latency, manual close/minimize/hide/revocation/occlusion/jump and
+  autonomous climb/return checks, and paired Release tracking CPU measurements. One exploratory Debug idle sample is recorded in
+  [performance.md](../specifications/performance.md#m13-tracking-measurements), but does not isolate
+  tracking. Current tracker refresh is ≤2 Hz, so one-frame lag is not
+  currently supportable or verified. Proposed smallest event-driven correction and the required
+  concurrency approval are recorded in [ADR-0023](../decisions/0023-window-interaction-cadence.md).
 
 ## M14 — Multi-display, optimization & stabilization
 

@@ -32,6 +32,9 @@ public final class PetRuntime {
     /// Reused every frame (no per-frame allocation once warm).
     private var snapshot = RenderSnapshot()
     private var events: [WorldEvent] = []
+    private var windowSurfacesForWorld: [Surface] = []
+    private var lastWindowSnapshotTime: TimeInterval?
+    private var lastTrackedWindows: [TrackedWindow] = []
     public private(set) var trackedWindowSurfaces: [Surface] = []
     public var onTrackedWindowSurfacesChange: (([Surface]) -> Void)?
     public var onWindowPermissionRevoked: (() -> Void)?
@@ -68,13 +71,7 @@ public final class PetRuntime {
             makeFrameDriver: makeFrameDriver)
         overlay.directInteractionsEnabled = preferences.petSettings.interaction.directInteractionEnabled
         windowTracker.onChange = { [weak self] windows in
-            guard let self else { return }
-            let surfaces = WindowSurfaceBuilder.build(windows: windows, screens: self.overlay.screens)
-            self.trackedWindowSurfaces = surfaces
-            #if DEBUG
-                self.overlay.setWindowSurfaceDiagnostics(surfaces)
-            #endif
-            self.onTrackedWindowSurfacesChange?(surfaces)
+            self?.receiveTrackedWindows(windows)
         }
         windowTracker.onPermissionRevoked = { [weak self] in self?.onWindowPermissionRevoked?() }
     }
@@ -232,7 +229,8 @@ public final class PetRuntime {
         let floors = SurfaceMap.screenBottoms(for: overlay.hostScreen.map { [$0] } ?? [])
         let walls = SurfaceMap.screenWalls(for: overlay.hostScreen.map { [$0] } ?? [])
         var surfaces = overlay.dock.surfaces
-        for surface in floors + walls where !surfaces.contains(where: { $0.id == surface.id }) {
+        for surface in floors + walls + windowSurfacesForWorld
+        where !surfaces.contains(where: { $0.id == surface.id }) {
             surfaces.append(surface)
         }
         world.apply(.surfaces(surfaces))
@@ -260,6 +258,31 @@ public final class PetRuntime {
         } else {
             windowTracker.start(converter: converter)
         }
+    }
+
+    /// Reconciles a privacy-minimal tracker snapshot at the runtime boundary.
+    func receiveTrackedWindows(_ windows: [TrackedWindow]) {
+        let surfaces = WindowSurfaceBuilder.build(
+            windows: windows, screens: overlay.hostScreen.map { [$0] } ?? [])
+        let now = ProcessInfo.processInfo.systemUptime
+        if let previousTime = lastWindowSnapshotTime {
+            let teleported = SurfaceMap.teleportedWindowIDs(
+                from: lastTrackedWindows, to: windows, elapsed: now - previousTime)
+            windowSurfacesForWorld = surfaces.filter {
+                !SurfaceMap.belongsToWindow($0, identities: teleported)
+            }
+        } else {
+            windowSurfacesForWorld = surfaces
+        }
+        lastWindowSnapshotTime = now
+        lastTrackedWindows = windows
+        trackedWindowSurfaces = surfaces
+        #if DEBUG
+            overlay.setWindowSurfaceDiagnostics(surfaces)
+        #endif
+        onTrackedWindowSurfacesChange?(surfaces)
+        applySurfaces()
+        renderNow()
     }
 
     /// Applies interaction facts through PetWorld and acknowledges them before native capture is latched.

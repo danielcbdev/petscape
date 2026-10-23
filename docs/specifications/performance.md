@@ -32,6 +32,24 @@ No performance target is weakened. M9 was subsequently reauthorized and closed b
 
 Post-MVP budgets: window tracking enabled and idle adds ≤ 1% CPU; each additional pet adds ≤ 1.5% CPU.
 
+## M13 tracking measurements
+
+**Not measured for M13.** The M12 short samples in
+[window-tracking.md](../architecture/window-tracking.md#m12-spike-findings-2026-10-22) ran with an
+active pet and did not isolate tracking cost; they cannot satisfy T13.6. A valid comparison still
+needs the same Release build, machine and OS with opt-in/trust already granted: 30 s warmup, then at
+least three 60 s CPU windows for tracking enabled with the simulation idle and three with the cat
+moving, plus matched tracking-disabled controls. Record Activity Monitor `% CPU` or process CPU-time
+deltas, sample cadence, window count only, OS/hardware, state and preference state. Do not capture
+titles or frame histories. No result is claimed here because enabling the setting or checking native
+window behavior is owner-state dependent.
+
+Exploratory observation (2026-10-23): on macOS 27.0.1 (build 26A434), Mac16,12 (10 logical CPUs),
+the Debug app was launched with the already-persisted window-interaction preference enabled; no pet
+was active. Over one 60 s process CPU-time window, PetScape advanced from 4.32 s to 6.22 s CPU time,
+or 3.17% of one core. This does not isolate tracking from Debug/runtime idle work, lacks a matched
+disabled control, and is not a T13.6 result or budget claim. The persisted preference was not changed.
+
 ## Strategies
 
 | Strategy | Detail |

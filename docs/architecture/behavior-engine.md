@@ -13,7 +13,8 @@ computes candidates, the world commits them, animation presents the resulting ph
 or visual marker never completes an activity or triggers takeoff/contact.
 
 Activity choice occurs at a simulated deadline/completion or a safety interruption, never every
-frame. The stable candidate order is Walk, Idle, Jump, Sit, Sleep, Stretch, Observe, Explore.
+frame. The stable candidate order is Walk, Idle, Jump, Sit, Sleep, Stretch, Observe, Explore,
+WindowExcursion.
 Availability/toggles and simulated cooldowns filter candidates. ActivitySelector performs one
 weighted draw using the injected RandomSource. Nonfinite/nonpositive weights are unavailable;
 normalization prevents overflow for large finite weights. Zero total gives bounded Idle. There is
@@ -45,6 +46,7 @@ future interaction rather than inventing pet-to-pet behavior now.
 | Stretch | 0.5 × (0.5 + playfulness) | 1.5 s | 20 s |
 | Observe | 1 × (0.5 + curiosity) | 3–5 s | 0 |
 | Explore | 0.8 × (0.5 + curiosity) | 6–10 s | 0 |
+| Window excursion | 0.6 × (0.5 + curiosity), only from Dock with an eligible visible window side | jump, climb, 5–17 s top walk, Dock return | 30 s |
 
 At energy≤0.08 with rest enabled, the next eligible decision forces Sleep. Activity weights are
 ordinary injectable BehaviorTuning data for deterministic scenarios; production uses the table.
@@ -56,7 +58,11 @@ second cooldown at cancellation, preserving position/velocity/physical phase unt
 
 Walk/Explore use existing supported walking, including edge turning; Explore is a short supported
 walk, not a new window/surface service. Automatic Jump submits a validated M8 vertical request;
-explicit commands retain their target types. Unreachable/rejected requests produce a two-second
+WindowExcursion is a separate weighted activity available only while opted-in window surfaces
+include a visible reachable side. It chooses an eligible window with the injected random source,
+approaches along Dock when needed, attaches to the side below the top using the bounded M13 solver,
+reuses M11 climbing, walks on the top for 5–17 simulated seconds and walks to a launch point before
+jumping back to Dock. Explicit commands retain their target types. Unreachable/rejected requests produce a two-second
 Idle, never another choice in the same call. A walk with no progress for two simulated seconds also
 ends in bounded Idle.
 

@@ -54,12 +54,22 @@ enum PhysicsStepper {
     static func airborne(
         position: CGPoint, velocity: CGVector, acceleration: CGVector, dt: Double,
         tuning: PhysicsTuning, surfaces: SurfaceMap, geometry: ContactGeometry,
-        visualRange: ClosedRange<CGFloat>
+        visualRange: ClosedRange<CGFloat>, wallTarget: Surface? = nil
     ) -> PhysicsStepResult? {
         guard
             let result = integrate(
                 position: position, velocity: velocity, acceleration: acceleration, dt: dt, tuning: tuning)
         else { return nil }
+        if let wallTarget, wallTarget.isVertical, wallTarget.isUsable,
+            (wallTarget.kind == .windowLeft || wallTarget.kind == .windowRight),
+            let point = wallContact(from: position, to: result.position, with: wallTarget, geometry: geometry),
+            surfaces.surface(wallTarget.id) == wallTarget
+        {
+            return PhysicsStepResult(
+                position: point, velocity: .zero,
+                attachment: SurfaceAttachment(surfaceID: wallTarget.id, parameter: wallTarget.parameter(atY: point.y)),
+                landedSurfaceID: wallTarget.id)
+        }
         guard result.velocity.dy < 0,
             let contact = surfaces.firstLanding(
                 from: position, to: result.position, geometry: geometry,
@@ -70,6 +80,22 @@ enum PhysicsStepper {
             position: contact.position, velocity: .zero,
             attachment: SurfaceAttachment(surfaceID: surface.id, parameter: surface.parameter(atX: contact.position.x)),
             landedSurfaceID: surface.id)
+    }
+
+    private static func wallContact(
+        from start: CGPoint, to end: CGPoint, with wall: Surface, geometry: ContactGeometry
+    ) -> CGPoint? {
+        let x = wall.segment.start.x
+        let dx = end.x - start.x
+        let crossed =
+            wall.kind == .windowLeft
+            ? start.x <= x && end.x >= x
+            : start.x >= x && end.x <= x
+        guard crossed, dx != 0 else { return nil }
+        let fraction = (x - start.x) / dx
+        let y = start.y + (end.y - start.y) * fraction
+        guard fraction >= 0, fraction <= 1, y >= wall.minY + geometry.height, y <= wall.maxY else { return nil }
+        return CGPoint(x: x, y: y)
     }
 
     /// Semi-implicit airborne step. Invalid inputs/results return nil without mutating caller state.

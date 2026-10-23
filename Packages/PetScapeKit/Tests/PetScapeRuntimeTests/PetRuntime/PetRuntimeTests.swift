@@ -116,6 +116,21 @@ struct PetRuntimeTests {
         #expect(!h.driver.isPaused)  // running and a pet is on screen
     }
 
+    @Test func trackedWindowSurfaceEntersWorldAndBecomesAJumpDestination() async throws {
+        let h = Harness()
+        try await h.start()
+        h.frames(2)
+        let screen = try #require(h.runtime.overlay.hostScreen)
+        let pet = try #require(h.runtime.pets.first)
+        let frame = CGRect(
+            x: screen.frame.minX, y: screen.frame.minY + 20, width: screen.frame.width, height: 100)
+        let window = TrackedWindow(id: 902, ownerPID: 123, frame: frame, zIndex: 0)
+        h.runtime.receiveTrackedWindows([window])
+        let targetSurface = try #require(h.runtime.trackedWindowSurfaces.first)
+        let targetX = pet.position.x + 30 < screen.frame.maxX - 48 ? pet.position.x + 30 : pet.position.x - 30
+        #expect(h.runtime.requestJump(to: .surface(targetSurface.id, x: targetX)))
+    }
+
     @Test(arguments: [DockEstimate.Position.left, .right])
     func movingDockToASideKeepsFramesRunningThroughFallAndLanding(_ position: DockEstimate.Position) async throws {
         let h = Harness()

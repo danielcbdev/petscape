@@ -66,13 +66,29 @@
             walkway.frame = CGRect(x: bounds.minX, y: (walkwayY ?? 0) - 1, width: bounds.width, height: 1)
             walkway.isHidden = walkwayY == nil
             let path = CGMutablePath()
-            for surface in windowSurfaceSegments where surface.kind == .windowTop {
-                let lower = max(surface.minX, screenFrame.minX)
-                let upper = min(surface.maxX, screenFrame.maxX)
-                guard upper > lower, surface.y >= screenFrame.minY, surface.y <= screenFrame.maxY else { continue }
-                let y = surface.y - screenFrame.minY
-                path.move(to: CGPoint(x: lower - screenFrame.minX, y: y))
-                path.addLine(to: CGPoint(x: upper - screenFrame.minX, y: y))
+            for surface in windowSurfaceSegments {
+                switch surface.kind {
+                case .windowTop:
+                    let lower = max(surface.minX, screenFrame.minX)
+                    let upper = min(surface.maxX, screenFrame.maxX)
+                    guard upper > lower, surface.y >= screenFrame.minY, surface.y <= screenFrame.maxY else {
+                        continue
+                    }
+                    let y = surface.y - screenFrame.minY
+                    path.move(to: CGPoint(x: lower - screenFrame.minX, y: y))
+                    path.addLine(to: CGPoint(x: upper - screenFrame.minX, y: y))
+                case .windowLeft, .windowRight:
+                    let lower = max(surface.minY, screenFrame.minY)
+                    let upper = min(surface.maxY, screenFrame.maxY)
+                    guard upper > lower, surface.minX >= screenFrame.minX, surface.minX <= screenFrame.maxX else {
+                        continue
+                    }
+                    let x = surface.minX - screenFrame.minX
+                    path.move(to: CGPoint(x: x, y: lower - screenFrame.minY))
+                    path.addLine(to: CGPoint(x: x, y: upper - screenFrame.minY))
+                default:
+                    continue
+                }
             }
             windowSurfaces.frame = bounds
             windowSurfaces.path = path

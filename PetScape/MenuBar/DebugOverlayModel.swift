@@ -20,7 +20,24 @@
             didSet { runtime.showsWalkway = showsWalkway }
         }
         var showsWindowSurfaces = false {
-            didSet { runtime.overlay.showsWindowSurfaces = showsWindowSurfaces }
+            didSet {
+                if showsWindowSurfaces { settings.refreshWindowPermissionStatus() }
+                runtime.overlay.showsWindowSurfaces = showsWindowSurfaces
+            }
+        }
+        private(set) var windowSurfaceCount = 0
+
+        var windowSurfaceStatus: String {
+            guard settings.isWindowInteractionEnabled else {
+                return "Enable Interact with windows in Settings."
+            }
+            guard !settings.isWindowPermissionMissing else {
+                return "Accessibility permission is missing."
+            }
+            guard windowSurfaceCount > 0 else {
+                return "Tracking is enabled; no visible window top segments were detected."
+            }
+            return "Detected \(windowSurfaceCount) visible window segment\(windowSurfaceCount == 1 ? "" : "s")."
         }
         /// The persisted `dockOffsetAdjustment` in points (T6.3).
         var dockOffset: Double { settings.dockOffsetAdjustment }
@@ -28,6 +45,9 @@
         init(runtime: PetRuntime, settings: SettingsModel) {
             self.runtime = runtime
             self.settings = settings
+            runtime.onTrackedWindowSurfacesChange = { [weak self] surfaces in
+                self?.windowSurfaceCount = surfaces.count
+            }
         }
 
         func jump(horizontalOffset: Double = 0) {
