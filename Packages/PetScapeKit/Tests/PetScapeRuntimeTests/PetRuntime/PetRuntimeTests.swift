@@ -33,8 +33,13 @@ struct PetRuntimeTests {
         func removeMonitor(_ monitor: Any) {}
     }
 
+    final class DriverFactoryCount {
+        var creations = 0
+    }
+
     final class Harness {
         let driver = FakeFrameDriver()
+        let driverFactoryCount = DriverFactoryCount()
         let workspaceCenter = NotificationCenter()
         let distributedCenter = NotificationCenter()
         let sampler = CursorSampler(monitoring: NoMouseMonitoring())
@@ -51,6 +56,7 @@ struct PetRuntimeTests {
         ) {
             self.preferences = preferences
             let driver = driver
+            let driverFactoryCount = driverFactoryCount
             runtime = PetRuntime(
                 screenProvider: ScreenProvider(notificationCenter: screenCenter, readScreens: readScreens),
                 cursorSampler: sampler,
@@ -59,7 +65,10 @@ struct PetRuntimeTests {
                 fullScreenDetector: FullScreenSpaceDetector(workspaceCenter: NotificationCenter()),
                 preferences: preferences,
                 overlays: OverlayWindowManager(notificationCenter: NotificationCenter()),
-                makeFrameDriver: { _ in driver },
+                makeFrameDriver: { _ in
+                    driverFactoryCount.creations += 1
+                    return driver
+                },
                 random: SeededRandomSource(seed: 5), tuning: tuning)
         }
 
@@ -349,6 +358,28 @@ struct PetRuntimeTests {
             visibleFrame: CGRect(x: 0, y: bottomInset, width: 1000, height: 764 - bottomInset),
             backingScale: 2, isPrimary: true)
     }
+
+    @Test func allScreensHaveOverlaysAndOnePetIsRenderedByExactlyOneOverlay() async throws {
+        let primary = Self.syntheticScreen()
+        let secondary = ScreenDescriptor(
+            id: ScreenID(2), frame: CGRect(x: 1000, y: -200, width: 900, height: 700),
+            visibleFrame: CGRect(x: 1000, y: -136, width: 900, height: 636), backingScale: 1, isPrimary: false)
+        let values = ScreenValues([primary])
+        let center = NotificationCenter()
+        let h = Harness(readScreens: { values.screens }, screenCenter: center)
+        try await h.start()
+        values.screens = [primary, secondary]
+        center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)
+
+        #expect(h.runtime.overlay.hostedScreenIDs == [primary.id, secondary.id])
+        #expect(h.driverFactoryCount.creations == 1)
+        let renderedPets = [primary.id, secondary.id].compactMap { h.runtime.overlay.contentView(for: $0) }
+            .flatMap { $0.petLayerHost.sublayers ?? [] }
+        #expect(renderedPets.count == 1)
+        #expect(!h.driver.isPaused)
+        #expect(!h.driver.isInvalidated)
+    }
+
     @Test func syntheticDockChangeWhilePausedFallsOnlyAfterResume() async throws {
         let values = ScreenValues([Self.syntheticScreen()])
         let center = NotificationCenter()

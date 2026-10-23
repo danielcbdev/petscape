@@ -28,10 +28,12 @@ final class PetScapeSettingsTests: XCTestCase {
         XCTAssertTrue(window.waitForExistence(timeout: 5))
         let windowInteraction = window.switches["settings.windowInteraction"]
         XCTAssertTrue(windowInteraction.waitForExistence(timeout: 5))
+        XCTAssertEqual(windowInteraction.label, "Interact with windows")
         XCTAssertEqual(integerValue(of: windowInteraction), 0)
         XCTAssertTrue(window.staticTexts["settings.windowInteractionExplanation"].exists)
         let autonomy = window.switches["settings.autonomy"]
         XCTAssertTrue(autonomy.waitForExistence(timeout: 5))
+        XCTAssertEqual(autonomy.label, "Autonomous activities")
         XCTAssertEqual(integerValue(of: autonomy), 1)
         autonomy.click()
         XCTAssertEqual(integerValue(of: autonomy), 0)

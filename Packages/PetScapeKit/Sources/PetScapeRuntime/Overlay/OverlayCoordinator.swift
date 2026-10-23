@@ -89,8 +89,7 @@ public final class OverlayCoordinator {
         applyIgnores = { [weak self] ignores in self?.applyIgnoresMouseEvents(ignores) }
     }
 
-    /// The screen hosting the overlay with the pets: the Dock's screen, or the primary screen while the Dock is
-    /// hidden or unknown (T6.2, T6.6).
+    /// The screen currently hosting the Dock (used for Dock placement and the single frame driver).
     public var hostScreen: ScreenDescriptor? {
         hostScreenID.flatMap { converter?.screen(withID: $0) }
     }
@@ -98,6 +97,12 @@ public final class OverlayCoordinator {
     /// The host overlay's content view (pet layers go into its `petLayerHost`).
     public var hostContentView: OverlayContentView? {
         hostScreenID.flatMap { overlays.contentView(for: $0) }
+    }
+
+    public var hostedScreenIDs: Set<ScreenID> { overlays.screenIDs }
+
+    public func contentView(for screenID: ScreenID) -> OverlayContentView? {
+        overlays.contentView(for: screenID)
     }
 
     public func start() {
@@ -154,10 +159,10 @@ public final class OverlayCoordinator {
         self.screens = screens
         converter = CoordinateConverter(screens: screens)
         dock.update(screens: screens)
-        // One overlay, on the Dock's screen (the walkway's screen); the others are closed (performance.md).
+        // Keep a transparent host on every connected screen; the simulation still has one frame driver.
         let host = dock.hostScreenID.flatMap { converter?.screen(withID: $0) } ?? converter?.primary
         runState.setCondition(.noScreens, isActive: host == nil)
-        overlays.update(screens: screens, hosting: host.map { [$0.id] } ?? [])
+        overlays.update(screens: screens, hosting: Set(screens.map(\.id)))
         passthrough.reset()
         if host?.id != hostScreenID {
             Log.overlay.notice("Host screen: \(host.map { String(describing: $0.id) } ?? "none", privacy: .public)")

@@ -17,6 +17,7 @@ struct V4CharacterPackTests {
         #expect(character.issues.isEmpty)
         #expect(character.definition.displaySize == .init(width: 96, height: 96))
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)
+        #expect(await character.loadBehaviorFamily(containing: "jump"))
         for name in Self.phaseNames {
             let clip = try #require(character.definition.clips[name], "Missing production clip \(name)")
             #expect(clip.frames.count > 1)
@@ -30,6 +31,7 @@ struct V4CharacterPackTests {
     @Test func semanticRestAndExpressionFallbacksUseTheExistingIdlePose() async throws {
         let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
         #expect(character.failure == nil)
+        #expect(await character.loadBehaviorFamily(containing: "curious"))
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)
         let idle = character.definition.clip(named: "idle")
         for name in [
@@ -46,9 +48,13 @@ struct V4CharacterPackTests {
 
     @Test func productionV5InteractionClipsLoadWithoutFallbackAndFitTheBudget() async throws {
         let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let initiallyDecodedBytes = character.decodedByteCount
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty)
+        #expect(await character.loadBehaviorFamily(containing: "curious"))
+        #expect(await character.loadBehaviorFamily(containing: "jump"))
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)
+        #expect(initiallyDecodedBytes < character.decodedByteCount)
         #expect(character.decodedByteCount == 16_588_800)
         let expected: [(String, Int, Double, AnimationClip.Playback)] = [
             ("curious", 6, 6, .loop),
@@ -218,6 +224,7 @@ struct V4CharacterPackTests {
         }
         var authored = world(character.definition)
         var fallback = world(baseline)
+        #expect(await character.loadBehaviorFamily(containing: "jump"))
         var clips: Set<String> = []
         for _ in 0..<150 {
             _ = authored.step(dt: 1.0 / 60)

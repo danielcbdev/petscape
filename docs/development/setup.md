@@ -73,6 +73,10 @@ Notes:
 - **Signing identity.** Keep a **stable development signing identity** once Accessibility work
   starts (M12). macOS ties Accessibility grants to the code signature, and switching identities
   forces users to grant access again.
+- The app target disables Xcode user-script sandboxing only for its manifest-driven character
+  resource pruning phase. That phase reads `assets/characters` and its script, then replaces only
+  the generated app bundle's `Contents/Resources/characters` directory; the UI test target keeps
+  the default script sandbox setting.
 
 ## Canonical commands
 

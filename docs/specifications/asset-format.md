@@ -10,7 +10,7 @@ Decision: [ADR-0007](../decisions/0007-character-packs.md).
 |---|---|---|
 | **Original source art** (as delivered) | `assets/characters/<id>/<clip>/` (`frames/`, atlas, GIF preview, `README.md`, `manifest.json`) | **Read-only.** Never edited, renamed or re-exported in place. Replacements arrive as new files/versions. |
 | **Character pack manifest** | `assets/characters/<id>/character.json` | New file authored by the team; references source frames by relative path. Edits allowed. |
-| **Bundled pack** (in the app) | `PetScape.app/Contents/Resources/characters/<id>/` | MVP (T4.9): an Xcode folder reference to `assets/characters` copies the whole folder, so the originals (README, `manifest.json`, atlas, GIF) ship too (~3.3 MB for the cat); Xcode's copy step skips `.DS_Store` (verified). The folder keeps its on-disk name `characters` (Xcode ignores a different reference name), so code must use that exact case. A build step that copies only manifest-referenced files replaces this in M14. |
+| **Bundled pack** (in the app) | `PetScape.app/Contents/Resources/characters/<id>/` | The Xcode build phase runs `scripts/copy-referenced-character-assets.swift`, retaining `character.json` and only image paths referenced by its schema-v1 manifest. It preserves relative paths and fails the build for unsafe or missing references. Original sources remain untouched. |
 
 The original `manifest.json` next to the frames is an art-pipeline note, not the runtime manifest.
 It is kept unchanged.
@@ -33,8 +33,10 @@ Additional clips follow the same shape: `assets/characters/cat/<clip>/frames/<cl
 V4 revision 1 adds `idle`, `jump-start`, `jump`, `fall`, `landing` (24 new frames), with immutable
 generated sources/provenance under `v4/`. See the [production record](../../assets/characters/cat/v4/README.md)
 for final checksums, all-frame QA and previews. The runtime manifest stays schema v1; the historical
-walk audit below remains unchanged. The current folder-copy build also bundles V4 production
-metadata/sheets; only manifest-referenced PNGs are decoded. Selective bundling remains M14.
+walk audit below remains unchanged. The bundle includes only manifest-referenced files. The runtime
+checks image metadata at startup, decodes the default behavior family before display, and loads other
+families asynchronously on first use. M14 selective bundling omits the original README, pipeline
+metadata, atlas and GIF when no runtime manifest references them.
 
 ## Image rules (for new art)
 

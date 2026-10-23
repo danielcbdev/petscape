@@ -180,9 +180,19 @@ does not establish AC-M13-01's one-frame target; the owner accepts this evidence
 milestone closeout. See the [M13 closeout](milestones.md#m13-owner-closeout--2026-10-23).
 
 ### M14 — Stabilization
-- AC-M14-01: 8 h soak: no crash, memory growth < 10 MB.
-- AC-M14-02: Manual matrix passes on macOS 14 (VM) and current macOS.
-- AC-M14-03: The cat moves between two displays correctly (both arrangements, mixed DPI).
+- AC-M14-01: 8 h soak: no crash, memory growth < 10 MB. **Dispensado pelo proprietário em 2026-10-23; não executado e não aprovado por medição.** This does not establish NFR-03 or continuous stability/memory targets.
+- AC-M14-02: Manual matrix passes on macOS 14 (VM) and current macOS. **Not run; evidence gap accepted by the owner for M14 closeout on 2026-10-23.**
+- AC-M14-03: The cat moves between two displays correctly (both arrangements, mixed DPI). **Native validation not run; evidence gap accepted by the owner for M14 closeout on 2026-10-23.**
+
+Owner exception: the continuous 8-hour soak in AC-M14-01/T14.5 is explicitly waived. It must be
+reported as **dispensado pelo proprietário**, never as executed/passed; accelerated runs are not a
+substitute. T14.5 still requires separate short leak, memory and overlay lifecycle checks. See the
+[M14 verification record](m14-implementation.md).
+
+Owner closeout (2026-10-23): the owner approved the documented M14 results and authorized milestone
+closure with the evidence limits above. AC-M14-01 remains waived, not run, and not measurement-approved;
+AC-M14-02 and AC-M14-03 remain unverified. This closeout does not represent any unrun criterion as
+passed and does not establish NFR-03 or long-term stability.
 
 ### M15 — Release
 - AC-M15-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.

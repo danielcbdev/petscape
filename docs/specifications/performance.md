@@ -58,8 +58,8 @@ disabled control, and is not a T13.6 result or budget claim. The persisted prefe
 | Adaptive render rate | `CADisplayLink.preferredFrameRateRange`: 60 while moving; 30 for idle/sitting; down to the animation FPS (e.g. 12) while sleeping; never above 60 by default (ProMotion opt-in later) |
 | No per-frame allocations | Snapshots reuse buffers; no string formatting in the hot path; logging in the loop only at `.debug` and behind signposts |
 | Event-driven environment | Notifications instead of polling; the only per-frame sampling is `NSEvent.mouseLocation` (cheap) |
-| Frame image budget | Downsample at load to target pixel size; preload before first display; one cache |
-| Small overlay surface | Only screens that host pets get an overlay (MVP: one); empty overlays are ordered out |
+| Frame image budget | Validate metadata up front, decode the default behavior family before display, and decode other families on demand; downsample at target pixel size and share one cache |
+| Overlay surface | One overlay per connected screen so a pet can hand off without another window lifecycle; all share the same simulation and frame driver |
 | Hit testing | 1-bit masks at ¼ resolution; bounding-box rejection first |
 | Leaks / retain cycles | `[weak self]` in long-lived closures; observers removed in `stop()`; Instruments Leaks in DoD of M6 and M14 |
 
@@ -74,11 +74,23 @@ disabled control, and is not a T13.6 result or budget claim. The persisted prefe
 
 ## Measurements
 
+### M14 verification (2026-10-23)
+
+The owner explicitly waived the continuous 8-hour soak for M14. **AC-M14-01/T14.5 soak:
+dispensado pelo proprietário; não executado; não aprovado por medição.** No accelerated simulation
+is counted as a substitute, and this does not prove NFR-03 or continuous memory/stability targets.
+Short Release CPU/footprint and `leaks` snapshots are recorded separately from the waived soak.
+Overlay-retention checks were not completed as a long-duration native exercise. The owner accepted
+the documented evidence limits and closed M14 on 2026-10-23; the implementation record lists the
+checks actually completed and environment-dependent work. Closure does not imply that unrun checks
+passed or that long-term stability was measured.
+
 | Date | Build | Machine / macOS | Walking CPU | Paused CPU | Memory | Launch | Notes |
 |---|---|---|---|---|---|---|---|
 | 2026-10-16 | PoC (SpriteKit, 300 pt band, 288 px) — rejected | Apple silicon, built-in 1470×956 @2x / macOS 27.0.1 | 5.7% walking ❌ (1.8% in place) | 0.0% | 106–115 MB ❌ | not measured | Details in [proof-of-concept.md](../planning/proof-of-concept.md#e7-measurements-2026-10-16) |
 | 2026-10-16 | PoC (Core Animation, 288 px) — adopted ([ADR-0015](../decisions/0015-core-animation-renderer.md)) | same | 1.0% walking 40 pt/s ✅ (0.5% in place) | 0.0% | 19 MB ✅ | not measured | WindowServer delta similar to SpriteKit (~+1–1.5 points, coarse) |
 | 2026-10-17 | M6 Release (`feature/nifty-wozniak-cd5c91`, uncommitted), walking on the Dock top | Apple silicon, built-in 1470×956 @2x / macOS 27.0.1 | 2.06% avg, 3.33% max over 69 min ✅ | 0.00% paused, 0 idle wakeups/60 s; 0.00% locked, ~0% full-screen Space ✅ | 21.8 MB footprint at launch, 23.7 MB after 2 h ✅ | 0.49 s warm (`open` → first frame) ✅ | CPU from cumulative process CPU time per 15 s (`ps`); `top`'s own continuous sampling adds wakeups and CPU, so it was not used for the idle numbers. Leaks: none in PetScape (416 objects in Apple's AppIntents XPC, unchanged over 2 h). Energy Impact and frame pacing not measured. **Regression vs the PoC entry (1.0% → 2.06%, > 20%)**: the PoC spike moved a sprite only; the app adds the fixed-step simulation, the per-frame cursor sample and mask hit test (pass-through) and runs a Release build of the full pipeline (M5 Debug measured ~2.5%). Still within the 5% target — needs the owner's acceptance per the rule above |
+| 2026-10-23 | M14 Release app vs `7db992a` Release control; one short window each | Apple M4, macOS 27.0.1, one built-in display; same default active/unhidden preferences | M14 1.9% vs control 1.7% of one core after 30 s settle (69 s vs 74 s windows) | Not measured | M14 41 MB vs control 48 MB at window end. M14 `leaks`: 415 objects / 19,856 bytes, visible roots in Apple's AppIntents XPC, no PetScape-owned root in report | Not measured | Activity phase not pinned, one window per build, fixed app order; CPU difference below 20% but exploratory only, not stable regression acceptance. M14 startup footprint snapshots were 28 → 30 → 41 MB. No stability or growth claim. Full limits and decoded-cache comparison in [M14 record](../planning/m14-implementation.md) |
 
 
 ## M7/M8 engineering measurements (2026-10-18)

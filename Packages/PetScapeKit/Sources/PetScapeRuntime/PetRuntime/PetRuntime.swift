@@ -27,8 +27,10 @@ public final class PetRuntime {
     )
     private var accumulator = FixedStepAccumulator()
     private var character: LoadedCharacter?
-    private var renderer: PetRenderer?
-    private weak var rendererView: OverlayContentView?
+    private var loadingBehaviorFamilies: Set<String> = []
+    private var renderers: [ScreenID: PetRenderer] = [:]
+    private var rendererViews: [ScreenID: OverlayContentView] = [:]
+    private var screenSnapshots: [ScreenID: RenderSnapshot] = [:]
     /// Reused every frame (no per-frame allocation once warm).
     private var snapshot = RenderSnapshot()
     private var events: [WorldEvent] = []
@@ -38,6 +40,7 @@ public final class PetRuntime {
     public private(set) var trackedWindowSurfaces: [Surface] = []
     public var onTrackedWindowSurfacesChange: (([Surface]) -> Void)?
     public var onWindowPermissionRevoked: (() -> Void)?
+    public var onCharacterIssuesChange: (([ManifestIssue]) -> Void)?
     #if DEBUG
         private var frameRateWindow = FrameRateWindow()
     #endif
@@ -136,9 +139,12 @@ public final class PetRuntime {
     public func stop() {
         windowTracker.stop()
         overlay.stop()
-        renderer?.removeAll()
-        renderer = nil
+        renderers.values.forEach { $0.removeAll() }
+        renderers.removeAll()
+        rendererViews.removeAll()
+        screenSnapshots.removeAll()
         hitTester.removeAll()
+        loadingBehaviorFamilies.removeAll()
         accumulator.reset()
     }
 
@@ -199,6 +205,7 @@ public final class PetRuntime {
     public func show(_ character: LoadedCharacter) {
         interactionController.cancel(.petUnavailable)
         self.character = character
+        loadingBehaviorFamilies.removeAll()
         world.removeAllPets()
         let id = world.spawn(character.definition, scale: preferences.petSettings.scale)
         let placement = world.pet(id)?.attachment.map { "on \($0.surfaceID)" } ?? "waiting for a surface"
@@ -212,13 +219,20 @@ public final class PetRuntime {
 
     private func screensDidChange() {
         refreshWindowTracking()
-        world.apply(.screens(overlay.hostScreen.map { [$0] } ?? []))
+        world.apply(.screens(overlay.screens))
         applySurfaces()
-        let view = overlay.hostContentView
-        if view !== rendererView {
-            renderer?.removeAll()
-            renderer = view.map { PetRenderer(hostLayer: $0.petLayerHost) }
-            rendererView = view
+        for id in Array(renderers.keys) where !overlay.screens.contains(where: { $0.id == id }) {
+            renderers[id]?.removeAll()
+            renderers[id] = nil
+            rendererViews[id] = nil
+            screenSnapshots[id] = nil
+        }
+        for screen in overlay.screens {
+            guard let view = overlay.contentView(for: screen.id), rendererViews[screen.id] !== view else { continue }
+            renderers[screen.id]?.removeAll()
+            renderers[screen.id] = PetRenderer(hostLayer: view.petLayerHost)
+            rendererViews[screen.id] = view
+            screenSnapshots[screen.id] = RenderSnapshot()
         }
         renderNow()
     }
@@ -226,8 +240,8 @@ public final class PetRuntime {
     /// The Dock walkway as the world's surface set: a moved Dock keeps its surface (the pet rides it, clamped);
     /// a Dock hidden, shown or moved to a side replaces it (the pet re-settles below or above, T6.4).
     private func applySurfaces() {
-        let floors = SurfaceMap.screenBottoms(for: overlay.hostScreen.map { [$0] } ?? [])
-        let walls = SurfaceMap.screenWalls(for: overlay.hostScreen.map { [$0] } ?? [])
+        let floors = SurfaceMap.screenBottoms(for: overlay.screens)
+        let walls = SurfaceMap.screenWalls(for: overlay.screens)
         var surfaces = overlay.dock.surfaces
         for surface in floors + walls + windowSurfacesForWorld
         where !surfaces.contains(where: { $0.id == surface.id }) {
@@ -263,7 +277,7 @@ public final class PetRuntime {
     /// Reconciles a privacy-minimal tracker snapshot at the runtime boundary.
     func receiveTrackedWindows(_ windows: [TrackedWindow]) {
         let surfaces = WindowSurfaceBuilder.build(
-            windows: windows, screens: overlay.hostScreen.map { [$0] } ?? [])
+            windows: windows, screens: overlay.screens)
         let now = ProcessInfo.processInfo.systemUptime
         if let previousTime = lastWindowSnapshotTime {
             let teleported = SurfaceMap.teleportedWindowIDs(
@@ -348,16 +362,75 @@ public final class PetRuntime {
         world.drainEvents(into: &events)
         if !events.isEmpty { log(events) }
         world.writeSnapshot(into: &snapshot)
-        if let renderer, let converter = overlay.converter, let screen = overlay.hostScreen {
-            renderer.render(snapshot, converter: converter, screen: screen) { pet in
-                character?.frame(pet.frame)?.image
+        if let converter = overlay.converter {
+            for screen in overlay.screens { screenSnapshots[screen.id]?.pets.removeAll(keepingCapacity: true) }
+            for pet in snapshot.pets where pet.isVisible {
+                guard let screen = screenForRendering(pet, among: overlay.screens) else { continue }
+                screenSnapshots[screen.id]?.pets.append(pet)
+            }
+            for screen in overlay.screens {
+                guard let screenSnapshot = screenSnapshots[screen.id] else { continue }
+                renderers[screen.id]?.render(screenSnapshot, converter: converter, screen: screen) { pet in
+                    guard let character else { return nil }
+                    if let frame = character.frame(pet.frame) { return frame.image }
+                    requestBehaviorFamilyLoad(pet.frame.clip, for: character)
+                    return character.fallbackFrame(for: pet.frame)?.image
+                }
             }
         }
-        hitTester.update(snapshot) { pet in character?.frame(pet.frame)?.hitMask }
+        hitTester.update(snapshot) { pet in
+            guard let character else { return nil }
+            if let frame = character.frame(pet.frame) { return frame.hitMask }
+            requestBehaviorFamilyLoad(pet.frame.clip, for: character)
+            return character.fallbackFrame(for: pet.frame)?.hitMask
+        }
         let demand = world.needsSimulationSteps || world.needsAnimationFrames
         overlay.preferredFramesPerSecond = world.pets.isEmpty ? 60 : world.preferredFramesPerSecond
         if !demand || demand != overlay.needsFrames { accumulator.reset() }
         overlay.needsFrames = demand
+    }
+
+    private func requestBehaviorFamilyLoad(_ clip: String, for character: LoadedCharacter) {
+        let family = CharacterFrameCatalog.family(for: clip)
+        guard !character.hasAttemptedBehaviorFamily(containing: clip), loadingBehaviorFamilies.insert(family).inserted
+        else {
+            return
+        }
+        Task { [weak self, character] in
+            let loaded = await character.loadBehaviorFamily(containing: clip)
+            guard let self, self.character === character else { return }
+            self.loadingBehaviorFamilies.remove(family)
+            if !loaded { self.onCharacterIssuesChange?(character.issues) }
+            self.renderNow()
+        }
+    }
+
+    /// Picks one screen for the sprite at a hand-off edge. Contact-point containment wins; while the
+    /// contact point is between displays, keep the sprite on the screen with the largest visible overlap.
+    private func screenForRendering(_ pet: PetRenderState, among screens: [ScreenDescriptor]) -> ScreenDescriptor? {
+        var containing: ScreenDescriptor?
+        for screen in screens
+        where pet.position.x >= screen.frame.minX && pet.position.x < screen.frame.maxX
+            && pet.position.y >= screen.frame.minY && pet.position.y < screen.frame.maxY
+        {
+            if let current = containing {
+                if screen.id.rawValue < current.id.rawValue { containing = screen }
+            } else {
+                containing = screen
+            }
+        }
+        if let containing { return containing }
+        var best: ScreenDescriptor?
+        var bestArea: CGFloat = 0
+        for screen in screens {
+            let overlap = pet.spriteRect.intersection(screen.frame)
+            let area = overlap.isNull ? 0 : overlap.width * overlap.height
+            if area > bestArea || (area == bestArea && area > 0 && screen.id.rawValue < (best?.id.rawValue ?? .max)) {
+                best = screen
+                bestArea = area
+            }
+        }
+        return best
     }
 
     #if DEBUG

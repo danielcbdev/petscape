@@ -57,16 +57,15 @@ public final class CharacterLoader {
             throw Self.loadError(error)
         }
 
-        // 2. Decode every frame of the remaining clips, then validate again with the file results.
+        // 2. Probe all remaining sources without allocating decoded frame buffers.
         let characterID = provisional.id
         let pixelSize = FrameImageStore.targetPixelSize(for: manifest.displaySize)
         let sources = Set(provisional.clips.values.flatMap { $0.frames.map(\.source) })
-        let preload = await store.preload(
-            character: characterID, packURL: packURL, sources: sources, pixelSize: pixelSize)
-        let report = ManifestValidator.validate(decoded, images: preload.probes)
+        let probe = await store.probe(packURL: packURL, sources: sources)
+        var report = ManifestValidator.validate(decoded, images: probe.probes)
         Self.log(report.issues, pack: manifest.id)
 
-        let definition: CharacterDefinition
+        var definition: CharacterDefinition
         do {
             definition = try CharacterDefinition.resolve(manifest, report: report)
         } catch {
@@ -74,19 +73,41 @@ public final class CharacterLoader {
             throw Self.loadError(error)
         }
 
-        var frames: [String: [FrameImage]] = [:]
-        for (name, clip) in definition.clips {
-            let images = clip.frames.compactMap {
-                store.frame(character: characterID, source: $0.source, pixelSize: pixelSize)
-            }
-            // Invariant: every source of a clip that passed the file checks was decoded and cached above.
-            precondition(images.count == clip.frames.count, "Frames of valid clip '\(name)' were not cached")
-            frames[name] = images
+        var initialFamily = CharacterFrameCatalog.family(for: definition.defaultClipName)
+        let initialClips = definition.clips.filter {
+            CharacterFrameCatalog.family(for: $0.key) == initialFamily
         }
+        var initialSources = Set(initialClips.values.flatMap { $0.frames.map(\.source) })
+        let initialLoad = await store.preload(
+            character: characterID, packURL: packURL, sources: initialSources, pixelSize: pixelSize)
+        if !initialLoad.failures.isEmpty {
+            var probes = probe.probes
+            probes.merge(initialLoad.probes) { _, decoded in decoded }
+            report = ManifestValidator.validate(decoded, images: probes)
+            Self.log(report.issues, pack: manifest.id)
+            do {
+                definition = try CharacterDefinition.resolve(manifest, report: report)
+            } catch {
+                store.evict(character: characterID)
+                throw Self.loadError(error)
+            }
+            initialFamily = CharacterFrameCatalog.family(for: definition.defaultClipName)
+            let resolvedClips = definition.clips.filter {
+                CharacterFrameCatalog.family(for: $0.key) == initialFamily
+            }
+            initialSources = Set(resolvedClips.values.flatMap { $0.frames.map(\.source) })
+            _ = await store.preload(
+                character: characterID, packURL: packURL, sources: initialSources, pixelSize: pixelSize)
+        }
+        // The default behavior family is ready for the first frame; all other families remain undecoded.
+        store.evict(character: characterID, keeping: initialSources)
+        let catalog = CharacterFrameCatalog(
+            definition: definition, packURL: packURL, pixelSize: pixelSize, store: store,
+            loadedFamilies: [initialFamily])
         return LoadedCharacter(
-            definition: definition, pixelSize: pixelSize, frames: frames,
+            definition: definition, pixelSize: pixelSize, catalog: catalog,
             issues: report.issues.filter { $0.scope != .pack || $0.severity == .warning },
-            decodedByteCount: store.decodedByteCount(for: characterID))
+        )
     }
 
     @concurrent
@@ -150,15 +171,15 @@ public final class CharacterLoader {
             preconditionFailure("The placeholder manifest is invalid")
         }
 
-        var frames: [String: [FrameImage]] = [:]
         if let image = PlaceholderArtwork.makeImage(pixelSize: pixelSize), let frame = FrameImage(image: image) {
             store.insert(frame, character: definition.id, source: .image(imagePath), pixelSize: pixelSize)
-            frames[clipName] = [frame]
         } else {
             Log.assets.fault("The placeholder artwork could not be drawn")
         }
+        let family = CharacterFrameCatalog.family(for: clipName)
+        let catalog = CharacterFrameCatalog(
+            definition: definition, packURL: nil, pixelSize: pixelSize, store: store, loadedFamilies: [family])
         return LoadedCharacter(
-            definition: definition, pixelSize: pixelSize, frames: frames, failure: failure,
-            decodedByteCount: store.decodedByteCount(for: definition.id))
+            definition: definition, pixelSize: pixelSize, catalog: catalog, failure: failure)
     }
 }

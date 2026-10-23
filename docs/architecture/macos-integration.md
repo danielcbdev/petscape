@@ -94,14 +94,17 @@ Strategy C cursor source:
 ## Multiple monitors, Retina, scaling
 
 - One overlay per `NSScreen`; recreated/re-laid out on `didChangeScreenParametersNotification`.
-- MVP renders only on the screen that hosts the Dock (other overlays not created); M14 enables all.
+- One transparent overlay is maintained per connected screen. The simulation and display link remain
+  singular; the renderer places each pet in the one overlay containing its canonical global contact
+  point. Screen changes reconcile overlays and discard removed-screen layers.
 - Screen identity: `NSScreen.deviceDescription["NSScreenNumber"]` (`CGDirectDisplayID`) — stable for
   a session, not across reboots; never persist it as the only key.
 - Retina: layers are laid out in points and composited at the screen's `backingScaleFactor`; frame
   images are decoded for the maximum backing scale among screens (re-decoding on change is not
   needed if we decode at 2x).
 - Mixed DPI across monitors: a pet crossing screens keeps its point size; image density may be
-  higher than needed on a 1x screen (acceptable).
+  higher than needed on a 1x screen (acceptable). Frames are decoded once using a maximum-scale
+  policy, not separately per screen.
 - Coordinate conversions: [coordinate-system.md](../specifications/coordinate-system.md).
 
 ## Dock

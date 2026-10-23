@@ -18,6 +18,7 @@ struct SettingsView: View {
                     Text("Large")
                 }
                 .accessibilityIdentifier("settings.scale")
+                .accessibilityLabel("Size")
                 Slider(value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: 0.5...2) {
                     Text("Speed")
                 } minimumValueLabel: {
@@ -26,8 +27,11 @@ struct SettingsView: View {
                     Text("Fast")
                 }
                 .accessibilityIdentifier("settings.speed")
+                .accessibilityLabel("Speed")
                 Toggle("Pause", isOn: Binding(get: { model.userIntent.isPaused }, set: model.setPaused))
+                    .accessibilityLabel("Pause")
                 Toggle("Hide Pet", isOn: Binding(get: { model.userIntent.isHidden }, set: model.setHidden))
+                    .accessibilityLabel("Hide Pet")
                 Button("Wake Pet", action: model.wakePet)
             }
             Section("Activities") {
@@ -37,18 +41,25 @@ struct SettingsView: View {
                         get: { model.petSettings.behavior.isEnabled }, set: model.setAutonomyEnabled)
                 )
                 .accessibilityIdentifier("settings.autonomy")
+                .accessibilityLabel("Autonomous activities")
                 Toggle(
                     "Jumping",
                     isOn: Binding(
-                        get: { model.petSettings.behavior.jumpsEnabled }, set: model.setJumpsEnabled))
+                        get: { model.petSettings.behavior.jumpsEnabled }, set: model.setJumpsEnabled)
+                )
+                .accessibilityLabel("Jumping")
                 Toggle(
                     "Resting",
                     isOn: Binding(
-                        get: { model.petSettings.behavior.restEnabled }, set: model.setRestEnabled))
+                        get: { model.petSettings.behavior.restEnabled }, set: model.setRestEnabled)
+                )
+                .accessibilityLabel("Resting")
                 Toggle(
                     "Expressions",
                     isOn: Binding(
-                        get: { model.petSettings.behavior.expressionsEnabled }, set: model.setExpressionsEnabled))
+                        get: { model.petSettings.behavior.expressionsEnabled }, set: model.setExpressionsEnabled)
+                )
+                .accessibilityLabel("Expressions")
             }
             Section("General") {
                 Toggle(
@@ -57,6 +68,7 @@ struct SettingsView: View {
                         get: { model.isLaunchAtLoginEnabled }, set: model.setLaunchAtLogin)
                 )
                 .accessibilityIdentifier("settings.login")
+                .accessibilityLabel("Launch at login")
                 loginStatus
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -73,6 +85,7 @@ struct SettingsView: View {
                     isOn: Binding(get: { model.isWindowInteractionEnabled }, set: model.setWindowInteractionEnabled)
                 )
                 .accessibilityIdentifier("settings.windowInteraction")
+                .accessibilityLabel("Interact with windows")
                 Text(
                     "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional."
                 )
@@ -92,6 +105,7 @@ struct SettingsView: View {
                         set: model.setCursorReactionsEnabled)
                 )
                 .accessibilityIdentifier("settings.cursorReactions")
+                .accessibilityLabel("React to cursor")
                 Toggle(
                     "Allow click and drag",
                     isOn: Binding(
@@ -99,6 +113,7 @@ struct SettingsView: View {
                         set: model.setDirectInteractionEnabled)
                 )
                 .accessibilityIdentifier("settings.directInteraction")
+                .accessibilityLabel("Allow click and drag")
                 Text(
                     "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion."
                 )
@@ -116,6 +131,7 @@ struct SettingsView: View {
                 } maximumValueLabel: {
                     Text("+40 pt")
                 }
+                .accessibilityLabel("Dock offset")
                 Text("Adjust the paws if they appear above or below the Dock.")
                     .font(.caption)
                     .foregroundStyle(.secondary)

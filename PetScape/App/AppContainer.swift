@@ -36,6 +36,11 @@ final class AppContainer {
             fullScreenDetector: FullScreenSpaceDetector(),
             preferences: preferences)
         self.runtime = runtime
+        runtime.onCharacterIssuesChange = { [weak model] issues in
+            if issues.contains(where: { $0.severity == .error }) {
+                model?.characterStatus = String(localized: "Some pet animations could not be loaded.")
+            }
+        }
         settingsModel = SettingsModel(runtime: runtime, preferences: preferences, loginService: Self.makeLoginService())
         runtime.onWindowPermissionRevoked = { [weak settingsModel] in settingsModel?.windowPermissionWasRevoked() }
         model.settings = settingsModel

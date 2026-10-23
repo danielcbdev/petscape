@@ -61,11 +61,11 @@ public struct ManifestIssue: Equatable, Sendable, CustomStringConvertible {
     }
 }
 
-/// What the loader found for one image file referenced by a manifest (input for the file checks).
+/// What metadata inspection found for one image file referenced by a manifest (input for file checks).
 public enum ImageProbe: Equatable, Sendable {
     case missing
     case undecodable
-    /// Decoded; the size is the source file's pixel size (before downsampling).
+    /// Readable image metadata; size is the source file's pixel size (before downsampling).
     case decoded(pixelWidth: Int, pixelHeight: Int)
 }
 

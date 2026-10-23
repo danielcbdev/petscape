@@ -42,6 +42,17 @@ struct FrameImageStoreTests {
         #expect(again.probes.isEmpty, "Cached sources are not decoded again")
     }
 
+    @Test func probesMetadataWithoutRetainingDecodedFrames() async throws {
+        let pack = try makePack(["a.png": try TestImages.opaque(width: 64, height: 32)])
+        let store = FrameImageStore()
+        let result = await store.probe(packURL: pack, sources: [.image("a.png")])
+
+        #expect(result.failures.isEmpty)
+        #expect(result.probes["a.png"] == .decoded(pixelWidth: 64, pixelHeight: 32))
+        #expect(store.cachedFrameCount == 0)
+        #expect(store.decodedByteCount == 0)
+    }
+
     @Test func missingAndBrokenFilesAreReportedWhileTheRestLoads() async throws {
         let pack = try makePack(["ok.png": try TestImages.opaque(width: 16, height: 16)])
         try Data("garbage".utf8).write(to: pack.appending(path: "broken.png"))
@@ -79,6 +90,22 @@ struct FrameImageStoreTests {
         store.evict(character: character)
         #expect(store.decodedByteCount == 0)
         #expect(store.cachedFrameCount == 0)
+    }
+
+    @Test func evictsOnlySourcesOutsideTheRetainedSet() async throws {
+        let pack = try makePack([
+            "a.png": try TestImages.opaque(width: 32, height: 32),
+            "b.png": try TestImages.opaque(width: 32, height: 32),
+        ])
+        let store = FrameImageStore()
+        _ = await store.preload(
+            character: character, packURL: pack, sources: [.image("a.png"), .image("b.png")], pixelSize: 32)
+
+        store.evict(character: character, keeping: [.image("a.png")])
+
+        #expect(store.frame(character: character, source: .image("a.png"), pixelSize: 32) != nil)
+        #expect(store.frame(character: character, source: .image("b.png"), pixelSize: 32) == nil)
+        #expect(store.cachedFrameCount == 1)
     }
 
     @Test func aSheetIsDecodedOnceAndCountedOnce() async throws {

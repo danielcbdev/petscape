@@ -21,6 +21,34 @@ struct CharacterLoaderTests {
         #expect(walk.allSatisfy { $0.image.width == 288 && $0.image.height == 288 })
         #expect(walk.reduce(0) { $0 + $1.image.bytesPerRow * $1.image.height } <= 3 * 1024 * 1024)  // AC-M4-02
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)  // Approved V4 total; walk budget retained.
+        #expect(character.frames["curious"] == nil, "Interaction art is not decoded until requested")
+    }
+
+    @Test func behaviorFamiliesDecodeOnDemandAndExposeTheirRetainedByteCount() async throws {
+        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let initialBytes = character.decodedByteCount
+        #expect(initialBytes > 0)
+        #expect(character.frames["curious"] == nil)
+        #expect(await character.loadBehaviorFamily(containing: "curious"))
+        #expect(character.frames["curious"]?.count == 6)
+        #expect(character.frames["held"]?.count == 6)
+        #expect(character.decodedByteCount > initialBytes)
+        #expect(await character.loadBehaviorFamily(containing: "curious"))
+    }
+
+    @Test func aLazyDecodeFailureKeepsTheDefaultFrameAndMarksTheCharacterDegraded() async throws {
+        let walk = ["walk.png"]
+        let sit = ["sit.png"]
+        let pack = try TestPacks.make(
+            manifest: TestPacks.manifest(walkFrames: walk, sitFrames: sit), images: walk + sit)
+        defer { try? FileManager.default.removeItem(at: pack) }
+        let character = await CharacterLoader().load(packURL: pack)
+        try Data("corrupt after metadata validation".utf8).write(to: pack.appending(path: "sit.png"))
+
+        #expect(!(await character.loadBehaviorFamily(containing: "sit")))
+        #expect(character.frame(AnimationController(definition: character.definition).currentFrame) != nil)
+        #expect(character.isDegraded)
+        #expect(character.issues.contains { $0.code == .undecodableImage && $0.scope == .clip("sit") })
     }
 
     @Test func theCatWalkPlaysAtTheDeclaredRate() async throws {
@@ -55,6 +83,7 @@ struct CharacterLoaderTests {
         let character = await CharacterLoader().load(packURL: pack)
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty)
+        #expect(await character.loadBehaviorFamily(containing: "jump"))
         #expect(character.frames["jump"]?.count == frameCount)
         let screen = ScreenDescriptor(
             id: ScreenID(1),
@@ -71,6 +100,7 @@ struct CharacterLoaderTests {
             let snapshot = world.snapshot()
             let pose = try #require(snapshot.pets.first)
             #expect(pose.size == CGSize(width: 96, height: 96))
+            #expect(await character.loadBehaviorFamily(containing: pose.frame.clip))
             #expect(character.frame(pose.frame) != nil)
             seen.insert(pose.frame.clip)
             _ = world.step(dt: 1.0 / 60)

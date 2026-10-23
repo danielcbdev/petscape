@@ -10,7 +10,6 @@
 		751B0FA7C8AB6C2BA49E579F /* PetScapeCore in Frameworks */ = {isa = PBXBuildFile; productRef = 628BC3E0C40C370F029A0D41 /* PetScapeCore */; };
 		1661455D67DF873C2DC54CC4 /* PetScapePlatform in Frameworks */ = {isa = PBXBuildFile; productRef = B552E34B5CEB87542F6DE32A /* PetScapePlatform */; };
 		8D3937472E927DB38F5819F6 /* PetScapeRuntime in Frameworks */ = {isa = PBXBuildFile; productRef = 6DE285515A1AF9795065E816 /* PetScapeRuntime */; };
-		4C8A2E1F9B3D47A6C0E15F72 /* characters in Resources */ = {isa = PBXBuildFile; fileRef = 7E2B9D4A1C6F38E5A0B47D19 /* characters */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -106,6 +105,7 @@
 				187C1D166FEDD03E583805B7 /* Sources */,
 				B04D6F4CFE8D79B00A2F63E2 /* Frameworks */,
 				98C76B4DAC7ACE58CBC58547 /* Resources */,
+				C72D8A6189E24A31B6F0D4E2 /* Copy referenced character assets */,
 			);
 			buildRules = (
 			);
@@ -194,9 +194,26 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4C8A2E1F9B3D47A6C0E15F72 /* characters in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
+		};
+		C72D8A6189E24A31B6F0D4E2 /* Copy referenced character assets */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/assets/characters",
+				"$(SRCROOT)/assets/characters/cat/character.json",
+				"$(SRCROOT)/scripts/copy-referenced-character-assets.swift",
+			);
+			name = "Copy referenced character assets";
+			outputPaths = (
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/characters",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "set -eu\nDEST=\"$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/characters\"\nrm -rf \"$DEST\"\nswift \"$SRCROOT/scripts/copy-referenced-character-assets.swift\" \"$SRCROOT/assets/characters\" \"$DEST\"\n";
 		};
 		4A456AF682D3ACAC4130B518 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
@@ -250,6 +267,8 @@
 		E690BDBEE01A7613003FE260 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				/* The resource-pruning phase must replace an existing product bundle's characters directory. */
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -257,6 +276,8 @@
 		E10277B2F7DE00AF35718316 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				/* The resource-pruning phase must replace an existing product bundle's characters directory. */
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;

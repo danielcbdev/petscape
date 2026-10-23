@@ -107,9 +107,9 @@ own `duration` or `1 / clip.fps`.
 | Decoding | ImageIO (`CGImageSourceCreateThumbnailAtIndex` with `kCGImageSourceThumbnailMaxPixelSize`) off the main actor; decoded once |
 | Target pixel size | `ceil(max(displaySize) × maxBackingScale × maxUserScale)`; MVP: 96 pt × 2 × 1.5 = 288 px |
 | Display | The decoded `CGImage` is assigned to `PetLayer.contents`; Core Animation uploads it once and reuses it (no per-frame decoding) |
-| Preload | All frames of the clips in use are decoded before the pet is shown (first-frame hitch avoided); assigning each frame once while hidden is evaluated if a hitch is observed |
+| Preload | Image metadata is checked for every referenced source; the default behavior family is decoded before the pet is shown. Other families decode asynchronously on first use, while the default frame remains visible. |
 | Cache key | `(characterID, imagePath, pixelSize)` |
-| Eviction | Per character; unloaded when no pet uses that character (multi-character future) |
+| Eviction | Unused families are not retained; loaded frames remain cached per character and are released when that character is evicted |
 | Filtering | `.linear` (smooth downscaling of painted art) |
 | Hit masks | Built from the same decoded images at reduced resolution (see [asset-format.md](../specifications/asset-format.md)) |
 
@@ -121,8 +121,8 @@ Memory math (RGBA8, decoded):
 | 288 × 288 (downsampled) | 324 KiB | 2.5 MiB | 152 MiB ⚠️ |
 | 192 × 192 (96 pt @2x, scale ≤ 1) | 144 KiB | 1.1 MiB | 68 MiB ✅ |
 
-Conclusion: downsampling at load is mandatory; with large future clip libraries, clips should load
-lazily per behavior family (M14 task) or be authored at the target size.
+Conclusion: downsampling at load is mandatory. The runtime validates source metadata up front and
+loads decoded pixels by behavior family so unused art does not occupy the frame cache.
 
 Xcode asset catalogs / sprite atlases were considered. They give build-time packing but cannot
 load user-provided packs at runtime and hide frame metadata from the manifest, so they are not the
@@ -133,7 +133,7 @@ primary path (see ADR-0007). PoC E7 also showed that a runtime atlas does not ch
 | Failure | Behavior |
 |---|---|
 | Manifest missing/invalid JSON/unsupported schema | Character fails to load → placeholder sprite, menu shows error, log `.error` |
-| A frame image missing/undecodable | Clip marked invalid → its fallback is used; log `.error` with path |
+| A frame image missing/undecodable | Missing files and invalid image metadata are caught during pack validation; a pixel decode failure discovered when a family is first used keeps the default frame visible and logs `.error` with the path |
 | Default clip invalid | Character fails to load (as above) |
 | Inconsistent frame canvas sizes | Load continues; log `.fault` in DEBUG / `.error` in release |
 | Image memory budget exceeded | Downsample further, log `.error` |

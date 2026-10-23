@@ -138,6 +138,42 @@ public final class FrameImageStore {
         return result
     }
 
+    /// Checks source-file metadata without decoding pixel buffers, for manifest validation before lazy loading.
+    public func probe(
+        packURL: URL,
+        sources: some Sequence<AnimationClip.FrameSource>
+    ) async -> FramePreloadResult {
+        var jobs: Set<Job> = []
+        for source in sources {
+            switch source {
+            case .image(let path): jobs.insert(.image(path))
+            case .sheetCell(let sheet, _): jobs.insert(.sheet(sheet))
+            }
+        }
+        var result = FramePreloadResult()
+        await withTaskGroup(of: (String, Result<(Int, Int), ImageDecodingError>).self) { group in
+            for job in jobs {
+                group.addTask {
+                    let outcome = await Self.probeSource(at: packURL.appending(path: job.path), label: job.path)
+                    return (job.path, outcome)
+                }
+            }
+            for await (path, outcome) in group {
+                switch outcome {
+                case .success(let (width, height)):
+                    result.probes[path] = .decoded(pixelWidth: width, pixelHeight: height)
+                case .failure(let error):
+                    result.failures[path] = error
+                    switch error {
+                    case .missingFile: result.probes[path] = .missing
+                    case .undecodable: result.probes[path] = .undecodable
+                    }
+                }
+            }
+        }
+        return result
+    }
+
     /// The cached frame for `source`, or `nil` if it was never preloaded or failed to decode.
     public func frame(character: CharacterID, source: AnimationClip.FrameSource, pixelSize: Int) -> FrameImage? {
         frames[FrameImageKey(character: character, source: source, pixelSize: pixelSize)]
@@ -165,6 +201,17 @@ public final class FrameImageStore {
     public func evict(character: CharacterID) {
         frames = frames.filter { $0.key.character != character }
         decodedBytes = decodedBytes.filter { $0.key.character != character }
+    }
+
+    /// Drops decoded frames for this character except for the sources needed by `sources`.
+    public func evict(character: CharacterID, keeping sources: Set<AnimationClip.FrameSource>) {
+        frames = frames.filter { key, _ in
+            key.character != character || sources.contains(key.source)
+        }
+        let paths = Set(sources.map(\.imagePath))
+        decodedBytes = decodedBytes.filter { key, _ in
+            key.character != character || paths.contains(key.path)
+        }
     }
 
     @concurrent
@@ -208,6 +255,17 @@ public final class FrameImageStore {
             return .failure(error)
         } catch {
             return .failure(.undecodable(job.path))
+        }
+    }
+
+    @concurrent
+    nonisolated private static func probeSource(at url: URL, label: String) async
+        -> Result<(Int, Int), ImageDecodingError>
+    {
+        do {
+            return .success(try ImageDecoder.sourcePixelSize(of: url, label: label))
+        } catch {
+            return .failure(error)
         }
     }
 }

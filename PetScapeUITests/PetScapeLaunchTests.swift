@@ -14,6 +14,11 @@ final class PetScapeLaunchTests: XCTestCase {
         statusItem.click()
         let quit = app.menuItems.matching(identifier: "menuAction:").firstMatch
         XCTAssertTrue(quit.waitForExistence(timeout: 5), "Quit PetScape menu item not found")
+        let quitByName = app.menuItems["Quit PetScape"]
+        XCTAssertTrue(quitByName.exists, "The Quit action must expose its spoken menu title")
+        XCTAssertTrue(app.menuItems["Hide Pet"].exists)
+        XCTAssertTrue(app.menuItems["Pause"].exists)
+        XCTAssertTrue(app.menuItems["Settings…"].exists)
         app.typeKey("q", modifierFlags: .command)
 
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5), "PetScape did not quit")
