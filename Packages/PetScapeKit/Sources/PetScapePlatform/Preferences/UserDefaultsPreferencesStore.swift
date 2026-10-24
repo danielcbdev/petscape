@@ -56,7 +56,8 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         get {
             PetSettings(
                 scale: defaults.object(forKey: Key.scale) == nil ? 1 : defaults.double(forKey: Key.scale),
-                speed: defaults.object(forKey: Key.speed) == nil ? 1 : defaults.double(forKey: Key.speed),
+                speed: defaults.object(forKey: Key.speed) == nil
+                    ? PetSettings.defaultSpeed : defaults.double(forKey: Key.speed),
                 behavior: AutonomySettings(
                     isEnabled: enabled(Key.autonomy), jumpsEnabled: enabled(Key.jumps),
                     restEnabled: enabled(Key.rest), expressionsEnabled: enabled(Key.expressions)),

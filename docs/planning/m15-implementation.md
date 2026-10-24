@@ -1,10 +1,108 @@
 # M15 — Animation quality: implementation and verification
 
-Status: **Rework, visual-review stage.** On 2026-10-23 the owner **visually rejected** the V7
-delivery described under "Historical V7 delivery" below. Its automated, UI and build results are
-kept as history; they are not owner acceptance and do not count as visual-quality evidence. A V8
-candidate for `walk` and `curious` only is integrated for owner review. All other clips are
-unchanged V7 until that direction is accepted. M14 is untouched; M16–M20 remain planning only.
+Status: **Done by explicit owner acceptance, 2026-10-23.** The owner reported that the revised
+animations are better and fluid, then requested the pacing/speed refinements below. After those
+changes, the owner stated that testing was complete and explicitly authorized M15 closeout and
+merge into `develop`. The rejected V7 and intermediate V8 records remain historical evidence.
+M14 is unchanged; M16–M20 remain planning only.
+
+## Owner M15 closeout — 2026-10-23
+
+Owner confirmation: “já realizei os testes, pode fazer o fechamento do M15, atualizando o git e
+mergeando para a develop.” This closes the subjective animation/pacing acceptance for the current
+delivery. No additional click-point counts, session duration or quantitative native measurements
+are inferred from that statement.
+
+The delivered manifest contains **134 frames across ten existing clips**. V8 replaces the rejected
+independent-pose sequences with the approved rig-based drawings; the retained landing stays at four
+original keys. Existing source files remain immutable. Speed is configurable through 0.5–4; the
+new default is 2 for absent/nonfinite preferences, while existing finite settings are preserved.
+At 96 pt, walking is 27 pt/s by default and 54 pt/s at maximum; cadence scales with displacement.
+Autonomous stationary states share a five-second ceiling and an eight-second walking interval
+follows the ceiling or walking-intent autonomous landing. User pause/holding/disabled autonomy and
+physical phases remain explicit exceptions.
+
+| Delivered clip | Frames | Declared FPS | Total duration at rate 1 | Events |
+|---|---:|---:|---:|---|
+| `walk` | 30 | 30 | 1.0000 s | footstep @ 0.2667 s; footstep @ 0.7667 s |
+| `idle` | 11 | per frame | 3.2000 s | blink @ 1.9500 s |
+| `jump-start` | 5 | per frame | 0.1500 s | takeoff @ 0.1167 s |
+| `jump` | 7 | per frame | 0.3333 s | — |
+| `fall` | 12 | per frame | 0.8000 s | — |
+| `landing` | 4 | per frame | 0.1000 s | contact @ 0.0000 s; settled @ 0.0833 s |
+| `curious` | 36 | per frame | 3.6000 s | blink @ 1.0167 s |
+| `picked-up` | 6 | per frame | 0.2000 s | — |
+| `held` | 15 | per frame | 2.4000 s | blink @ 1.1500 s |
+| `climb` | 8 | 30 | 0.2667 s | — |
+
+Per-frame durations take precedence over declared FPS. Final key timing intentionally differs from
+the rejected pack, under the owner's rework authorization. The approved manifest keeps schema v1,
+96 pt displaySize, anchors and fallbacks; physics still owns flight/contact.
+
+### Retained verification exception
+
+Before requesting closeout the owner was informed that one V8 pixel-QA test reports 48
+margin/seam issues, reproduced independently in a clean HEAD archive before the pacing changes.
+The milestone is closed by owner acceptance **with that documented exception**; it is not a claim
+that the entire package suite is green or that the pixel issues were repaired. No failing test was
+skipped, removed or weakened. These findings remain a technical follow-up outside the accepted
+pacing delivery; preserve them when working on later assets.
+
+Fully decoded frame storage is 44,457,984 bytes (42.40 MiB), with a 43 MiB regression
+ceiling and initial locomotion ≤16 MiB. This is the accepted delivered pack, not compliance with the
+historical ≤10 MB frame-memory target or a new CPU/power benchmark. Existing measurements and
+evidence limits remain in their original records.
+
+314 Core, 34 Platform and 50 Rendering tests pass; 88 of 89 Runtime tests pass, with the pixel test
+above remaining red. Both UI tests, strict lint and Debug/Release builds pass. Fresh closeout checks
+are recorded in `build/m15-closeout-tests.log`, `build/m15-closeout-lint.log` and
+`build/m15-closeout-debug.log`; the full package gate retains the known exception. The fresh closeout run also had a transient
+Dock-side runtime regression failure (paused fake frame driver); the unchanged isolated retry
+passed for both left and right Dock positions (`build/m15-closeout-dock-retry.log`). This is recorded
+as a flaky/environment-sensitive result, not a repaired defect. Native subjective
+acceptance comes from the owner. M15 integration is authorized; release, tags and M16 implementation
+are not part of this closeout.
+
+## Active pacing refinement — owner follow-up
+
+- Root cause: default policy spent only 47.09% of a deterministic ten-minute supported-floor scenario
+  Walking; sit lasted 8–15 s and sleep 30–60 s, with extra fallback idle and possible chained rests.
+  The improved walk's 13.5 pt stride and Speed ceiling 2 limited maximum travel to 27 pt/s.
+- Changes: shared five-second autonomous stationary budget; eight-second forced walking interval
+  after the budget or a walking-intent autonomous landing; automatic jumps return to Walking.
+  Sit/sleep ranges become 2–4.4 / 2–4.2 s to reserve entry/exit time. Rest/expression choice weights
+  are reduced; critical-energy sleep now honors the existing cooldown. Explicit user pause, holding,
+  disabled autonomy and flight/climb are preserved.
+- Speed: shared Settings/Core range 0.5–4; missing or nonfinite preference defaults to 2. Finite saved
+  values and preference keys are preserved. Current stride yields 27 pt/s by default, 54 pt/s at maximum
+  at 96 pt, with animation and ground motion scaled together. No asset, anchor or timing metadata
+  was changed; the owner-approved drawings remain byte-identical.
+- Regression tests: new ActivePacingTests reproduced the original failures first, then passed the
+  five-second limit for idle/sit/sleep/observe/stretch, ≥80% Walking time under the default policy,
+  automatic-jump/landing recovery and 54 pt/s at Speed 4 with matching animation rate.
+- Existing tests explicitly pin Speed 1 when testing the old 20 pt/s fixture; settings assertions
+  reflect the authorized range/default. Passive-sleep timing tests sample inside the new brief sleep
+  interval and wait for the next sleep state rather than assuming a fixed 25-second phase.
+- Full test gate detected 48 issues in the existing V8 pixel QA (margin/seam assertions). A clean
+  archive of HEAD before these edits reproduced the identical 48 issues in the same test. Evidence:
+  `build/active-pacing-baseline-assets.log` and `build/active-pacing-baseline-path.txt`. No asset or
+  assertion was weakened to hide them. This refinement does not claim a completely passing suite.
+- Final verification: 314 Core tests (30 suites) passed, including three seeded ten-minute active
+  pacing scenarios and critical-energy sleep cooldown; 34 Platform tests and 50 Rendering tests
+  passed. Runtime ran 89 tests: 88 passed and the pre-existing V8 pixel-QA test failed with the
+  same 48 issues reproduced from HEAD. Full `make test` therefore did not reach its UI phase;
+  the separate unchanged Xcode UI run passed both tests, zero failures (19.308 s). Strict lint,
+  Debug, Release and `git diff --check` passed; Xcode emitted its existing App Intents metadata
+  notice, no Swift compiler warning. Logs: `build/active-pacing-core-final.log`,
+  `build/active-pacing-tests-final.log`, `build/active-pacing-ui.log`,
+  `build/active-pacing-lint.log`, `build/active-pacing-debug-final.log`,
+  `build/active-pacing-release.log`. The full-package run before the final test-only correction
+  also had a stale long-sleep assertion; the fresh complete Core run verifies its corrected
+  activity-bounded interval without removing or skipping any test.
+- Native UI tests exercised launch/settings/quit. Real desktop idle proportions and subjective
+  speed were not measured manually; the timing/distance figures above are deterministic simulation
+  results. No new animation-quality acceptance or performance benchmark is claimed.
+- At pacing verification time: no PNG/manifest diff, dependency, permission change, commit, push, tag or merge. The subsequent owner closeout authorizes integration.
 
 ## Owner visual rejection (2026-10-23)
 
@@ -94,7 +192,7 @@ longer required.
   frame-memory target (already exceeded by M8/M15). **Owner decision needed** before reworking all
   clips (options: accept a budget, trim transparent canvas at load, or hold more drawings).
 
-## Open owner decisions
+## Historical candidate decisions (superseded by owner closeout)
 
 1. Accept or redirect the V8 cut-out rig direction (walk and head reaction) before any other clip.
 2. Click-reaction hold 0.6 s → 1.8 s, so the gesture completes.

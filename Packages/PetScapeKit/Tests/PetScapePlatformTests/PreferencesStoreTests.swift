@@ -133,7 +133,7 @@ struct PreferencesStoreTests {
         suite.defaults.set(Double.nan, forKey: "petscape.scale")
         suite.defaults.set(Double.infinity, forKey: "petscape.speed")
         #expect(store.petSettings.scale == 1)
-        #expect(store.petSettings.speed == 1)
+        #expect(store.petSettings.speed == PetSettings.defaultSpeed)
     }
 
     @Test func futureVersionAndUnrelatedKeysSurviveOpeningAndRestore() throws {

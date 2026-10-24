@@ -206,6 +206,8 @@ These are acceptance checks, not passing results. Frame counts below are proposa
 - AC-M15-05 [Man]: Play and inspect each changed clip and its transitions at manifest timing; record fluency, registration, scale, alpha/crop, timing and event results. A generated still or contact sheet alone does not pass.
 - AC-M15-06 [Review]: The M15 record documents accepted assets and their provenance, or clearly identifies the remaining owner action. M16–M20 remain planning-only during M15.
 
+- AC-M15-07 [Auto, Man, owner follow-up]: With autonomy enabled, supported rest/expression states share a five-second stop budget, followed by a walking interval; automatic jumps/Dock returns resume walking. Rest becomes infrequent. Speed remains configurable through 0.5–4, with synchronized paw cadence/ground motion and unchanged approved art. User pause, holding and disabled autonomy remain explicit exceptions.
+
 ### M20 — Release pipeline
 - AC-M20-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
 

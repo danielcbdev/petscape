@@ -39,16 +39,16 @@ future interaction rather than inventing pet-to-pet behavior now.
 | Activity | Base weight | Simulated duration | Automatic cooldown after completion/cancellation |
 |---|---|---|---|
 | Walk | 4 × (1.5 − laziness) | 8–16 s | 0 |
-| Idle | 2 | 2–5 s | 0 |
+| Idle | 0.1 | 2–5 s | 0 |
 | Jump | 0.7 × (0.5 + playfulness) | M8 physical phases | 8 s |
-| Sit | 1.5 × (0.5 + laziness) | 8–15 s, plus transitions | 0 |
-| Sleep | 0 above energy 0.25; otherwise 8 +10 × laziness | 30–60 s, plus transitions | 20 s |
-| Stretch | 0.5 × (0.5 + playfulness) | 1.5 s | 20 s |
-| Observe | 1 × (0.5 + curiosity) | 3–5 s | 0 |
+| Sit | 0.1 × (0.5 + laziness) | 2–4.4 s, plus 0.6 s transitions | 0 |
+| Sleep | 0 above energy 0.25; otherwise 0.2 × (0.5 + laziness) | 2–4.2 s, plus 0.8 s transitions | 20 s |
+| Stretch | 0.15 × (0.5 + playfulness) | 1.5 s | 20 s |
+| Observe | 0.15 × (0.5 + curiosity) | 3–5 s | 0 |
 | Explore | 0.8 × (0.5 + curiosity) | 6–10 s | 0 |
 | Window excursion | 0.6 × (0.5 + curiosity), only from Dock with an eligible visible window side | jump, climb, 5–17 s top walk, Dock return | 30 s |
 
-At energy≤0.08 with rest enabled, the next eligible decision forces Sleep. Activity weights are
+At energy≤0.08 with rest enabled and the sleep cooldown expired, the next eligible decision forces Sleep. Activity weights are
 ordinary injectable BehaviorTuning data for deterministic scenarios; production uses the table.
 The seed-42 tired/lazy scenario enters sleep within two decisions. Separate M8 explicit-jump
 launch cooldowns remain intact. Toggling autonomy off during automatic flight records the eight-
@@ -79,7 +79,7 @@ The complete state/clip/motion/priority catalogue lives in [state-machines.md](.
 
 ## Live settings boundary
 
-PetSettings is a Sendable value: scale 0.5–1.5, speed 0.5–2 and AutonomySettings toggles. Core
+PetSettings is a Sendable value: scale 0.5–1.5, speed 0.5–4 (default 2 for unset preferences) and AutonomySettings toggles. Core
 WorldInput handles configureBehavior, setDisplayScale, setSpeedScale and wake between steps.
 Resizing updates contact geometry and visual bounds together, preserves finite foot/facing and
 revalidates preparation; airborne physical motion is not teleported by settings. World defaults
@@ -97,3 +97,21 @@ separate cases. This does not claim every possible future resting-art permutatio
 Runtime low-FPS accounting is unit-tested. Settings interactions pass the UI test; actual OS login
 behavior, native sleep cadence and installed-app playtest evidence belong to M9 verification, not to
 the Core test result alone.
+
+## Owner pacing refinement — 2026-10-23
+
+The owner accepted the improved animation fluency and requested less standing still and faster
+configurable walking. Autonomous supported rest/expression/turn states now share a five-second
+stationary budget across state changes, including fallback idle and cursor/click reactions. Reaching
+the budget starts a guaranteed eight-second walk before another ordinary activity choice. Held pets,
+explicit interaction sessions, disabled autonomy, pause/hide/suspension and physical flight/climb
+phases are exempt. Sleep still restores energy and respects its 20-second cooldown, including the
+critical-energy override; shortened sleep/sit durations reserve time for their entry/exit phases.
+Rest/expression weights are reduced as shown above. After automatic jumps and Dock-return landings,
+the cat gets an eight-second walk instead of immediately drawing another rest action. Explicit jump
+return intents remain honored.
+
+The single shared Speed range is 0.5–4, default 2 for missing/nonfinite values. Existing finite stored
+values remain intact; preference keys and schema version are unchanged. The V8 stride remains
+13.5 pt at 96 pt: displacement and clip rate scale together, so default speed is 27 pt/s and maximum
+54 pt/s (previous maximum 27 pt/s). No PNG or manifest is modified by this refinement.

@@ -41,7 +41,7 @@ struct AutonomyTests {
         #expect(PetSettings().behavior.isEnabled)
         #expect(PetSettings(scale: .nan, speed: .infinity).scale == 1)
         #expect(PetSettings(scale: 0, speed: 9).scale == 0.5)
-        #expect(PetSettings(scale: 0, speed: 9).speed == 2)
+        #expect(PetSettings(scale: 0, speed: 9).speed == 4)
     }
 
     @Test func weightedDrawRejectsInvalidWeightsAndHasBoundedFallback() {
@@ -135,7 +135,10 @@ struct AutonomyTests {
         var world = try Self.world(energy: 0.05)
         Self.advance(&world, seconds: 1)
         let count = world.pets[0].activityDecisionCount
-        Self.advance(&world, seconds: 10)
+        // Stay inside the selected activity: brief sleep now ends within five seconds.
+        let remaining = world.pets[0].activityDeadline - world.time - Self.dt
+        try #require(remaining > 0.1)
+        Self.advance(&world, seconds: remaining)
         #expect(world.pets[0].activityDecisionCount == count)
     }
 
@@ -187,7 +190,7 @@ struct AutonomyTests {
         world.apply(.setDisplayScale(.nan))
         world.apply(.setSpeedScale(.infinity))
         #expect(world.pets[0].size.width.isFinite)
-        #expect(world.tuning.speedScale == 1)
+        #expect(world.tuning.speedScale == PetSettings.defaultSpeed)
         #expect(world.step(dt: Self.dt).contains(.jumpCancelled(id)))
     }
 
@@ -251,8 +254,9 @@ struct AutonomyTests {
         #expect(world.pets[0].position.x.isFinite)
     }
 
-    @Test func sleepCooldownRemainsUnavailableUntilSimulatedDeadline() throws {
-        var world = try Self.world(energy: 0.2)
+    @Test(arguments: [0.2, 0.01])
+    func sleepCooldownRemainsUnavailableUntilSimulatedDeadline(energy: Double) throws {
+        var world = try Self.world(energy: energy)
         world.tuning.activityWeights = [.sleep: 1]
         _ = world.step(dt: Self.dt)
         Self.advance(&world, seconds: 0.5)
@@ -261,8 +265,13 @@ struct AutonomyTests {
         #expect(world.pets[0].activity == .idle)
         #expect((world.pets[0].activityCooldowns[.sleep] ?? 0) > world.time)
         let cooldown = try #require(world.pets[0].activityCooldowns[.sleep])
-        // Eligibility changes at the cooldown; choice waits until the current bounded idle ends.
-        while world.time < cooldown + Activity.idle.duration.upperBound + Self.dt {
+        // Eligibility changes at the cooldown; a forced walking interval must finish too.
+        while world.time < cooldown {
+            #expect(world.pets[0].activity != .sleep)
+            _ = world.step(dt: Self.dt)
+        }
+        while world.time < cooldown + Activity.walk.duration.upperBound + Self.dt {
+            if world.pets[0].activity == .sleep { break }
             _ = world.step(dt: Self.dt)
         }
         #expect(world.pets[0].activity == .sleep)
@@ -343,10 +352,10 @@ struct AutonomyTests {
             let events = world.step(dt: Self.dt)
             #expect(!events.contains(.tookOff(id)))
             landed = landed || events.contains(.landed(id, PetWorldTests.floor.id))
-            if world.pets[0].state == .grounded(.idle) { break }
+            if world.pets[0].state == .walking { break }
         }
         #expect(landed)
-        try #require(world.pets[0].state == .grounded(.idle))
+        try #require(world.pets[0].state == .walking)
         #expect(world.pets[0].activityCooldowns[.jump] == deadline)
         if !reenableBeforeLanding {
             // Stay disabled beyond M8's separate 2-second launch cooldown. Only M9's automatic
@@ -363,7 +372,7 @@ struct AutonomyTests {
             #expect(!events.contains(.tookOff(id)))
         }
         var nextTakeoff: Double?
-        while world.time < deadline + Activity.idle.duration.upperBound + 0.5 {
+        while world.time < deadline + Activity.walk.duration.upperBound + 0.5 {
             let events = world.step(dt: Self.dt)
             if events.contains(.tookOff(id)) {
                 nextTakeoff = world.time

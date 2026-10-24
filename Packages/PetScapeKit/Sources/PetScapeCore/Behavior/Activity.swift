@@ -7,8 +7,8 @@ public enum Activity: String, CaseIterable, Hashable, Sendable {
         case .walk: 8...16
         case .idle: 2...5
         case .jump, .windowExcursion: 0...0
-        case .sit: 8...15
-        case .sleep: 30...60
+        case .sit: 2...4.4
+        case .sleep: 2...4.2
         case .stretch: 1.5...1.5
         case .observe: 3...5
         case .explore: 6...10

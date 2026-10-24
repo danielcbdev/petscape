@@ -48,6 +48,8 @@ public struct Pet: Sendable {
     var previousActivity: Activity?
     var activityRepetitions = 0
     var activityCooldowns: [Activity: Double] = [:]
+    /// Shared budget across consecutive autonomous rest/expression states.
+    var stationaryElapsed: Double = 0
     var noProgressElapsed: Double = 0
     var progressPosition: CGPoint = .zero
     var cursorInterest = CursorInterest()

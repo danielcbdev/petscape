@@ -23,7 +23,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
 | M13 | Window interaction | v0.5.0 | **Done by owner acceptance** (2026-10-23 — [closeout](#m13-owner-closeout--2026-10-23)) |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | **Done by explicit owner acceptance** (2026-10-23; see [implementation record](m14-implementation.md); evidence limits and waived soak remain documented) |
-| M15 | Animation quality | — | **Rework** (V7 visually rejected by the owner 2026-10-23; V8 rig candidate for walk and head reaction awaiting owner visual review; other clips pending — [implementation record](m15-implementation.md)) |
+| M15 | Animation quality | — | **Done by explicit owner acceptance** (2026-10-23; revised animations and pacing tested by the owner; retained V8 pixel-QA exception — [closeout](m15-implementation.md#owner-m15-closeout--2026-10-23)) |
 | M16 | New behaviors and animations | — | Not started |
 | M17 | Portuguese/English localization | — | Not started |
 | M18 | Bundled character selection | — | Not started |

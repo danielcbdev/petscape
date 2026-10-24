@@ -275,3 +275,23 @@ interior-seam opacity check instead of the 95% opaque-share rule (the source key
 The full-pack ceiling is 42 MiB (131 frames), pending an owner budget decision. Details:
 [M15 record](../planning/m15-implementation.md#v8-verification-so-far). Lint, Debug and Release
 (warnings as errors) builds pass (`build/m15-rework-*.log`); UI tests were not rerun for V8.
+
+## Owner active-pacing follow-up — 2026-10-23
+
+`ActivePacingTests` first reproduced excessive stops, idle landing and the old Speed cap, then
+passed the five-second bound for five activity types, ≥80% supported Walking in three deterministic
+ten-minute seeds, landing/jump resumes and Speed 4 (54 pt/s for the actual 13.5 pt stride).
+The sleep-cooldown regression also covers critical energy. Final Core run: 314 tests pass.
+Platform 34, Rendering 50 and separate UI 2 pass; lint and Debug/Release builds pass. Runtime:
+88 of 89 tests pass, with 48 pre-existing margin/seam issues in the V8 pixel-QA test. A clean HEAD
+archive independently reproduces those exact 48 issues. No test was skipped/removed and no image
+was changed to bypass them. Full `make test` remains failed at that existing asset test. See the
+[M15 pacing evidence](../planning/m15-implementation.md#active-pacing-refinement--owner-follow-up)
+for logs, changed expectations and manual-verification limits.
+
+### M15 owner closeout — 2026-10-23
+
+After the pacing refinement, the owner confirmed completing tests and directed M15 closure and
+merge to `develop`. This is owner visual/native acceptance with the previously disclosed V8 pixel-QA
+exception retained; it does not turn the 48 asset findings into passed tests. No quantitative
+manual measurement is inferred. See the [closeout](../planning/m15-implementation.md#owner-m15-closeout--2026-10-23).
