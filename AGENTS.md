@@ -43,7 +43,13 @@ behavior works, including automatic/manual dancing, Stop Dance and cleanup after
 authorized creating a branch, committing, merging into `develop` and pushing. V9 art is integrated.
 The existing V8 pixel-QA failure and measurement/permission-evidence limits are retained in the
 [M16 closeout](docs/planning/m16-implementation.md#owner-m16-closeout--2026-10-24).
-M17–M20 remain planning only; M16 closure does not authorize their implementation.
+M17–M20 were planning only at M16 closeout; M16 closure did not authorize their implementation.
+The owner separately authorized **M18** and then explicitly accepted its closure on 2026-10-24,
+including branch creation, commit and local merge into `develop`. **M18 is Done by owner acceptance**
+with only `cat` bundled: real two-character selection remains deferred (AC-M18-08 unmet), and native
+Automation Mode/V8/performance evidence limits remain recorded in the
+[M18 closeout](docs/planning/milestones.md#owner-m18-closeout--2026-10-24). No push, release or tag is
+implied. M17 and M19–M20 remain Not started; their implementation is not authorized.
 Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack

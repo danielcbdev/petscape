@@ -10,6 +10,9 @@ struct SettingsView: View {
 
     var body: some View {
         Form {
+            if let selection = model.characterSelection {
+                characterSection(selection)
+            }
             Section("Pet") {
                 Slider(value: Binding(get: { model.petSettings.scale }, set: model.setScale), in: 0.5...1.5) {
                     Text("Size")
@@ -213,6 +216,51 @@ struct SettingsView: View {
             Text(
                 "PetScape reads window positions so pets can walk on them. It does not move, click, close, resize, or activate windows, and does not read titles or contents. You can allow access in Privacy & Security › Accessibility."
             )
+        }
+    }
+
+    private func characterSection(_ selection: CharacterSelectionModel) -> some View {
+        Section("Character") {
+            if selection.characters.count > 1, let activeID = selection.activeID {
+                Picker(
+                    "Character",
+                    selection: Binding(
+                        get: { selection.activeID ?? activeID },
+                        set: { id in Task { await selection.select(id) } })
+                ) {
+                    ForEach(selection.characters) { character in
+                        Text(verbatim: character.displayName).tag(character.id)
+                    }
+                }
+                .disabled(!selection.canSelect)
+                .accessibilityIdentifier("settings.character")
+                .accessibilityLabel("Character")
+            } else if let name = selection.activeName {
+                LabeledContent("Character", value: name)
+                    .accessibilityIdentifier("settings.activeCharacter")
+                Text("This is the only character included with this app.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.singleCharacter")
+            } else if !selection.isLoading {
+                Text("No bundled characters are available.")
+                    .accessibilityIdentifier("settings.noCharacters")
+            }
+            if selection.isLoading {
+                Text("Loading characters…")
+                    .accessibilityIdentifier("settings.characterLoading")
+            }
+            if selection.unavailableCount > 0 {
+                Text("Some included characters are unavailable because their files are invalid.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            if let error = selection.error {
+                Text(error)
+                    .font(.caption)
+                    .foregroundStyle(.red)
+                    .accessibilityIdentifier("settings.characterError")
+            }
         }
     }
 

@@ -26,7 +26,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M15 | Animation quality | — | **Done by explicit owner acceptance** (2026-10-23; revised animations and pacing tested by the owner; retained V8 pixel-QA exception — [closeout](m15-implementation.md#owner-m15-closeout--2026-10-23)) |
 | M16 | New behaviors and animations | — | **Done by explicit owner acceptance** (2026-10-24; owner confirmed all behavior works and authorized integration/push; V8 QA exception and measurement limits preserved — [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24)) |
 | M17 | Portuguese/English localization | — | Not started |
-| M18 | Bundled character selection | — | Not started |
+| M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
 | M19 | Character pack discovery and installation | — | Not started |
 | M20 | Release pipeline | v1.0.0 | Not started |
 
@@ -444,10 +444,166 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 
 ## M18 — Bundled character selection
 
-- **Objective:** let the user choose among characters included with the app.
-- **Scope:** bundled character selection and persistence as later specified. No M18 implementation is authorized by the M15 request.
-- **Prerequisites:** M17 planning/implementation as later specified.
-- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+- **Objective:** select one validated character shipped inside the application bundle.
+- **Authorization:** explicit owner request on 2026-10-24 includes generic implementation even if
+  fewer than two real packs exist; original-art changes remain prohibited. Subsequent owner closeout
+  below separately authorizes branch creation, commit and local merge into develop.
+- **Prerequisites:** M16 accepted. M17 is an integration dependency for translated copy, not a
+  technical blocker: use existing SwiftUI localizable literals and `String(localized:)`; no language
+  detection, translations or general string refactor. M17 stays Not started.
+- **Design:** bundle-only catalog at immediate `characters/*/character.json` roots, manifest IDs as
+  identity, strict resource validation, independent image caches. A native Settings picker appears
+  only with multiple valid packs; zero/one options have honest text. No extra menu or preview art.
+  Load the candidate fully before a synchronous MainActor commit. Core replaces a settled pet at
+  the same contact/facing/surface only when the new geometry fits. Busy physical/interaction states
+  reject with a retry message, leaving the current pet unchanged; no deferred action queue.
+- **Persistence:** additive `petscape.selectedCharacterID`, no migration/version change or per-pet
+  preferences. Missing/removed/invalid IDs fall back to `cat`, then the first valid manifest ID in
+  lexical order. Persist only after successful application. Zero valid packs use the existing
+  placeholder and retain the saved ID for recovery. Restore Defaults resets existing global settings
+  and retains the selected character (a content choice).
+- **Scope boundary:** only the composition root supplies the bundle root; no user-folder search,
+  external install/import or network (M19). Existing DEBUG explicit pack override remains diagnostic
+  and does not enter the bundled catalog or persist its identity.
+- **Implementation/verification:** T18.1–T18.6 and AC-M18-01…08 below the linked planning registers.
+- **Status:** Done by explicit owner acceptance, 2026-10-24, with the limitations recorded below.
+  Inventory remains only `cat` / “Cat”, schema 1, 12 clips, 200 frames. Historical V7/V8 manifests and
+  V9 clips are not independent characters. The owner accepts closure of the generic implementation;
+  real multi-character selection and its visual acceptance remain deferred, not claimed as verified.
+
+### M18 execution plan — 2026-10-24
+
+- [x] T18.1 Read instructions, architecture, schema, state machine, testing and M15/M16 closeouts;
+  inspect clean develop, bundle-copy script, AppContainer → loader → runtime → world and preferences.
+- [x] T18.2 Add catalog/strict loader tests first, run red, implement immediate-root discovery,
+  reject duplicate IDs and any clip/resource error; keep lazy residency after validation.
+- [x] T18.3 Test and implement additive preference, startup restore/fallback and transactional
+  observable selection model with an injected async loader, cancellation/stop and informative errors.
+- [x] T18.4 Test Core safe replacement and runtime commit for paused/hidden/busy/geometry cases;
+  clear snapshots/layers/masks/events and isolate old lazy callbacks; preserve all global settings.
+- [x] T18.5 Wire AppContainer and native Settings; add accessible zero/one/many presentation tests
+  and UI assertions for the actual single bundled character; preserve diagnostic preview behavior.
+- [x] T18.6 Run lint, package suite, app/UI tests, Debug/Release, real bundle validation and asset
+  checks; record inherited V8 failure separately, evidence limits and precise second-pack handoff.
+
+### M18 engineering evidence — 2026-10-24
+
+At engineering handoff, the generic implementation was delivered and M18 remained Blocked.
+The owner subsequently accepted closure with the recorded limitations. These checks do not
+substitute for AC-M18-08 or visual acceptance with two real bundled characters.
+
+| Gate | Actual result |
+|---|---|
+| `make lint`; `git diff --check` | Pass, including module import boundaries |
+| `make test`; final `make test-core` | **538 package tests: 537 pass**. Core 338, Platform 42, Rendering 50 pass; Runtime 107/108 pass. The only failing test is the unchanged M15 V8 `newDrawingsAreDistinctOpaqueContainedAndRegistered` with **48 issues**; no test removed, weakened or skipped. The package failure prevents `make test` reaching app tests |
+| Native `xcodebuild ... -configuration Debug test` | App and all four UI tests compile; execution cannot initialize UI testing: **Timed out while enabling automation mode**. No scenario is counted as passed. Earlier attempts had the same initialization blocker |
+| Direct native inspection | Computer-use app inspection returned `timeoutReached`; no screenshot, visual swap or VoiceOver run was obtained |
+| Final `make build` and Release `xcodebuild ... build` | Pass with Swift/compiler warnings treated as errors. Inherited AppIntents metadata-extraction warning remains; no new Swift warning |
+| Actual Debug/Release character bundles | Exactly one `cat` / “Cat”, schema 1, 12 clips, 200 image references. Manifests and every bundled PNG are byte-identical to validated source; no missing or extra PNG. M16 audio consent description remains in both actual Info.plists |
+| Runtime isolation regression | Actual failing old-family task handles are awaited after replacement and stop. Temporarily removing the started/character-identity guard makes **both** cases fail; guard restored before final gates |
+| Geometry regressions | Oversized width/height at surface midpoint and primary/secondary-display window/floor bounds are covered. Secondary window-top test reproduced the primary-screen-helper defect before the local support-bound fix; final cases pass |
+| Independent read-only review | Findings addressed; follow-up review reports no remaining actionable correctness issue |
+| Original assets and closed milestones | `git diff --exit-code -- assets docs/planning/m15-implementation.md docs/planning/m16-implementation.md` passes: originals and closeouts unchanged |
+
+Durable local evidence (ignored build output): `build/m18-test-core.log`, `build/m18-test.log`,
+`build/m18-ui.log`, `build/m18-debug.log`, `build/m18-release.log`, `build/m18-lint.log`,
+`build/m18-bundle-validation.log`, `build/m18-lifetime-mutation.log`, `build/m18-geometry-red.log`,
+`build/m18-secondary-red.log` and `build/m18-geometry-green.log`. Native result bundle:
+`build/DerivedData/Logs/Test/Test-PetScape-2026.10.24_12-53-53--0300.xcresult`.
+
+AC-M18-01/03/05/06 have automated evidence; AC-M18-04 has deterministic fixture evidence including
+paused/hidden and busy rejection, while real multi-character/native presentation remains unverified.
+AC-M18-02 has model and compiled native test coverage, **not** a keyboard/VoiceOver execution pass.
+AC-M18-07 preserves its inherited exceptions. AC-M18-08 remains unmet because owner content is
+missing; it is explicitly deferred by the owner closeout, not converted into a passed criterion.
+
+The real cat passes strict complete resource decoding, and its returned initial decoded-frame
+residency remains ≤16 MiB after noninitial families are evicted. Discovery validates each pack,
+releases validation images, and reloads the chosen candidate before commit; this intentionally adds
+startup I/O/temporary decoding work. Peak process memory, swap/startup latency, CPU/energy and leaks
+were **not measured**. Frame-byte assertions do not prove those performance targets. Existing V8
+pixel findings and M16 permission/native/hardware evidence limits are preserved, not reapproved.
+At engineering handoff, no commit, push, tag, release, PR, merge or branch creation had been
+performed for M18. The later closeout separately authorizes the local Git integration below.
+
+### M18 changed-file inventory
+
+| Area | Files |
+|---|---|
+| Core | [PetWorld.swift](../../Packages/PetScapeKit/Sources/PetScapeCore/World/PetWorld.swift) |
+| Platform | [PreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/PreferencesStore.swift), [InMemoryPreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/InMemoryPreferencesStore.swift), [UserDefaultsPreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/UserDefaultsPreferencesStore.swift) |
+| Runtime | [BundledCharacterCatalog.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/BundledCharacterCatalog.swift), [CharacterLoader.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterLoader.swift), [CharacterSelectionModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterSelectionModel.swift), [PetRuntime.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/PetRuntime/PetRuntime.swift), [SettingsModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Settings/SettingsModel.swift) |
+| App | [AppContainer.swift](../../PetScape/App/AppContainer.swift), [SettingsView.swift](../../PetScape/SettingsView.swift) |
+| Tests | [CharacterReplacementTests.swift](../../Packages/PetScapeKit/Tests/PetScapeCoreTests/World/CharacterReplacementTests.swift), [BundledCharacterSelectionTests.swift](../../Packages/PetScapeKit/Tests/PetScapeRuntimeTests/Characters/BundledCharacterSelectionTests.swift), [CharacterSwitchRuntimeTests.swift](../../Packages/PetScapeKit/Tests/PetScapeRuntimeTests/PetRuntime/CharacterSwitchRuntimeTests.swift), [PreferencesStoreTests.swift](../../Packages/PetScapeKit/Tests/PetScapePlatformTests/PreferencesStoreTests.swift), [PetScapeSettingsTests.swift](../../PetScapeUITests/PetScapeSettingsTests.swift) |
+| Documentation | [AGENTS.md](../../AGENTS.md), [data-flow.md](../architecture/data-flow.md), [testing.md](../development/testing.md), [milestones.md](milestones.md), [task-breakdown.md](task-breakdown.md), [acceptance-criteria.md](acceptance-criteria.md) |
+
+### M18 deferred content and native follow-up
+
+Missing material: **one additional real character**, distinct from the existing `cat`. The owner
+must choose its stable identity/name and supply a complete original pack under
+`assets/characters/<stable-id>/character.json` plus every referenced PNG/sheet at pack-relative
+paths. Do not rename/change the existing cat or duplicate its historical V7/V8 variants as choices.
+The stable ID must match `^[a-z0-9][a-z0-9-]*$`, be unique and remain unchanged across later display-
+name translations or folder renames. Replacing an ID is treated as removing the old character;
+startup repairs its saved selection using the documented fallback policy.
+
+Required data follows [schema v1](../specifications/animation-schema.md): schemaVersion, id,
+displayName, defaultAnimation, canvas, displaySize, anchor and a playable animations dictionary,
+with valid timing, paths and any deliberate fallbacks. Provide artwork/provenance and review the
+physical anchors/contact and behavior presentation. Existing semantic clips include walk, idle,
+jump-start, jump, fall, landing, curious, picked-up, held, climb, dance and cleanup; absent optional
+clips may deliberately use the schema's fallback/default contract, but a declared broken clip
+excludes the selection. No dedicated preview image is required; the current UI uses text names.
+The bundle-copy phase already includes all immediate complete pack roots, so no subclass, new
+schema, external installer or additional runtime registry is needed.
+
+After delivery: add the real pack without changing originals, rebuild Debug/Release, validate the
+actual bundled resources, extend the real catalog inventory assertion beyond its current one-cat
+baseline, run package/UI gates, and perform the manual matrix below. Only then review AC-M18-08
+and obtain owner acceptance of real multi-character behavior; synthetic test packs never satisfy
+that criterion. This content follow-up does not reopen the owner's acceptance of the generic M18
+implementation unless the owner requests it.
+
+Remaining native acceptance: zero/one/multiple presentation, active checkmark/name, keyboard and
+VoiceOver, restart, failure without losing current pet, pause/hide, current window-top support on
+both displays, rejected flight/held/climb/busy phases and fit rejection. Native process peak memory,
+matched startup/swap timing, CPU/leaks and alternate macOS/Xcode hardware are not established by
+frame-byte assertions or fixtures. See [M18 test matrix](../development/testing.md#m18-character-selection).
+M17 localization and M19 external installation are separate milestones, not missing M18 engineering.
+
+### Owner M18 closeout — 2026-10-24
+
+After being explicitly informed that generic engineering was complete, only `cat` was bundled,
+UI/VoiceOver execution was blocked by Automation Mode timeout and the existing V8 test still
+failed, the owner requested: “pode fazer a finalização, criando a branch, commitando, fazendo o
+merge para a develop e marando como concluído”. This is explicit acceptance of M18 closure with
+those known limitations and authorization for local branch creation, Conventional Commit and
+merge into develop. It does not authorize push, release, tag, PR or M17/M19/M20 implementation.
+
+M18 is **Done by explicit owner acceptance**. This closes the generic bundled-catalog, validated
+selection transaction, persistence/fallback, Settings presentation, tests and documentation.
+It does **not** assert that a user can currently choose between two real characters: only `cat`
+ships. AC-M18-08 remains unmet and deferred until a second original pack is supplied and reviewed.
+Compiled native tests are not a keyboard, VoiceOver or visual-swap pass; Automation Mode timeout,
+unmeasured peak memory/startup/CPU/leaks and alternate-hardware limits remain explicit. The M15
+V8 pixel-QA failure and M16 closeout remain unchanged. No test or original art was altered to make
+closure appear green. The deferred material and native matrix above remain actionable follow-ups.
+
+Local integration: `feature/M18-bundled-character-selection` → `develop`. Fresh closeout
+verification is recorded below; no remote publication is implied.
+
+| Fresh closeout check | Result |
+|---|---|
+| `make lint`, documentation links and `git diff --check` | Pass |
+| `make test-core` | 538 tests: 536 pass in this run. Core 338, Platform 42 and Rendering 50 pass; Runtime 106/108 pass. The inherited V8 test has 48 issues; the unchanged `trackedWindowSurfaceEntersWorldAndBecomesAJumpDestination` also rejected a jump because the real desktop reported `.fullScreenSpace` suspension |
+| Isolated unchanged window-test retry | 1/1 passes. The full-run log establishes an environment-sensitive failure, not a repaired product defect or an entirely green full suite; no test was changed or weakened |
+| `make build` | Debug succeeds; inherited AppIntents metadata warning remains |
+| Original asset and M15/M16 closeout diff | No changes |
+
+Local closeout logs: `build/m18-closeout-tests.log`, `build/m18-closeout-lint.log` and
+`build/m18-closeout-debug.log`; isolated retry: `build/m18-closeout-window-retry.log`.
+Previously recorded Release/build-bundle and native-timeout evidence
+above remains unchanged; no new native/performance success is claimed at owner acceptance.
 
 ## M19 — Character pack discovery and installation
 

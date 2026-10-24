@@ -653,6 +653,25 @@ Contract, file responsibilities, task evidence and Git authorization:
 | M18 | Selection among characters bundled in the app | No selector implementation in M15 |
 | M19 | Discovery and installation of character packs | No pack discovery/installation implementation in M15 |
 
+## M18 — Bundled character selection (authorized 2026-10-24)
+
+**Done by explicit owner acceptance, 2026-10-24.** The owner accepted generic engineering with
+one real bundled cat, deferred AC-M18-08 and retained native/V8/performance limits, then authorized
+branch creation, commit and local merge into develop. This does not claim two real characters or
+passing native UI tests. See the [closeout](milestones.md#owner-m18-closeout--2026-10-24).
+
+Design and execution checklist: [M18 register](milestones.md#m18--bundled-character-selection).
+M17 translations remain separate; M19 external discovery/installation remains unauthorized.
+
+| ID | Task | Modules/files | Verification |
+|---|---|---|---|
+| T18.1 | Inventory actual bundled characters and document M17 dependency | AppContainer, copy script, planning | Only complete immediate pack roots count |
+| T18.2 | Bundle catalog and full resource validation; reject duplicate stable IDs | Runtime/Characters: BundledCharacterCatalog, CharacterLoader | Real cat plus isolated malformed/missing/duplicate fixtures; retained lazy bytes |
+| T18.3 | Observable transaction, persist/restore/fallback, cancellation | CharacterSelectionModel; Platform/Preferences | Zero/one/many, restart, unknown ID, load failure and late task tests |
+| T18.4 | Atomic safe swap preserving contact and settings | Core/PetWorld; Runtime/PetRuntime | Supported swap, busy rejection, geometry fit, paused/hidden, old snapshots/events/masks |
+| T18.5 | Native accessible Settings integration through composition root | AppContainer, SettingsModel, SettingsView | Single real Cat text; native keyboard/AX assertions, model multi-option tests |
+| T18.6 | Gates and owner handoff | Planning/criteria; build evidence | Lint, package/UI, Debug/Release, asset validation; preserve V8 exception |
+
 ## M20 — Release pipeline
 
 | ID | Task | Mod | Deps | Size | Verify |

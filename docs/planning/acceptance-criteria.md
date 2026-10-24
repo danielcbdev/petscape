@@ -249,3 +249,23 @@ remains recorded. See [owner closeout](m7-m8-technical-review.md#owner-m7m8-clos
 [testing.md](../development/testing.md) and [performance.md](../specifications/performance.md)
 for the distinction between milestone acceptance and independently recorded measurements.
 M9 was subsequently reauthorized separately; no release/tag/commit is authorized by milestone acceptance.
+
+## M18 — Bundled character selection
+
+Status: **Done by explicit owner acceptance**, 2026-10-24, with retained exceptions. Generic
+implementation is delivered; only one real character ships. **AC-M18-08 remains unmet and deferred**
+by the owner, rather than passed. Native keyboard/VoiceOver/visual execution and performance remain
+unverified; the existing V8 exception is unchanged. Synthetic test fixtures are never shipping
+options. M17 is not implemented. See the [owner closeout](milestones.md#owner-m18-closeout--2026-10-24)
+and [engineering evidence](milestones.md#m18-engineering-evidence--2026-10-24).
+
+| ID | Objective criterion | Verification |
+|---|---|---|
+| AC-M18-01 | Only immediate bundled packs with valid schema, clips, decodable resources and unique manifest IDs appear; malformed/duplicate packs excluded with informative status | Runtime catalog fixtures and actual built bundle |
+| AC-M18-02 | Zero/one/many Settings states are honest; native picker marks active character, supports keyboard/VoiceOver; no generated preview art or debug UI | Model tests, native UI assertions; full VoiceOver manual |
+| AC-M18-03 | First run selects cat then lexical valid-ID fallback; saved ID restores; removed/unknown ID repairs after successful application; zero valid retains preference and uses placeholder | Isolated preference/selection tests |
+| AC-M18-04 | Two valid test packs swap atomically at a supported safe boundary, preserving position/facing/surface and global preferences; physical/held/climbing/incompatible geometry reject without mutation | Core/Runtime deterministic tests |
+| AC-M18-05 | Failed candidate/changed identity never replaces current pet or preference; stop/cancellation/late load cannot commit | Injected loader tests |
+| AC-M18-06 | Old frames, masks, snapshots, events and lazy completion cannot update the replacement or stopped runtime; paused/hidden gates remain intact | Runtime tests and identity guards |
+| AC-M18-07 | Existing M16 behavior/art and M15 closeout/V8 exception preserved; no external discovery, new dependencies or translations; Git integration only under separate owner authorization | Diff, lint, package/UI/build checks; docs |
+| AC-M18-08 | User can select between at least two real, complete bundled characters; owner reviews visual/native swap | **Unmet; deferred by owner at closeout: second real pack absent**; test fixtures do not satisfy this criterion |

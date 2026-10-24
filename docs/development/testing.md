@@ -350,3 +350,38 @@ closure and integration into develop. The M16 matrix above remains a record of s
 engineering evidence limits; no per-row native logs, VoiceOver run, performance number or
 permission-revocation result is invented from that report. The inherited V8 pixel-QA failure is
 retained. See the [M16 closeout](../planning/m16-implementation.md#owner-m16-closeout--2026-10-24).
+
+## M18 character selection
+
+Implementation/fallback and second-pack handoff: [M18 register](../planning/milestones.md#m18--bundled-character-selection).
+Only one real character currently ships. Temporary unit/UI fixture packs are not content deliveries.
+UI fixtures copy the built app into a temporary directory, replace only copied resources, use unique
+bundle IDs and isolated `PetScapeUITests.<UUID>` preference suites, then delete their own copy/domain.
+They never enable an external discovery root or modify owner/original assets.
+
+Native automated cases in `PetScapeSettingsTests`: the existing Settings flow asserts the real single
+Cat presentation; additional tests cover an empty catalog and a multi-option Picker, accessible
+label, keyboard selection and relaunch persistence using isolated fixtures. Compilation is distinct
+from successful native execution: an Automation Mode timeout before a scenario executes is an
+environment blocker, not a pass. Run the app/UI `xcodebuild ... -configuration Debug test` gate
+separately when the inherited V8 package failure prevents `make test` reaching UI tests.
+
+Owner/manual matrix after a second real pack is supplied:
+
+1. Open normal Settings. Check the active manifest name, keyboard traversal, native selected option
+   and VoiceOver label/value/loading/error announcements. No debug preview is required.
+2. Select each real character while supported on Dock, screen floor and window tops on both primary
+   and secondary displays. Check contact, facing, manifest scale/anchors and global speed/autonomy,
+   interaction, music/dance settings. The pet must not teleport or retain old frames/hit masks.
+3. Repeat while paused and hidden; neither action may resume simulation or reveal a hidden pet.
+   Restore Defaults resets global settings while retaining the selected content; relaunch restores it.
+4. Try during flight, held, climb, dance, cleanup and rest/excursion phases. The current pet remains
+   intact with a clear retry message; retry at Walking/Idle with enough room. Incompatible geometry
+   must reject even at the midpoint of a too-small surface or near the host display's top/edges.
+5. Test a removed saved ID on update, invalid candidate resources and zero valid packs in disposable
+   app copies. Confirm deterministic valid fallback or placeholder; do not corrupt the installed app.
+6. Measure matched Release startup/swap peak process memory, frame residency and leaks. Strict
+   selection validates full decoding transiently before returning to lazy residency; do not infer
+   process peak or startup latency from the ≤16 MiB initial cat-frame assertion.
+
+No M18 acceptance changes the retained M15 V8 pixel-QA exception or M16 owner closeout.

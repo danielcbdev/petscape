@@ -21,6 +21,27 @@ struct PreferencesStoreTests {
         }
     }
 
+    @Test func characterSelectionIsAdditivePersistsAndRestoreKeepsTheContentChoice() throws {
+        let suite = try Suite()
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(store.selectedCharacterID == nil)
+        store.isPaused = true
+        store.petSettings = PetSettings(speed: 3)
+        store.isMusicDancingEnabled = true
+        store.selectedCharacterID = "second"
+        let restored = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(restored.selectedCharacterID == "second")
+        #expect(restored.isPaused && restored.isMusicDancingEnabled)
+        #expect(restored.petSettings.speed == 3)
+        #expect(suite.defaults.integer(forKey: UserDefaultsPreferencesStore.Key.version) == 3)
+        restored.restoreDefaults()
+        #expect(restored.selectedCharacterID == "second")
+        let memory = InMemoryPreferencesStore()
+        memory.selectedCharacterID = "second"
+        memory.restoreDefaults()
+        #expect(memory.selectedCharacterID == "second")
+    }
+
     @Test func defaultsAreRunningAndVisible() throws {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)

@@ -175,3 +175,37 @@ DEBUG UI tests launch with `--settings-test-suite PetScapeUITests.<UUID>`. This 
 UserDefaults suite and a fake login service (initially enabled to exercise restore). A failed suite
 allocation stays in memory; it never falls back to owner preferences. Test teardown terminates the
 app and removes only that suite. Release builds have neither launch-argument selection nor fake.
+
+### M18 bundled character transaction
+
+AppContainer supplies only `Bundle.main.resourceURL/characters` to `BundledCharacterCatalog`.
+Only immediate directories are considered; resource/manifest symlinks escaping a pack are rejected
+before reading them. A fresh loader/cache validates each candidate's manifest, declared clips and
+full pixel decoding, then evicts noninitial families. Catalog entries retain only ID, name and URL;
+assets remain lazily resident after validation. Duplicate manifest IDs are all excluded.
+
+`CharacterSelectionModel` owns observable options/loading/error state. It restores the additive
+`petscape.selectedCharacterID` string through PreferencesStore: saved valid ID, then `cat`, then
+lexical manifest ID. Each candidate is revalidated before application, including unchanged identity.
+Zero valid packs use the existing placeholder without overwriting the saved ID. Only successful
+application writes the key. There is no schema bump or per-character preference partition. Restore
+Defaults retains this content choice while resetting the existing global settings as before.
+
+A selection loads off-main while the previous pet remains active, then calls the runtime on
+MainActor between frame callbacks. PetWorld's `replaceSettledCharacter` accepts supported Walking,
+Idle or attached initial Spawning only; the new manifest geometry must fit at the same contact
+point on the same horizontal surface. Physical/rest/dance/held/climbing/excursion phases or
+incompatible dimensions reject without mutation and Settings asks the user to retry. Pause/hide
+never advance simulation just to change character. No deferred selection timer or event queue.
+
+The replacement has a fresh PetID, animation controller and transient activity/interaction state;
+world environment and global preference policy stay in place. Runtime clears old layers, masks,
+snapshots, accumulated dt and events synchronously before rendering the new pet. Lazy completions
+check both runtime-started state and LoadedCharacter identity. Selection stop/cancellation uses a
+generation guard before any commit. AppContainer closes any old DEBUG animation preview when a
+new selection applies. No module dependency, physics model or character manifest schema changes.
+
+Native Settings contains the selector; the menu remains compact. Zero/one options are text-only,
+multiple options use a native accessible Picker with manifest display names verbatim. No dedicated
+preview artwork exists. New static copy uses the existing localizable-literal/String(localized:)
+pattern; translation/catalog consolidation belongs to M17, external discovery/install to M19.

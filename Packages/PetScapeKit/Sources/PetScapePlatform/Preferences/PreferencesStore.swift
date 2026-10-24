@@ -2,6 +2,8 @@ import PetScapeCore
 
 /// The user's persisted choices (FR-18, data-flow.md#persistence). M9: pet settings, pause, hide and the Dock offset.
 public protocol PreferencesStore: AnyObject {
+    /// Manifest ID of the selected bundled character; absent until a valid pack is applied.
+    var selectedCharacterID: String? { get set }
     var petSettings: PetSettings { get set }
     /// Resets only the keys owned by this version of PetScape.
     func restoreDefaults()
