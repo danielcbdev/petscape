@@ -55,4 +55,4 @@ time, which matters for an app mixing AppKit callbacks, AX observers and async a
 |---|---|
 | Behavior differences in window levels/Spaces between macOS 14 and 27 | Manual test matrix on a macOS 14 VM before each release |
 | GitHub-hosted runners may lag behind Xcode 27 | Keep code compatible with Swift 6.2 / Xcode 26 |
-| Intel builds break silently | Mark Intel as unsupported if the universal build cannot be validated by M15 |
+| Intel builds break silently | Mark Intel as unsupported if the universal build cannot be validated by M20 |

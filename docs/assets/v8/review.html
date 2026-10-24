@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>M15 Motion Review</title>
+<style>
+:root { --bg:#f6f5f2; --panel:#ffffff; --ink:#1d1d1f; --muted:#6b6b70; --line:#d9d7d2; --floor:#8a8578; --accent:#2f6fd6; --warn:#b4462f; --ok:#2e7d4f; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg:#17181a; --panel:#222326; --ink:#ececee; --muted:#9a9aa0; --line:#3a3b3f; --floor:#9b958a; --accent:#7aa7ff; --warn:#ff8a6e; --ok:#6fcf97; } }
+:root[data-theme="dark"] { --bg:#17181a; --panel:#222326; --ink:#ececee; --muted:#9a9aa0; --line:#3a3b3f; --floor:#9b958a; --accent:#7aa7ff; --warn:#ff8a6e; --ok:#6fcf97; }
+* { box-sizing: border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 -apple-system, BlinkMacSystemFont, "Helvetica Neue", sans-serif; }
+main { max-width:1200px; margin:0 auto; padding:20px 16px 48px; }
+h1 { font-size:20px; margin:0 0 4px; }
+p.lede { margin:0 0 16px; color:var(--muted); max-width:820px; }
+.controls { display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; padding:12px; background:var(--panel); border:1px solid var(--line); border-radius:10px; margin-bottom:14px; }
+.group { display:flex; align-items:center; gap:6px; flex-wrap:wrap; }
+.group > span.label { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em; margin-right:2px; }
+button { font:inherit; padding:4px 10px; border-radius:6px; border:1px solid var(--line); background:transparent; color:var(--ink); cursor:pointer; }
+button[aria-pressed="true"] { background:var(--accent); border-color:var(--accent); color:#fff; }
+input[type=range] { width:140px; }
+.panels { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+@media (max-width: 820px) { .panels { grid-template-columns:1fr; } }
+.panel { background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:12px; min-width:0; }
+.panel h2 { font-size:15px; margin:0 0 2px; }
+.panel .tag { font-size:12px; color:var(--muted); margin-bottom:8px; }
+.stage { position:relative; height:200px; overflow:hidden; border-radius:8px; background:repeating-conic-gradient(rgba(127,127,127,.07) 0 25%, transparent 0 50%) 0 0/24px 24px; }
+.floor { position:absolute; left:0; right:0; bottom:28px; height:1px; background:var(--floor); }
+.ticks { position:absolute; left:0; right:0; bottom:16px; height:12px; background-image:linear-gradient(to right, var(--floor) 1px, transparent 1px); background-size:10px 12px; opacity:.6; }
+.ticks.major { background-size:50px 12px; opacity:1; height:12px; }
+.cat { position:absolute; width:96px; height:96px; transform-origin:50% 92.6%; image-rendering:auto; }
+.readout { display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:6px 10px; margin-top:8px; font-size:12px; }
+.readout div { color:var(--muted); }
+.readout b { display:block; color:var(--ink); font-weight:600; font-variant-numeric:tabular-nums; }
+.strip { display:flex; flex-wrap:wrap; gap:3px; margin-top:10px; }
+.strip img { width:44px; height:44px; border:1px solid var(--line); border-radius:4px; cursor:pointer; background:var(--bg); }
+.strip img.on { outline:2px solid var(--accent); outline-offset:-1px; }
+.note { margin-top:14px; padding:12px; background:var(--panel); border:1px solid var(--line); border-radius:10px; color:var(--muted); }
+.note b { color:var(--ink); }
+.warn { color:var(--warn); }
+.ok { color:var(--ok); }
+.clickbar { position:relative; height:6px; background:var(--line); border-radius:3px; margin-top:8px; }
+.clickbar .pos { position:absolute; top:-3px; width:2px; height:12px; background:var(--ink); }
+.clickbar .cut { position:absolute; top:-4px; width:2px; height:14px; background:var(--warn); }
+</style>
+</head>
+<body>
+<main>
+<h1>M15 motion review: walk and head reaction</h1>
+<p class="lede">Left: the visually rejected V7 pack as currently integrated. Right: the V8 candidate built from one authored key with a cut-out rig. Both panels share one clock and use the app's rules: the Speed setting (0.5–2) scales walk ground speed <i>and</i> walk cadence together; non-walk clips always play at rate 1. 1 CSS px = 1 pt, so "96 pt" is the real on-screen size.</p>
+
+<div class="controls">
+  <div class="group"><span class="label">Clip</span>
+    <button data-clip="walk" aria-pressed="true">Walk</button><button data-clip="curious">Head reaction</button></div>
+  <div class="group"><span class="label">App speed</span>
+    <button data-speed="0.5">0.5 (slowest)</button><button data-speed="1" aria-pressed="true">1</button><button data-speed="2">2</button>
+    <input id="speed" type="range" min="0.5" max="2" step="0.05" value="1"><b id="speedv">1.00</b></div>
+  <div class="group"><span class="label">Playback</span>
+    <button data-rate="1" aria-pressed="true">1×</button><button data-rate="0.5">½×</button><button data-rate="0.25">¼×</button><button data-rate="0.1">0.1×</button></div>
+  <div class="group"><span class="label">Frame</span>
+    <button id="play">Pause</button><button id="prev">◀ step</button><button id="next">step ▶</button></div>
+  <div class="group"><span class="label">Size</span>
+    <button data-size="1" aria-pressed="true">96 pt</button><button data-size="2">2×</button><button data-size="3">3×</button></div>
+  <div class="group"><span class="label">Walk</span>
+    <button data-mode="across" aria-pressed="true">Across floor</button><button data-mode="place">In place</button>
+    <button id="facing">Facing right</button></div>
+</div>
+
+<div class="panels">
+  <section class="panel" id="p-current"><h2>Current V7 (rejected)</h2><div class="tag" id="t-current"></div>
+    <div class="stage"><div class="ticks"></div><div class="ticks major"></div><div class="floor"></div><img class="cat" alt="current"></div>
+    <div class="clickbar" hidden><div class="cut"></div><div class="pos"></div></div>
+    <div class="readout"></div><div class="strip"></div></section>
+  <section class="panel" id="p-proposed"><h2>Proposed V8 candidate</h2><div class="tag" id="t-proposed"></div>
+    <div class="stage"><div class="ticks"></div><div class="ticks major"></div><div class="floor"></div><img class="cat" alt="proposed"></div>
+    <div class="clickbar" hidden><div class="cut"></div><div class="pos"></div></div>
+    <div class="readout"></div><div class="strip"></div></section>
+</div>
+
+<div class="note" id="note"></div>
+</main>
+<script>
+const DATA = {"current": {"walk": {"frames": [{"src": "../../../assets/characters/cat/walk/frames/walk_01.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_02.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_02.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_04.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_03.png", "d": 0.05555555555555555, "e": ["footstep"]}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_06.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_04.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_08.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_05.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_10.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_06.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_12.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_07.png", "d": 0.05555555555555555, "e": ["footstep"]}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_14.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/walk/frames/walk_08.png", "d": 0.05555555555555555, "e": []}, {"src": "../../../assets/characters/cat/v7/walk/frames/walk_16.png", "d": 0.05555555555555555, "e": []}], "speed": 20}, "curious": {"frames": [{"src": "../v7/color-normalized/v5/curious/frames/curious_01.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_02.png", "d": 0.08333333333333333, "e": []}, {"src": "../v7/color-normalized/v5/curious/frames/curious_02.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_04.png", "d": 0.08333333333333333, "e": []}, {"src": "../v7/color-normalized/v5/curious/frames/curious_03.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_06.png", "d": 0.08333333333333333, "e": []}, {"src": "../v7/color-normalized/v5/curious/frames/curious_04.png", "d": 0.08333333333333333, "e": ["blink"]}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_08.png", "d": 0.08333333333333333, "e": []}, {"src": "../v7/color-normalized/v5/curious/frames/curious_05.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_10.png", "d": 0.08333333333333333, "e": []}, {"src": "../v7/color-normalized/v5/curious/frames/curious_06.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v7/curious/frames/curious_12.png", "d": 0.08333333333333333, "e": []}], "speed": 0}}, "proposed": {"walk": {"frames": [{"src": "../../../assets/characters/cat/v8/walk/frames/walk_01.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_02.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_03.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_04.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_05.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_06.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_07.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_08.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_09.png", "d": 0.03333333333333333, "e": ["footstep"]}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_10.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_11.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_12.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_13.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_14.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_15.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_16.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_17.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_18.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_19.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_20.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_21.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_22.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_23.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_24.png", "d": 0.03333333333333333, "e": ["footstep"]}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_25.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_26.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_27.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_28.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_29.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/walk/frames/walk_30.png", "d": 0.03333333333333333, "e": []}], "speed": 13.5}, "curious": {"frames": [{"src": "../../../assets/characters/cat/v8/curious/frames/curious_01.png", "d": 0.09999999999999999, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_02.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_03.png", "d": 0.11666666666666665, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_04.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_05.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_06.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_07.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_08.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_09.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_10.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_11.png", "d": 0.44999999999999996, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_12.png", "d": 0.016666666666666666, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_13.png", "d": 0.016666666666666666, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_14.png", "d": 0.08333333333333333, "e": ["blink"]}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_15.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_16.png", "d": 0.016666666666666666, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_17.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_18.png", "d": 0.24999999999999997, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_19.png", "d": 0.05, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_20.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_21.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_22.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_23.png", "d": 0.03333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_24.png", "d": 0.05, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_25.png", "d": 0.08333333333333333, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_26.png", "d": 0.21666666666666665, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_27.png", "d": 0.06666666666666667, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_28.png", "d": 0.06666666666666667, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_29.png", "d": 0.06666666666666667, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_30.png", "d": 0.09999999999999999, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_31.png", "d": 0.44999999999999996, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_32.png", "d": 0.36666666666666664, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_33.png", "d": 0.06666666666666667, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_34.png", "d": 0.05, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_35.png", "d": 0.06666666666666667, "e": []}, {"src": "../../../assets/characters/cat/v8/curious/frames/curious_36.png", "d": 0.3333333333333333, "e": []}], "speed": 0}}};
+const CLICK = { current: 0.6, proposed: 1.8 }; // click-reaction hold: today's 0.6 s vs the proposed sync
+const state = { clip: "walk", speed: 1, rate: 1, size: 1, mode: "across", facing: 1, playing: true };
+const panels = ["current", "proposed"].map(key => {
+  const root = document.getElementById("p-" + key);
+  return { key, root, img: root.querySelector(".cat"), stage: root.querySelector(".stage"), readout: root.querySelector(".readout"),
+           strip: root.querySelector(".strip"), bar: root.querySelector(".clickbar"), t: 0, cache: {} };
+});
+function clip(p) { return DATA[p.key][state.clip]; }
+function total(c) { return c.frames.reduce((s, f) => s + f.d, 0); }
+function frameAt(c, t) { const T = total(c); let x = ((t % T) + T) % T; for (let i = 0; i < c.frames.length; i++) { if (x < c.frames[i].d - 1e-9) return i; x -= c.frames[i].d; } return c.frames.length - 1; }
+function frameStart(c, i) { let s = 0; for (let k = 0; k < i; k++) s += c.frames[k].d; return s; }
+function animRate() { return state.clip === "walk" ? state.speed : 1; }
+function preload() { for (const p of panels) for (const f of clip(p).frames) { const im = new Image(); im.src = f.src; } }
+function buildStrips() {
+  for (const p of panels) {
+    p.strip.innerHTML = "";
+    clip(p).frames.forEach((f, i) => { const im = document.createElement("img"); im.src = f.src; im.title = `#${i + 1} · ${(f.d * 1000).toFixed(0)} ms ${f.e.join(" ")}`;
+      im.onclick = () => { state.playing = false; syncPlay(); for (const q of panels) q.t = frameStart(clip(q), Math.min(i, clip(q).frames.length - 1)); render(); }; p.strip.appendChild(im); });
+    const c = clip(p);
+    document.getElementById("t-" + p.key).textContent = `${c.frames.length} drawings · ${total(c).toFixed(3)} s per cycle` + (c.speed ? ` · ${c.speed} pt/s at speed 1` : "");
+    p.bar.hidden = state.clip !== "curious";
+  }
+}
+function render() {
+  for (const p of panels) {
+    const c = clip(p), i = frameAt(c, p.t), f = c.frames[i], s = state.size;
+    p.img.src = f.src;
+    p.img.style.width = p.img.style.height = 96 * s + "px";
+    const stageW = p.stage.clientWidth, floor = 28;
+    p.stage.style.height = Math.max(200, 96 * s + 60) + "px";
+    let x = stageW / 2;
+    const walking = state.clip === "walk";
+    const travelled = c.speed * p.t; // pt along the ground (clip time × nominal speed)
+    if (walking && state.mode === "across") {
+      const span = stageW + 96 * s; x = ((state.facing * travelled) % span + span) % span - 48 * s;
+      p.stage.querySelectorAll(".ticks").forEach(el => el.style.backgroundPositionX = "0px");
+    } else {
+      const off = walking ? -state.facing * travelled : 0;
+      p.stage.querySelectorAll(".ticks").forEach(el => el.style.backgroundPositionX = off + "px");
+    }
+    p.img.style.left = (x - 48 * s) + "px";
+    p.img.style.bottom = (floor - 0.074 * 96 * s) + "px";
+    p.img.style.transform = state.facing < 0 ? "scaleX(-1)" : "none";
+    [...p.strip.children].forEach((el, k) => el.classList.toggle("on", k === i));
+    const rate = animRate(), cycle = total(c) / rate;
+    const steps = walking ? c.frames.filter(fr => fr.e.includes("footstep")).length / cycle : 0;
+    const local = ((p.t % total(c)) + total(c)) % total(c);
+    p.readout.innerHTML = `<div>Drawing<b>${i + 1} / ${c.frames.length}</b></div><div>Shown for<b>${(f.d / rate * 1000).toFixed(0)} ms</b></div><div>Clip time<b>${local.toFixed(3)} s</b></div>` +
+      `<div>Cycle at this speed<b>${cycle.toFixed(2)} s</b></div>` +
+      (walking ? `<div>Ground speed<b>${(c.speed * rate).toFixed(1)} pt/s</b></div><div>Fore-paw steps<b>${steps.toFixed(2)} /s</b></div>`
+               : `<div>Rate in app<b>1 (speed setting ignored)</b></div><div>Events<b>${f.e.join(", ") || "—"}</b></div>`);
+    if (!p.bar.hidden) { const T = total(c); p.bar.querySelector(".pos").style.left = (local / T * 100) + "%"; p.bar.querySelector(".cut").style.left = (Math.min(CLICK[p.key], T) / T * 100) + "%"; }
+  }
+}
+let last = null;
+function tick(ts) {
+  if (last !== null && state.playing) { const dt = Math.min(0.1, (ts - last) / 1000) * state.rate * animRate(); for (const p of panels) p.t += dt; }
+  last = ts; render(); requestAnimationFrame(tick);
+}
+function press(selector, el) { document.querySelectorAll(selector).forEach(b => b.setAttribute("aria-pressed", b === el)); }
+function syncPlay() { document.getElementById("play").textContent = state.playing ? "Pause" : "Play"; }
+function setSpeed(v) { state.speed = +v; document.getElementById("speed").value = v; document.getElementById("speedv").textContent = (+v).toFixed(2);
+  document.querySelectorAll("[data-speed]").forEach(b => b.setAttribute("aria-pressed", +b.dataset.speed === +v)); }
+document.querySelectorAll("[data-clip]").forEach(b => b.onclick = () => { state.clip = b.dataset.clip; press("[data-clip]", b); for (const p of panels) p.t = 0; buildStrips(); preload(); note(); });
+document.querySelectorAll("[data-speed]").forEach(b => b.onclick = () => setSpeed(b.dataset.speed));
+document.getElementById("speed").oninput = e => setSpeed(e.target.value);
+document.querySelectorAll("[data-rate]").forEach(b => b.onclick = () => { state.rate = +b.dataset.rate; press("[data-rate]", b); });
+document.querySelectorAll("[data-size]").forEach(b => b.onclick = () => { state.size = +b.dataset.size; press("[data-size]", b); });
+document.querySelectorAll("[data-mode]").forEach(b => b.onclick = () => { state.mode = b.dataset.mode; press("[data-mode]", b); });
+document.getElementById("facing").onclick = e => { state.facing *= -1; e.target.textContent = state.facing > 0 ? "Facing right" : "Facing left"; };
+document.getElementById("play").onclick = () => { state.playing = !state.playing; syncPlay(); };
+function step(d) { state.playing = false; syncPlay(); for (const p of panels) { const c = clip(p); const i = frameAt(c, p.t); const n = (i + d + c.frames.length) % c.frames.length;
+  const wraps = Math.floor(p.t / total(c)) + (i + d >= c.frames.length ? 1 : i + d < 0 ? -1 : 0); p.t = wraps * total(c) + frameStart(c, n) + 1e-6; } }
+document.getElementById("prev").onclick = () => step(-1);
+document.getElementById("next").onclick = () => step(1);
+document.addEventListener("keydown", e => { if (e.key === "ArrowRight") step(1); if (e.key === "ArrowLeft") step(-1); if (e.key === " ") { e.preventDefault(); state.playing = !state.playing; syncPlay(); } });
+function note() {
+  const n = document.getElementById("note");
+  n.innerHTML = state.clip === "walk"
+    ? `<b>What to look for.</b> Each paw should stay on its floor tick while planted, swing forward clear of the ground, and land again with no slide; legs never vanish or swap. ` +
+      `Proposed: 30 drawings over 1.0 s, 13.5 pt/s at speed 1 (stride 13.5 pt), so at the slowest setting the cycle takes 2.0 s at 6.75 pt/s. Footsteps fire on each fore-paw contact. ` +
+      `Use “In place” plus the 0.1× and step controls to check a single paw through the whole cycle, including the 30→1 seam.`
+    : `<b>What to look for.</b> Anticipation dip (0.2 s), lift and tilt of about 15° with a small overshoot (0.42 s), a held look with a blink, and a full return by 1.8 s; a longer cursor dwell continues with a slower cock to the other side. ` +
+      `The bar under each stage marks where a click reaction ends today: <span class="warn">0.6 s cuts the proposed gesture mid-lift</span>, so the proposal pairs it with a 1.8 s click hold (not yet changed in code). Cursor observation lasts 1–3 s and can still end mid-gesture.`;
+}
+buildStrips(); preload(); note(); syncPlay(); requestAnimationFrame(tick);
+</script>
+</body>
+</html>

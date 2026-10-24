@@ -194,8 +194,20 @@ closure with the evidence limits above. AC-M14-01 remains waived, not run, and n
 AC-M14-02 and AC-M14-03 remain unverified. This closeout does not represent any unrun criterion as
 passed and does not establish NFR-03 or long-term stability.
 
-### M15 — Release
-- AC-M15-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
+### M15 — Animation quality
+
+These are acceptance checks, not passing results. Frame counts below are proposals in the
+[M15 inventory](m15-implementation.md); revise them only with a documented visual/timing reason.
+
+- AC-M15-01 [Auto, review]: Inventory every clip referenced by the cat's runtime manifest with ordered frame count, FPS, duration, events, visual diagnosis, target count, rationale and production state.
+- AC-M15-02 [Man]: Each proposed additional frame is a distinct authored pose with genuine transparent RGBA art; the existing cat identity, canvas/scale, anchor/contact registration, silhouette margin and lighting remain consistent. No duplicated, interpolated or artifact-producing deformed frames.
+- AC-M15-03 [Auto, Man]: Manifest frame count and FPS preserve each intended total duration; event entry times, fallbacks, anchors, alignment and `displaySize` remain correct. The schema validator accepts the manifest and every referenced image exists.
+- AC-M15-04 [Auto]: Existing pack/manifest tests, lint and Debug build pass; original source assets and their recorded hashes remain unchanged.
+- AC-M15-05 [Man]: Play and inspect each changed clip and its transitions at manifest timing; record fluency, registration, scale, alpha/crop, timing and event results. A generated still or contact sheet alone does not pass.
+- AC-M15-06 [Review]: The M15 record documents accepted assets and their provenance, or clearly identifies the remaining owner action. M16–M20 remain planning-only during M15.
+
+### M20 — Release pipeline
+- AC-M20-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
 
 ## M7/M8 evidence status (2026-10-18)
 

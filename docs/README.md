@@ -34,7 +34,7 @@ Each topic has exactly one owning document; others link to it.
 | | [m10-implementation.md](planning/m10-implementation.md) | Proposed M10 tasks, contracts, baseline verification, acceptance/risk/regression matrix |
 | | [m10-native-poc.md](planning/m10-native-poc.md) | Planned M10 isolated native routing experiments and go/no-go criteria |
 | | [m5-m6-closeout.md](planning/m5-m6-closeout.md) | Separate MVP evidence/decision closeout and ≥20-point AC-14 procedure |
-| | [milestones.md](planning/milestones.md) | Milestones M0–M15 and **status** |
+| | [milestones.md](planning/milestones.md) | Milestones M0–M20 and **status** |
 | | [task-breakdown.md](planning/task-breakdown.md) | Tasks T0.1… |
 | | [acceptance-criteria.md](planning/acceptance-criteria.md) | Verifiable criteria per milestone |
 | | [proof-of-concept.md](planning/proof-of-concept.md) | PoC experiments and results |

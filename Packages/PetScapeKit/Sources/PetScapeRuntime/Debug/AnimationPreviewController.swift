@@ -96,12 +96,15 @@
         }
 
         private func show(_ frame: AnimationFrameRef) {
+            let anchor = CGPoint(x: frame.anchor.x, y: frame.anchor.y)
+            let needsLayout = petLayer.anchorPoint != anchor
             CATransaction.begin()
             CATransaction.setDisableActions(true)
             petLayer.contents = character.frame(frame)?.image
-            petLayer.anchorPoint = CGPoint(x: frame.anchor.x, y: frame.anchor.y)
+            petLayer.anchorPoint = anchor
             petLayer.setAffineTransform(frame.mirrored ? CGAffineTransform(scaleX: -1, y: 1) : .identity)
             CATransaction.commit()
+            if needsLayout { layoutCanvas() }
             updateInfo()
         }
 
@@ -136,6 +139,12 @@
         }
 
         // MARK: - UI
+
+        static func previewGroundY(canvasHeight: CGFloat, petHeight: CGFloat, anchorY: Double) -> CGFloat {
+            let lower = 8 + petHeight * anchorY
+            let upper = canvasHeight - 8 - petHeight * (1 - anchorY)
+            return min(max(Self.groundY, lower), max(lower, upper))
+        }
 
         private func buildWindow() {
             window.title = "Animation Preview — \(character.definition.displayName)"
@@ -230,7 +239,11 @@
         private func layoutCanvas() {
             let bounds = canvas.bounds
             let size = character.definition.displaySize
-            let ground = CGPoint(x: bounds.midX.rounded(), y: Self.groundY)
+            let ground = CGPoint(
+                x: bounds.midX.rounded(),
+                y: Self.previewGroundY(
+                    canvasHeight: bounds.height, petHeight: size.height * scale,
+                    anchorY: controller.currentFrame.anchor.y))
 
             CATransaction.begin()
             CATransaction.setDisableActions(true)

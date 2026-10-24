@@ -25,7 +25,7 @@ energy cost) with one cat walking back and forth on the Dock.
 - Fullscreen app spaces (the overlay does not appear over fullscreen apps).
 - Settings window (the menu is the only UI). Size/speed settings come in M9.
 - Launch at login.
-- Signed/notarized distribution (M15). MVP builds run locally from Xcode.
+- Signed/notarized distribution (M20). MVP builds run locally from Xcode.
 - Dock on left/right edges as a surface (fallback to the screen bottom is in scope).
 - Multi-display behavior beyond "the pet lives on the display that has the Dock".
 
@@ -38,7 +38,7 @@ energy cost) with one cat walking back and forth on the Dock.
 | A3 | `NSScreen.visibleFrame` is a good-enough estimate of the Dock's top edge when the Dock is at the bottom and visible. | PoC E3 ✅ (+1.0 pt) |
 | A4 | The cat's walk cycle looks acceptable at ~96 pt tall. | PoC E3 ✅ (owner, visual) |
 | A5 | Rendering one animated sprite at 60 fps costs < 5% of one CPU core on Apple silicon. | PoC E7 ✅ with Core Animation (~1%); SpriteKit 5.7% ❌ |
-| A6 | The provisional bundle identifier `io.github.danielcbdev.petscape` is acceptable until distribution. | Owner decision before M15 |
+| A6 | The provisional bundle identifier `io.github.danielcbdev.petscape` is acceptable until distribution. | Owner decision before M20 |
 
 PoC experiments are defined in [proof-of-concept.md](../planning/proof-of-concept.md).
 

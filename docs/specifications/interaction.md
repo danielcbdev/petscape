@@ -76,7 +76,7 @@ No promise to eliminate the detector's historical confirmation delay is made by 
 | Reaction cooldown | 8 simulated seconds after cursor reaction/click/drag finishes; proximity while cooling never queues a reaction |
 | Eligibility | Valid grounded Walk/Idle/Observe, stateElapsed≥0.5 s, energy>0.25, expressions enabled, no reservation/capture/flight/transition; autonomy disabled still allows enabled explicit cursor reaction |
 | Primary drag threshold | Euclidean distance ≥4 pt from down point (squared distance≥16), independent of DPI and pet scale |
-| Click reaction | On valid primary up within threshold and over same current pet mask; 0.6 s bounded expression, 0.5 s repeat cooldown; no effect for release off-pet |
+| Click reaction | On valid primary up within threshold and over same current pet mask; 1.8 s bounded expression (0.6 s before the M15 V8 rework), 0.5 s repeat cooldown; no effect for release off-pet |
 | Direct sample freshness | Reject down if latest target snapshot is unavailable; always re-hit-test down against latest rendered mask; stale timestamp older than last accepted event is ignored |
 
 Curiosity comes from existing `Personality` [0,1], energy from `Needs`. Default cat manifest has
@@ -195,7 +195,7 @@ to lose. World recovery must clear every input reservation/session.
 | Runtime hovered | Current mask hit, no button; exit mask/availability | No phase/clip, zero world authority |
 | Runtime pressed + world reservation | Accepted down; release→resume/click, ≥4 pt→held; safety cancels | Existing frame frozen; direct command guard, 0/unbounded while primary held |
 | Core grounded.reactingToCursor | Eligible dwell command; exit far grace or duration | `curious` → held idle fallback, grounded hold; presentation priority 50, threshold 80; 0 / 1–3 s |
-| Core grounded.reactingToClick | Valid awake grounded click; exit timer | `curious` → held idle fallback, grounded hold; presentation priority 80, threshold 90; 0.6 / 0.6 s |
+| Core grounded.reactingToClick | Valid awake grounded click; exit timer | `curious` → held idle fallback, grounded hold; presentation priority 80, threshold 90; 1.8 / 1.8 s (was 0.6 / 0.6 s before M15 V8) |
 | Core held | Accepted beginHold; finite host-clamped pointer target; release/cancel | `picked-up` for 0.2 s then `held`; held fallback if absent; direct/critical entry 100; 0/unbounded with valid button/session |
 | Existing airborne.falling | Release atomically, current target and zero velocity | Existing fall/fallback, gravity; existing 3 s safety watchdog |
 | Existing grounded.landing | Existing swept contact, same settle behavior | Existing landing, 0.1 s; then return policy |

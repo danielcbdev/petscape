@@ -66,7 +66,7 @@ Notes:
 
 - **Hardened Runtime with local signing.** Xcode prints `note: Disabling hardened runtime with ad-hoc
   codesigning`, so the setting is on but has no effect until the app is signed with a real
-  identity (Developer ID for releases, M15). Local Debug builds therefore run without it.
+  identity (Developer ID for releases, M20). Local Debug builds therefore run without it.
 - **UI test target.** With Hardened Runtime on, the test runner's library validation refuses to
   load the locally signed test bundle ("different Team IDs"). The UI test target never ships, so
   it turns Hardened Runtime off.

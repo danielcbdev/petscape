@@ -1,6 +1,6 @@
 # Release & Distribution Strategy
 
-Not implemented in this phase (CI/CD is planned for M2 basic checks and M15 releases).
+Not implemented in this phase (CI/CD is planned for M2 basic checks and M20 releases).
 Decision: [ADR-0010](../decisions/0010-distribution-no-sandbox.md).
 
 ## Channel
@@ -15,9 +15,9 @@ a dependency and network access; revisit after v1.0 with an ADR).
 - `MARKETING_VERSION` = SemVer; `CURRENT_PROJECT_VERSION` = monotonically increasing build number.
 - Tags `vX.Y.Z` on `main`; release branch merges from `develop`.
 - `CHANGELOG.md` following Keep a Changelog, updated in each PR that changes user-visible behavior
-  (created in T15.2; until then, PR descriptions carry the notes).
+  (created in T20.2; until then, PR descriptions carry the notes).
 
-## Build and signing pipeline (M15)
+## Build and signing pipeline (M20)
 
 ```mermaid
 flowchart LR

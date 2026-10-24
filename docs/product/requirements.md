@@ -31,7 +31,7 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | FR-17 | The overlay follows screen configuration changes (resolution, scaling, display connect/disconnect, Dock size/position change). |
 | FR-18 | Pause/hidden state is persisted across launches (UserDefaults). |
 
-### Next (milestones M7–M15)
+### Next (milestones M7–M20)
 
 | ID | Requirement | Milestone |
 |---|---|---|
@@ -45,7 +45,7 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | FR-27 | Detection of other apps' windows (opt-in, permission requested only when enabled). | M12 |
 | FR-28 | Walking on window top edges, riding moving windows, reacting to closed/minimized windows. | M13 |
 | FR-29 | Multiple displays: pets can live on and move between displays. | M14 |
-| FR-30 | Signed, notarized DMG published on GitHub Releases. | M15 |
+| FR-30 | Signed, notarized DMG published on GitHub Releases. | M20 |
 
 ### Future (unscheduled)
 

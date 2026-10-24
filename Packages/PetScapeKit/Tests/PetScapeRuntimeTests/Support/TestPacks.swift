@@ -16,6 +16,19 @@ enum TestPacks {
 
     static var catPackURL: URL { repositoryRoot.appending(path: "assets/characters/cat") }
 
+    /// Pins historical V4/V5/V6 contracts without weakening them when the active pack adds art.
+    /// Callers remove the temporary folder; immutable originals are linked, never rewritten.
+    static func makeBaselineCatPack() throws -> URL {
+        let folder = try makeFolder()
+        let data = try Data(contentsOf: catPackURL.appending(path: "v7/baseline-character.json"))
+        try data.write(to: folder.appending(path: "character.json"))
+        for name in ["walk", "idle", "jump-start", "jump", "fall", "landing", "v5", "v6"] {
+            try FileManager.default.createSymbolicLink(
+                at: folder.appending(path: name), withDestinationURL: catPackURL.appending(path: name))
+        }
+        return folder
+    }
+
     static func makeFolder() throws -> URL {
         let url = FileManager.default.temporaryDirectory.appending(path: "PetScapeRuntimeTests-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)

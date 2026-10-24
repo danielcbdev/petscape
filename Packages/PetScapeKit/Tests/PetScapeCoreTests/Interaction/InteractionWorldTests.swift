@@ -28,7 +28,10 @@ struct InteractionWorldTests {
 
         world.apply(.interaction(id, .click))
         #expect(world.pets[0].state == .grounded(.reactingToClick))
-        for _ in 0..<37 { _ = world.step(dt: Self.dt) }
+        // The click hold lasts one complete curious look (1.8 s): still reacting just before it ends.
+        for _ in 0..<107 { _ = world.step(dt: Self.dt) }
+        #expect(world.pets[0].state == .grounded(.reactingToClick))
+        for _ in 0..<2 { _ = world.step(dt: Self.dt) }
         #expect(world.pets[0].state == state)
         #expect(abs(world.pets[0].activityDeadline - (world.time + 10)) < Self.dt)
     }
@@ -80,7 +83,10 @@ struct InteractionWorldTests {
         let petID = world.pets[0].id
         world.apply(.interaction(petID, .click))
         #expect(world.pets[0].state == .grounded(.reactingToClick))
-        for _ in 0..<37 { _ = world.step(dt: Self.dt) }
+        // The click hold lasts one complete curious look (1.8 s): still reacting just before it ends.
+        for _ in 0..<107 { _ = world.step(dt: Self.dt) }
+        #expect(world.pets[0].state == .grounded(.reactingToClick))
+        for _ in 0..<2 { _ = world.step(dt: Self.dt) }
         #expect(world.pets[0].state == .walking)
 
         world.apply(.interaction(petID, .click))
@@ -95,7 +101,10 @@ struct InteractionWorldTests {
         world.apply(.interaction(petID, .click))
         #expect(world.pets[0].state == .grounded(.reactingToClick))
         #expect(world.pets[0].animation.requestedClip == "idle")
-        for _ in 0..<37 { _ = world.step(dt: Self.dt) }
+        // The click hold lasts one complete curious look (1.8 s): still reacting just before it ends.
+        for _ in 0..<107 { _ = world.step(dt: Self.dt) }
+        #expect(world.pets[0].state == .grounded(.reactingToClick))
+        for _ in 0..<2 { _ = world.step(dt: Self.dt) }
         #expect(world.pets[0].state == .walking)
     }
 

@@ -718,7 +718,9 @@ public struct PetWorld: Sendable {
                 hold(&pet, dt: dt, events: &events)
             case .reactingToClick:
                 hold(&pet, dt: dt, events: &events)
-                if elapsed(pet, atLeast: 0.6) { finishClickReaction(&pet, events: &events) }
+                if elapsed(pet, atLeast: interactionTuning.clickReactionDuration) {
+                    finishClickReaction(&pet, events: &events)
+                }
             case .preparingJump:
                 pet.velocity = .zero
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.preparationDuration {

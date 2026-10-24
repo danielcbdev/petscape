@@ -249,3 +249,29 @@ input/focus tests. Include primary-up while secondary remains held, no-frame tea
 before next frame, missing V5 identical physics, v3 migration and live disable/resize.
 Installed ≥2 h interaction soak and paired CPU/WindowServer/allocations/leak measurement are future
 M10 validation, not evidence supplied by baseline tests or M9's offscreen harness.
+
+## M15 animation quality — 2026-10-23
+
+The final package run passed 481 tests (309 Core, 88 Runtime, 50 Rendering, 34 Platform),
+including six M15 tests. New checks compare all original key/event entry times and contracts
+against an immutable baseline, validate 43 distinct alpha/registration-safe drawings, protect
+original hashes, load all 93 references within 32 MiB and compare an actual seeded jump trajectory.
+Historical pack-count and memory assertions run unchanged against a temporary baseline fixture.
+A test first reproduced the enlarged wall-preview crop; native playback confirmed the fix.
+Lint, Debug and Release builds passed. All ten native clips and the slow offline comparison
+were inspected; details and owner aesthetic acceptance are in the
+[M15 evidence](../planning/m15-implementation.md). The first three XCUITest attempts timed out
+enabling macOS Automation Mode before test bodies. The owner-requested fourth run initialized
+successfully: both UI tests passed, zero failures, in 17.631 s on 2026-10-23 at 16:33 local time
+(`build/m15-ui-owner-retry.log`). Existing test code, entitlements and privacy permissions were
+preserved. No UI-run action remains pending.
+
+**V7 visually rejected by the owner (2026-10-23); V8 rework candidate.** The results above are
+historical and are not visual acceptance. With V8 `walk`/`curious` integrated, the package run
+passed 482 tests (309 Core, 89 Runtime, 50 Rendering, 34 Platform). The V7 key-preserving check now
+covers only the clips still on V7. A new test locks every planted V8 paw to `nominalSpeed` per drawing
+(seam included) and matches manifest timing to `v8/rig-report.json`. V8 drawings use a stricter
+interior-seam opacity check instead of the 95% opaque-share rule (the source key itself is at 93.5%).
+The full-pack ceiling is 42 MiB (131 frames), pending an owner budget decision. Details:
+[M15 record](../planning/m15-implementation.md#v8-verification-so-far). Lint, Debug and Release
+(warnings as errors) builds pass (`build/m15-rework-*.log`); UI tests were not rerun for V8.

@@ -1,0 +1,144 @@
+[
+  {
+    "id": "walk-1",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/walk-1.png",
+    "referenceFrames": [
+      "walk/frames/walk_01.png",
+      "walk/frames/walk_02.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Production sprite: draw ONE genuinely new middle pose halfway through the walk motion between reference Image 1 and reference Image 2 of the SAME kitten. Preserve the exact blue-grey coat, amber eyes, head-to-body ratio, camera, 2.5D fur rendering, tail volume, proportions and lighting of both references. Change the leg articulation, paw positions and subtle body bob so the pose is temporally BETWEEN those two frames. Do not duplicate either endpoint and do not visually blend them; draw coherent anatomy with exactly four legs. Keep the same composition in a square transparent canvas, full body, facing right, same apparent size. Plant supporting paws at the same baseline as references. No ground, shadow, text or extra objects. Transparent background."
+  },
+  {
+    "id": "walk-2",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/walk-2.png",
+    "referenceFrames": [
+      "walk/frames/walk_02.png",
+      "walk/frames/walk_03.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Production sprite: draw ONE genuinely new middle pose halfway through the walk motion between reference Image 1 and reference Image 2 of the SAME kitten. Preserve the exact blue-grey coat, amber eyes, head-to-body ratio, camera, 2.5D fur rendering, tail volume, proportions and lighting of both references. Change the leg articulation, paw positions and subtle body bob so the pose is temporally BETWEEN those two frames. Do not duplicate either endpoint and do not visually blend them; draw coherent anatomy with exactly four legs. Keep the same composition in a square transparent canvas, full body, facing right, same apparent size. Plant supporting paws at the same baseline as references. No ground, shadow, text or extra objects. Transparent background."
+  },
+  {
+    "id": "walk-4",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/walk-4.png",
+    "referenceFrames": [
+      "walk/frames/walk_04.png",
+      "walk/frames/walk_05.png"
+    ],
+    "prompt": "Use case: precise-object-edit. Production sprite: draw ONE genuinely new middle pose halfway through the walk motion between reference Image 1 and reference Image 2 of the SAME kitten. Preserve the exact blue-grey coat, amber eyes, head-to-body ratio, camera, 2.5D fur rendering, tail volume, proportions and lighting of both references. Change the leg articulation, paw positions and subtle body bob so the pose is temporally BETWEEN those two frames. Do not duplicate either endpoint and do not visually blend them; draw coherent anatomy with exactly four legs. Keep the same composition in a square transparent canvas, full body, facing right, same apparent size. Plant supporting paws at the same baseline as references. No ground, shadow, text or extra objects. Transparent background."
+  },
+  {
+    "id": "walk-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/walk-sheet.png",
+    "referenceFrames": [
+      "walk/walk_atlas.png"
+    ],
+    "prompt": "New walk in-between from approved neighboring keyframes. Same exact identity, silhouette, light and transparent background."
+  },
+  {
+    "id": "idle-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/idle-sheet.png",
+    "referenceFrames": [
+      "v4/sources/idle.png",
+      "idle/frames/idle_01.png"
+    ],
+    "prompt": "Production animation sprite sheet: exactly SIX separate full-body poses of the same kitten in a strict 3-column by 2-row grid, equal square cells. Image 1 is the existing six-key sheet; Image 2 is the approved runtime sprite for the exact appearance and genuine transparency. Draw SIX newly authored in-between poses for standing breathing and blinking; new cells are between reference-sheet poses 1\u20132, 2\u20133, 3\u20134, 4\u20135, 5\u20136, and 6\u20131. Show subtle chest breathing and tail-tip follow-through; eyelids nearly closed at new pose 3 and halfway reopening at new pose 4. All four grounded paws stay in identical fixed positions in every cell; no stance or root change. Each new pose coherently drawn, no ghosting/blending/copying. Preserve exact blue-grey fur, amber eyes, proportions including head/eye size, light chest, right-facing camera, tail volume, soft top-left light and 2.5D fur rendering. Consistent scale, full body/ears/tail contained, generous transparent margins around each cell, no overlap/cropping, text, labels, grid, ground, shadows. Remove the reference sheet's studio backdrop completely: the output is true transparent RGBA with no colored background."
+  },
+  {
+    "id": "fall-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/fall-sheet.png",
+    "referenceFrames": [
+      "v4/sources/fall.png",
+      "fall/frames/fall_01.png"
+    ],
+    "prompt": "Production animation sprite sheet: exactly SIX separate full-body poses of the same kitten in a strict 3-column by 2-row grid, equal square cells. Image 1 is the existing six-key sheet; Image 2 is the approved runtime sprite for the exact appearance and genuine transparency. Draw SIX newly authored in-between poses for airborne balanced descent; new cells are between reference-sheet poses 1\u20132, 2\u20133, 3\u20134, 4\u20135, 5\u20136, and 6\u20131. Progressively articulate legs from tuck to reach and back in the same looping descent, with restrained tail counterbalance. No root travel: head/torso stay registered while paws reach. Each new pose coherently drawn, no ghosting/blending/copying. Preserve exact blue-grey fur, amber eyes, proportions including head/eye size, light chest, right-facing camera, tail volume, soft top-left light and 2.5D fur rendering. Consistent scale, full body/ears/tail contained, generous transparent margins around each cell, no overlap/cropping, text, labels, grid, ground, shadows. Remove the reference sheet's studio backdrop completely: the output is true transparent RGBA with no colored background."
+  },
+  {
+    "id": "curious-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/curious-sheet.png",
+    "referenceFrames": [
+      "v5/curious/frames/curious_01.png",
+      "v5/curious/frames/curious_02.png",
+      "v5/curious/frames/curious_03.png",
+      "v5/curious/frames/curious_04.png",
+      "v5/curious/frames/curious_05.png",
+      "v5/curious/frames/curious_06.png"
+    ],
+    "prompt": "Create ONE sprite sheet of exactly SIX newly drawn full-body in-between poses in 3 equal columns and 2 equal rows, row-major. The reference shows six consecutive original animation keys for this exact PetScape cat. Motion: a smooth attentive head/gaze turn, subtle ear reaction and blink. Draw new pose1 midway 1\u21922 turning the face partly toward the viewer; pose2 midway 2\u21923 turning back up/right; pose3 midway 3\u21924 lowering eyelids; pose4 midway 4\u21925 reopening eyes and turning the head; pose5 midway 5\u21926 returning up/right; pose6 midway 6\u21921 settling. All standing paws fixed. Every new pose needs actual coherent motion progression, never ghost/blend or copy an existing frame. Match exact head/eye proportions, blue-grey fur, light muzzle/chest, pink ears, amber eyes, 2.5D soft fur and lighting. Preserve the original pose family and three-quarter camera. Identical character scale, registration and cell size. Complete tail/ears/body with ample transparent gutters on all four sides of each cell. True transparent RGBA. No background, colored matte, shadow, floor, text, labels or grid lines."
+  },
+  {
+    "id": "held-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/held-sheet.png",
+    "referenceFrames": [
+      "v5/held/frames/held_01.png",
+      "v5/held/frames/held_02.png",
+      "v5/held/frames/held_03.png",
+      "v5/held/frames/held_04.png",
+      "v5/held/frames/held_05.png",
+      "v5/held/frames/held_06.png"
+    ],
+    "prompt": "Create ONE sprite sheet of exactly SIX newly drawn full-body in-between poses in 3 equal columns and 2 equal rows, row-major. The reference shows six consecutive original animation keys for this exact PetScape cat. Motion: restrained breathing with front paws tucked and hind paws relaxed, a blink and small tail-tip follow-through. New poses 1\u20136 are middle poses between reference keys 1\u21922, 2\u21923, 3\u21924, 4\u21925, 5\u21926, and 6\u21921. Half-close eyelids for pose1 and half-reopen for pose2; keep the floating body at the same virtual origin throughout. Every new pose needs actual coherent motion progression, never ghost/blend or copy an existing frame. Match exact head/eye proportions, blue-grey fur, light muzzle/chest, pink ears, amber eyes, 2.5D soft fur and lighting. Preserve the original pose family and three-quarter camera. Identical character scale, registration and cell size. Complete tail/ears/body with ample transparent gutters on all four sides of each cell. True transparent RGBA. No background, colored matte, shadow, floor, text, labels or grid lines."
+  },
+  {
+    "id": "jump-start-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/jump-start-sheet.png",
+    "referenceFrames": [
+      "jump-start/frames/jump-start_01.png",
+      "jump-start/frames/jump-start_02.png",
+      "jump-start/frames/jump-start_03.png",
+      "jump-start/frames/jump-start_04.png"
+    ],
+    "prompt": "Production sprite sheet with exactly 3 newly drawn kitten poses in 2 by 2 grid, lower-right cell empty transparent. Image is the original ordered animation key sheet. Motion: three middle poses between original keys 1\u21922, 2\u21923 and 3\u21924. Pose 1 slight knee/chest compression, pose 2 deeper anticipation, pose 3 extending out of crouch toward push-off. Planted paws stay at the same ground reference; torso preserves volume. Create coherent intermediate anatomy, never copies, crossfades or ghosting. Match exact kitten identity, head-to-body ratio, eye size, blue-grey fur, amber eyes, light chest/muzzle, pink ears, soft top-left light and 2.5D fur rendering. Equal square cells, identical apparent scale and registration, generous transparent margins on every cell edge, complete body/tail/ears. True transparent RGBA, no background/colored matte/floor/shadow/text/grid/labels, no overlap or clipping."
+  },
+  {
+    "id": "jump-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/jump-sheet.png",
+    "referenceFrames": [
+      "jump/frames/jump_01.png",
+      "jump/frames/jump_02.png",
+      "jump/frames/jump_03.png",
+      "jump/frames/jump_04.png"
+    ],
+    "prompt": "Production sprite sheet with exactly 3 newly drawn kitten poses in 2 by 2 grid, lower-right cell empty transparent. Image is the original ordered animation key sheet. Motion: three middle poses between original keys 1\u21922, 2\u21923 and 3\u21924. Legs progressively fold from the extended launch toward the airborne tuck. Keep head/torso at the same virtual origin, no root translation or ground. Create coherent intermediate anatomy, never copies, crossfades or ghosting. Match exact kitten identity, head-to-body ratio, eye size, blue-grey fur, amber eyes, light chest/muzzle, pink ears, soft top-left light and 2.5D fur rendering. Equal square cells, identical apparent scale and registration, generous transparent margins on every cell edge, complete body/tail/ears. True transparent RGBA, no background/colored matte/floor/shadow/text/grid/labels, no overlap or clipping."
+  },
+  {
+    "id": "picked-up-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/picked-up-sheet.png",
+    "referenceFrames": [
+      "v5/picked-up/frames/picked-up_01.png",
+      "v5/picked-up/frames/picked-up_02.png",
+      "v5/picked-up/frames/picked-up_03.png",
+      "v5/picked-up/frames/picked-up_04.png"
+    ],
+    "prompt": "Production sprite sheet with exactly 3 newly drawn kitten poses in 2 by 2 grid, lower-right cell empty transparent. Image is the original ordered animation key sheet. Motion: three middle poses between original keys 1\u21922, 2\u21923 and 3\u21924. A brief gentle pickup response: forepaws start lifting, torso gently extends, then hind paws relax into dangling. Preserve the virtual foot reference and character volume, no other props or hands. Create coherent intermediate anatomy, never copies, crossfades or ghosting. Match exact kitten identity, head-to-body ratio, eye size, blue-grey fur, amber eyes, light chest/muzzle, pink ears, soft top-left light and 2.5D fur rendering. Equal square cells, identical apparent scale and registration, generous transparent margins on every cell edge, complete body/tail/ears. True transparent RGBA, no background/colored matte/floor/shadow/text/grid/labels, no overlap or clipping."
+  },
+  {
+    "id": "climb-sheet",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/climb-sheet.png",
+    "referenceFrames": [
+      "v6/climb/frames/climb_01.png",
+      "v6/climb/frames/climb_02.png"
+    ],
+    "prompt": "Production sprite sheet with exactly 2 newly drawn kitten poses in 2 columns by 1 row. Image is the original ordered animation key sheet. Motion: two middle poses between original keys 1\u21922 and 2\u21921. The kitten climbs a vertical wall on its right, alternating front and hind paw reaches. Draw both new articulations halfway between the two reference keys, exactly four limbs, paws reaching right at the same wall line, stable torso/scale. No visible wall. Create coherent intermediate anatomy, never copies, crossfades or ghosting. Match exact kitten identity, head-to-body ratio, eye size, blue-grey fur, amber eyes, light chest/muzzle, pink ears, soft top-left light and 2.5D fur rendering. Equal square cells, identical apparent scale and registration, generous transparent margins on every cell edge, complete body/tail/ears. True transparent RGBA, no background/colored matte/floor/shadow/text/grid/labels, no overlap or clipping."
+  },
+  {
+    "id": "walk-3",
+    "tool": "image_gen built-in; model version not exposed",
+    "source": "sources/walk-3.png",
+    "referenceFrames": [
+      "walk/frames/walk_03.png"
+    ],
+    "prompt": "Draw a genuinely new weight-transfer walk pose: front paw lifts slightly, opposite hind leg extends back, subtle body rise and counterbalancing tail; same kitten identity, right facing, transparent 512px canvas and baseline."
+  }
+]

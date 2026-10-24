@@ -131,7 +131,7 @@ World defaults to explicit-command mode; production Runtime restores autonomous 
 | Stretching | stretch | grounded hold | 90 | 1.5 s → bounded Idle |
 | Observing | observe | grounded hold; ambient look-around | 90 | 3–5 s → bounded Idle; cursor interaction remains M10 |
 | ReactingToCursor | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 80 | bounded 1–3 s, restores saved activity with remaining duration |
-| ReactingToClick | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 90 | 0.6 s, restores saved activity; 0.5 s repeat cooldown |
+| ReactingToClick | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 90 | 1.8 s (`InteractionTuning.clickReactionDuration`; 0.6 s until the M15 V8 rework, which made one complete curious look last 1.8 s), restores saved activity; 0.5 s repeat cooldown |
 | Held | M10 | picked-up for 0.2 s, then held; each has idle fallback | world-owned cursor target, no attachment or gravity | critical | while primary is down; release immediately enters Falling |
 
 Rest/expression semantic clips are optional. The current pack aliases all requests above to

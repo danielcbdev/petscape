@@ -41,83 +41,181 @@
   "animations": {
     "walk": {
       "playback": "loop",
-      "fps": 9,
-      "nominalSpeed": 20,
+      "fps": 30,
+      "nominalSpeed": 13.5,
       "frames": [
         {
-          "image": "walk/frames/walk_01.png"
+          "image": "v8/walk/frames/walk_01.png"
         },
         {
-          "image": "walk/frames/walk_02.png"
+          "image": "v8/walk/frames/walk_02.png"
         },
         {
-          "image": "walk/frames/walk_03.png",
+          "image": "v8/walk/frames/walk_03.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_04.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_05.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_06.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_07.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_08.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_09.png",
           "events": [
             "footstep"
           ]
         },
         {
-          "image": "walk/frames/walk_04.png"
+          "image": "v8/walk/frames/walk_10.png"
         },
         {
-          "image": "walk/frames/walk_05.png"
+          "image": "v8/walk/frames/walk_11.png"
         },
         {
-          "image": "walk/frames/walk_06.png"
+          "image": "v8/walk/frames/walk_12.png"
         },
         {
-          "image": "walk/frames/walk_07.png",
+          "image": "v8/walk/frames/walk_13.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_14.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_15.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_16.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_17.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_18.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_19.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_20.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_21.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_22.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_23.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_24.png",
           "events": [
             "footstep"
           ]
         },
         {
-          "image": "walk/frames/walk_08.png"
+          "image": "v8/walk/frames/walk_25.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_26.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_27.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_28.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_29.png"
+        },
+        {
+          "image": "v8/walk/frames/walk_30.png"
         }
       ]
     },
     "idle": {
       "playback": "loop",
-      "fps": 4,
       "frames": [
         {
-          "image": "idle/frames/idle_01.png"
+          "image": "v8/idle/frames/idle_01.png",
+          "duration": 0.4166666667
         },
         {
-          "image": "idle/frames/idle_02.png"
+          "image": "v8/idle/frames/idle_02.png",
+          "duration": 0.4
         },
         {
-          "image": "idle/frames/idle_03.png"
+          "image": "v8/idle/frames/idle_03.png",
+          "duration": 0.65
         },
         {
-          "image": "idle/frames/idle_04.png",
+          "image": "v8/idle/frames/idle_04.png",
+          "duration": 0.2833333333
+        },
+        {
+          "image": "v8/idle/frames/idle_05.png",
+          "duration": 0.1833333333
+        },
+        {
+          "image": "v8/idle/frames/idle_06.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/idle/frames/idle_07.png",
+          "duration": 0.1333333333,
           "events": [
             "blink"
           ]
         },
         {
-          "image": "idle/frames/idle_05.png"
+          "image": "v8/idle/frames/idle_08.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "idle/frames/idle_06.png"
+          "image": "v8/idle/frames/idle_09.png",
+          "duration": 0.3333333333
+        },
+        {
+          "image": "v8/idle/frames/idle_10.png",
+          "duration": 0.6166666667
+        },
+        {
+          "image": "v8/idle/frames/idle_11.png",
+          "duration": 0.1333333333
         }
       ]
     },
     "jump-start": {
       "playback": "once",
-      "fps": 26.666666666666668,
       "frames": [
         {
-          "image": "jump-start/frames/jump-start_01.png"
+          "image": "v8/jump-start/frames/jump-start_01.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump-start/frames/jump-start_02.png"
+          "image": "v8/jump-start/frames/jump-start_02.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump-start/frames/jump-start_03.png"
+          "image": "v8/jump-start/frames/jump-start_03.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump-start/frames/jump-start_04.png",
+          "image": "v8/jump-start/frames/jump-start_04.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/jump-start/frames/jump-start_05.png",
+          "duration": 0.0333333333,
           "events": [
             "takeoff"
           ]
@@ -126,64 +224,111 @@
     },
     "jump": {
       "playback": "once",
-      "fps": 12,
       "frames": [
         {
-          "image": "jump/frames/jump_01.png"
+          "image": "v8/jump/frames/jump_01.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump/frames/jump_02.png"
+          "image": "v8/jump/frames/jump_02.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump/frames/jump_03.png"
+          "image": "v8/jump/frames/jump_03.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "jump/frames/jump_04.png"
+          "image": "v8/jump/frames/jump_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/jump/frames/jump_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/jump/frames/jump_06.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/jump/frames/jump_07.png",
+          "duration": 0.1333333333
         }
       ]
     },
     "fall": {
       "playback": "loop",
-      "fps": 12,
       "frames": [
         {
-          "image": "fall/frames/fall_01.png"
+          "image": "v8/fall/frames/fall_01.png",
+          "duration": 0.0666666667
         },
         {
-          "image": "fall/frames/fall_02.png"
+          "image": "v8/fall/frames/fall_02.png",
+          "duration": 0.0666666667
         },
         {
-          "image": "fall/frames/fall_03.png"
+          "image": "v8/fall/frames/fall_03.png",
+          "duration": 0.0666666667
         },
         {
-          "image": "fall/frames/fall_04.png"
+          "image": "v8/fall/frames/fall_04.png",
+          "duration": 0.0666666667
         },
         {
-          "image": "fall/frames/fall_05.png"
+          "image": "v8/fall/frames/fall_05.png",
+          "duration": 0.0666666667
         },
         {
-          "image": "fall/frames/fall_06.png"
+          "image": "v8/fall/frames/fall_06.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_07.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_08.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_09.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_10.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_11.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/fall/frames/fall_12.png",
+          "duration": 0.0666666667
         }
       ]
     },
     "landing": {
       "playback": "once",
-      "fps": 40,
       "frames": [
         {
-          "image": "landing/frames/landing_01.png",
+          "image": "v8/landing/frames/landing_01.png",
+          "duration": 0.0166666667,
           "events": [
             "contact"
           ]
         },
         {
-          "image": "landing/frames/landing_02.png"
+          "image": "v8/landing/frames/landing_02.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "landing/frames/landing_03.png"
+          "image": "v8/landing/frames/landing_03.png",
+          "duration": 0.0333333333
         },
         {
-          "image": "landing/frames/landing_04.png",
+          "image": "v8/landing/frames/landing_04.png",
+          "duration": 0.0166666667,
           "events": [
             "settled"
           ]
@@ -192,48 +337,288 @@
     },
     "curious": {
       "playback": "loop",
-      "fps": 6,
       "frames": [
-        { "image": "v5/curious/frames/curious_01.png" },
-        { "image": "v5/curious/frames/curious_02.png" },
-        { "image": "v5/curious/frames/curious_03.png" },
-        { "image": "v5/curious/frames/curious_04.png", "events": ["blink"] },
-        { "image": "v5/curious/frames/curious_05.png" },
-        { "image": "v5/curious/frames/curious_06.png" }
+        {
+          "image": "v8/curious/frames/curious_01.png",
+          "duration": 0.1
+        },
+        {
+          "image": "v8/curious/frames/curious_02.png",
+          "duration": 0.0833333333
+        },
+        {
+          "image": "v8/curious/frames/curious_03.png",
+          "duration": 0.1166666667
+        },
+        {
+          "image": "v8/curious/frames/curious_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_06.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_07.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_08.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_09.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_10.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_11.png",
+          "duration": 0.45
+        },
+        {
+          "image": "v8/curious/frames/curious_12.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/curious/frames/curious_13.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/curious/frames/curious_14.png",
+          "duration": 0.0833333333,
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "v8/curious/frames/curious_15.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_16.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/curious/frames/curious_17.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_18.png",
+          "duration": 0.25
+        },
+        {
+          "image": "v8/curious/frames/curious_19.png",
+          "duration": 0.05
+        },
+        {
+          "image": "v8/curious/frames/curious_20.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_21.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_22.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_23.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/curious/frames/curious_24.png",
+          "duration": 0.05
+        },
+        {
+          "image": "v8/curious/frames/curious_25.png",
+          "duration": 0.0833333333
+        },
+        {
+          "image": "v8/curious/frames/curious_26.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "v8/curious/frames/curious_27.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_28.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_29.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_30.png",
+          "duration": 0.1
+        },
+        {
+          "image": "v8/curious/frames/curious_31.png",
+          "duration": 0.45
+        },
+        {
+          "image": "v8/curious/frames/curious_32.png",
+          "duration": 0.3666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_33.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_34.png",
+          "duration": 0.05
+        },
+        {
+          "image": "v8/curious/frames/curious_35.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "v8/curious/frames/curious_36.png",
+          "duration": 0.3333333333
+        }
       ]
     },
     "picked-up": {
       "playback": "once",
-      "fps": 20,
       "frames": [
-        { "image": "v5/picked-up/frames/picked-up_01.png" },
-        { "image": "v5/picked-up/frames/picked-up_02.png" },
-        { "image": "v5/picked-up/frames/picked-up_03.png" },
-        { "image": "v5/picked-up/frames/picked-up_04.png" }
+        {
+          "image": "v8/picked-up/frames/picked-up_01.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/picked-up/frames/picked-up_02.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/picked-up/frames/picked-up_03.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/picked-up/frames/picked-up_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/picked-up/frames/picked-up_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/picked-up/frames/picked-up_06.png",
+          "duration": 0.0333333333
+        }
       ]
     },
     "held": {
       "playback": "loop",
-      "fps": 6,
       "frames": [
-        { "image": "v5/held/frames/held_01.png" },
-        { "image": "v5/held/frames/held_02.png" },
-        { "image": "v5/held/frames/held_03.png", "events": ["blink"] },
-        { "image": "v5/held/frames/held_04.png" },
-        { "image": "v5/held/frames/held_05.png" },
-        { "image": "v5/held/frames/held_06.png" }
+        {
+          "image": "v8/held/frames/held_01.png",
+          "duration": 0.15
+        },
+        {
+          "image": "v8/held/frames/held_02.png",
+          "duration": 0.1833333333
+        },
+        {
+          "image": "v8/held/frames/held_03.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "v8/held/frames/held_04.png",
+          "duration": 0.4
+        },
+        {
+          "image": "v8/held/frames/held_05.png",
+          "duration": 0.1666666667
+        },
+        {
+          "image": "v8/held/frames/held_06.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/held/frames/held_07.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "v8/held/frames/held_08.png",
+          "duration": 0.1333333333,
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "v8/held/frames/held_09.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "v8/held/frames/held_10.png",
+          "duration": 0.1666666667
+        },
+        {
+          "image": "v8/held/frames/held_11.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "v8/held/frames/held_12.png",
+          "duration": 0.3166666667
+        },
+        {
+          "image": "v8/held/frames/held_13.png",
+          "duration": 0.2
+        },
+        {
+          "image": "v8/held/frames/held_14.png",
+          "duration": 0.15
+        },
+        {
+          "image": "v8/held/frames/held_15.png",
+          "duration": 0.0333333333
+        }
       ]
     },
     "climb": {
       "playback": "loop",
-      "fps": 8,
-      "anchor": { "x": 0.977, "y": 0.5 },
-      "alignment": "right",
-      "interruptible": false,
+      "fps": 30,
       "frames": [
-        { "image": "v6/climb/frames/climb_01.png" },
-        { "image": "v6/climb/frames/climb_02.png" }
-      ]
+        {
+          "image": "v8/climb/frames/climb_01.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_02.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_03.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_04.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_05.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_06.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_07.png"
+        },
+        {
+          "image": "v8/climb/frames/climb_08.png"
+        }
+      ],
+      "anchor": {
+        "x": 0.977,
+        "y": 0.5
+      },
+      "alignment": "right",
+      "interruptible": false
     }
   }
 }

@@ -10,7 +10,9 @@ struct CharacterLoaderTests {
     // MARK: The bundled cat
 
     @Test func loadsTheCatPack() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
 
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty, "\(character.issues.map(\.description))")
@@ -25,7 +27,9 @@ struct CharacterLoaderTests {
     }
 
     @Test func behaviorFamiliesDecodeOnDemandAndExposeTheirRetainedByteCount() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         let initialBytes = character.decodedByteCount
         #expect(initialBytes > 0)
         #expect(character.frames["curious"] == nil)
@@ -52,7 +56,9 @@ struct CharacterLoaderTests {
     }
 
     @Test func theCatWalkPlaysAtTheDeclaredRate() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         var controller = AnimationController(definition: character.definition)
         var shown: [Int] = []
         for _ in 0..<60 {  // 1 s at 60 Hz
