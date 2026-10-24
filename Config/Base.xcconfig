@@ -13,7 +13,7 @@ MACOSX_DEPLOYMENT_TARGET = 14.0
 SWIFT_VERSION = 6.0
 SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor
 
-// Info.plist (generated). LSMinimumSystemVersion comes from MACOSX_DEPLOYMENT_TARGET.
+// Info.plist (generated, merged with the app target’s explicit usage-description source). LSMinimumSystemVersion comes from MACOSX_DEPLOYMENT_TARGET.
 GENERATE_INFOPLIST_FILE = YES
 INFOPLIST_KEY_LSUIElement = YES
 INFOPLIST_KEY_CFBundleDisplayName = PetScape

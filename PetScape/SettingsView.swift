@@ -64,6 +64,43 @@ struct SettingsView: View {
                 )
                 .accessibilityLabel("Expressions")
             }
+            Section("Music and dance") {
+                HStack {
+                    Button("Dance", action: model.dance)
+                        .disabled(!model.canDance)
+                        .accessibilityIdentifier("settings.dance")
+                    Button("Stop Dance", action: model.stopDance)
+                        .disabled(!model.canStopDance)
+                        .accessibilityIdentifier("settings.stopDance")
+                }
+                if !model.canDance && !model.canStopDance {
+                    Text(
+                        "Enable autonomous activities, show and resume your pet, then wait until it is walking or idle."
+                    )
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                }
+                Toggle(
+                    "Dance to music",
+                    isOn: Binding(
+                        get: { model.isMusicDancingEnabled }, set: model.setMusicDancingEnabled)
+                )
+                .accessibilityIdentifier("settings.musicDancing")
+                Text(
+                    "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                musicStatus
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.musicStatus")
+                if model.isSpecialArtworkPending {
+                    Text("Dance and cleanup artwork is pending. Your pet holds a still pose during these activities.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
             Section("General") {
                 Toggle(
                     "Launch at login",
@@ -150,6 +187,20 @@ struct SettingsView: View {
             NSApplication.shared.activate(ignoringOtherApps: true)
         }
         .confirmationDialog(
+            "Allow music detection?",
+            isPresented: Binding(
+                get: { model.isMusicConsentPresented },
+                set: { if !$0 { model.cancelMusicConsent() } }),
+            titleVisibility: .visible
+        ) {
+            Button("Enable Music Detection") { model.confirmMusicConsent() }
+            Button("Cancel", role: .cancel) { model.cancelMusicConsent() }
+        } message: {
+            Text(
+                "PetScape will ask macOS for system audio recording access to recognize music locally. It does not use your microphone or capture your screen. No audio is saved or sent. You can turn this off at any time."
+            )
+        }
+        .confirmationDialog(
             "Allow PetScape to use Accessibility?",
             isPresented: Binding(
                 get: { model.isWindowPermissionConfirmationPresented },
@@ -161,6 +212,22 @@ struct SettingsView: View {
         } message: {
             Text(
                 "PetScape reads window positions so pets can walk on them. It does not move, click, close, resize, or activate windows, and does not read titles or contents. You can allow access in Privacy & Security › Accessibility."
+            )
+        }
+    }
+
+    @ViewBuilder private var musicStatus: some View {
+        switch model.musicStatus {
+        case .off: Text("Music detection is off.")
+        case .suspended:
+            Text("Music detection is paused while your pet is unavailable or autonomous activities are off.")
+        case .monitoring:
+            Text(
+                "Waiting for music. If detection is silent, check PetScape's system audio access in Privacy & Security. After a pause, music must stop and start again."
+            )
+        case .unavailable:
+            Text(
+                "Music detection is unavailable. Check system audio access and your output device, then turn detection off and on to retry. Manual dance remains available."
             )
         }
     }

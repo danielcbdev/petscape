@@ -1,0 +1,1921 @@
+{
+  "cleanup" : [
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 347.19624901226956,
+          "y" : 468.21359699309045
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 390.21322664623102,
+          "y" : 445.71561935378071
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 426.05551558755161,
+          "y" : 395.18340738686987
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 430.6905017774356,
+          "y" : 335.16443809840422
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 412.32067403956705,
+          "y" : 293.66521266928936
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_12.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 398.12728617960329,
+          "y" : 278.96831287969565
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_13.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 394.08414457063947,
+          "y" : 276.97417737605986
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_14.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 390.75214080116626,
+          "y" : 275.82088342769634
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_15.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 388.03814518095243,
+          "y" : 275.12318546316061
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_16.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 385.8189096138114,
+          "y" : 274.52590386092811
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_17.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 383.95344982946875,
+          "y" : 273.69929696397395
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_18.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 382.28509177469317,
+          "y" : 272.33684847655132
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_19.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 379.9248387509503,
+          "y" : 268.84515527813687
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_20.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 376.42638948400281,
+          "y" : 262.8486494052201
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_21.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 372.42322474171226,
+          "y" : 255.85201963400709
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_22.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 368.96655811228248,
+          "y" : 249.22102284735811
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_23.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 367.57583879074161,
+          "y" : 244.13642859236188
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_24.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 370.04332997398711,
+          "y" : 241.74908971272029
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_25.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 392.59712824170447,
+          "y" : 253.29590943359958
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_26.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 429.18518233018449,
+          "y" : 298.19504036999126
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_27.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 438.2105570178943,
+          "y" : 372.65523867449872
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_28.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 401.94681756449813,
+          "y" : 438.70748392481926
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_29.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 351.19182774565593,
+          "y" : 467.70049559082901
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_30.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_31.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_32.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_33.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_34.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_35.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "cleanup_36.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    }
+  ],
+  "dance" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 471.80775851275587
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 471.3219626968841
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 470.62736633329615
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 469.75116736130531
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 468.67250000000001
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 467.20607651839998
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 465.31309007359999
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 463.3041218816
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 461.6705762624
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 461
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_12.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 462.71569781477626
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_13.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 466.35875130072839
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_14.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 469.73079042663892
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_15.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 471.58241664932365
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_16.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_17.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 471.75532901623478
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_18.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 471.13704343239795
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_19.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 470.25301169692239
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_20.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 469.13784936893404
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_21.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 467.76499999999999
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_22.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 465.89864284160001
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_23.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 463.48938736640002
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_24.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 460.93251875840002
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_25.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 458.85346069759998
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_26.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 458
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_27.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 460.18361540062438
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_28.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 464.82022892819981
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_29.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 469.11191508844951
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "dance_30.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 471.46853028095734
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    }
+  ],
+  "source" : "assets\/characters\/cat\/walk\/frames\/walk_01.png"
+}

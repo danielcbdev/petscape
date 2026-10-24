@@ -41,6 +41,19 @@ struct PreferencesStoreTests {
         #expect(!store.isWindowInteractionEnabled)
     }
 
+    @Test func musicOptInDefaultsOffPersistsAndRestoresWithoutChangingOtherKeys() throws {
+        let suite = try Suite()
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(!store.isMusicDancingEnabled)
+        #expect(suite.defaults.object(forKey: "petscape.musicDancing") == nil)
+        store.isMusicDancingEnabled = true
+        #expect(UserDefaultsPreferencesStore(defaults: suite.defaults).isMusicDancingEnabled)
+        suite.defaults.set("retained", forKey: "unrelated.key")
+        store.restoreDefaults()
+        #expect(!store.isMusicDancingEnabled)
+        #expect(suite.defaults.string(forKey: "unrelated.key") == "retained")
+    }
+
     @Test func valuesSurviveANewStore() throws {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)

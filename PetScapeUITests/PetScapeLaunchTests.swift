@@ -4,7 +4,13 @@ import XCTest
 final class PetScapeLaunchTests: XCTestCase {
     @MainActor
     func testLaunchShowsStatusItemAndQuitTerminates() throws {
+        let suiteName = "PetScapeUITests.\(UUID().uuidString)"
         let app = XCUIApplication()
+        app.launchArguments = ["--settings-test-suite", suiteName]
+        defer {
+            if app.state != .notRunning { app.terminate() }
+            UserDefaults.standard.removePersistentDomain(forName: suiteName)
+        }
         app.launch()
 
         let statusItem = app.statusItems.firstMatch

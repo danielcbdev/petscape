@@ -15,6 +15,13 @@ import PetScapeRendering
 public final class PetRuntime {
     public let overlay: OverlayCoordinator
 
+    private let musicDetector: MusicDetectionController
+    private var isStarted = false
+    public var onMusicStatusChange: ((MusicDetectionStatus) -> Void)?
+    public var onDanceAvailabilityChange: ((Bool) -> Void)?
+    public var onStopDanceAvailabilityChange: ((Bool) -> Void)?
+    private var publishedDanceAvailability = false
+    private var publishedStopDanceAvailability = false
     private let preferences: any PreferencesStore
     private let windowTracker: CompositeWindowTracker
     private let hitTester: PetHitTester
@@ -52,6 +59,7 @@ public final class PetRuntime {
         fullScreenDetector: FullScreenSpaceDetector,
         preferences: any PreferencesStore,
         windowTracker: CompositeWindowTracker = CompositeWindowTracker(),
+        musicDetector: MusicDetectionController = MusicDetectionController(),
         overlays: OverlayWindowManager = OverlayWindowManager(),
         makeFrameDriver: @escaping (NSView) -> any FrameDriver = { DisplayLinkFrameDriver(view: $0) },
         random: any RandomSource = SystemRandomNumberGenerator(),
@@ -60,6 +68,7 @@ public final class PetRuntime {
         let hitTester = PetHitTester()
         self.hitTester = hitTester
         self.preferences = preferences
+        self.musicDetector = musicDetector
         self.windowTracker = windowTracker
         world = PetWorld(tuning: tuning, random: random)
         world.apply(.configureBehavior(preferences.petSettings.behavior))
@@ -77,6 +86,12 @@ public final class PetRuntime {
             self?.receiveTrackedWindows(windows)
         }
         windowTracker.onPermissionRevoked = { [weak self] in self?.onWindowPermissionRevoked?() }
+        musicDetector.onMusicChange = { [weak self] playing in
+            guard let self else { return }
+            self.world.apply(.setMusicPlaying(playing))
+            self.renderNow()
+        }
+        musicDetector.onStatusChange = { [weak self] status in self?.onMusicStatusChange?(status) }
     }
 
     /// Pause and hide as the user last chose them (restored from preferences at launch).
@@ -102,6 +117,63 @@ public final class PetRuntime {
         renderNow()
     }
 
+    public var musicStatus: MusicDetectionStatus { musicDetector.status }
+
+    public var canDance: Bool {
+        overlay.runState.status.state == .running && world.pets.first.map { world.canDance($0.id) } == true
+    }
+
+    public var canStopDance: Bool {
+        guard overlay.runState.status.state == .running, let pet = world.pets.first,
+            case .grounded(.dancing) = pet.state
+        else { return false }
+        return true
+    }
+
+    public func stopDance() {
+        guard canStopDance, let id = world.pets.first?.id else { return }
+        world.apply(.stopDance(id))
+        renderNow()
+    }
+
+    public var isSpecialArtworkPending: Bool {
+        guard let definition = world.pets.first?.animation.definition else { return true }
+        return definition.clips["dance"] == nil || definition.clips["cleanup"] == nil
+    }
+
+    public func requestDance() {
+        guard canDance, let id = world.pets.first?.id else { return }
+        world.apply(.requestDance(id))
+        renderNow()
+    }
+
+    public func setMusicDancingEnabled(_ enabled: Bool) {
+        preferences.isMusicDancingEnabled = enabled
+        refreshMusicDetection()
+        renderNow()
+    }
+
+    public func refreshMusicDetection() {
+        let canRun =
+            isStarted && overlay.runState.status.state == .running
+            && preferences.petSettings.behavior.isEnabled && snapshot.pets.contains(where: { $0.isVisible })
+        world.apply(.configureMusicDancing(preferences.isMusicDancingEnabled && canRun))
+        musicDetector.update(enabled: preferences.isMusicDancingEnabled, canRun: canRun)
+    }
+
+    private func publishDanceAvailability() {
+        let available = canDance
+        if publishedDanceAvailability != available {
+            publishedDanceAvailability = available
+            onDanceAvailabilityChange?(available)
+        }
+        let stoppable = canStopDance
+        if publishedStopDanceAvailability != stoppable {
+            publishedStopDanceAvailability = stoppable
+            onStopDanceAvailabilityChange?(stoppable)
+        }
+    }
+
     public func wakePet() {
         for pet in world.pets { world.apply(.wake(pet.id)) }
         accumulator.reset()
@@ -109,6 +181,7 @@ public final class PetRuntime {
     }
 
     public func start() {
+        isStarted = true
         overlay.onFrame = { [weak self] timestamp in self?.frame(timestamp) }
         overlay.onScreensChange = { [weak self] in self?.screensDidChange() }
         overlay.onStatusChange = { [weak self] status in self?.statusDidChange(status) }
@@ -137,6 +210,9 @@ public final class PetRuntime {
 
     /// Stops frames, observers and overlays (FR-13) and drops the pet layers.
     public func stop() {
+        isStarted = false
+        world.apply(.suspendMusicBehaviors)
+        musicDetector.stop()
         windowTracker.stop()
         overlay.stop()
         renderers.values.forEach { $0.removeAll() }
@@ -254,6 +330,9 @@ public final class PetRuntime {
     }
 
     private func statusDidChange(_ status: RunStatus) {
+        if status.state != .running { world.apply(.suspendMusicBehaviors) }
+        refreshMusicDetection()
+        publishDanceAvailability()
         refreshWindowTracking()
         // Frames stopped: the next frame after they resume only records its timestamp (no catch-up).
         if !status.isFrameDriverRunning { accumulator.reset() }
@@ -388,6 +467,8 @@ public final class PetRuntime {
         overlay.preferredFramesPerSecond = world.pets.isEmpty ? 60 : world.preferredFramesPerSecond
         if !demand || demand != overlay.needsFrames { accumulator.reset() }
         overlay.needsFrames = demand
+        refreshMusicDetection()
+        publishDanceAvailability()
     }
 
     private func requestBehaviorFamilyLoad(_ clip: String, for character: LoadedCharacter) {

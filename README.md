@@ -45,7 +45,7 @@ make run
   the screen instead. It follows Dock size and position changes and display changes within about a second.
 - The cat disappears while a full-screen app is in front, and nothing is drawn while the Mac sleeps, the
   screen is locked or the display is off.
-- No permissions are requested; nothing is sent over the network.
+- Overlay and manual dance need no special permission. Window interaction asks for Accessibility only after opt-in. Optional music detection asks for system audio access on macOS 14.2+; audio is analyzed locally, never saved or sent. No Screen Recording or microphone permission is requested. See [permissions](docs/specifications/permissions.md).
 - In **Settings…**, change pet size/speed and enable or disable autonomous activities, jumping, resting
   and expressions. Changes apply immediately and persist. **Wake Pet** exits sleep; **Restore Defaults**
   resets PetScape choices and disables its login item.

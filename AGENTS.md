@@ -38,7 +38,12 @@ M10–M14 have subsequent owner closeouts in the milestone register. **M15 was c
 owner acceptance on 2026-10-23**, after the owner tested the revised animations and pacing and
 authorized integration into `develop`. The existing V8 pixel-QA failure remains a documented
 exception, not a passed check; see the [M15 closeout](docs/planning/m15-implementation.md#owner-m15-closeout--2026-10-23).
-M16–M20 remain planning only; no next-milestone implementation is authorized by M15 closure.
+**M16 was closed by explicit owner acceptance on 2026-10-24**, after the owner confirmed all
+behavior works, including automatic/manual dancing, Stop Dance and cleanup after held drops, and
+authorized creating a branch, committing, merging into `develop` and pushing. V9 art is integrated.
+The existing V8 pixel-QA failure and measurement/permission-evidence limits are retained in the
+[M16 closeout](docs/planning/m16-implementation.md#owner-m16-closeout--2026-10-24).
+M17–M20 remain planning only; M16 closure does not authorize their implementation.
 Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack

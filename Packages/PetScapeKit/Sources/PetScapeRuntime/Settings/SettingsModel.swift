@@ -13,6 +13,12 @@ public final class SettingsModel {
     public var isWindowInteractionEnabled: Bool { preferences.isWindowInteractionEnabled }
     public private(set) var isWindowPermissionMissing = false
     public var isWindowPermissionConfirmationPresented = false
+    public private(set) var isMusicDancingEnabled: Bool
+    public private(set) var musicStatus: MusicDetectionStatus
+    public private(set) var canDance: Bool
+    public private(set) var canStopDance: Bool
+    public var isMusicConsentPresented = false
+    public var isSpecialArtworkPending: Bool { runtime.isSpecialArtworkPending }
 
     @ObservationIgnored private let runtime: PetRuntime
     @ObservationIgnored private let preferences: any PreferencesStore
@@ -31,6 +37,13 @@ public final class SettingsModel {
         userIntent = runtime.userIntent
         dockOffsetAdjustment = runtime.dockOffsetAdjustment
         loginStatus = loginService.status
+        isMusicDancingEnabled = preferences.isMusicDancingEnabled
+        musicStatus = runtime.musicStatus
+        canDance = runtime.canDance
+        canStopDance = runtime.canStopDance
+        runtime.onMusicStatusChange = { [weak self] status in self?.musicStatus = status }
+        runtime.onStopDanceAvailabilityChange = { [weak self] available in self?.canStopDance = available }
+        runtime.onDanceAvailabilityChange = { [weak self] available in self?.canDance = available }
         runtime.onUserIntentChange = { [weak self] intent in self?.userIntent = intent }
     }
 
@@ -82,6 +95,26 @@ public final class SettingsModel {
         isWindowPermissionMissing = preferences.isWindowInteractionEnabled
     }
 
+    public func setMusicDancingEnabled(_ enabled: Bool) {
+        if enabled {
+            isMusicConsentPresented = true
+        } else {
+            isMusicConsentPresented = false
+            isMusicDancingEnabled = false
+            runtime.setMusicDancingEnabled(false)
+        }
+    }
+
+    public func confirmMusicConsent() {
+        isMusicConsentPresented = false
+        isMusicDancingEnabled = true
+        runtime.setMusicDancingEnabled(true)
+    }
+
+    public func cancelMusicConsent() { isMusicConsentPresented = false }
+    public func dance() { runtime.requestDance() }
+    public func stopDance() { runtime.stopDance() }
+
     public func setLaunchAtLogin(_ enabled: Bool) {
         loginError = nil
         refreshLoginStatus()
@@ -124,6 +157,7 @@ public final class SettingsModel {
         setPaused(preferences.isPaused)
         setHidden(preferences.isHidden)
         isWindowPermissionMissing = false
+        setMusicDancingEnabled(false)
         runtime.refreshWindowTracking()
         setLaunchAtLogin(false)
     }

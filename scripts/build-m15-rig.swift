@@ -1,7 +1,9 @@
 // M15 rework: cut-out rig poses built from one authored original key (walk/frames/walk_01.png).
 // Every part keeps its original pixels; poses use rigid rotation/translation only (no warping, no
 // frame blending). Gait and gesture timing are computed here so contacts are exact by construction.
+// M16 (owner-approved method change) adds the V9 `dance` and `cleanup` clips with the same rig.
 // Usage: swiftc -O scripts/build-m15-rig.swift -o /tmp/m15-rig && /tmp/m15-rig <repo-root> <new-output-dir>
+// RIG_CLIPS=dance,cleanup selects clips (default: the ten V8 clips).
 import CoreGraphics
 import Foundation
 import ImageIO
@@ -288,6 +290,15 @@ let tailRegion: [Point] = [(0, 0), (220, 0), (220, 272), (182, 316), (163, 350),
 let legRegion: [Point] = [
     (100, 512), (100, 416), (130, 418), (200, 411), (288, 410), (350, 402), (420, 400), (420, 512),
 ]
+// Removed from the torso when the near fore leg is raised: the leg's top below an arched chest line.
+let chestArch: [Point] = [
+    (274, 512), (276, 420), (284, 402), (298, 390), (318, 384), (336, 388), (344, 396), (350, 420), (350, 512),
+]
+// Rounded near fore upper arm (an ellipse around the leg axis) for raised poses.
+let nearFrontArm: [Point] = (0..<48).map { i in
+    let a = 2 * Double.pi * Double(i) / 48
+    return (319 + 29 * cos(a), 386 + 50 * sin(a))
+}
 // Extended part regions; the extension stays hidden under the torso.
 let headPart: [Point] = [
     (220, 0), (512, 0), (512, 265), (472, 302), (445, 324), (400, 330), (345, 312), (285, 290), (230, 246),
@@ -385,12 +396,16 @@ struct LegParts {
     let upper: Raster?
     let lower: Raster
     let paw: Raster
+    /// Upper part with a rounded silhouette, used when a raised leg exposes the straight cut of `upper`.
+    var upperRound: Raster? = nil
 }
 
 struct Parts {
     let head: Raster
     let tail: Raster
     let torso: Raster
+    /// Torso with a rounded chest underside where the near fore leg hangs, for poses that raise that leg.
+    let torsoRaised: Raster
     let legs: [String: LegParts]
 }
 
@@ -484,7 +499,9 @@ func makeParts(_ key: Raster) -> Parts {
         }
         legs[spec.name] = LegParts(
             upper: upper, lower: masked(key, polygonMask(spec.lower, feather: 2)),
-            paw: masked(key, polygonMask(spec.paw, feather: 1)))
+            paw: masked(key, polygonMask(spec.paw, feather: 1)),
+            upperRound: spec.name == nearFront.name
+                ? masked(key, ramp(polygonMask(nearFrontArm, feather: 2), from: 336, to: 354)) : nil)
     }
     var torsoMask = [Float](repeating: 0, count: size * size)
     for p in torsoMask.indices {
@@ -495,7 +512,9 @@ func makeParts(_ key: Raster) -> Parts {
     }
     return Parts(
         head: masked(key, polygonMask(headPart, feather: 8)), tail: masked(key, polygonMask(tailPart, feather: 4)),
-        torso: masked(key, torsoMask), legs: legs)
+        torso: masked(key, torsoMask),
+        torsoRaised: masked(key, zip(torsoMask, polygonMask(chestArch, feather: 2)).map { $0 * (1 - $1) }),
+        legs: legs)
 }
 
 // MARK: - Eyelids (painted over the key's eyes for blinks)
@@ -680,6 +699,8 @@ func curious(_ parts: Parts) -> [Frame] {
 enum LegCommand {
     case ground(u: Double, lift: Double, paw: Double)
     case swing(upper: Double, lower: Double, paw: Double)
+    /// Joint rotations added on top of the planted pose (zero = planted), so a paw leaves the ground continuously.
+    case raise(upper: Double, lower: Double, paw: Double)
 }
 
 struct Pose {
@@ -688,7 +709,10 @@ struct Pose {
     var headLift = 0.0
     var tail = 0.0
     var lid = 0.0
+    var tongue = 0.0
     var legs: [String: LegCommand] = [:]
+    /// Draws the near fore leg over the head (a paw raised in front of the face).
+    var foreInFront = false
 }
 
 let poseLegs = [
@@ -709,6 +733,21 @@ func legSwing(_ spec: LegSpec, body: Rigid, xOffset: Double, upper a1: Double, l
         upper: spec.upper == nil ? nil : base, lower: lower, paw: paw, contactWorld: paw.apply(shifted(spec.contact)))
 }
 
+/// The planted pose with extra shoulder/elbow/wrist rotations about the planted joints' current positions.
+func legRaise(_ spec: LegSpec, body: Rigid, xOffset: Double, upper a1: Double, lower a2: Double, paw a3: Double)
+    -> LegPose
+{
+    func shifted(_ p: Point) -> Point { (p.x + xOffset, p.y) }
+    let base = legPose(spec, body: body, xOffset: xOffset, u: 0, lift: 0, pawAngle: 0)
+    let shoulder = Rigid(pivot: body.apply(shifted(spec.hip)), angle: a1)
+    let jointWorld = (base.upper ?? body).apply(shifted(spec.joint))
+    let elbow = Rigid(pivot: shoulder.apply(jointWorld), angle: a2).after(shoulder)
+    let wrist = Rigid(pivot: elbow.apply(base.paw.apply(shifted(spec.attach))), angle: a3).after(elbow)
+    return LegPose(
+        upper: base.upper.map { shoulder.after($0) }, lower: elbow.after(base.lower), paw: wrist.after(base.paw),
+        contactWorld: wrist.after(base.paw).apply(shifted(spec.contact)))
+}
+
 /// Layers for a pose, with `global` applied last (climb rotation, registration shifts).
 func poseLayers(_ parts: Parts, _ pose: Pose, global: Rigid) -> (layers: [Layer], paws: [String: (Point, Bool)]) {
     var legLayers: [String: [Layer]] = [:]
@@ -723,6 +762,9 @@ func poseLayers(_ parts: Parts, _ pose: Pose, global: Rigid) -> (layers: [Layer]
             planted = lift == 0
         case .swing(let upper, let lower, let paw):
             result = legSwing(leg.spec, body: pose.body, xOffset: leg.offset, upper: upper, lower: lower, paw: paw)
+        case .raise(let upper, let lower, let paw):
+            result = legRaise(leg.spec, body: pose.body, xOffset: leg.offset, upper: upper, lower: lower, paw: paw)
+            planted = upper == 0 && lower == 0 && paw == 0
         }
         let part = parts.legs[leg.spec.name]!  // proven invariant: built in `makeParts`
         let placement = Rigid(pivot: (0, 0), dx: leg.offset)
@@ -730,7 +772,11 @@ func poseLayers(_ parts: Parts, _ pose: Pose, global: Rigid) -> (layers: [Layer]
             Layer(part: part.lower, transform: global.after(result.lower.after(placement)), tone: leg.tone),
             Layer(part: part.paw, transform: global.after(result.paw.after(placement)), tone: leg.tone),
         ]
-        if leg.offset == 0, let upper = part.upper, let transform = result.upper {
+        let raised: Bool
+        if case .raise = command { raised = !planted } else { raised = false }
+        if leg.offset == 0, let upper = raised ? part.upperRound ?? part.upper : part.upper,
+            let transform = result.upper
+        {
             layers.append(Layer(part: upper, transform: global.after(transform), tone: leg.tone))
         }
         legLayers[leg.name] = layers
@@ -738,12 +784,15 @@ func poseLayers(_ parts: Parts, _ pose: Pose, global: Rigid) -> (layers: [Layer]
     }
     let head = pose.body.after(Rigid(pivot: (360, 300), angle: pose.head, dx: 0, dy: -pose.headLift))
     let tail = pose.body.after(Rigid(pivot: (185, 320), angle: pose.tail))
+    let headLayer = Layer(
+        part: withTongue(withEyelids(parts.head, closure: pose.lid), amount: pose.tongue), transform: global.after(head))
+    let front = legLayers["nearFront"] ?? []
     let layers =
         (legLayers["farHind"] ?? []) + (legLayers["farFront"] ?? [])
         + [Layer(part: parts.tail, transform: global.after(tail))]
-        + [Layer(part: parts.torso, transform: global.after(pose.body))] + (legLayers["nearHind"] ?? [])
-        + (legLayers["nearFront"] ?? [])
-        + [Layer(part: withEyelids(parts.head, closure: pose.lid), transform: global.after(head))]
+        + [Layer(part: pose.foreInFront ? parts.torsoRaised : parts.torso, transform: global.after(pose.body))]
+        + (legLayers["nearHind"] ?? [])
+        + (pose.foreInFront ? [headLayer] + front : front + [headLayer])
     return (layers, paws)
 }
 
@@ -1032,6 +1081,118 @@ func climb(_ parts: Parts) -> [Frame] {
     }
 }
 
+// MARK: - V9 (M16): dance and cleanup
+
+/// Paints a small tongue below the key's smile (mouth centre ≈ (456, 247) in rest coordinates); `amount` 0…1
+/// pushes it out and down. Stays a painted overlay like the eyelids; the key itself is never edited.
+func withTongue(_ head: Raster, amount: Double) -> Raster {
+    guard amount > 0.02 else { return head }
+    var out = head
+    let centre: Point = (459, 248 + 4 * amount)
+    let radiusX = 6.5
+    let radiusY = 2 + 5.5 * amount
+    for y in Int(centre.y - radiusY - 2)...Int(centre.y + radiusY + 2) {
+        for x in Int(centre.x - radiusX - 2)...Int(centre.x + radiusX + 2) {
+            let nx = (Double(x) + 0.5 - centre.x) / radiusX
+            let ny = (Double(y) + 0.5 - centre.y) / radiusY
+            // Only the lower half shows: the upper half stays behind the lip line.
+            guard ny > -0.15 else { continue }
+            let r = nx * nx + ny * ny
+            guard r < 1 else { continue }
+            let rim = r > 0.62 || (abs(nx) < 0.12 && ny < 0.55)  // outline and centre groove
+            let light = Float(1 - 0.25 * max(0, ny))
+            let c: (Float, Float, Float) = rim ? (0.62, 0.28, 0.33) : (0.93 * light, 0.5 * light, 0.55 * light)
+            let a = Float(min(1, (1 - r) * 8)) * Float(min(1, amount * 3))
+            let i = (y * size + x) * 4
+            out.data[i] = c.0 * a + out.data[i] * (1 - a)
+            out.data[i + 1] = c.1 * a + out.data[i + 1] * (1 - a)
+            out.data[i + 2] = c.2 * a + out.data[i + 2] * (1 - a)
+            out.data[i + 3] = a + out.data[i + 3] * (1 - a)
+        }
+    }
+    return out
+}
+
+/// Monotone cubic (Fritsch–Butland) through equally spaced keys: continuous velocity, no overshoot past a key.
+/// `periodic` wraps the ends (loops); otherwise the ends start and stop at rest.
+func spline(_ keys: [Double], _ position: Double, periodic: Bool) -> Double {
+    let count = keys.count - 1  // segments; for a loop keys.last == keys.first
+    let p = periodic ? fract(position / Double(count)) * Double(count) : min(Double(count), max(0, position))
+    let k = min(count - 1, Int(floor(p)))
+    let t = p - Double(k)
+    func slope(_ i: Int) -> Double {
+        guard periodic || (i > 0 && i < count) else { return 0 }
+        let before = keys[i] - keys[(i - 1 + count) % count]
+        let after = keys[(i + 1) % (count + 1)] - keys[i]
+        guard before * after > 0 else { return 0 }
+        return 2 / (1 / before + 1 / after)
+    }
+    let m0 = slope(k)
+    let m1 = slope(k + 1 == count && periodic ? 0 : k + 1)
+    let t2 = t * t
+    let t3 = t2 * t
+    return (2 * t3 - 3 * t2 + 1) * keys[k] + (t3 - 2 * t2 + t) * m0 + (-2 * t3 + 3 * t2) * keys[k + 1]
+        + (t3 - t2) * m1
+}
+
+// Dance (1 s loop at 30 FPS, 30 drawings): in-place rocking sway, weight forward then back, with a bob on each
+// beat, head nodding against the sway and the tail counterbalancing with follow-through. The near hind paw taps
+// on the forward sway and the near fore paw on the back sway; every paw returns to its own contact (no skating).
+// Keys every 5 drawings (neutral, sway, deep sway, centre, other sway, deep, neutral); drawing n sits at n/5.
+let danceSway = [0, 0.55, 1, 0, -0.55, -1, 0]
+
+func dance(_ parts: Parts) -> [Frame] {
+    (0..<30).map { index in
+        let position = Double(index) / 5
+        let s = spline(danceSway, position, periodic: true)
+        let lagged = spline(danceSway, position - 0.6, periodic: true)
+        let beat = 2 * Double.pi * (Double(index) - 10) / 15  // dips at both deep sways
+        let pose = Pose(
+            body: Rigid(pivot: (256, 430), angle: 5 * s, dx: 4 * s, dy: 4 * (0.5 + 0.5 * cos(beat))),
+            head: -8 * s + 3 * sin(beat - 0.8), headLift: 3 * (0.5 - 0.5 * cos(beat)), tail: 4 - 15 * lagged,
+            legs: [
+                "nearFront": .ground(u: 0, lift: 14 * pow(max(0, -s), 2), paw: -14 * pow(max(0, -s), 2)),
+                "nearHind": .ground(u: 0, lift: 11 * pow(max(0, s), 2), paw: 10 * pow(max(0, s), 2)),
+            ])
+        return frame(parts, pose, registration: .none, duration: 1.0 / 30)
+    }
+}
+
+// Cleanup (3 s once at 12 FPS, 36 drawings): settle into a supported crouch, lift the near fore paw to the
+// muzzle, one lick (eyes closed), wipe the paw up the cheek toward the ear, lower it onto its own contact and
+// return to a standing pose a breath away from the key. Keys every 6 drawings; drawing n (1…36) sits at n/6.
+struct GroomKey {
+    let dy, lean, head, headLift, tail, lid: Double
+    let upper, lower, paw: Double  // near fore raise (zero = planted)
+}
+
+let groomKeys = [
+    GroomKey(dy: 0, lean: 0, head: 0, headLift: 0, tail: 0, lid: 0, upper: 0, lower: 0, paw: 0),
+    GroomKey(dy: 7, lean: -2, head: 4, headLift: -1, tail: 2, lid: 0.1, upper: 0, lower: 0, paw: 0),
+    GroomKey(dy: 8, lean: -3, head: 7, headLift: -6, tail: 9, lid: 0.55, upper: -96, lower: -50, paw: -30),
+    GroomKey(dy: 8, lean: -3.5, head: 9, headLift: -8, tail: 13, lid: 1, upper: -100, lower: -56, paw: -40),
+    GroomKey(dy: 8, lean: -4, head: 11, headLift: -7, tail: 10, lid: 1, upper: -122, lower: -36, paw: -30),
+    GroomKey(dy: 3, lean: -1, head: 4, headLift: -1, tail: 5, lid: 0.15, upper: 0, lower: 0, paw: 0),
+    GroomKey(dy: 0.6, lean: 0, head: 0.6, headLift: 0, tail: 1.5, lid: 0, upper: 0, lower: 0, paw: 0),
+]
+
+func cleanup(_ parts: Parts) -> [Frame] {
+    func channel(_ field: (GroomKey) -> Double, _ position: Double) -> Double {
+        spline(groomKeys.map(field), position, periodic: false)
+    }
+    return (1...36).map { index in
+        let p = Double(index) / 6
+        let upper = channel(\.upper, p)
+        let raise = LegCommand.raise(upper: upper, lower: channel(\.lower, p), paw: channel(\.paw, p))
+        let pose = Pose(
+            body: Rigid(pivot: (250, 472), angle: channel(\.lean, p), dy: channel(\.dy, p)), head: channel(\.head, p),
+            headLift: channel(\.headLift, p), tail: channel(\.tail, p), lid: min(1, max(0, channel(\.lid, p))),
+            tongue: p > 2 && p < 3 ? pow(sin(Double.pi * (p - 2)), 2) : 0, legs: ["nearFront": raise],
+            foreInFront: upper < -1)
+        return frame(parts, pose, registration: .none, duration: 5.0 / 60)
+    }
+}
+
 // MARK: - Main
 
 let arguments = CommandLine.arguments
@@ -1053,12 +1214,17 @@ if ProcessInfo.processInfo.environment["RIG_PARTS"] != nil {
 }
 
 var report: [String: Any] = ["source": "assets/characters/cat/walk/frames/walk_01.png"]
-let clips: [(String, [Frame])] = [
-    ("walk", walk(parts)), ("curious", curious(parts)), ("idle", idle(parts)), ("jump-start", jumpStart(parts)),
-    ("jump", jump(parts)), ("fall", fall(parts)), ("landing", landing(parts)), ("picked-up", pickedUp(parts)),
-    ("held", held(parts)), ("climb", climb(parts)),
+let builders: [(String, (Parts) -> [Frame])] = [
+    ("walk", walk), ("curious", curious), ("idle", idle), ("jump-start", jumpStart), ("jump", jump), ("fall", fall),
+    ("landing", landing), ("picked-up", pickedUp), ("held", held), ("climb", climb), ("dance", dance),
+    ("cleanup", cleanup),
 ]
-for (clip, frames) in clips {
+let selected =
+    ProcessInfo.processInfo.environment["RIG_CLIPS"].map { $0.split(separator: ",").map(String.init) }
+    ?? builders.prefix(10).map(\.0)
+for name in selected where !builders.contains(where: { $0.0 == name }) { throw RigError("Unknown clip \(name)") }
+for (clip, build) in builders where selected.contains(clip) {
+    let frames = build(parts)
     let directory = output.appendingPathComponent("\(clip)/frames", isDirectory: true)
     try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
     var entries: [[String: Any]] = []

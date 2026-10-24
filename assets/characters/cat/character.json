@@ -619,6 +619,222 @@
       },
       "alignment": "right",
       "interruptible": false
+    },
+    "dance": {
+      "playback": "loop",
+      "fps": 30,
+      "alignment": "bottom",
+      "mirrorable": true,
+      "interruptible": true,
+      "frames": [
+        {
+          "image": "v9/dance/frames/dance_01.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_02.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_03.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_04.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_05.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_06.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_07.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_08.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_09.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_10.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_11.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_12.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_13.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_14.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_15.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_16.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_17.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_18.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_19.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_20.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_21.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_22.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_23.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_24.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_25.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_26.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_27.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_28.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_29.png"
+        },
+        {
+          "image": "v9/dance/frames/dance_30.png"
+        }
+      ]
+    },
+    "cleanup": {
+      "playback": "once",
+      "fps": 12,
+      "alignment": "bottom",
+      "mirrorable": true,
+      "interruptible": true,
+      "frames": [
+        {
+          "image": "v9/cleanup/frames/cleanup_01.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_02.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_03.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_04.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_05.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_06.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_07.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_08.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_09.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_10.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_11.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_12.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_13.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_14.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_15.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_16.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_17.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_18.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_19.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_20.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_21.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_22.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_23.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_24.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_25.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_26.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_27.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_28.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_29.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_30.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_31.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_32.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_33.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_34.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_35.png"
+        },
+        {
+          "image": "v9/cleanup/frames/cleanup_36.png"
+        }
+      ]
     }
   }
 }

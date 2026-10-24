@@ -19,6 +19,9 @@ public struct Pet: Sendable {
     public internal(set) var position: CGPoint
     /// Finite velocity in canonical points/s.
     public internal(set) var velocity: CGVector = .zero
+    var specialBehaviorDuration = 0.0
+    var pendingDockCleanup = false
+    var flightOrigin: FlightOrigin = .fall
     var airborneElapsed: Double = 0
     var jumpPlan: JumpPlan?
     var jumpSource: Surface?

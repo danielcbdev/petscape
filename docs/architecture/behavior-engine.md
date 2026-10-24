@@ -115,3 +115,14 @@ The single shared Speed range is 0.5–4, default 2 for missing/nonfinite values
 values remain intact; preference keys and schema version are unchanged. The V8 stride remains
 13.5 pt at 96 pt: displacement and clip rate scale together, so default speed is 27 pt/s and maximum
 54 pt/s (previous maximum 27 pt/s). No PNG or manifest is modified by this refinement.
+
+## M16 explicit activities
+
+Music edges arrive as Sendable WorldInput values from the opt-in Platform service via Runtime.
+`MusicSessionDetector` applies confidence/time hysteresis outside the simulation frame pipeline.
+PetWorld consumes each start once even if ineligible; only a confirmed stop then start permits the
+next automatic dance. Manual requests have no audio dependency. Inclusive 5–30 s random deadlines
+reuse the injected RandomSource; dance and finite post-Dock-fall cleanup extend the existing
+GroundedState and held fallback convention. Physical/interaction/run-state precedence and flight
+provenance are specified in [state machines](../specifications/state-machines.md#m16-dance-and-cleanup).
+No activity weights, physical integration or M15 closeout are changed.

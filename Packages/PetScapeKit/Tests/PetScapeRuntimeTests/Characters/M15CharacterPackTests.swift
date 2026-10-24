@@ -37,7 +37,8 @@ struct M15CharacterPackTests {
     @Test func reworkedPackKeepsContractsAndPhysicalTimings() throws {
         let old = try manifest("v7/baseline-character.json")
         let new = try manifest("character.json")
-        #expect(Set(new.animations.keys) == Set(old.animations.keys))
+        // All ten V8 clips keep their contracts; M16 admits exactly the two V9 clips (M16CharacterPackTests).
+        #expect(Set(new.animations.keys) == Set(old.animations.keys).union(["dance", "cleanup"]))
         #expect(new.schemaVersion == old.schemaVersion)
         #expect(new.anchor == old.anchor)
         #expect(new.displaySize == old.displaySize)

@@ -24,7 +24,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M13 | Window interaction | v0.5.0 | **Done by owner acceptance** (2026-10-23 — [closeout](#m13-owner-closeout--2026-10-23)) |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | **Done by explicit owner acceptance** (2026-10-23; see [implementation record](m14-implementation.md); evidence limits and waived soak remain documented) |
 | M15 | Animation quality | — | **Done by explicit owner acceptance** (2026-10-23; revised animations and pacing tested by the owner; retained V8 pixel-QA exception — [closeout](m15-implementation.md#owner-m15-closeout--2026-10-23)) |
-| M16 | New behaviors and animations | — | Not started |
+| M16 | New behaviors and animations | — | **Done by explicit owner acceptance** (2026-10-24; owner confirmed all behavior works and authorized integration/push; V8 QA exception and measurement limits preserved — [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24)) |
 | M17 | Portuguese/English localization | — | Not started |
 | M18 | Bundled character selection | — | Not started |
 | M19 | Character pack discovery and installation | — | Not started |
@@ -426,9 +426,14 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 ## M16 — New behaviors and animations
 
 - **Objective:** add new autonomous behavior and corresponding character animation.
-- **Scope:** music-associated dancing and post-landing cleanup behavior where specified by its task plan. No M16 implementation is authorized by the M15 request.
+- **Scope:** owner-authorized music-associated dancing, manual dance, and post-landing cleanup; existing images are never modified (on 2026-10-23 the owner approved building the new V9 clips with the V8 rig). See [M16 contract and implementation](m16-implementation.md).
 - **Prerequisites:** M15 accepted.
-- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+- **Status:** **Done by explicit owner acceptance, 2026-10-24.** The owner reported everything
+  working after the music/held-drop fixes and Stop Dance addition, and explicitly authorized a
+  feature branch, commit, merge into develop and push. V9 art is integrated. The inherited V8
+  pixel-QA exception, AppIntents metadata warning and unmeasured native/performance evidence remain
+  visible in the [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24); no unrun check is
+  converted into a measured pass. M17–M20 remain planning only.
 
 ## M17 — Portuguese and English localization
 

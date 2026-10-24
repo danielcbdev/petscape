@@ -624,6 +624,26 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
 | T15.5 | Record asset provenance, evidence, limitations and closeout | Docs | T15.4 | S | AC-M15-06; owner review | **Done**; owner-directed closeout, evidence and retained exception recorded |
 | T15.6 | Owner pacing refinement: rare stops ≤5 s and faster configurable walking, preserving approved art | Core, Settings | T15.4 | M | Seeded pacing/landing/speed tests; build/lint/UI | **Done**; Core/UI/build/lint pass; pre-existing V8 pixel-QA failure documented |
 
+## M16 — New behaviors and animations
+
+**Done by explicit owner acceptance, 2026-10-24.** T16.1–T16.10 scope is delivered; remaining
+native/performance measurement limits are accepted as documented, not newly measured passes.
+Contract, file responsibilities, task evidence and Git authorization:
+[M16 owner closeout](m16-implementation.md#owner-m16-closeout--2026-10-24).
+
+| ID | Task | Module | Verify |
+|---|---|---|---|
+| T16.1 | Define session/priority/cleanup/art contracts | Docs | AC-M16-01 |
+| T16.2 | Session hysteresis; bounded automatic/manual dance | Core | AC-M16-02…05 |
+| T16.3 | Eligible descending Dock contact → stable cleanup | Core | AC-M16-06 |
+| T16.4 | Local system audio classifier and lifecycle | Platform, Runtime | AC-M16-07/08 |
+| T16.5 | Consent, persisted opt-in, manual menu/Settings control | App, Runtime | AC-M16-09 |
+| T16.6 | Art briefs and integration handoff, no images | Docs | AC-M16-10 |
+| T16.7 | Regression gates and honest evidence/status | All | AC-M16-11 |
+| T16.8 | Owner supplies V9 art; integrate real clips, complete native/visual/performance acceptance | Owner, Pack, All | AC-M16-07…11; V9 art delivered and integrated 2026-10-23 (V8 rig, owner-approved; pack tests added); **Done by owner acceptance 2026-10-24**, with measurement limits retained |
+| T16.9 | Owner follow-up: emit real audio usage-description key, preserve first session after startup/failure, clean after held drop onto Dock/screen ground | App config, Core, Platform | Artifact key gate, red/green music/drop regressions, lint/build/UI; owner confirmed all behavior working at closeout; detailed native evidence limits retained |
+| T16.10 | Owner-requested Stop Dance in normal menu and Settings, with live availability and consumed-session preservation | Core, Runtime, App | Manual/automatic stop and non-dance guards; model availability; native UI |
+
 ## M16–M19 — Planned product milestones
 
 | ID | Scope | Boundary for M15 |

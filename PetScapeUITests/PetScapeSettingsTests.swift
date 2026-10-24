@@ -37,6 +37,20 @@ final class PetScapeSettingsTests: XCTestCase {
         XCTAssertEqual(integerValue(of: autonomy), 1)
         autonomy.click()
         XCTAssertEqual(integerValue(of: autonomy), 0)
+        let dance = window.buttons["settings.dance"]
+        XCTAssertTrue(dance.exists)
+        XCTAssertFalse(dance.isEnabled)
+        let stopDance = window.buttons["settings.stopDance"]
+        XCTAssertTrue(stopDance.exists)
+        XCTAssertFalse(stopDance.isEnabled)
+        let music = window.switches["settings.musicDancing"]
+        XCTAssertTrue(music.exists)
+        XCTAssertEqual(integerValue(of: music), 0)
+        music.click()
+        let enableMusic = app.buttons["Enable Music Detection"]
+        XCTAssertTrue(enableMusic.waitForExistence(timeout: 3))
+        window.sheets.firstMatch.buttons["Cancel"].click()
+        XCTAssertEqual(integerValue(of: music), 0)
         let cursor = window.switches["settings.cursorReactions"]
         XCTAssertTrue(cursor.waitForExistence(timeout: 3))
         XCTAssertEqual(integerValue(of: cursor), 1)
