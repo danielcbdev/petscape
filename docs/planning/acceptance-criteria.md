@@ -208,6 +208,26 @@ These are acceptance checks, not passing results. Frame counts below are proposa
 
 - AC-M15-07 [Auto, Man, owner follow-up]: With autonomy enabled, supported rest/expression states share a five-second stop budget, followed by a walking interval; automatic jumps/Dock returns resume walking. Rest becomes infrequent. Speed remains configurable through 0.5–4, with synchronized paw cadence/ground motion and unchanged approved art. User pause, holding and disabled autonomy remain explicit exceptions.
 
+### M16 — New behaviors and animations
+
+Contract: [M16 implementation](m16-implementation.md). These are criteria; their evidence is
+recorded separately. **M16 was closed by explicit owner acceptance on 2026-10-24** after the owner
+reported all behavior working. The [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24)
+preserves the inherited V8 QA failure and unmeasured permission/performance/VoiceOver limits;
+acceptance is not a fabricated pass for unrun checks.
+
+- AC-M16-01 [Review]: Track tasks and define sessions, unavailable states, timing, precedence, landing provenance and art dependency before code.
+- AC-M16-02 [Auto]: Confidence hysteresis confirms start/stop, tolerates short silence/oscillation, rejects invalid samples and rearms only after a confirmed stop.
+- AC-M16-03 [Auto]: One automatic dance per session; repeat only after stop/start; deterministic inclusive 5–30 s bounds, duration expiry while music continues and immediate confirmed-stop exit.
+- AC-M16-04 [Auto]: Manual dance requires no audio, has a finite 5–30 s bound, replaces automatic once; automatic never replaces manual and repeated manual requests cannot prolong it. Owner follow-up: Stop Dance exits either dance immediately, preserves the consumed music session, and is disabled outside dancing.
+- AC-M16-05 [Auto]: Pause/hide/suspend, hold, support loss, physical phases and autonomy off cannot be overwritten; cancellations recover without pending replay.
+- AC-M16-06 [Auto]: Exactly one cleanup after stable descending contact on Dock from above; owner follow-up adds held release from above onto Dock or screen ground. Exclude same-Dock/upward jumps, walking, placement without a fall, window landings and resume; ordinary non-release floor landings remain unchanged.
+- AC-M16-07 [Auto, Man]: Opt-in public system-output tap only on supported OS; no forbidden permission, microphone, network, file recording or sensitive logs. Native consent, denial, revocation and output-route changes tested separately.
+- AC-M16-08 [Auto, Man]: Capture/analyzer resources and callbacks stop on off, pause/hide/suspend, unavailable pet/autonomy and quit; stale results ignored; failures recover safely. Native resource verification remains required.
+- AC-M16-09 [Auto, Man]: Normal menu/Settings offers bounded manual dance, explains ineligibility and pending art; keyboard/VoiceOver and consent verified with the installed app.
+- AC-M16-10 [Review, Man]: Complete per-clip prompts and paths; unchanged images and valid existing manifest. M16 cannot be Done until owner art integration and visual QA.
+- AC-M16-11 [Auto, Review]: Record lint, package/UI, Debug/Release and asset validator results; preserve M15 V8 exception and all unverified evidence.
+
 ### M20 — Release pipeline
 - AC-M20-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
 

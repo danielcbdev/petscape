@@ -23,6 +23,11 @@ struct MenuBarContent: View {
         } label: {
             if model.isPaused { Text("Resume") } else { Text("Pause") }
         }
+        Button("Dance") { model.settings?.dance() }
+            .disabled(!(model.settings?.canDance ?? false))
+            .help("Dance for 5–30 seconds. Requires an active pet with autonomous activities enabled.")
+        Button("Stop Dance") { model.settings?.stopDance() }
+            .disabled(!(model.settings?.canStopDance ?? false))
         Divider()
         SettingsLink {
             Text("Settings…")

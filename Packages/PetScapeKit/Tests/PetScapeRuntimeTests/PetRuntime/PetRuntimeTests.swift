@@ -51,7 +51,10 @@ struct PetRuntimeTests {
             preferences: InMemoryPreferencesStore = InMemoryPreferencesStore(
                 petSettings: PetSettings(speed: 1, behavior: AutonomySettings(isEnabled: false))),
             tuning: BehaviorTuning = BehaviorTuning(),
+            musicDetector: MusicDetectionController = MusicDetectionController(),
             readScreens: (@MainActor () -> [ScreenDescriptor])? = nil,
+            readWindowList: @escaping FullScreenSpaceDetector.WindowListReader = FullScreenSpaceDetector
+                .onScreenWindows,
             screenCenter: NotificationCenter = NotificationCenter()
         ) {
             self.preferences = preferences
@@ -62,8 +65,10 @@ struct PetRuntimeTests {
                 cursorSampler: sampler,
                 systemEvents: SystemEventsMonitor(
                     workspaceCenter: workspaceCenter, distributedCenter: distributedCenter),
-                fullScreenDetector: FullScreenSpaceDetector(workspaceCenter: NotificationCenter()),
+                fullScreenDetector: FullScreenSpaceDetector(
+                    workspaceCenter: NotificationCenter(), readWindowList: readWindowList),
                 preferences: preferences,
+                musicDetector: musicDetector,
                 overlays: OverlayWindowManager(notificationCenter: NotificationCenter()),
                 makeFrameDriver: { _ in
                     driverFactoryCount.creations += 1

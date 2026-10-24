@@ -202,3 +202,34 @@ then enter Walking with an eight-second activity deadline. This includes rest/ex
 and bounded Idle so chained fallbacks cannot extend a stop. Held/explicit interaction, disabled
 autonomy and physical phases are excluded. Automatic jumps resume Walking; autonomous landings
 whose return intent is Walking establish the same eight-second walk. Pause stops all simulation time.
+
+## M16 dance and cleanup
+
+These phases extend the same GroundedState; no second behavior controller or physics model.
+Full edge, provenance and priority contract: [M16](../planning/m16-implementation.md).
+
+| State | Clip / fallback | Motion | Interrupt threshold | Bounds / exit |
+|---|---|---|---|---|
+| Dancing(automatic) | `dance`, held resolved fallback while absent | supported hold | 90 (manual takeover explicitly allowed) | one inclusive seeded 5–30 s draw; confirmed music stop also exits |
+| Dancing(manual) | `dance`, held resolved fallback while absent | supported hold | 90 | one inclusive seeded 5–30 s draw; repeated manual requests rejected |
+| Cleaning | `cleanup`, held resolved fallback while absent | supported hold | 90 | 3 simulated seconds after the existing stable Landing deadline |
+
+Only supported Walking/Idle can enter Dance; manual may take over Automatic once. Automatic never
+replaces Manual and a busy edge is consumed without a queue. Explicit jump/press/hold, support
+loss, invalid-body recovery, pause/hide/suspension and autonomy off cancel these actions. The M15
+five-second ordinary rest budget excludes M16's explicit bounded actions. Completion uses existing
+bounded Idle/autonomous selection. Timers advance through fixed-step dt, independent of clips.
+
+FlightOrigin records natural fall, launched jump's source surface, or held release. Swept descending
+contact on dockTop qualifies only from strictly above and with autonomy enabled. Same-Dock/upward
+jumps are excluded; a jump from a strictly higher surface to the Dock is eligible. Owner follow-up
+also allows a held release after a real descent onto dockTop or screenBottom. Held release onto
+a window and simple placement without a descent do not clean; ordinary natural floor landings
+retain their previous behavior.
+Contact records pending cleanup, then stable Landing consumes it once; support loss/interaction/
+suspension clears it. Placing, walking or resuming on the Dock cannot create it. Position, velocity,
+contact, hit-test geometry and displaySize remain controlled by existing physics/manifest contracts.
+
+Owner-requested Stop Dance is a typed intent accepted only in Dancing(manual/automatic). It exits
+to bounded Idle immediately; it cannot cancel Cleaning, flight, hold or walking and does not reset
+the music session. Native menu/Settings expose an enabled Stop only while dancing and running.

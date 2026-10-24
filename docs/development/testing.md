@@ -295,3 +295,58 @@ After the pacing refinement, the owner confirmed completing tests and directed M
 merge to `develop`. This is owner visual/native acceptance with the previously disclosed V8 pixel-QA
 exception retained; it does not turn the 48 asset findings into passed tests. No quantitative
 manual measurement is inferred. See the [closeout](../planning/m15-implementation.md#owner-m15-closeout--2026-10-23).
+
+## M16 owner native matrix (not executed)
+
+Automated seams and actual gate results are recorded in [M16](../planning/m16-implementation.md).
+None of the following is passed merely by a fake-source test:
+
+1. Start the built app with “Dance to music” off: open menu/Settings, use keyboard to choose Dance.
+   With autonomy on and pet idle/walking it runs for 5–30 simulated seconds without an audio prompt.
+   The V9 `dance` loop (30 FPS) should play; check entry/exit from idle and both facings. With pause/hidden/
+   autonomy off/busy phase the control is disabled and Settings explains why.
+2. Enable the toggle, cancel app explanation: no system prompt/capture. Enable and confirm:
+   only System Audio Recording consent should appear. If Screen Recording or microphone appears,
+   stop and report failure. Deny, confirm manual works, then grant in the OS panel and retry off/on.
+3. Play music using speakers and then headphones: confirm start after classifier hysteresis;
+   pause <1 s and resume (no new session), stop ≥1 s then start (new opportunity). Confirm a 5–30 s
+   expiry does not retrigger during uninterrupted music. Check speech/game false positives separately.
+4. Take over Automatic using manual Dance, then stop music: manual continues to its own deadline.
+   Repeated manual invocation cannot extend it. Grabbing, jumping, support loss and pause cancel it.
+5. Pause/hide, sleep/wake, lock/unlock, fullscreen suspension, disable autonomy, toggle off and quit.
+   Confirm capture/resources stop. Resume continuous music must not dance until an observed stop/start.
+   Change default output/sample rate: unavailable, cleanup resources, retry off/on. Revoke system audio
+   consent during playback: record OS behavior and verify failure/stop; silence alone is ambiguous and
+   does not pass immediate revocation detection. Record any gap as an M16 acceptance blocker.
+6. With real V9 art installed, fall from a higher window/edge to Dock: Landing then exactly one finite
+   cleanup. Pick up, drag above Dock and release: the same one-shot cleanup after stable landing.
+   Repeat with Dock hidden/side-positioned and release above screen ground: cleanup also occurs.
+   Repeat same-Dock jump, jump up from below, window landing, ordinary natural floor landing,
+   walking/placement without a fall and resume: no cleanup. Remove support or grab during cleanup: safe fall/
+   hold, no teleport or replay. Check both facings and 0.5/1/1.5 scales.
+7. VoiceOver: menu Dance and Settings Dance/toggle/confirmation/status read clearly, keyboard focus
+   reaches all controls, disabled reason/pending-art text available; no unexpected focus theft by pets.
+8. Measure matched Release audio on/off/paused CPU/memory and inspect native resources/leaks. Final
+   playback/alpha/hit-mask/art approval follows the [V9 checklist](../specifications/animation-assets-v9.md).
+
+### M16 owner follow-up regression checks
+
+The built app must contain a nonempty `NSAudioCaptureUsageDescription`; source build settings alone
+are insufficient evidence. `make build` now checks the actual Debug bundle with PlistBuddy. Also
+inspect the Release bundle after building. Open the new app, enable “Dance to music” and confirm
+the app explanation; allow only system audio recording in the native prompt. Check Spotify and
+YouTube playback with the cat active/walking, then stop for at least one second and restart. No
+real playback success is inferred from the bundle check or fake classifier scores.
+
+A failed initial start or startup suspension before any music was confirmed must not consume the
+first session. After a confirmed music session, suspension still requires an observed stop before
+another dance; an observed stop before suspension already rearms it. Fake-source tests cover the
+startup/failure case, while existing continuous-session/late-callback tests remain intact.
+
+### M16 owner closeout — 2026-10-24
+
+The owner reported all behavior working after the follow-ups and explicitly authorized M16
+closure and integration into develop. The M16 matrix above remains a record of scenarios and
+engineering evidence limits; no per-row native logs, VoiceOver run, performance number or
+permission-revocation result is invented from that report. The inherited V8 pixel-QA failure is
+retained. See the [M16 closeout](../planning/m16-implementation.md#owner-m16-closeout--2026-10-24).

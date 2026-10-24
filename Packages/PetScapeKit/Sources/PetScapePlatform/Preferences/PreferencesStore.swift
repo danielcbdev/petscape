@@ -11,6 +11,8 @@ public protocol PreferencesStore: AnyObject {
     /// Points added to the estimated Dock top (surface-detection.md), kept within
     /// `DockGeometryEstimator.offsetAdjustmentRange`; 0 by default (PoC E3).
     var dockOffsetAdjustment: Double { get set }
+    /// Optional system-audio detection. Absence defaults off; manual dance does not use it.
+    var isMusicDancingEnabled: Bool { get set }
     /// Explicit opt-in for window tracking; absent values must default to false.
     var isWindowInteractionEnabled: Bool { get set }
 }

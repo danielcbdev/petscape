@@ -18,6 +18,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         public static let dockOffsetAdjustment = "petscape.dockOffsetAdjustment"
         public static let cursorReactions = "petscape.cursorReactions"
         public static let directInteraction = "petscape.directInteraction"
+        public static let musicDancing = "petscape.musicDancing"
         public static let windowInteraction = "petscape.windowInteraction"
     }
 
@@ -52,6 +53,11 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         set { defaults.set(newValue, forKey: Key.windowInteraction) }
     }
 
+    public var isMusicDancingEnabled: Bool {
+        get { defaults.bool(forKey: Key.musicDancing) }
+        set { defaults.set(newValue, forKey: Key.musicDancing) }
+    }
+
     public var petSettings: PetSettings {
         get {
             PetSettings(
@@ -82,7 +88,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
             Key.isPaused, Key.isHidden, Key.dockOffsetAdjustment,
             Key.scale, Key.speed, Key.autonomy, Key.jumps, Key.rest, Key.expressions,
             Key.cursorReactions, Key.directInteraction,
-            Key.windowInteraction,
+            Key.windowInteraction, Key.musicDancing,
         ] {
             defaults.removeObject(forKey: key)
         }

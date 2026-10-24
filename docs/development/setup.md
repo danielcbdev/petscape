@@ -117,3 +117,16 @@ Swift 6.2 compatibility requirement; selection follows the [official runner inve
 The checkout action is pinned to its verified official v5 commit. UI tests remain local because
 they require an interactive Automation Mode session. No hosted run is claimed before changes
 are pushed under a separate owner instruction.
+
+## M16 audio development
+
+Builds keep macOS 14.0 deployment support; automatic dancing requires public Core Audio taps on
+14.2+, guarded at runtime. AVFoundation/CoreAudio/SoundAnalysis are system frameworks, no external
+dependency. The generated app Info.plist merges `NSAudioCaptureUsageDescription` from
+`Config/PetScape-Info.plist`, selected by the app target in both configurations. Merely adding an
+arbitrary `INFOPLIST_KEY_…` setting did not emit this key in the built bundle. `make build` now checks
+the actual Debug bundle so this cannot silently regress. No microphone key, Screen Recording/Automation entitlement or private
+permission API is needed. Run the bundled installed app with a stable development signature for
+native consent tests; a changed ad-hoc signature can affect stored OS grants. Do not enable capture
+inside unattended tests. Fakes exercise lifecycle; real audio/consent/route checks remain owner-run.
+See [M16](../planning/m16-implementation.md) and [V9 art handoff](../specifications/animation-assets-v9.md).

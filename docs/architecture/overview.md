@@ -82,7 +82,7 @@ pure core, enforced by module boundaries.
 | Layer | May import | Must not import |
 |---|---|---|
 | `PetScapeCore` | Foundation, CoreGraphics (geometry value types), `os` (logging) | AppKit, SwiftUI, QuartzCore, ApplicationServices, any other PetScape module |
-| `PetScapePlatform` | Core, AppKit, CoreGraphics, ApplicationServices (AX), ServiceManagement | QuartzCore layers, SwiftUI, Rendering, Runtime |
+| `PetScapePlatform` | Core, AppKit, CoreGraphics, ApplicationServices (AX), ServiceManagement, CoreAudio, AVFoundation, SoundAnalysis | QuartzCore layers, SwiftUI, Rendering, Runtime |
 | `PetScapeRendering` | Core, AppKit, QuartzCore, ImageIO | Platform, Runtime, SwiftUI, SpriteKit |
 | `PetScapeRuntime` | Core, Platform, Rendering, AppKit | SwiftUI |
 | App target | everything above, SwiftUI | — (but contains no domain logic) |
@@ -134,3 +134,11 @@ Data flow details: [data-flow.md](data-flow.md).
   [physics-engine.md](physics-engine.md), [behavior-engine.md](behavior-engine.md),
   [macos-integration.md](macos-integration.md), [window-tracking.md](window-tracking.md)
 - Risks and open questions: [risks.md](../planning/risks.md)
+
+## M16 platform input
+
+The existing inward dependency graph is retained. Platform adds public CoreAudio/AVFoundation
+acquisition and SoundAnalysis classification in an isolated audio-analysis actor; only confidence
+windows/session edges reach Runtime/Core. Audio samples never cross to Rendering/Core. Core owns
+all behavior deadlines and physical contact provenance. Lifecycle/consent and known native evidence
+limits: [permissions](../specifications/permissions.md#m16-system-audio-consent-and-limits).

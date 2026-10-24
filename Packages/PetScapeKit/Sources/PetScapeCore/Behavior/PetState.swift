@@ -13,6 +13,8 @@ public enum PetState: Equatable, Sendable {
     public var kind: PetStateKind {
         switch self {
         case .spawning: .spawning
+        case .grounded(.dancing): .dancing
+        case .grounded(.cleaning): .cleaning
         case .grounded(.walking): .walking
         case .grounded(.climbing): .climbing
         case .grounded(.turning): .turning
@@ -51,7 +53,7 @@ public enum PetState: Equatable, Sendable {
 public enum PetStateKind: String, Sendable {
     case spawning, walking, climbing, turning, falling, landing, recovering, idle, preparingJump, rising
     case sittingDown, sitting, standingUp, lyingDown, sleeping, wakingUp, stretching, observing
-    case reactingToCursor, reactingToClick, held
+    case reactingToCursor, reactingToClick, held, dancing, cleaning
 }
 
 public enum RecoveryReason: String, Sendable {

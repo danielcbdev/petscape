@@ -19,6 +19,7 @@ SWIFT_FORMAT_PATHS := PetScape PetScapeUITests $(PACKAGE)/Package.swift $(PACKAG
 
 build:
 	$(XCODEBUILD) -configuration Debug build
+	@/usr/libexec/PlistBuddy -c 'Print :NSAudioCaptureUsageDescription' "$(APP)/Contents/Info.plist" > /dev/null
 
 test: test-core
 	$(XCODEBUILD) -configuration Debug test

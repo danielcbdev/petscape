@@ -241,3 +241,21 @@ success. A later limited same-Mac Release sample recorded only app CPU and resid
 60 s windows per build; its results and strict limitations are in the [M10 implementation
 record](../planning/m10-implementation.md#limited-release-cpurss-comparison--2026-10-18). It does
 not close the broader performance or native gates.
+
+## M16 audio performance verification
+
+No M16 CPU/energy/native memory result is claimed. Audio classification is event/window driven,
+not per simulation frame; the display remains at 30 Hz during supported dance/cleanup, with fixed
+60-Hz simulated dt. Capture stops when off/unavailable/suspended as defined by the permission
+contract. A 2-second health check exists only while capture is active. Before final acceptance,
+measure matched Release runs with music detection off/on, music/silence/headphones, then paused,
+hidden and sleeping; prove no lingering tap/observer/analyzer work after stop. Keep current budgets.
+The proposed V9 art adds ~20.88 MiB when both families are decoded at 288 px (not yet delivered),
+so loaded texture/process budget and CPU need measurement after art integration.
+
+## M16 owner acceptance — 2026-10-24
+
+M16 is closed by explicit owner acceptance after the owner reported all behavior working.
+The limits above remain evidence limits: no new revocation/route matrix, CPU/energy/leak, frame-
+pacing or memory measurement is claimed, and no target or permission restriction is weakened.
+See the [owner closeout](../planning/m16-implementation.md#owner-m16-closeout--2026-10-24).

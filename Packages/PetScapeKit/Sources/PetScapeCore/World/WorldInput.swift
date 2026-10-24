@@ -2,6 +2,11 @@ import CoreGraphics
 
 /// Environment changes fed to `PetWorld.apply(_:)` between steps (data-flow.md: batched, never mid-step).
 public enum WorldInput: Equatable, Sendable {
+    case configureMusicDancing(Bool)
+    case setMusicPlaying(Bool)
+    case requestDance(PetID)
+    case stopDance(PetID)
+    case suspendMusicBehaviors
     case configureBehavior(AutonomySettings)
     case setDisplayScale(Double)
     case setSpeedScale(Double)

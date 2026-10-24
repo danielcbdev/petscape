@@ -5,6 +5,7 @@ public final class InMemoryPreferencesStore: PreferencesStore {
     public var petSettings: PetSettings
     public var isPaused: Bool
     public var isHidden: Bool
+    public var isMusicDancingEnabled = false
     public var isWindowInteractionEnabled: Bool
     public var dockOffsetAdjustment: Double {
         didSet { dockOffsetAdjustment = DockGeometryEstimator.clampedOffset(dockOffsetAdjustment) }
@@ -25,6 +26,7 @@ public final class InMemoryPreferencesStore: PreferencesStore {
         isPaused = false
         isHidden = false
         isWindowInteractionEnabled = false
+        isMusicDancingEnabled = false
         dockOffsetAdjustment = 0
         petSettings = PetSettings()
     }

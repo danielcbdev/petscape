@@ -13,6 +13,7 @@ Principle: **ask for nothing until a feature that needs it is explicitly enabled
 | Launch at login (`SMAppService.mainApp`) | user approval in System Settings › Login Items (system-managed) | M9 | user toggles "Launch at login" | — |
 | Window positions via CGWindowList | none expected for bounds **[validate M12]** | M12 | — | — |
 | Window change notifications via AX | **Accessibility** | M12–M13 | user enables "Interact with windows" | — |
+| System output music classification | **System Audio Recording** (Core Audio tap, macOS 14.2+) | M16 | user confirms “Dance to music”; default off | — |
 | Dock exact frame via AX (optional) | **Accessibility** | M12+ | same toggle | — |
 
 Never requested (by design):
@@ -82,3 +83,58 @@ monitors cover this app and return events unchanged. Native permission-free deli
 monitor cannot install, stop direct acquisition and retain frame-based awareness; do not ask for
 Input Monitoring/Accessibility/Automation as a workaround. Store no cursor history; touched DEBUG
 input logs must omit cursor coordinates. Existing M12 opt-in AX flow remains separate.
+
+## M16 system audio consent and limits
+
+[Music contract](../planning/m16-implementation.md): only a public Core Audio output tap, with
+`NSAudioCaptureUsageDescription`. This is system audio consent, separate from forbidden Screen
+Recording. No microphone permission, ScreenCaptureKit, Apple Events, process names/IDs, private
+TCC API, network or disk recording is used. macOS 14.0–14.1 gets unavailable automatic mode and
+permission-free manual dance. No permission request occurs merely by opening Settings.
+
+The toggle first explains local system-output analysis. Confirming persists the new absent-default-off
+`petscape.musicDancing` key and starts capture only with an active visible pet and autonomy enabled.
+Pause/hide/sleep/lock/fullscreen suspension, no visible pet, autonomy off, opt-out and quit stop the
+IOProc/tap/aggregate device, analysis stream/task, watchdog and output/format observers. Default
+output or format changes stop safely and require an explicit off/on retry. Late callbacks have
+both source and controller generation guards. Manual dance never starts the detector.
+
+No public system-audio TCC status/preflight API is assumed. The visible monitoring state means
+capture was requested, **not that consent was verified**. An OSStatus failure, analyzer error or
+missing classification result for >5 s (checked every 2 s while active only) stops the source and
+shows unavailable. A zero-filled stream can look like genuine silence; denied/revoked permission
+cannot honestly be diagnosed from silence alone. Native denial/revocation behavior remains an
+open verification item, including whether this OS terminates the process or stalls/silences the
+stream. Do not claim immediate revocation detection, a passed native permission test, or an
+unbounded-silence workaround. Confirm the access in macOS Privacy & Security and toggle off/on to
+retry. A public-API solution that cannot satisfy native revocation requirements blocks final M16
+acceptance; do not substitute a forbidden permission or private TCC call.
+
+Audio lives only in bounded memory for analysis, is never saved/logged/transmitted, and no audio
+or classification history persists. The callback copies at most 16,384 mono floats per packet;
+the stream holds at most eight packets plus the analyzer's active window/internal work. Apple
+SoundAnalysis can misclassify speech/TV/game audio; it detects acoustic music, not media-player
+play/pause metadata. Short silence (<1 s of low-confidence observations) stays in the same session;
+longer breaks and confidence errors can split or miss sessions. Headphone output is an intended
+system-tap capability, not a native result claimed by this implementation.
+
+### M16 owner follow-up: bundled consent text and first-session rearming
+
+The owner's Spotify/YouTube failure report exposed a build integration defect: the prior
+`INFOPLIST_KEY_NSAudioCaptureUsageDescription` setting was present in source but absent from both
+built Debug and Release Info.plists. The app target now merges `Config/PetScape-Info.plist` into the
+generated plist; `make build` validates the actual output key. This corrects the missing prerequisite
+for Apple's consent flow without using another permission. Re-test with the newly built application;
+no real permission grant or playback verification is claimed by this repair alone.
+
+The restart latch now tracks confirmed music or an unresolved silence requirement, rather than
+whether capture was merely attempted. Startup suspension/failed first start cannot suppress the
+first detected song. Previously confirmed continuous playback still requires a stop/start across
+suspension, preserving one dance per session. No audio, confidence history or content is logged.
+
+## M16 owner acceptance — 2026-10-24
+
+M16 is closed by explicit owner acceptance after the owner reported all behavior working.
+The limits above remain evidence limits: no new revocation/route matrix, CPU/energy/leak, frame-
+pacing or memory measurement is claimed, and no target or permission restriction is weakened.
+See the [owner closeout](../planning/m16-implementation.md#owner-m16-closeout--2026-10-24).

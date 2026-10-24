@@ -72,8 +72,45 @@ public struct PetWorld: Sendable {
     /// Applies an environment change now (between steps). Attached pets are re-projected onto moved surfaces
     /// by their parameter and kept inside the walkable range; pets whose support disappeared detach and fall
     /// on their next step; unplaced pets are placed when a surface appears.
+    private var musicDancingEnabled = false
+    private var musicIsPlaying = false
+
+    /// Manual and automatic requests share physical and interaction guards.
+    public func canDance(_ id: PetID) -> Bool {
+        guard let pet = pet(id), behavior.isEnabled, attachedSurface(of: pet) != nil,
+            pet.interactionID == nil, pet.windowExcursionPhase == nil
+        else { return false }
+        return pet.state == .walking || pet.state == .grounded(.idle)
+            || pet.state == .grounded(.dancing(.automatic))
+    }
+
     public mutating func apply(_ input: WorldInput) {
         switch input {
+        case .configureMusicDancing(let enabled):
+            guard enabled != musicDancingEnabled else { return }
+            musicDancingEnabled = enabled
+            if !enabled { cancelSpecialBehaviors(automaticOnly: true) }
+        case .setMusicPlaying(let playing):
+            guard playing != musicIsPlaying else { return }
+            musicIsPlaying = playing
+            if !playing {
+                cancelSpecialBehaviors(automaticOnly: true)
+            } else if musicDancingEnabled {
+                for index in pets.indices { beginDance(at: index, source: .automatic) }
+            }
+        case .requestDance(let id):
+            if let index = pets.firstIndex(where: { $0.id == id }) { beginDance(at: index, source: .manual) }
+        case .stopDance(let id):
+            guard let index = pets.firstIndex(where: { $0.id == id }),
+                case .grounded(.dancing) = pets[index].state
+            else { return }
+            var pet = pets[index]
+            var events: [WorldEvent] = []
+            boundedIdle(&pet, events: &events)
+            pets[index] = pet
+            pendingEvents.append(contentsOf: events)
+        case .suspendMusicBehaviors:
+            cancelSpecialBehaviors(automaticOnly: false)
         case .setCursorLocation(let location):
             cursorLocation = location.flatMap { $0.x.isFinite && $0.y.isFinite ? $0 : nil }
         case .setCursorReactionsEnabled(let enabled):
@@ -101,6 +138,7 @@ public struct PetWorld: Sendable {
             }
         case .configureBehavior(let settings):
             behavior = settings
+            if !settings.isEnabled { cancelSpecialBehaviors(automaticOnly: false) }
             var events: [WorldEvent] = []
             for index in pets.indices {
                 var pet = pets[index]
@@ -285,6 +323,7 @@ public struct PetWorld: Sendable {
             }
             var pet = pets[index]
             var events: [WorldEvent] = []
+            if isSpecialBehavior(pet.state) { boundedIdle(&pet, events: &events) }
             requestJump(request, pet: &pet, events: &events)
             pets[index] = pet
             pendingEvents.append(contentsOf: events)
@@ -304,6 +343,41 @@ public struct PetWorld: Sendable {
         }
     }
 
+    private func isSpecialBehavior(_ state: PetState) -> Bool {
+        switch state {
+        case .grounded(.dancing), .grounded(.cleaning): true
+        default: false
+        }
+    }
+
+    private mutating func beginDance(at index: Int, source: DanceSource) {
+        let petID = pets[index].id
+        guard canDance(petID),
+            source == .manual || pets[index].state != .grounded(.dancing(.automatic))
+        else { return }
+        var pet = pets[index]
+        var events: [WorldEvent] = []
+        finishActivity(&pet)
+        pet.cursorInterest.cancel()
+        pet.specialBehaviorDuration = DanceSource.duration(using: &random)
+        enter(.grounded(.dancing(source)), pet: &pet, events: &events)
+        pets[index] = pet
+        pendingEvents.append(contentsOf: events)
+    }
+
+    private mutating func cancelSpecialBehaviors(automaticOnly: Bool) {
+        var events: [WorldEvent] = []
+        for index in pets.indices {
+            var pet = pets[index]
+            if !automaticOnly { pet.pendingDockCleanup = false }
+            if automaticOnly ? pet.state == .grounded(.dancing(.automatic)) : isSpecialBehavior(pet.state) {
+                boundedIdle(&pet, events: &events)
+            }
+            pets[index] = pet
+        }
+        pendingEvents.append(contentsOf: events)
+    }
+
     private mutating func applyInteraction(_ petID: PetID, command: InteractionCommand) {
         if case .observeCursor(let location) = command {
             cursorLocation = location.x.isFinite && location.y.isFinite ? location : nil
@@ -319,6 +393,10 @@ public struct PetWorld: Sendable {
             else {
                 if id.isValid { events.append(.interactionRejected(petID, id)) }
                 break
+            }
+            if isSpecialBehavior(pet.state) {
+                pet.pendingDockCleanup = false
+                boundedIdle(&pet, events: &events)
             }
             pet.interactionID = id
             pet.interactionIsHeld = false
@@ -690,11 +768,23 @@ public struct PetWorld: Sendable {
                             pet: &pet, events: &events)
                     }
                 }
+            case .dancing, .cleaning:
+                hold(&pet, dt: dt, events: &events)
+                if elapsed(pet, atLeast: pet.specialBehaviorDuration) {
+                    boundedIdle(&pet, events: &events)
+                }
             case .landing:
                 pet.velocity = .zero
                 advancePresentation(of: &pet, dt: dt, events: &events)
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.landingDuration {
-                    if behavior.isEnabled, pet.resumeActivity == .walking,
+                    if pet.pendingDockCleanup, behavior.isEnabled,
+                        surface.kind == .dockTop || surface.kind == .screenBottom
+                    {
+                        pet.pendingDockCleanup = false
+                        finishActivity(&pet)
+                        pet.specialBehaviorDuration = 3
+                        enter(.grounded(.cleaning), pet: &pet, events: &events)
+                    } else if behavior.isEnabled, pet.resumeActivity == .walking,
                         pet.activity == nil || pet.activity == .jump
                     {
                         beginAutonomousWalk(&pet, events: &events)
@@ -831,6 +921,7 @@ public struct PetWorld: Sendable {
                 wallTarget: pet.windowClimbPlan?.target)
         else { return recover(&pet, reason: .invalidNumbers, events: &events) }
         let wasRising = pet.state == .airborne(.rising)
+        let descendedFromAbove = pet.velocity.dy <= 0 && pet.position.y > result.position.y
         commit(result, to: &pet)
         if wasRising && result.velocity.dy <= 0 {
             events.append(.apex(pet.id))
@@ -839,6 +930,17 @@ public struct PetWorld: Sendable {
         if let surfaceID = result.landedSurfaceID {
             events.append(.landed(pet.id, surfaceID))
             let landedSurface = surfaces.surface(surfaceID)
+            let eligibleOrigin: Bool
+            switch pet.flightOrigin {
+            case .fall: eligibleOrigin = true
+            case .released: eligibleOrigin = true
+            case .jump(let sourceID, let sourceY):
+                eligibleOrigin = sourceID != surfaceID && sourceY > Double(landedSurface?.y ?? .infinity)
+            }
+            pet.pendingDockCleanup =
+                behavior.isEnabled && descendedFromAbove && eligibleOrigin
+                && (landedSurface?.kind == .dockTop
+                    || (pet.flightOrigin == .released && landedSurface?.kind == .screenBottom))
             if let surface = landedSurface, surface.isVertical,
                 (surface.kind == .windowLeft || surface.kind == .windowRight)
             {
@@ -990,7 +1092,9 @@ public struct PetWorld: Sendable {
 
     private func isStationaryActivity(_ state: PetState) -> Bool {
         switch state {
-        case .grounded(.walking), .grounded(.climbing), .grounded(.preparingJump), .grounded(.landing): false
+        case .grounded(.walking), .grounded(.climbing), .grounded(.preparingJump), .grounded(.landing),
+            .grounded(.dancing), .grounded(.cleaning):
+            false
         case .grounded: true
         default: false
         }
@@ -1341,7 +1445,7 @@ public struct PetWorld: Sendable {
                     demand = 4
                 }
             case .grounded(.idle), .grounded(.sitting), .grounded(.observing), .grounded(.stretching),
-                .grounded(.reactingToCursor), .spawning, .recovering, .held:
+                .grounded(.reactingToCursor), .grounded(.dancing), .grounded(.cleaning), .spawning, .recovering, .held:
                 demand = 30
             case .grounded, .airborne: demand = 60
             }
@@ -1508,10 +1612,17 @@ public struct PetWorld: Sendable {
 
     private func enter(_ state: PetState, pet: inout Pet, events: inout [WorldEvent]) {
         let previous = pet.state.kind
+        if case .airborne = state, !isAirborne(pet.state) {
+            pet.flightOrigin =
+                pet.state == .held ? .released : pet.jumpSource.map { .jump($0.id, sourceY: Double($0.y)) } ?? .fall
+        }
+        if state != .grounded(.landing) && state != .grounded(.cleaning) { pet.pendingDockCleanup = false }
         pet.state = state
         pet.stateElapsed = 0
         let clip: String?
         switch state {
+        case .grounded(.dancing): clip = "dance"
+        case .grounded(.cleaning): clip = "cleanup"
         case .grounded(.walking): clip = BehaviorTuning.walkClip
         case .grounded(.climbing): clip = "climb"
         case .grounded(.landing):
@@ -1633,7 +1744,7 @@ public struct PetWorld: Sendable {
                 && pet.animation.rate > 0 && !pet.animation.player.isFinished
         case .grounded(.sittingDown), .grounded(.sitting), .grounded(.standingUp), .grounded(.lyingDown),
             .grounded(.sleeping), .grounded(.wakingUp), .grounded(.stretching), .grounded(.observing),
-            .grounded(.reactingToCursor), .grounded(.reactingToClick):
+            .grounded(.reactingToCursor), .grounded(.reactingToClick), .grounded(.dancing), .grounded(.cleaning):
             return pet.animation.definition.clips[pet.animation.requestedClip] != nil
                 && pet.animation.rate > 0 && !pet.animation.player.isFinished
         case .grounded(.turning), .spawning, .recovering: return false
