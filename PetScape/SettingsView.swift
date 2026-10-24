@@ -1,4 +1,5 @@
 import AppKit
+import PetScapeCore
 import PetScapePlatform
 import PetScapeRuntime
 import SwiftUI
@@ -19,7 +20,9 @@ struct SettingsView: View {
                 }
                 .accessibilityIdentifier("settings.scale")
                 .accessibilityLabel("Size")
-                Slider(value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: 0.5...2) {
+                Slider(
+                    value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: PetSettings.speedRange
+                ) {
                     Text("Speed")
                 } minimumValueLabel: {
                     Text("Slow")

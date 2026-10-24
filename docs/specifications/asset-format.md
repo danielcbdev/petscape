@@ -84,3 +84,12 @@ Inspected `assets/characters/cat/walk/` with `sips`, `file` and a Python/Pillow 
 | F15 | `.DS_Store` files were tracked in git under `assets/` and at the root | Noise in the repo/bundle | Done: untracked and ignored (T0.2); never copied into the app bundle (checked in T4.9) |
 
 Sizes on disk: frames ≈ 1.5 MB total, atlas ≈ 1.48 MB, GIF ≈ 0.30 MB.
+
+## M15 / V7 delivery
+
+The runtime cat pack now contains 93 unique frame references (50 original keys + 43 authored
+in-betweens), still schema v1, 512 px canvases and 96 pt displaySize. Original files remain immutable.
+[V7 production record](../../assets/characters/cat/v7/README.md) documents new source art, exporter,
+registration, hashes and QA; [M15](../planning/m15-implementation.md) records exact duration/event
+preservation and review. Fully loaded texture storage is 29.43 MiB at 288 px; initial families remain
+lazy and below 16 MiB. Historical audits and budgets describe their original pack versions.

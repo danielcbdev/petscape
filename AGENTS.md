@@ -33,7 +33,12 @@ remain identified in the closeout record, without inventing measurements. CI is 
 no hosted run, push, release or tag is claimed. M6 is merged, v0.1.0 remains untagged.
 **M9 was explicitly reauthorized and then closed by owner acceptance on 2026-10-18** after the
 implementation, 400 package tests, 2 UI tests, lint and Debug/Release gates passed. Real login-item,
-native cadence and installed-app playtest evidence limits remain in the [closeout](docs/planning/m9-implementation.md#owner-m9-closeout-2026-10-18); they are accepted gaps, not claimed test results. M10+ are outside this implementation request.
+native cadence and installed-app playtest evidence limits remain in the [closeout](docs/planning/m9-implementation.md#owner-m9-closeout-2026-10-18); they are accepted gaps, not claimed test results.
+M10–M14 have subsequent owner closeouts in the milestone register. **M15 was closed by explicit
+owner acceptance on 2026-10-23**, after the owner tested the revised animations and pacing and
+authorized integration into `develop`. The existing V8 pixel-QA failure remains a documented
+exception, not a passed check; see the [M15 closeout](docs/planning/m15-implementation.md#owner-m15-closeout--2026-10-23).
+M16–M20 remain planning only; no next-milestone implementation is authorized by M15 closure.
 Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack

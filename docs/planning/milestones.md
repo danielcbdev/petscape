@@ -23,7 +23,12 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
 | M13 | Window interaction | v0.5.0 | **Done by owner acceptance** (2026-10-23 — [closeout](#m13-owner-closeout--2026-10-23)) |
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | **Done by explicit owner acceptance** (2026-10-23; see [implementation record](m14-implementation.md); evidence limits and waived soak remain documented) |
-| M15 | Release pipeline | v1.0.0 | Not started |
+| M15 | Animation quality | — | **Done by explicit owner acceptance** (2026-10-23; revised animations and pacing tested by the owner; retained V8 pixel-QA exception — [closeout](m15-implementation.md#owner-m15-closeout--2026-10-23)) |
+| M16 | New behaviors and animations | — | Not started |
+| M17 | Portuguese/English localization | — | Not started |
+| M18 | Bundled character selection | — | Not started |
+| M19 | Character pack discovery and installation | — | Not started |
+| M20 | Release pipeline | v1.0.0 | Not started |
 
 M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
 Baseline HEAD is 2f7f33f; M6 is merged, but v0.1.0 remains unreleased. M9 is reauthorized; no
@@ -409,11 +414,48 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 - **Tests:** full manual matrix; 8 h soak; performance protocol.
 - **DoD:** FR-29, NFR-01..13 verified.
 
-## M15 — Release pipeline
+## M15 — Animation quality
+
+- **Objective:** improve the fluency of the cat's existing clips by adding authored in-between poses where they improve the movement, while retaining each clip's intended duration, identity, contact registration, events and fallback behavior.
+- **Scope:** inventory and visual review of every clip referenced by the current cat manifest; produce and integrate only justified additional frames; tune manifest frame counts/FPS together; retain new-source provenance and previews. No new behavior or clip.
+- **Prerequisites:** M14 accepted; current character pack and schema-v1 contracts.
+- **Risks:** inconsistent generated art, contact/anchor jitter, event drift, increased decoded image memory.
+- **Tests:** manifest/schema/path and image QA; existing Core/Rendering pack tests; preview each changed clip and adjacent transitions at the real manifest timing.
+- **DoD:** AC-M15-01…06 in [acceptance criteria](acceptance-criteria.md#milestone-specific-criteria); delivery and remaining owner actions in [M15 record](m15-implementation.md).
+
+## M16 — New behaviors and animations
+
+- **Objective:** add new autonomous behavior and corresponding character animation.
+- **Scope:** music-associated dancing and post-landing cleanup behavior where specified by its task plan. No M16 implementation is authorized by the M15 request.
+- **Prerequisites:** M15 accepted.
+- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+
+## M17 — Portuguese and English localization
+
+- **Objective:** offer Portuguese and English UI with automatic language detection.
+- **Scope:** localization resources, language selection/detection and localized app strings. No M17 implementation is authorized by the M15 request.
+- **Prerequisites:** M16 planning/implementation as later specified.
+- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+
+## M18 — Bundled character selection
+
+- **Objective:** let the user choose among characters included with the app.
+- **Scope:** bundled character selection and persistence as later specified. No M18 implementation is authorized by the M15 request.
+- **Prerequisites:** M17 planning/implementation as later specified.
+- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+
+## M19 — Character pack discovery and installation
+
+- **Objective:** discover and install character packs.
+- **Scope:** local pack discovery and installation as later specified. No M19 implementation is authorized by the M15 request.
+- **Prerequisites:** M18 planning/implementation as later specified.
+- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+
+## M20 — Release pipeline
 
 - **Objective:** reproducible, signed, notarized releases on GitHub.
 - **Scope:** owner decisions (license, bundle ID, Developer ID), versioning, changelog, archive/export, notarization, DMG, GitHub Actions release workflow, install docs.
-- **Prerequisites:** M14; Apple Developer Program membership.
+- **Prerequisites:** preceding product milestones accepted; Apple Developer Program membership.
 - **Risks:** secrets handling in CI; notarization failures.
 - **Tests:** dry-run release on a tag in a fork/branch; Gatekeeper check on a clean machine/VM.
 - **DoD:** FR-30 met; v1.0.0 published when asked.

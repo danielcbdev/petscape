@@ -542,6 +542,26 @@ public struct PetWorld: Sendable {
             }
             events.append(.surfaceLost(pet.id, attachment.surfaceID))
         }
+        // Rest phases and cursor reactions share one budget, so chained activities cannot
+        // leave a supported autonomous pet stationary indefinitely. Held/paused pets are exempt.
+        if behavior.isEnabled, pet.interactionID == nil, attachedSurface(of: pet) != nil,
+            isStationaryActivity(pet.state)
+        {
+            pet.stationaryElapsed += dt
+            if pet.stationaryElapsed + FixedStepAccumulator.tolerance >= 5 {
+                pet.cursorInterest.cancel()
+                pet.cursorSavedActivity = nil
+                pet.cursorSavedActivityRemaining = 0
+                pet.clickSavedState = nil
+                pet.clickSavedActivity = nil
+                pet.clickSavedStateElapsed = 0
+                pet.clickSavedActivityRemaining = 0
+                pet.clickCooldownUntil = time + interactionTuning.clickRepeatCooldown
+                beginAutonomousWalk(&pet, events: &events)
+            }
+        } else {
+            pet.stationaryElapsed = 0
+        }
         pet.cursorEvaluationElapsed += dt
         let cursorInterval = pet.state == .grounded(.sleeping) ? 0.5 : 0.1
         if pet.cursorEvaluationElapsed + FixedStepAccumulator.tolerance >= cursorInterval {
@@ -674,8 +694,14 @@ public struct PetWorld: Sendable {
                 pet.velocity = .zero
                 advancePresentation(of: &pet, dt: dt, events: &events)
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.landingDuration {
-                    enter(pet.resumeActivity == .walking ? .walking : .grounded(.idle), pet: &pet, events: &events)
-                    if pet.activity == .jump { finishActivity(&pet) }
+                    if behavior.isEnabled, pet.resumeActivity == .walking,
+                        pet.activity == nil || pet.activity == .jump
+                    {
+                        beginAutonomousWalk(&pet, events: &events)
+                    } else {
+                        enter(pet.resumeActivity == .walking ? .walking : .grounded(.idle), pet: &pet, events: &events)
+                        if pet.activity == .jump { finishActivity(&pet) }
+                    }
                 }
             case .idle:
                 pet.velocity = .zero
@@ -718,7 +744,9 @@ public struct PetWorld: Sendable {
                 hold(&pet, dt: dt, events: &events)
             case .reactingToClick:
                 hold(&pet, dt: dt, events: &events)
-                if elapsed(pet, atLeast: 0.6) { finishClickReaction(&pet, events: &events) }
+                if elapsed(pet, atLeast: interactionTuning.clickReactionDuration) {
+                    finishClickReaction(&pet, events: &events)
+                }
             case .preparingJump:
                 pet.velocity = .zero
                 if pet.stateElapsed + FixedStepAccumulator.tolerance >= jumpTuning.preparationDuration {
@@ -960,6 +988,27 @@ public struct PetWorld: Sendable {
         enter(.grounded(.idle), pet: &pet, events: &events)
     }
 
+    private func isStationaryActivity(_ state: PetState) -> Bool {
+        switch state {
+        case .grounded(.walking), .grounded(.climbing), .grounded(.preparingJump), .grounded(.landing): false
+        case .grounded: true
+        default: false
+        }
+    }
+
+    /// Guarantees an actual walking interval after a stop or an autonomous landing.
+    private func beginAutonomousWalk(_ pet: inout Pet, events: inout [WorldEvent]) {
+        finishActivity(&pet)
+        pet.activity = .walk
+        pet.activityDecisionCount += 1
+        pet.activityDuration = Activity.walk.duration.lowerBound
+        pet.activityDeadline = time + pet.activityDuration
+        pet.progressPosition = pet.position
+        pet.stationaryElapsed = 0
+        pet.resumeActivity = .walking
+        enter(.walking, pet: &pet, events: &events)
+    }
+
     private mutating func chooseActivity(_ pet: inout Pet, events: inout [WorldEvent]) {
         if case .approachingWindowSide(let surfaceID) = pet.windowExcursionPhase {
             attemptWindowClimb(to: surfaceID, for: &pet, events: &events)
@@ -976,7 +1025,9 @@ public struct PetWorld: Sendable {
             return
         }
         finishActivity(&pet)
-        let forcedSleep = behavior.restEnabled && pet.needs.energy <= 0.08
+        let forcedSleep =
+            behavior.restEnabled && pet.needs.energy <= 0.08
+            && (pet.activityCooldowns[.sleep] ?? 0) <= time + FixedStepAccumulator.tolerance
         var candidates: [ActivityCandidate] = []
         for activity in Activity.allCases {
             guard (pet.activityCooldowns[activity] ?? 0) <= time + FixedStepAccumulator.tolerance else { continue }
@@ -993,12 +1044,12 @@ public struct PetWorld: Sendable {
             } else {
                 switch activity {
                 case .walk: weight = 4 * (1.5 - pet.personality.laziness)
-                case .idle: weight = 2
+                case .idle: weight = 0.1
                 case .jump: weight = 0.7 * (0.5 + pet.personality.playfulness)
-                case .sit: weight = 1.5 * (0.5 + pet.personality.laziness)
-                case .sleep: weight = pet.needs.energy > 0.25 ? 0 : 8 + 10 * pet.personality.laziness
-                case .stretch: weight = 0.5 * (0.5 + pet.personality.playfulness)
-                case .observe: weight = 1 * (0.5 + pet.personality.curiosity)
+                case .sit: weight = 0.1 * (0.5 + pet.personality.laziness)
+                case .sleep: weight = pet.needs.energy > 0.25 ? 0 : 0.2 * (0.5 + pet.personality.laziness)
+                case .stretch: weight = 0.15 * (0.5 + pet.personality.playfulness)
+                case .observe: weight = 0.15 * (0.5 + pet.personality.curiosity)
                 case .explore: weight = 0.8 * (0.5 + pet.personality.curiosity)
                 case .windowExcursion: weight = 0.6 * (0.5 + pet.personality.curiosity)
                 }
@@ -1029,7 +1080,7 @@ public struct PetWorld: Sendable {
             pet.resumeActivity = .idle
             enter(.grounded(.idle), pet: &pet, events: &events)
         case .jump:
-            requestJump(JumpRequest(returnActivity: .idle), pet: &pet, events: &events)
+            requestJump(JumpRequest(returnActivity: .walking), pet: &pet, events: &events)
             if pet.state != .grounded(.preparingJump) { boundedIdle(&pet, events: &events) }
         case .windowExcursion:
             if !startWindowExcursion(&pet, events: &events) {

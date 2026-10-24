@@ -1,0 +1,149 @@
+[
+  {
+    "clip": "walk",
+    "source": "walk-1.png",
+    "afterFrames": [
+      1
+    ],
+    "registration": "walk",
+    "canvasScale": 0.4082934609250399
+  },
+  {
+    "clip": "walk",
+    "source": "walk-2.png",
+    "afterFrames": [
+      2
+    ],
+    "registration": "walk",
+    "canvasScale": 0.4082934609250399
+  },
+  {
+    "clip": "walk",
+    "source": "walk-3.png",
+    "afterFrames": [
+      3
+    ],
+    "registration": "walk",
+    "canvasScale": 0.4082934609250399
+  },
+  {
+    "clip": "walk",
+    "source": "walk-4.png",
+    "afterFrames": [
+      4
+    ],
+    "registration": "walk",
+    "canvasScale": 0.4082934609250399
+  },
+  {
+    "clip": "walk",
+    "source": "walk-sheet.png",
+    "afterFrames": [
+      5,
+      6,
+      7,
+      8
+    ],
+    "registration": "walk",
+    "canvasScale": null
+  },
+  {
+    "clip": "idle",
+    "source": "idle-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "registration": "ground",
+    "canvasScale": null
+  },
+  {
+    "clip": "fall",
+    "source": "fall-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "registration": "air",
+    "canvasScale": null
+  },
+  {
+    "clip": "curious",
+    "source": "curious-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "registration": "ground",
+    "canvasScale": null
+  },
+  {
+    "clip": "held",
+    "source": "held-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "registration": "ground",
+    "canvasScale": null
+  },
+  {
+    "clip": "jump-start",
+    "source": "jump-start-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3
+    ],
+    "registration": "ground",
+    "canvasScale": null
+  },
+  {
+    "clip": "jump",
+    "source": "jump-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3
+    ],
+    "registration": "air",
+    "canvasScale": null
+  },
+  {
+    "clip": "picked-up",
+    "source": "picked-up-sheet.png",
+    "afterFrames": [
+      1,
+      2,
+      3
+    ],
+    "registration": "ground",
+    "canvasScale": null
+  },
+  {
+    "clip": "climb",
+    "source": "climb-sheet.png",
+    "afterFrames": [
+      1,
+      2
+    ],
+    "registration": "wall",
+    "canvasScale": null
+  }
+]

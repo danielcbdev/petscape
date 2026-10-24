@@ -12,7 +12,9 @@ struct V4CharacterPackTests {
     static let phaseNames = ["idle", "jump-start", "jump", "fall", "landing"]
 
     @Test func productionPhasesLoadWithoutFallbackAndFitTheApprovedBudget() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty)
         #expect(character.definition.displaySize == .init(width: 96, height: 96))
@@ -29,7 +31,9 @@ struct V4CharacterPackTests {
     }
 
     @Test func semanticRestAndExpressionFallbacksUseTheExistingIdlePose() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         #expect(character.failure == nil)
         #expect(await character.loadBehaviorFamily(containing: "curious"))
         #expect(character.decodedByteCount <= 16 * 1024 * 1024)
@@ -47,7 +51,9 @@ struct V4CharacterPackTests {
     }
 
     @Test func productionV5InteractionClipsLoadWithoutFallbackAndFitTheBudget() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         let initiallyDecodedBytes = character.decodedByteCount
         #expect(character.failure == nil)
         #expect(character.issues.isEmpty)
@@ -74,7 +80,9 @@ struct V4CharacterPackTests {
     }
 
     @Test func productionClimbClipUsesWallAlignmentAndKeepsPawsWithinThreePoints() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
         #expect(character.failure == nil)
         let clip = try #require(character.definition.clips["climb"])
         #expect(clip.frames.count == 2)
@@ -85,12 +93,12 @@ struct V4CharacterPackTests {
         #expect(character.definition.resolvedClipName(for: "climb") == "climb")
         #expect(character.decodedByteCount < 17 * 1024 * 1024)
 
-        let manifestData = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let manifestData = try Data(contentsOf: baselinePackURL.appending(path: "character.json"))
         let manifest = try CharacterManifest.decode(manifestData).manifest
         for (index, frame) in try #require(manifest.animations["climb"]?.frames).enumerated() {
             let path = try #require(frame.image)
             let source = try #require(
-                CGImageSourceCreateWithURL(TestPacks.catPackURL.appending(path: path) as CFURL, nil))
+                CGImageSourceCreateWithURL(baselinePackURL.appending(path: path) as CFURL, nil))
             let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
             #expect(image.width == 512 && image.height == 512)
             var alpha = [UInt8](repeating: 0, count: 512 * 512)
@@ -123,11 +131,13 @@ struct V4CharacterPackTests {
     }
 
     @Test func missingClimbFrameFallsBackToIdle() async throws {
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
         let packURL = FileManager.default.temporaryDirectory.appending(
             path: "PetScapeClimbFallback-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: packURL, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: packURL) }
-        let idleFrame = TestPacks.catPackURL.appending(path: "idle/frames/idle_01.png")
+        let idleFrame = baselinePackURL.appending(path: "idle/frames/idle_01.png")
         try Data(contentsOf: idleFrame).write(to: packURL.appending(path: "idle.png"))
 
         let manifest = CharacterManifest(
@@ -150,13 +160,15 @@ struct V4CharacterPackTests {
     }
 
     @Test func productionV5FramesHaveTransparentMarginsAndAlignedVirtualFootRows() throws {
-        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let data = try Data(contentsOf: baselinePackURL.appending(path: "character.json"))
         let manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
         for name in ["curious", "picked-up", "held"] {
             let frames = try #require(manifest.animations[name]?.frames)
             for frame in frames {
                 let path = try #require(frame.image)
-                let url = TestPacks.catPackURL.appending(path: path)
+                let url = baselinePackURL.appending(path: path)
                 let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
                 let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
                 #expect(image.width == 512 && image.height == 512)
@@ -189,7 +201,9 @@ struct V4CharacterPackTests {
     }
 
     @Test func missingV5InteractionClipsStillResolveToIdle() throws {
-        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let data = try Data(contentsOf: baselinePackURL.appending(path: "character.json"))
         var manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
         for name in ["curious", "picked-up", "held"] {
             manifest.animations[name] = nil
@@ -204,8 +218,10 @@ struct V4CharacterPackTests {
     }
 
     @Test func productionArtDoesNotChangeTheExecutedTrajectory() async throws {
-        let character = await CharacterLoader().load(packURL: TestPacks.catPackURL)
-        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let character = await CharacterLoader().load(packURL: baselinePackURL)
+        let data = try Data(contentsOf: baselinePackURL.appending(path: "character.json"))
         var manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
         manifest.animations = manifest.animations.filter { $0.key == "walk" }
         manifest.fallbacks = ["idle": "walk", "fall": "walk", "land": "walk"]
@@ -241,14 +257,16 @@ struct V4CharacterPackTests {
     }
 
     @Test func everyAuthoredPhaseFrameIsContainedAndGroundedFeetShareTheBaseline() throws {
-        let data = try Data(contentsOf: TestPacks.catPackURL.appending(path: "character.json"))
+        let baselinePackURL = try TestPacks.makeBaselineCatPack()
+        defer { try? FileManager.default.removeItem(at: baselinePackURL) }
+        let data = try Data(contentsOf: baselinePackURL.appending(path: "character.json"))
         let manifest = try JSONDecoder().decode(CharacterManifest.self, from: data)
         for name in Self.phaseNames {
             let frames = try #require(manifest.animations[name]?.frames, "Missing \(name)")
             for frame in frames {
                 let path = try #require(frame.image)
                 guard !path.hasPrefix("walk/") else { continue }  // Immutable legacy neutral pose, audited separately.
-                let url = TestPacks.catPackURL.appending(path: path)
+                let url = baselinePackURL.appending(path: path)
                 let source = try #require(CGImageSourceCreateWithURL(url as CFURL, nil))
                 let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
                 #expect(image.width == 512 && image.height == 512)

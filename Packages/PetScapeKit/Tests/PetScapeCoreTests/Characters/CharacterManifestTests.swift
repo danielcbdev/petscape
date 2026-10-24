@@ -133,8 +133,8 @@ struct CharacterManifestTests {
         }
     }
 
-    @Test func theBundledCatMatchesTheAssetAudit() throws {
-        let url = Fixtures.repositoryRoot.appending(path: "assets/characters/cat/character.json")
+    @Test func theOriginalCatMatchesTheAssetAudit() throws {
+        let url = Fixtures.repositoryRoot.appending(path: "assets/characters/cat/v7/baseline-character.json")
         let manifest = try CharacterManifest.decode(try Data(contentsOf: url)).manifest
         let walk = try #require(manifest.animations["walk"])
 

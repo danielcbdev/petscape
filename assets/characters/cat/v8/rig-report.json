@@ -1,0 +1,3225 @@
+{
+  "climb" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 492.64243194688873,
+          "y" : 96.266250000000028
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 493.9360145184375,
+          "y" : 292.28227172851564
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 153.27999999999997
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 489.11849402170895,
+          "y" : 376.2143566894531
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 102.95999999999999
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 486.96315001322751,
+          "y" : 283.57069511771203
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 174.61333333333334
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 484.50713507886383,
+          "y" : 359.7067571866512
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 124.29333333333336
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 484.01686361312761,
+          "y" : 263.79882846832277
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 195.94666666666666
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 484.81838308743772,
+          "y" : 337.79618289947507
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 498,
+          "y" : 145.62666666666667
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 486.1720500865041,
+          "y" : 243.01322092175485
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 496.97009610960464,
+          "y" : 214.71236532807347
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 489.93868532015017,
+          "y" : 322.62130600094792
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 496.9360145184375,
+          "y" : 156.28227172851564
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 495.64243194688873,
+          "y" : 232.26625000000001
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 492.11849402170895,
+          "y" : 210.2143566894531
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 319.27999999999997
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 489.96315001322751,
+          "y" : 147.57069511771203
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 238.96000000000004
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 487.50713507886383,
+          "y" : 193.7067571866512
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 340.61333333333334
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 487.01686361312761,
+          "y" : 127.79882846832278
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 260.29333333333335
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 487.81838308743772,
+          "y" : 171.79618289947507
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 361.94666666666666
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "climb_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 489.1720500865041,
+          "y" : 107.01322092175486
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 501,
+          "y" : 281.62666666666667
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 492.93868532015017,
+          "y" : 156.62130600094792
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 499.97009610960464,
+          "y" : 380.71236532807347
+        }
+      }
+    }
+  ],
+  "curious" : [
+    {
+      "duration" : 0.099999999999999992,
+      "events" : [
+
+      ],
+      "image" : "curious_01.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "curious_02.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.11666666666666665,
+      "events" : [
+
+      ],
+      "image" : "curious_03.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_04.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_05.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_06.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_07.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_08.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_09.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_10.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.44999999999999996,
+      "events" : [
+
+      ],
+      "image" : "curious_11.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_12.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_13.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+        "blink"
+      ],
+      "image" : "curious_14.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_15.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_16.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_17.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.24999999999999997,
+      "events" : [
+
+      ],
+      "image" : "curious_18.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.050000000000000003,
+      "events" : [
+
+      ],
+      "image" : "curious_19.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_20.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_21.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_22.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "curious_23.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.050000000000000003,
+      "events" : [
+
+      ],
+      "image" : "curious_24.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.083333333333333329,
+      "events" : [
+
+      ],
+      "image" : "curious_25.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.21666666666666665,
+      "events" : [
+
+      ],
+      "image" : "curious_26.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_27.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_28.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_29.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.099999999999999992,
+      "events" : [
+
+      ],
+      "image" : "curious_30.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.44999999999999996,
+      "events" : [
+
+      ],
+      "image" : "curious_31.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.36666666666666664,
+      "events" : [
+
+      ],
+      "image" : "curious_32.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_33.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.050000000000000003,
+      "events" : [
+
+      ],
+      "image" : "curious_34.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "curious_35.png",
+      "paws" : {
+
+      }
+    },
+    {
+      "duration" : 0.33333333333333331,
+      "events" : [
+
+      ],
+      "image" : "curious_36.png",
+      "paws" : {
+
+      }
+    }
+  ],
+  "fall" : [
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 429.5124771925403,
+          "y" : 464.00881923656056
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.51465414965222,
+          "y" : 460.01492981796963
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 371.94480039734361,
+          "y" : 456.94039731906196
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 146.44593453971214,
+          "y" : 458.19246486667663
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 422.96694740763127,
+          "y" : 466.5037599582148
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 209.72223059254944,
+          "y" : 456.97711776737805
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 365.450019989412,
+          "y" : 459.03361535671615
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 144.35493656657667,
+          "y" : 454.86292781700496
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 417.35866736594852,
+          "y" : 467.85100993659739
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 209.83611321419517,
+          "y" : 454.81296683294556
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 359.88066843258929,
+          "y" : 460.08701363206734
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 144.8124203973874,
+          "y" : 452.505988066859
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 414.34494876862072,
+          "y" : 469.40494895915452
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.81009598608199,
+          "y" : 455.57589899809545
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 356.881574021277,
+          "y" : 461.5334457579649
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 147.68279072042336,
+          "y" : 453.21992888475
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 414.86102067958211,
+          "y" : 470.00872358183409
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 217.89947056116847,
+          "y" : 457.88123854527328
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 357.38302174622288,
+          "y" : 462.24472727730404
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 152.24214052833452,
+          "y" : 455.67492498923593
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 418.7641859599965,
+          "y" : 469.76434578337677
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 223.79599963491671,
+          "y" : 461.18533735682172
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 361.24725854177723,
+          "y" : 462.29420118187812
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 157.31818735747061,
+          "y" : 459.33649017055853
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 424.88059427773976,
+          "y" : 468.00819314747639
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 228.92099001290055,
+          "y" : 464.12397985247088
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 367.31291748254307,
+          "y" : 460.93977122997779
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 161.55293881289714,
+          "y" : 462.75232197565771
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 431.42503199891269,
+          "y" : 465.49754923853709
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 231.85955574415044,
+          "y" : 466.62851160696607
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 373.80941159408968,
+          "y" : 458.83119450995082
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 163.77336538702298,
+          "y" : 465.68376522759706
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 436.62237596632133,
+          "y" : 461.45991560720785
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 231.78351364080692,
+          "y" : 466.76232886525401
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 378.97343854296588,
+          "y" : 455.08810158308205
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 163.34620016061788,
+          "y" : 466.02980814157235
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 440.22697915503142,
+          "y" : 459.23252683421623
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 229.70133108097588,
+          "y" : 466.50220195623433
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 382.56622324463717,
+          "y" : 452.96856420326691
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 161.37680538634319,
+          "y" : 465.70290266364498
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 439.7122558265836,
+          "y" : 459.64497283974299
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 224.46573877437174,
+          "y" : 465.73047467940341
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 382.06331840322815,
+          "y" : 453.27315881561719
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 156.68796689475093,
+          "y" : 464.64620605810273
+        }
+      }
+    },
+    {
+      "duration" : 0.066666666666666666,
+      "events" : [
+
+      ],
+      "image" : "fall_12.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 435.21929824491696,
+          "y" : 461.57850403326734
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 217.53126727598945,
+          "y" : 463.45685096940997
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 377.60367784009395,
+          "y" : 454.91214930468107
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 150.58151588261964,
+          "y" : 461.99569940407861
+        }
+      }
+    }
+  ],
+  "held" : [
+    {
+      "duration" : 0.14999999999999999,
+      "events" : [
+
+      ],
+      "image" : "held_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 349.66489008373907,
+          "y" : 429.18797792627657
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 190.62194973458992,
+          "y" : 436.6684393244272
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 292.54604040903098,
+          "y" : 439.2595722309585
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 123.73107073908639,
+          "y" : 452.15969956711029
+        }
+      }
+    },
+    {
+      "duration" : 0.18333333333333332,
+      "events" : [
+
+      ],
+      "image" : "held_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 351.41352336970851,
+          "y" : 432.56606344550619
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 193.13172193719234,
+          "y" : 439.24006554940246
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 294.13447147446868,
+          "y" : 441.68254379608146
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 125.92577408390812,
+          "y" : 453.560243333519
+        }
+      }
+    },
+    {
+      "duration" : 0.21666666666666667,
+      "events" : [
+
+      ],
+      "image" : "held_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 354.74356466354925,
+          "y" : 434.32613917436061
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 197.81695249022485,
+          "y" : 441.0672389065781
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 297.32003916976646,
+          "y" : 442.48326611127123
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 130.25864249004147,
+          "y" : 454.21713457210365
+        }
+      }
+    },
+    {
+      "duration" : 0.40000000000000002,
+      "events" : [
+
+      ],
+      "image" : "held_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 359.41849424655777,
+          "y" : 434.89609168795101
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 204.34262505029099,
+          "y" : 443.05807939605705
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 301.91752227976605,
+          "y" : 442.48807580768135
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 136.48476890787583,
+          "y" : 455.5511027108605
+        }
+      }
+    },
+    {
+      "duration" : 0.16666666666666666,
+      "events" : [
+
+      ],
+      "image" : "held_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 365.58326810196223,
+          "y" : 430.85028081844183
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.61454586335771,
+          "y" : 443.97571139776721
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 308.21707487188479,
+          "y" : 439.40129679839498
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 144.79912794534866,
+          "y" : 457.67007533993888
+        }
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "held_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 365.85401404171682,
+          "y" : 427.79816291972776
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.70705515121551,
+          "y" : 443.07612530004411
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 308.64259719954271,
+          "y" : 437.3298879950222
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 145.1732483731362,
+          "y" : 457.9093821160252
+        }
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "held_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 365.79153426324041,
+          "y" : 427.67236510639248
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.58970452437867,
+          "y" : 443.14314325428819
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 308.59801409188367,
+          "y" : 437.31089457974105
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 145.09102533759753,
+          "y" : 458.0988055108669
+        }
+      }
+    },
+    {
+      "duration" : 0.13333333333333333,
+      "events" : [
+        "blink"
+      ],
+      "image" : "held_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 365.71292053330535,
+          "y" : 427.54385194892762
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 212.44989533198145,
+          "y" : 443.20162425857291
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 308.53763698072203,
+          "y" : 437.28997685484234
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 144.98737179294827,
+          "y" : 458.28038865337578
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "held_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 364.5271989748357,
+          "y" : 424.44839209230656
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 210.56804617122677,
+          "y" : 441.34229008991275
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 307.50601076714497,
+          "y" : 435.05895736391733
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 143.42246679122044,
+          "y" : 457.40562319919235
+        }
+      }
+    },
+    {
+      "duration" : 0.16666666666666666,
+      "events" : [
+
+      ],
+      "image" : "held_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 364.08686845415474,
+          "y" : 424.16476866891458
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 209.90411481988278,
+          "y" : 441.28123709066153
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 307.10507857974716,
+          "y" : 434.98491759158935
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 142.84229965139357,
+          "y" : 457.58305344784497
+        }
+      }
+    },
+    {
+      "duration" : 0.21666666666666667,
+      "events" : [
+
+      ],
+      "image" : "held_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 361.19844652266772,
+          "y" : 421.77697715438649
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 205.70494625574514,
+          "y" : 439.36614406025723
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 304.40126145531315,
+          "y" : 433.52771195799221
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 139.05067259434705,
+          "y" : 456.73604614597696
+        }
+      }
+    },
+    {
+      "duration" : 0.31666666666666665,
+      "events" : [
+
+      ],
+      "image" : "held_12.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 356.49884863378514,
+          "y" : 420.28237571149975
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 199.18615149339757,
+          "y" : 436.76913022277398
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 299.85507869469848,
+          "y" : 432.75167108404673
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 132.91634696166832,
+          "y" : 455.00647555250066
+        }
+      }
+    },
+    {
+      "duration" : 0.20000000000000001,
+      "events" : [
+
+      ],
+      "image" : "held_13.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 350.64441424067803,
+          "y" : 422.39813535225591
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 191.49538729870301,
+          "y" : 434.71054114053788
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 293.93478624902622,
+          "y" : 434.5644040098382
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 125.25220199966452,
+          "y" : 452.68680352688364
+        }
+      }
+    },
+    {
+      "duration" : 0.14999999999999999,
+      "events" : [
+
+      ],
+      "image" : "held_14.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 349.11941853490896,
+          "y" : 425.94234655688251
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 189.68385252728558,
+          "y" : 435.36777746676614
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 292.21506602136753,
+          "y" : 437.16262574300845
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 123.1572420033651,
+          "y" : 452.24720649190897
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "held_15.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 349.42809132390465,
+          "y" : 428.91704292386567
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 190.26798359630914,
+          "y" : 436.67890249026703
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 292.34795571312452,
+          "y" : 439.20578039038446
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 123.44680194590322,
+          "y" : 452.43507078159706
+        }
+      }
+    }
+  ],
+  "idle" : [
+    {
+      "duration" : 0.41666666666666669,
+      "events" : [
+
+      ],
+      "image" : "idle_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.40000000000000002,
+      "events" : [
+
+      ],
+      "image" : "idle_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.65000000000000002,
+      "events" : [
+
+      ],
+      "image" : "idle_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.28333333333333333,
+      "events" : [
+
+      ],
+      "image" : "idle_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.18333333333333332,
+      "events" : [
+
+      ],
+      "image" : "idle_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "idle_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.13333333333333333,
+      "events" : [
+        "blink"
+      ],
+      "image" : "idle_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "idle_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.33333333333333331,
+      "events" : [
+
+      ],
+      "image" : "idle_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.6166666666666667,
+      "events" : [
+
+      ],
+      "image" : "idle_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.13333333333333333,
+      "events" : [
+
+      ],
+      "image" : "idle_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    }
+  ],
+  "jump" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 462.20111428573466,
+          "y" : 417.79099115995263
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 160.13450787181665,
+          "y" : 432.63056295352055
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 404.76556629872357,
+          "y" : 425.86303101563641
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 87.353693678882252,
+          "y" : 441.90597837100347
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 468.16770295733284,
+          "y" : 411.26818002306595
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 164.987149172763,
+          "y" : 434.41444090668119
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 410.6200516658559,
+          "y" : 418.49782944987578
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 92.594751967790842,
+          "y" : 443.41407366822159
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 472.77201322372059,
+          "y" : 412.52094108758433
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 168.45246878415708,
+          "y" : 438.14984333915885
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 414.97878754874904,
+          "y" : 417.41410632920559
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 96.122269992518085,
+          "y" : 444.79596853104891
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 472.39992180125449,
+          "y" : 414.16862332157928
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 176.58124274081695,
+          "y" : 441.94128177373182
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 414.54120688618468,
+          "y" : 418.21449879873853
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 104.37989662540409,
+          "y" : 447.93940486562343
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 462.78397961722129,
+          "y" : 422.63552431867151
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 203.85212796014795,
+          "y" : 449.81257963203888
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 404.80924886371196,
+          "y" : 424.34742211296299
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 133.69449689264187,
+          "y" : 455.59215151051876
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 438.54241672283302,
+          "y" : 456.61077427236836
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 220.38540937877517,
+          "y" : 461.08572472666759
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 380.73673213098874,
+          "y" : 451.86705960259559
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 152.8058061030402,
+          "y" : 461.56793861589995
+        }
+      }
+    },
+    {
+      "duration" : 0.13333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 427.24153205724349,
+          "y" : 465.58807007873219
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 220.65937476081157,
+          "y" : 461.85990569986046
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 369.6738552620468,
+          "y" : 458.51964816123359
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 153.94145066085034,
+          "y" : 460.20374545347568
+        }
+      }
+    }
+  ],
+  "jump-start" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump-start_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump-start_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "jump-start_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+
+      ],
+      "image" : "jump-start_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+        "takeoff"
+      ],
+      "image" : "jump-start_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 392.29953892852905,
+          "y" : 463.00065867352993
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 334.29953892852905,
+          "y" : 463.00065867352993
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    }
+  ],
+  "landing" : [
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+        "contact"
+      ],
+      "image" : "landing_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 394,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 246,
+          "y" : 462
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 336,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 158,
+          "y" : 462
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "landing_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 392,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 334,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "landing_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 388,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 330,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.016666666666666666,
+      "events" : [
+        "settled"
+      ],
+      "image" : "landing_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 386.5,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 328.5,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    }
+  ],
+  "picked-up" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 386,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 250,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 328,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 162,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 379.73338385643729,
+          "y" : 470.21845912751166
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 240.34370088230898,
+          "y" : 471.34147705739292
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 321.73917908165896,
+          "y" : 471.03834481532431
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 154.36022323935731,
+          "y" : 471.46436384899903
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 363.61787869707484,
+          "y" : 457.19822172602665
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 213.14273049219008,
+          "y" : 460.26016288774747
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 305.77400157727271,
+          "y" : 461.45097139526752
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 135.0853458721848,
+          "y" : 463.9340487252399
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 350.26483676552004,
+          "y" : 438.45043237406821
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 191.83100142590825,
+          "y" : 442.12421349202026
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 292.88339545997871,
+          "y" : 446.89852054232949
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 122.09631613950484,
+          "y" : 454.00543653140647
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 345.26239801452698,
+          "y" : 428.04499374032042
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 184.89989992945684,
+          "y" : 433.85361688883825
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 288.22951353614218,
+          "y" : 438.59250947034963
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 118.92046147699696,
+          "y" : 450.52085039164598
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "picked-up_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 352.9042686088045,
+          "y" : 425.99969811967389
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 194.72403365208334,
+          "y" : 436.74892116480504
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 295.87070711363396,
+          "y" : 436.54355240435569
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 128.62836571327529,
+          "y" : 453.17906859099094
+        }
+      }
+    }
+  ],
+  "source" : "assets\/characters\/cat\/walk\/frames\/walk_01.png",
+  "walk" : [
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_01.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 390.31999999999999,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 236.31999999999999,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 315.63653722246164,
+          "y" : 457.84533204420529
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 184.31999999999999,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_02.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 387.92000000000002,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 233.92000000000002,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 322.20299462626946,
+          "y" : 457.01308301704825
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 181.92000000000002,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_03.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 385.51999999999998,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 231.52000000000001,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 329.46721626863689,
+          "y" : 457.44839997538207
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 179.52000000000001,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_04.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 383.12,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 229.12,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 336.55365826649097,
+          "y" : 459.0057772817018
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 177.12,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_05.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 380.72000000000003,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 227.69828298105654,
+          "y" : 470.45498422137007
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 342.62016258549346,
+          "y" : 461.45411035240488
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 174.72,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_06.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 378.31999999999999,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 228.36196583236597,
+          "y" : 466.72424855019949
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 347.02488628371572,
+          "y" : 464.49623320694928
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 172.31999999999999,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_07.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 375.92000000000002,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 230.64068911622678,
+          "y" : 463.61660432490351
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 349.49323075531311,
+          "y" : 467.77916862685521
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 169.91999999999999,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_08.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 373.51999999999998,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 234.85662627293084,
+          "y" : 461.40291094760261
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 350.28477097419955,
+          "y" : 470.85450572120334
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 167.52000000000001,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+        "footstep"
+      ],
+      "image" : "walk_09.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 371.12,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 240.78108423864401,
+          "y" : 460.21247386210803
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 349.12,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 165.12,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_10.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 368.71999999999997,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 247.80143268908068,
+          "y" : 460.06330811782556
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 346.72000000000003,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 162.72,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_11.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 366.31999999999999,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 255.08803328317828,
+          "y" : 460.87961229377458
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 344.31999999999999,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 160.31999999999999,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_12.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 363.92000000000002,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 261.76116890677184,
+          "y" : 462.50863748467674
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 341.92000000000002,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 157.92000000000002,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_13.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 363.8744628869847,
+          "y" : 468.24756952244439
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 267.05797291626874,
+          "y" : 464.73734953844689
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 339.51999999999998,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 155.51999999999998,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_14.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 365.26444444444445,
+          "y" : 464.49433027206777
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 270.49935838232284,
+          "y" : 467.30566756471177
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 337.12,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 153.12,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_15.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 368.50984454534688,
+          "y" : 461.58602291094229
+        },
+        "farHind" : {
+          "planted" : false,
+          "x" : 272.05694733350947,
+          "y" : 469.90359284629011
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 334.72000000000003,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 150.72,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_16.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 373.63653722246164,
+          "y" : 459.73262110497791
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 272.31999999999999,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 332.31999999999999,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 148.31999999999999,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_17.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 380.20299462626946,
+          "y" : 459.01133861477513
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 269.92000000000002,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 329.92000000000002,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 145.92000000000002,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_18.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 387.46721626863689,
+          "y" : 459.3886133119978
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 267.51999999999998,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 327.51999999999998,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 143.52000000000001,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_19.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 394.55365826649097,
+          "y" : 460.73834031080821
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 265.12,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 325.12,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : true,
+          "x" : 141.12,
+          "y" : 472
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_20.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 400.62016258549346,
+          "y" : 462.86022897208426
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 262.72000000000003,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 322.72000000000003,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 139.69828298105654,
+          "y" : 470.19748159159843
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_21.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 405.02488628371572,
+          "y" : 465.49673544602268
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 260.31999999999999,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 320.31999999999999,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 140.36196583236597,
+          "y" : 465.84495664189944
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_22.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 407.49323075531311,
+          "y" : 468.34194614327453
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 257.92000000000002,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 317.92000000000002,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 142.64068911622678,
+          "y" : 462.21937171238744
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_23.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : false,
+          "x" : 408.28477097419955,
+          "y" : 471.00723829170954
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 255.52000000000001,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 315.51999999999998,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 146.85662627293084,
+          "y" : 459.63672943886974
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+        "footstep"
+      ],
+      "image" : "walk_24.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 407.12,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 253.12,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 313.12,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 152.78108423864404,
+          "y" : 458.2478861724594
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_25.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 404.72000000000003,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 250.72,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 310.71999999999997,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 159.80143268908068,
+          "y" : 458.07385947079649
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_26.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 402.31999999999999,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 248.31999999999999,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 308.31999999999999,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 167.08803328317828,
+          "y" : 459.02621434273703
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_27.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 399.92000000000002,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 245.91999999999999,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : true,
+          "x" : 305.92000000000002,
+          "y" : 472
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 173.76116890677187,
+          "y" : 460.92674373212287
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_28.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 397.51999999999998,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 243.51999999999998,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 305.8744628869847,
+          "y" : 467.67027252589736
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 179.05797291626871,
+          "y" : 463.52690779485465
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_29.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 395.12,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 241.12,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 307.26444444444445,
+          "y" : 463.33961185238593
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 182.49935838232284,
+          "y" : 466.52327882549702
+        }
+      }
+    },
+    {
+      "duration" : 0.033333333333333333,
+      "events" : [
+
+      ],
+      "image" : "walk_30.png",
+      "paws" : {
+        "farFront" : {
+          "planted" : true,
+          "x" : 392.72000000000003,
+          "y" : 472
+        },
+        "farHind" : {
+          "planted" : true,
+          "x" : 238.72,
+          "y" : 472
+        },
+        "nearFront" : {
+          "planted" : false,
+          "x" : 310.50984454534688,
+          "y" : 459.98387258954881
+        },
+        "nearHind" : {
+          "planted" : false,
+          "x" : 184.05694733350947,
+          "y" : 469.55419165400514
+        }
+      }
+    }
+  ]
+}

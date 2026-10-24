@@ -1,0 +1,416 @@
+{
+  "schemaVersion": 1,
+  "id": "cat",
+  "displayName": "Cat",
+  "defaultAnimation": "walk",
+  "defaultFacing": "right",
+  "canvas": {
+    "width": 512,
+    "height": 512
+  },
+  "displaySize": {
+    "width": 96,
+    "height": 96
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.074
+  },
+  "fallbacks": {
+    "idle": "walk",
+    "fall": "walk",
+    "land": "landing",
+    "jump-start": "walk",
+    "jump": "walk",
+    "landing": "walk",
+    "jump-air": "jump",
+    "sit-down": "idle",
+    "sit": "idle",
+    "stand-up": "idle",
+    "lie-down": "idle",
+    "sleep": "idle",
+    "wake-up": "idle",
+    "stretch": "idle",
+    "look-around": "idle",
+    "observe": "idle",
+    "curious": "idle",
+    "picked-up": "idle",
+    "held": "idle",
+    "climb": "idle"
+  },
+  "animations": {
+    "walk": {
+      "playback": "loop",
+      "fps": 18,
+      "nominalSpeed": 20,
+      "frames": [
+        {
+          "image": "walk/frames/walk_01.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_02.png"
+        },
+        {
+          "image": "walk/frames/walk_02.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_04.png"
+        },
+        {
+          "image": "walk/frames/walk_03.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "v7/walk/frames/walk_06.png"
+        },
+        {
+          "image": "walk/frames/walk_04.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_08.png"
+        },
+        {
+          "image": "walk/frames/walk_05.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_10.png"
+        },
+        {
+          "image": "walk/frames/walk_06.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_12.png"
+        },
+        {
+          "image": "walk/frames/walk_07.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "v7/walk/frames/walk_14.png"
+        },
+        {
+          "image": "walk/frames/walk_08.png"
+        },
+        {
+          "image": "v7/walk/frames/walk_16.png"
+        }
+      ]
+    },
+    "idle": {
+      "playback": "loop",
+      "fps": 8,
+      "frames": [
+        {
+          "image": "idle/frames/idle_01.png"
+        },
+        {
+          "image": "v7/idle/frames/idle_02.png"
+        },
+        {
+          "image": "idle/frames/idle_02.png"
+        },
+        {
+          "image": "v7/idle/frames/idle_04.png"
+        },
+        {
+          "image": "idle/frames/idle_03.png"
+        },
+        {
+          "image": "v7/idle/frames/idle_06.png"
+        },
+        {
+          "image": "idle/frames/idle_04.png",
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "v7/idle/frames/idle_08.png"
+        },
+        {
+          "image": "idle/frames/idle_05.png"
+        },
+        {
+          "image": "v7/idle/frames/idle_10.png"
+        },
+        {
+          "image": "idle/frames/idle_06.png"
+        },
+        {
+          "image": "v7/idle/frames/idle_12.png"
+        }
+      ]
+    },
+    "jump-start": {
+      "playback": "once",
+      "fps": 53.333333333333336,
+      "frames": [
+        {
+          "image": "jump-start/frames/jump-start_01.png"
+        },
+        {
+          "image": "v7/jump-start/frames/jump-start_02.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_02.png"
+        },
+        {
+          "image": "v7/jump-start/frames/jump-start_04.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_03.png"
+        },
+        {
+          "image": "v7/jump-start/frames/jump-start_06.png"
+        },
+        {
+          "image": "jump-start/frames/jump-start_04.png",
+          "events": [
+            "takeoff"
+          ],
+          "duration": 0.0375
+        }
+      ]
+    },
+    "jump": {
+      "playback": "once",
+      "fps": 24,
+      "frames": [
+        {
+          "image": "jump/frames/jump_01.png"
+        },
+        {
+          "image": "v7/jump/frames/jump_02.png"
+        },
+        {
+          "image": "jump/frames/jump_02.png"
+        },
+        {
+          "image": "v7/jump/frames/jump_04.png"
+        },
+        {
+          "image": "jump/frames/jump_03.png"
+        },
+        {
+          "image": "v7/jump/frames/jump_06.png"
+        },
+        {
+          "image": "jump/frames/jump_04.png",
+          "duration": 0.08333333333333333
+        }
+      ]
+    },
+    "fall": {
+      "playback": "loop",
+      "fps": 24,
+      "frames": [
+        {
+          "image": "fall/frames/fall_01.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_02.png"
+        },
+        {
+          "image": "fall/frames/fall_02.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_04.png"
+        },
+        {
+          "image": "fall/frames/fall_03.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_06.png"
+        },
+        {
+          "image": "fall/frames/fall_04.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_08.png"
+        },
+        {
+          "image": "fall/frames/fall_05.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_10.png"
+        },
+        {
+          "image": "fall/frames/fall_06.png"
+        },
+        {
+          "image": "v7/fall/frames/fall_12.png"
+        }
+      ]
+    },
+    "landing": {
+      "playback": "once",
+      "fps": 40,
+      "frames": [
+        {
+          "image": "landing/frames/landing_01.png",
+          "events": [
+            "contact"
+          ]
+        },
+        {
+          "image": "landing/frames/landing_02.png"
+        },
+        {
+          "image": "landing/frames/landing_03.png"
+        },
+        {
+          "image": "landing/frames/landing_04.png",
+          "events": [
+            "settled"
+          ]
+        }
+      ]
+    },
+    "curious": {
+      "playback": "loop",
+      "fps": 12,
+      "frames": [
+        {
+          "image": "v5/curious/frames/curious_01.png"
+        },
+        {
+          "image": "v7/curious/frames/curious_02.png"
+        },
+        {
+          "image": "v5/curious/frames/curious_02.png"
+        },
+        {
+          "image": "v7/curious/frames/curious_04.png"
+        },
+        {
+          "image": "v5/curious/frames/curious_03.png"
+        },
+        {
+          "image": "v7/curious/frames/curious_06.png"
+        },
+        {
+          "image": "v5/curious/frames/curious_04.png",
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "v7/curious/frames/curious_08.png"
+        },
+        {
+          "image": "v5/curious/frames/curious_05.png"
+        },
+        {
+          "image": "v7/curious/frames/curious_10.png"
+        },
+        {
+          "image": "v5/curious/frames/curious_06.png"
+        },
+        {
+          "image": "v7/curious/frames/curious_12.png"
+        }
+      ]
+    },
+    "picked-up": {
+      "playback": "once",
+      "fps": 40,
+      "frames": [
+        {
+          "image": "v5/picked-up/frames/picked-up_01.png"
+        },
+        {
+          "image": "v7/picked-up/frames/picked-up_02.png"
+        },
+        {
+          "image": "v5/picked-up/frames/picked-up_02.png"
+        },
+        {
+          "image": "v7/picked-up/frames/picked-up_04.png"
+        },
+        {
+          "image": "v5/picked-up/frames/picked-up_03.png"
+        },
+        {
+          "image": "v7/picked-up/frames/picked-up_06.png"
+        },
+        {
+          "image": "v5/picked-up/frames/picked-up_04.png",
+          "duration": 0.05
+        }
+      ]
+    },
+    "held": {
+      "playback": "loop",
+      "fps": 12,
+      "frames": [
+        {
+          "image": "v5/held/frames/held_01.png"
+        },
+        {
+          "image": "v7/held/frames/held_02.png"
+        },
+        {
+          "image": "v5/held/frames/held_02.png"
+        },
+        {
+          "image": "v7/held/frames/held_04.png"
+        },
+        {
+          "image": "v5/held/frames/held_03.png",
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "v7/held/frames/held_06.png"
+        },
+        {
+          "image": "v5/held/frames/held_04.png"
+        },
+        {
+          "image": "v7/held/frames/held_08.png"
+        },
+        {
+          "image": "v5/held/frames/held_05.png"
+        },
+        {
+          "image": "v7/held/frames/held_10.png"
+        },
+        {
+          "image": "v5/held/frames/held_06.png"
+        },
+        {
+          "image": "v7/held/frames/held_12.png"
+        }
+      ]
+    },
+    "climb": {
+      "playback": "loop",
+      "fps": 16,
+      "anchor": {
+        "x": 0.977,
+        "y": 0.5
+      },
+      "alignment": "right",
+      "interruptible": false,
+      "frames": [
+        {
+          "image": "v6/climb/frames/climb_01.png"
+        },
+        {
+          "image": "v7/climb/frames/climb_02.png"
+        },
+        {
+          "image": "v6/climb/frames/climb_02.png"
+        },
+        {
+          "image": "v7/climb/frames/climb_04.png"
+        }
+      ]
+    }
+  }
+}

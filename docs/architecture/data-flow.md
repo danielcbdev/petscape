@@ -152,7 +152,7 @@ on appearance. There is no polling.
 ## Persistence
 
 `PreferencesStore` is a MainActor seam with UserDefaults and in-memory implementations. Version 2
-adds `petscape.scale` (0.5–1.5, default 1), `petscape.speed` (0.5–2, default 1), and boolean keys
+adds `petscape.scale` (0.5–1.5, default 1), `petscape.speed` (0.5–4, default 2 when absent; existing finite values retained), and boolean keys
 `petscape.autonomy`, `petscape.jumps`, `petscape.rest`, `petscape.expressions` (default true).
 `PetSettings` normalizes nonfinite size/speed to 1 and clamps finite values on read/write.
 

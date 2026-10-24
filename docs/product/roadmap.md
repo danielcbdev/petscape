@@ -28,7 +28,7 @@ flowchart LR
     M12 --> M13[M13 Window interaction]
     M8 --> M13
     M13 --> M14[M14 Multi-display + stabilization]
-    M14 --> M15[M15 Release pipeline]
+    M14 --> M15[M15 Animation quality] --> M16[M16 New behaviors and animations] --> M17[M17 Localization] --> M18[M18 Bundled character selection] --> M19[M19 Pack discovery and installation] --> M20[M20 Release pipeline]
   end
 ```
 
@@ -40,7 +40,7 @@ flowchart LR
 | v0.3.0 | M9 | Autonomous life + Settings v1 |
 | v0.4.0 | M10–M11 | Cursor, dragging, climbing |
 | v0.5.0 | M12–M13 | Window-aware pets (opt-in Accessibility) |
-| v1.0.0 | M14–M15 | Multi-display, stabilization, notarized releases |
+| v1.0.0 | M14–M20 | Multi-display, stabilization, animation quality, subsequent product milestones, notarized releases |
 | later | — | Multiple pets, pet interactions, more characters (FR-40..44) |
 
 ## Art dependencies

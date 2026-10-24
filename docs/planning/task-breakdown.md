@@ -613,13 +613,33 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
 | T14.7 | VoiceOver/keyboard audit of menu and Settings | App | M9 | S | Checklist |
 | T14.8 | Performance regression checks (XCTest `measure` for step cost; signpost review) | All | T14.1 | S | CI/local results |
 
-## M15 — Release pipeline
+## M15 — Animation quality
+
+| ID | Task | Mod | Deps | Size | Verify | Status |
+|---|---|---|---|---|---|---|
+| T15.1 | Inventory all manifest clips and establish frame/timing decisions | Docs, Art | M14 | M | AC-M15-01; per-clip review | **Done**; see [inventory](m15-implementation.md) |
+| T15.2 | Produce versioned, distinct in-between art for clips where the inventory justifies it | Art | T15.1 | L | AC-M15-02; source QA and provenance | **Done by owner acceptance**; final 134-frame pack; V7/V8 production and retained pixel-QA exception recorded |
+| T15.3 | Integrate approved frames; update counts/FPS/events while preserving duration and contracts | Pack | T15.2 | M | AC-M15-03/04; schema, references, tests | **Done**; final 134 references, owner-authorized timing rework and contracts recorded |
+| T15.4 | Build clip previews and inspect changed clips/transitions at runtime timing | Art, Runtime | T15.3 | M | AC-M15-05; recorded visual results | **Done by owner acceptance**; owner confirmed revised animations and final pacing tests |
+| T15.5 | Record asset provenance, evidence, limitations and closeout | Docs | T15.4 | S | AC-M15-06; owner review | **Done**; owner-directed closeout, evidence and retained exception recorded |
+| T15.6 | Owner pacing refinement: rare stops ≤5 s and faster configurable walking, preserving approved art | Core, Settings | T15.4 | M | Seeded pacing/landing/speed tests; build/lint/UI | **Done**; Core/UI/build/lint pass; pre-existing V8 pixel-QA failure documented |
+
+## M16–M19 — Planned product milestones
+
+| ID | Scope | Boundary for M15 |
+|---|---|---|
+| M16 | New autonomous behaviors and animations, including music-associated dancing and cleanup after certain landings | No behavior or new clip implementation in M15 |
+| M17 | Portuguese and English localization with automatic language detection | No localization implementation in M15 |
+| M18 | Selection among characters bundled in the app | No selector implementation in M15 |
+| M19 | Discovery and installation of character packs | No pack discovery/installation implementation in M15 |
+
+## M20 — Release pipeline
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
-| T15.1 | Owner decisions: license, final bundle ID, Developer ID enrollment | Owner | — | S | Recorded in risks.md |
-| T15.2 | Versioning (`MARKETING_VERSION`, build number) + `CHANGELOG.md` (Keep a Changelog) | Repo | T15.1 | S | Review |
-| T15.3 | Archive/export script with Developer ID signing | Repo | T15.1 | M | Signed app verified with `codesign --verify` |
-| T15.4 | Notarize (`notarytool`), staple, build DMG, notarize DMG | Repo | T15.3 | M | `spctl --assess` passes |
-| T15.5 | GitHub Actions release workflow on tags (secrets via repository secrets, temporary keychain) | Repo | T15.4 | M | Dry run on a test tag |
-| T15.6 | Install/upgrade docs in README and release notes template | Docs | T15.4 | S | Review |
+| T20.1 | Owner decisions: license, final bundle ID, Developer ID enrollment | Owner | — | S | Recorded in risks.md |
+| T20.2 | Versioning (`MARKETING_VERSION`, build number) + `CHANGELOG.md` (Keep a Changelog) | Repo | T20.1 | S | Review |
+| T20.3 | Archive/export script with Developer ID signing | Repo | T20.1 | M | Signed app verified with `codesign --verify` |
+| T20.4 | Notarize (`notarytool`), staple, build DMG, notarize DMG | Repo | T20.3 | M | `spctl --assess` passes |
+| T20.5 | GitHub Actions release workflow on tags (secrets via repository secrets, temporary keychain) | Repo | T20.4 | M | Dry run on a test tag |
+| T20.6 | Install/upgrade docs in README and release notes template | Docs | T20.4 | S | Review |

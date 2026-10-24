@@ -123,15 +123,15 @@ World defaults to explicit-command mode; production Runtime restores autonomous 
 | Walk / Explore | walk | existing supported walking/edge turn | 80 | Walk 8–16 s, Explore 6–10 s; no progress 2 s → bounded Idle |
 | Autonomous Idle | idle | grounded hold | 10 | 2–5 s; rejection/safety fallback 2 s |
 | SittingDown | sit-down | grounded hold | 90 | 0.3 s → Sitting |
-| Sitting | sit | grounded hold | 90 | 8–15 s → StandingUp |
+| Sitting | sit | grounded hold | 90 | 2–4.4 s → StandingUp |
 | StandingUp | stand-up | grounded hold | 90 | 0.3 s → bounded Idle |
 | LyingDown | lie-down | grounded hold | 90 | 0.3 s → Sleeping |
-| Sleeping | sleep | grounded hold | 90 | 30–60 s → WakingUp; explicit wake allowed |
+| Sleeping | sleep | grounded hold | 90 | 2–4.2 s → WakingUp; explicit wake allowed |
 | WakingUp | wake-up | grounded hold | 90 | 0.5 s → bounded Idle |
 | Stretching | stretch | grounded hold | 90 | 1.5 s → bounded Idle |
 | Observing | observe | grounded hold; ambient look-around | 90 | 3–5 s → bounded Idle; cursor interaction remains M10 |
 | ReactingToCursor | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 80 | bounded 1–3 s, restores saved activity with remaining duration |
-| ReactingToClick | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 90 | 0.6 s, restores saved activity; 0.5 s repeat cooldown |
+| ReactingToClick | M10 | curious→idle fallback; idle under system Reduce Motion | grounded hold | 90 | 1.8 s (`InteractionTuning.clickReactionDuration`; 0.6 s until the M15 V8 rework, which made one complete curious look last 1.8 s), restores saved activity; 0.5 s repeat cooldown |
 | Held | M10 | picked-up for 0.2 s, then held; each has idle fallback | world-owned cursor target, no attachment or gravity | critical | while primary is down; release immediately enters Falling |
 
 Rest/expression semantic clips are optional. The current pack aliases all requests above to
@@ -194,3 +194,11 @@ Falling/Landing/Recovering are reused. Operational safety/RunState checks preced
 of historical grab=100 versus safety=90 presentation priority numbers. No throwing impulse in first
 M10, no drag while paused; phase timers remain simulation-driven. These proposals require owner
 approval and native routing evidence, [ADR-0021](../decisions/0021-interaction-authority-and-recovery.md).
+
+### Owner pacing refinement (2026-10-23)
+
+With autonomy enabled, consecutive supported stationary activity states share a five-second budget,
+then enter Walking with an eight-second activity deadline. This includes rest/expression transitions
+and bounded Idle so chained fallbacks cannot extend a stop. Held/explicit interaction, disabled
+autonomy and physical phases are excluded. Automatic jumps resume Walking; autonomous landings
+whose return intent is Walking establish the same eight-second walk. Pause stops all simulation time.

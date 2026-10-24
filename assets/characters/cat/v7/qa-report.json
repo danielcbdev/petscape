@@ -1,0 +1,776 @@
+[
+  {
+    "path": "v7/walk/frames/walk_02.png",
+    "solidBounds": [
+      20,
+      75,
+      492,
+      474
+    ],
+    "alphaBounds": [
+      18,
+      74,
+      494,
+      475
+    ],
+    "opaqueBodyRatio": 0.973472879138573,
+    "solidPixels": 99370,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_04.png",
+    "solidBounds": [
+      18,
+      103,
+      489,
+      474
+    ],
+    "alphaBounds": [
+      16,
+      102,
+      490,
+      475
+    ],
+    "opaqueBodyRatio": 0.968920965085821,
+    "solidPixels": 90479,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_06.png",
+    "solidBounds": [
+      10,
+      102,
+      486,
+      474
+    ],
+    "alphaBounds": [
+      8,
+      101,
+      488,
+      476
+    ],
+    "opaqueBodyRatio": 0.9742399056249665,
+    "solidPixels": 93245,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_08.png",
+    "solidBounds": [
+      10,
+      122,
+      491,
+      474
+    ],
+    "alphaBounds": [
+      8,
+      121,
+      493,
+      475
+    ],
+    "opaqueBodyRatio": 0.9751968549061859,
+    "solidPixels": 87247,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_10.png",
+    "solidBounds": [
+      30,
+      97,
+      498,
+      475
+    ],
+    "alphaBounds": [
+      26,
+      94,
+      502,
+      479
+    ],
+    "opaqueBodyRatio": 0.9619935382465945,
+    "solidPixels": 91616,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_12.png",
+    "solidBounds": [
+      17,
+      103,
+      492,
+      474
+    ],
+    "alphaBounds": [
+      14,
+      100,
+      495,
+      478
+    ],
+    "opaqueBodyRatio": 0.9619957231338571,
+    "solidPixels": 90253,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_14.png",
+    "solidBounds": [
+      12,
+      113,
+      492,
+      474
+    ],
+    "alphaBounds": [
+      8,
+      109,
+      495,
+      477
+    ],
+    "opaqueBodyRatio": 0.9619434366297196,
+    "solidPixels": 90129,
+    "borderOK": true
+  },
+  {
+    "path": "v7/walk/frames/walk_16.png",
+    "solidBounds": [
+      18,
+      104,
+      489,
+      475
+    ],
+    "alphaBounds": [
+      15,
+      100,
+      492,
+      478
+    ],
+    "opaqueBodyRatio": 0.9603869886493487,
+    "solidPixels": 91889,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_02.png",
+    "solidBounds": [
+      26,
+      72,
+      475,
+      475
+    ],
+    "alphaBounds": [
+      22,
+      68,
+      479,
+      479
+    ],
+    "opaqueBodyRatio": 0.9654411983828189,
+    "solidPixels": 100669,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_04.png",
+    "solidBounds": [
+      36,
+      72,
+      457,
+      475
+    ],
+    "alphaBounds": [
+      32,
+      68,
+      461,
+      479
+    ],
+    "opaqueBodyRatio": 0.9655478278399355,
+    "solidPixels": 99210,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_06.png",
+    "solidBounds": [
+      29,
+      72,
+      474,
+      475
+    ],
+    "alphaBounds": [
+      25,
+      68,
+      478,
+      479
+    ],
+    "opaqueBodyRatio": 0.965465956750647,
+    "solidPixels": 100857,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_08.png",
+    "solidBounds": [
+      24,
+      70,
+      478,
+      475
+    ],
+    "alphaBounds": [
+      20,
+      67,
+      482,
+      479
+    ],
+    "opaqueBodyRatio": 0.9664137837365878,
+    "solidPixels": 103078,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_10.png",
+    "solidBounds": [
+      34,
+      71,
+      465,
+      475
+    ],
+    "alphaBounds": [
+      30,
+      68,
+      469,
+      479
+    ],
+    "opaqueBodyRatio": 0.9654664223691548,
+    "solidPixels": 100424,
+    "borderOK": true
+  },
+  {
+    "path": "v7/idle/frames/idle_12.png",
+    "solidBounds": [
+      28,
+      69,
+      475,
+      475
+    ],
+    "alphaBounds": [
+      24,
+      65,
+      479,
+      479
+    ],
+    "opaqueBodyRatio": 0.9654441299759772,
+    "solidPixels": 102819,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump-start/frames/jump-start_02.png",
+    "solidBounds": [
+      17,
+      116,
+      465,
+      474
+    ],
+    "alphaBounds": [
+      13,
+      113,
+      468,
+      478
+    ],
+    "opaqueBodyRatio": 0.9570847532153457,
+    "solidPixels": 90970,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump-start/frames/jump-start_04.png",
+    "solidBounds": [
+      11,
+      151,
+      455,
+      474
+    ],
+    "alphaBounds": [
+      8,
+      149,
+      460,
+      478
+    ],
+    "opaqueBodyRatio": 0.9576747729553892,
+    "solidPixels": 82693,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump-start/frames/jump-start_06.png",
+    "solidBounds": [
+      28,
+      81,
+      480,
+      475
+    ],
+    "alphaBounds": [
+      25,
+      78,
+      483,
+      477
+    ],
+    "opaqueBodyRatio": 0.9566961026492384,
+    "solidPixels": 99991,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump/frames/jump_02.png",
+    "solidBounds": [
+      58,
+      65,
+      487,
+      466
+    ],
+    "alphaBounds": [
+      55,
+      62,
+      491,
+      470
+    ],
+    "opaqueBodyRatio": 0.9615477713613887,
+    "solidPixels": 86757,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump/frames/jump_04.png",
+    "solidBounds": [
+      67,
+      66,
+      487,
+      447
+    ],
+    "alphaBounds": [
+      64,
+      62,
+      490,
+      450
+    ],
+    "opaqueBodyRatio": 0.962006309148265,
+    "solidPixels": 79250,
+    "borderOK": true
+  },
+  {
+    "path": "v7/jump/frames/jump_06.png",
+    "solidBounds": [
+      60,
+      66,
+      487,
+      394
+    ],
+    "alphaBounds": [
+      56,
+      63,
+      490,
+      397
+    ],
+    "opaqueBodyRatio": 0.962081622071525,
+    "solidPixels": 73289,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_02.png",
+    "solidBounds": [
+      60,
+      65,
+      490,
+      444
+    ],
+    "alphaBounds": [
+      56,
+      62,
+      494,
+      447
+    ],
+    "opaqueBodyRatio": 0.963001593177989,
+    "solidPixels": 87247,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_04.png",
+    "solidBounds": [
+      45,
+      65,
+      488,
+      446
+    ],
+    "alphaBounds": [
+      41,
+      61,
+      492,
+      450
+    ],
+    "opaqueBodyRatio": 0.959645529132116,
+    "solidPixels": 91291,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_06.png",
+    "solidBounds": [
+      40,
+      65,
+      498,
+      458
+    ],
+    "alphaBounds": [
+      36,
+      61,
+      502,
+      462
+    ],
+    "opaqueBodyRatio": 0.9614373729742384,
+    "solidPixels": 93977,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_08.png",
+    "solidBounds": [
+      13,
+      65,
+      491,
+      432
+    ],
+    "alphaBounds": [
+      9,
+      61,
+      495,
+      436
+    ],
+    "opaqueBodyRatio": 0.9602844478057184,
+    "solidPixels": 95202,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_10.png",
+    "solidBounds": [
+      61,
+      65,
+      491,
+      445
+    ],
+    "alphaBounds": [
+      57,
+      61,
+      495,
+      448
+    ],
+    "opaqueBodyRatio": 0.9622663044718881,
+    "solidPixels": 87614,
+    "borderOK": true
+  },
+  {
+    "path": "v7/fall/frames/fall_12.png",
+    "solidBounds": [
+      60,
+      65,
+      492,
+      447
+    ],
+    "alphaBounds": [
+      56,
+      61,
+      496,
+      451
+    ],
+    "opaqueBodyRatio": 0.9623392839064556,
+    "solidPixels": 88899,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_02.png",
+    "solidBounds": [
+      54,
+      134,
+      451,
+      475
+    ],
+    "alphaBounds": [
+      50,
+      130,
+      455,
+      479
+    ],
+    "opaqueBodyRatio": 0.9554279571584011,
+    "solidPixels": 76281,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_04.png",
+    "solidBounds": [
+      55,
+      139,
+      448,
+      475
+    ],
+    "alphaBounds": [
+      51,
+      136,
+      452,
+      479
+    ],
+    "opaqueBodyRatio": 0.9537704293911293,
+    "solidPixels": 73546,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_06.png",
+    "solidBounds": [
+      55,
+      140,
+      435,
+      475
+    ],
+    "alphaBounds": [
+      51,
+      135,
+      439,
+      479
+    ],
+    "opaqueBodyRatio": 0.9547907488986784,
+    "solidPixels": 72640,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_08.png",
+    "solidBounds": [
+      54,
+      132,
+      440,
+      475
+    ],
+    "alphaBounds": [
+      50,
+      128,
+      443,
+      479
+    ],
+    "opaqueBodyRatio": 0.9548553993101618,
+    "solidPixels": 75380,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_10.png",
+    "solidBounds": [
+      57,
+      127,
+      445,
+      475
+    ],
+    "alphaBounds": [
+      53,
+      123,
+      449,
+      479
+    ],
+    "opaqueBodyRatio": 0.9544057510483682,
+    "solidPixels": 76786,
+    "borderOK": true
+  },
+  {
+    "path": "v7/curious/frames/curious_12.png",
+    "solidBounds": [
+      68,
+      131,
+      457,
+      475
+    ],
+    "alphaBounds": [
+      64,
+      127,
+      461,
+      479
+    ],
+    "opaqueBodyRatio": 0.9544926771341866,
+    "solidPixels": 75790,
+    "borderOK": true
+  },
+  {
+    "path": "v7/picked-up/frames/picked-up_02.png",
+    "solidBounds": [
+      91,
+      123,
+      457,
+      475
+    ],
+    "alphaBounds": [
+      88,
+      120,
+      460,
+      478
+    ],
+    "opaqueBodyRatio": 0.9571950305408035,
+    "solidPixels": 62703,
+    "borderOK": true
+  },
+  {
+    "path": "v7/picked-up/frames/picked-up_04.png",
+    "solidBounds": [
+      59,
+      111,
+      430,
+      475
+    ],
+    "alphaBounds": [
+      55,
+      108,
+      433,
+      478
+    ],
+    "opaqueBodyRatio": 0.9588998663145195,
+    "solidPixels": 61338,
+    "borderOK": true
+  },
+  {
+    "path": "v7/picked-up/frames/picked-up_06.png",
+    "solidBounds": [
+      14,
+      84,
+      378,
+      475
+    ],
+    "alphaBounds": [
+      10,
+      81,
+      381,
+      478
+    ],
+    "opaqueBodyRatio": 0.9569273365110827,
+    "solidPixels": 63567,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_02.png",
+    "solidBounds": [
+      52,
+      105,
+      429,
+      475
+    ],
+    "alphaBounds": [
+      47,
+      102,
+      434,
+      479
+    ],
+    "opaqueBodyRatio": 0.9538184309286948,
+    "solidPixels": 67148,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_04.png",
+    "solidBounds": [
+      52,
+      107,
+      430,
+      475
+    ],
+    "alphaBounds": [
+      48,
+      104,
+      434,
+      479
+    ],
+    "opaqueBodyRatio": 0.9534142343724155,
+    "solidPixels": 66501,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_06.png",
+    "solidBounds": [
+      50,
+      110,
+      431,
+      475
+    ],
+    "alphaBounds": [
+      46,
+      106,
+      435,
+      479
+    ],
+    "opaqueBodyRatio": 0.953220380265181,
+    "solidPixels": 65691,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_08.png",
+    "solidBounds": [
+      97,
+      103,
+      478,
+      475
+    ],
+    "alphaBounds": [
+      93,
+      101,
+      482,
+      479
+    ],
+    "opaqueBodyRatio": 0.9538862197476539,
+    "solidPixels": 66813,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_10.png",
+    "solidBounds": [
+      87,
+      104,
+      463,
+      475
+    ],
+    "alphaBounds": [
+      83,
+      101,
+      468,
+      479
+    ],
+    "opaqueBodyRatio": 0.9533975143375253,
+    "solidPixels": 67829,
+    "borderOK": true
+  },
+  {
+    "path": "v7/held/frames/held_12.png",
+    "solidBounds": [
+      45,
+      100,
+      416,
+      475
+    ],
+    "alphaBounds": [
+      41,
+      98,
+      419,
+      479
+    ],
+    "opaqueBodyRatio": 0.9537661109140357,
+    "solidPixels": 67656,
+    "borderOK": true
+  },
+  {
+    "path": "v7/climb/frames/climb_02.png",
+    "solidBounds": [
+      117,
+      31,
+      500,
+      472
+    ],
+    "alphaBounds": [
+      115,
+      29,
+      501,
+      474
+    ],
+    "opaqueBodyRatio": 0.9598728537274506,
+    "solidPixels": 73616,
+    "borderOK": true
+  },
+  {
+    "path": "v7/climb/frames/climb_04.png",
+    "solidBounds": [
+      138,
+      10,
+      501,
+      462
+    ],
+    "alphaBounds": [
+      135,
+      8,
+      503,
+      464
+    ],
+    "opaqueBodyRatio": 0.9601076228405504,
+    "solidPixels": 75077,
+    "borderOK": true
+  }
+]

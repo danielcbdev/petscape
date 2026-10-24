@@ -1,0 +1,991 @@
+[
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_02.png",
+    "registration" : "walk",
+    "scale" : 0.40829346092503987,
+    "source" : "walk-1.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      48,
+      176,
+      1207,
+      1154
+    ],
+    "target" : [
+      410.5,
+      473.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_04.png",
+    "registration" : "walk",
+    "scale" : 0.40829346092503987,
+    "source" : "walk-2.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      67,
+      247,
+      1220,
+      1155
+    ],
+    "target" : [
+      417.5,
+      473.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0.87639553429028183,
+      0
+    ],
+    "output" : "walk\/frames\/walk_06.png",
+    "registration" : "walk",
+    "scale" : 0.40829346092503987,
+    "source" : "walk-3.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      43,
+      246,
+      1211,
+      1159
+    ],
+    "target" : [
+      419.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 4,
+    "clip" : "walk",
+    "marginTranslation" : [
+      5.042264752791084,
+      0
+    ],
+    "output" : "walk\/frames\/walk_08.png",
+    "registration" : "walk",
+    "scale" : 0.40829346092503987,
+    "source" : "walk-4.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      51,
+      293,
+      1231,
+      1156
+    ],
+    "target" : [
+      423.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 5,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_10.png",
+    "registration" : "walk",
+    "scale" : 0.85693641618497107,
+    "source" : "walk-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      60,
+      116,
+      607,
+      558
+    ],
+    "target" : [
+      424,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 6,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_12.png",
+    "registration" : "walk",
+    "scale" : 0.85693641618497107,
+    "source" : "walk-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      681,
+      122,
+      1235,
+      555
+    ],
+    "target" : [
+      417.5,
+      473.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 7,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_14.png",
+    "registration" : "walk",
+    "scale" : 0.85693641618497107,
+    "source" : "walk-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      50,
+      706,
+      610,
+      1128
+    ],
+    "target" : [
+      418,
+      473
+    ]
+  },
+  {
+    "afterOriginalFrame" : 8,
+    "clip" : "walk",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "walk\/frames\/walk_16.png",
+    "registration" : "walk",
+    "scale" : 0.85693641618497107,
+    "source" : "walk-sheet.png",
+    "sourceBody" : 4,
+    "sourceBounds" : [
+      690,
+      699,
+      1239,
+      1132
+    ],
+    "target" : [
+      413.5,
+      473.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_02.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      33,
+      47,
+      520,
+      484
+    ],
+    "target" : [
+      269,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_04.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      544,
+      47,
+      1001,
+      484
+    ],
+    "target" : [
+      268.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_06.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      1024,
+      47,
+      1506,
+      484
+    ],
+    "target" : [
+      269,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 4,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_08.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 4,
+    "sourceBounds" : [
+      30,
+      541,
+      522,
+      980
+    ],
+    "target" : [
+      269,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 5,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_10.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 5,
+    "sourceBounds" : [
+      539,
+      541,
+      1007,
+      979
+    ],
+    "target" : [
+      268.75,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 6,
+    "clip" : "idle",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "idle\/frames\/idle_12.png",
+    "registration" : "ground",
+    "scale" : 0.92275494672754954,
+    "source" : "idle-sheet.png",
+    "sourceBody" : 6,
+    "sourceBounds" : [
+      1024,
+      540,
+      1509,
+      980
+    ],
+    "target" : [
+      269.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_02.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      36,
+      50,
+      494,
+      453
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_04.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      522,
+      54,
+      994,
+      460
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_06.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      1025,
+      54,
+      1514,
+      473
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 4,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_08.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 4,
+    "sourceBounds" : [
+      25,
+      549,
+      534,
+      940
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 5,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_10.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 5,
+    "sourceBounds" : [
+      546,
+      549,
+      1004,
+      953
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 6,
+    "clip" : "fall",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "fall\/frames\/fall_12.png",
+    "registration" : "air",
+    "scale" : 0.93868312757201655,
+    "source" : "fall-sheet.png",
+    "sourceBody" : 6,
+    "sourceBounds" : [
+      1045,
+      541,
+      1505,
+      948
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_02.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      51,
+      117,
+      497,
+      500
+    ],
+    "target" : [
+      278.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_04.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      556,
+      123,
+      998,
+      500
+    ],
+    "target" : [
+      267,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_06.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      1063,
+      123,
+      1490,
+      500
+    ],
+    "target" : [
+      267.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 4,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_08.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 4,
+    "sourceBounds" : [
+      54,
+      584,
+      487,
+      969
+    ],
+    "target" : [
+      267.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 5,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_10.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 5,
+    "sourceBounds" : [
+      560,
+      578,
+      996,
+      969
+    ],
+    "target" : [
+      267,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 6,
+    "clip" : "curious",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "curious\/frames\/curious_12.png",
+    "registration" : "ground",
+    "scale" : 0.89082209656372324,
+    "source" : "curious-sheet.png",
+    "sourceBody" : 6,
+    "sourceBounds" : [
+      1064,
+      583,
+      1501,
+      969
+    ],
+    "target" : [
+      278.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_02.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      61,
+      98,
+      446,
+      475
+    ],
+    "target" : [
+      303.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_04.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      574,
+      100,
+      959,
+      475
+    ],
+    "target" : [
+      302.75,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_06.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      1084,
+      103,
+      1472,
+      475
+    ],
+    "target" : [
+      302.75,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 4,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_08.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 4,
+    "sourceBounds" : [
+      60,
+      607,
+      448,
+      986
+    ],
+    "target" : [
+      319.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 5,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_10.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 5,
+    "sourceBounds" : [
+      576,
+      607,
+      960,
+      985
+    ],
+    "target" : [
+      303.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 6,
+    "clip" : "held",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "held\/frames\/held_12.png",
+    "registration" : "ground",
+    "scale" : 0.9823243482103402,
+    "source" : "held-sheet.png",
+    "sourceBody" : 6,
+    "sourceBounds" : [
+      1093,
+      604,
+      1470,
+      986
+    ],
+    "target" : [
+      287.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "jump-start",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "jump-start\/frames\/jump-start_02.png",
+    "registration" : "ground",
+    "scale" : 0.81887366818873675,
+    "source" : "jump-start-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      51,
+      137,
+      598,
+      575
+    ],
+    "target" : [
+      268.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "jump-start",
+    "marginTranslation" : [
+      3.8150684931507044,
+      0
+    ],
+    "output" : "jump-start\/frames\/jump-start_04.png",
+    "registration" : "ground",
+    "scale" : 0.81887366818873675,
+    "source" : "jump-start-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      671,
+      181,
+      1214,
+      576
+    ],
+    "target" : [
+      269.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "jump-start",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "jump-start\/frames\/jump-start_06.png",
+    "registration" : "ground",
+    "scale" : 0.81887366818873675,
+    "source" : "jump-start-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      49,
+      694,
+      601,
+      1175
+    ],
+    "target" : [
+      269.5,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "jump",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "jump\/frames\/jump_02.png",
+    "registration" : "air",
+    "scale" : 0.78997867803837951,
+    "source" : "jump-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      54,
+      80,
+      597,
+      588
+    ],
+    "target" : [
+      412,
+      65
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "jump",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "jump\/frames\/jump_04.png",
+    "registration" : "air",
+    "scale" : 0.78997867803837951,
+    "source" : "jump-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      691,
+      79,
+      1223,
+      562
+    ],
+    "target" : [
+      411.5,
+      65.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "jump",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "jump\/frames\/jump_06.png",
+    "registration" : "air",
+    "scale" : 0.78997867803837951,
+    "source" : "jump-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      55,
+      706,
+      595,
+      1122
+    ],
+    "target" : [
+      411.5,
+      65.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "picked-up",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "picked-up\/frames\/picked-up_02.png",
+    "registration" : "ground",
+    "scale" : 0.75238095238095237,
+    "source" : "picked-up-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      81,
+      137,
+      567,
+      604
+    ],
+    "target" : [
+      251.75,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "picked-up",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "picked-up\/frames\/picked-up_04.png",
+    "registration" : "ground",
+    "scale" : 0.75238095238095237,
+    "source" : "picked-up-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      699,
+      118,
+      1193,
+      601
+    ],
+    "target" : [
+      277.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 3,
+    "clip" : "picked-up",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "picked-up\/frames\/picked-up_06.png",
+    "registration" : "ground",
+    "scale" : 0.75238095238095237,
+    "source" : "picked-up-sheet.png",
+    "sourceBody" : 3,
+    "sourceBounds" : [
+      89,
+      669,
+      574,
+      1189
+    ],
+    "target" : [
+      247.25,
+      474
+    ]
+  },
+  {
+    "afterOriginalFrame" : 1,
+    "clip" : "climb",
+    "marginTranslation" : [
+      0,
+      0
+    ],
+    "output" : "climb\/frames\/climb_02.png",
+    "registration" : "wall",
+    "scale" : 0.55021565003080719,
+    "source" : "climb-sheet.png",
+    "sourceBody" : 1,
+    "sourceBounds" : [
+      189,
+      34,
+      887,
+      836
+    ],
+    "target" : [
+      500,
+      190.5
+    ]
+  },
+  {
+    "afterOriginalFrame" : 2,
+    "clip" : "climb",
+    "marginTranslation" : [
+      0,
+      0.72181146025880594
+    ],
+    "output" : "climb\/frames\/climb_04.png",
+    "registration" : "wall",
+    "scale" : 0.55021565003080719,
+    "source" : "climb-sheet.png",
+    "sourceBody" : 2,
+    "sourceBounds" : [
+      1071,
+      21,
+      1730,
+      842
+    ],
+    "target" : [
+      500,
+      190.5
+    ]
+  }
+]

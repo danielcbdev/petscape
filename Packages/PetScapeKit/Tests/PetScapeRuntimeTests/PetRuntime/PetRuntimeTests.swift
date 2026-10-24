@@ -49,7 +49,7 @@ struct PetRuntimeTests {
 
         init(
             preferences: InMemoryPreferencesStore = InMemoryPreferencesStore(
-                petSettings: PetSettings(behavior: AutonomySettings(isEnabled: false))),
+                petSettings: PetSettings(speed: 1, behavior: AutonomySettings(isEnabled: false))),
             tuning: BehaviorTuning = BehaviorTuning(),
             readScreens: (@MainActor () -> [ScreenDescriptor])? = nil,
             screenCenter: NotificationCenter = NotificationCenter()
@@ -543,7 +543,7 @@ struct PetRuntimeTests {
         try await fast.start()
         slow.frames(3)
         fast.frames(3)
-        slow.runtime.setPetSettings(PetSettings(behavior: AutonomySettings(isEnabled: false)))
+        slow.runtime.setPetSettings(PetSettings(speed: 1, behavior: AutonomySettings(isEnabled: false)))
         fast.runtime.setPetSettings(PetSettings(speed: 2, behavior: AutonomySettings(isEnabled: false)))
         slow.frames(1)
         fast.frames(1)
@@ -564,12 +564,13 @@ struct PetRuntimeTests {
         #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
         let before = h.runtime.simulationTime
         let energy = try #require(h.runtime.pets.first?.needs.energy)
-        for _ in 0..<Int(rate * 5) {
+        // Sample within the new brief sleep budget; waking ends passive batching.
+        for _ in 0..<Int(rate) {
             h.time += 1 / rate
             h.driver.fire(at: h.time)
         }
-        #expect(abs(h.runtime.simulationTime - before - 5) < 1e-6)
-        #expect(abs(try #require(h.runtime.pets.first?.needs.energy) - energy - 5.0 / 45) < 1e-6)
+        #expect(abs(h.runtime.simulationTime - before - 1) < 1e-6)
+        #expect(abs(try #require(h.runtime.pets.first?.needs.energy) - energy - 1.0 / 45) < 1e-6)
         h.runtime.setPaused(true)
         let paused = h.runtime.simulationTime
         h.time += 3600
@@ -618,7 +619,10 @@ struct PetRuntimeTests {
         #expect(h.driver.preferredFramesPerSecond == 60)
         h.frames(120)
         // Re-enter sleep after its cooldown using the same deterministic weighting.
-        h.frames(1500)
+        for _ in 0..<3600 {
+            if h.runtime.pets.first?.state == .grounded(.sleeping) { break }
+            h.frames(1)
+        }
         #expect(h.runtime.pets.first?.state == .grounded(.sleeping))
         values.screens = [Self.syntheticScreen(bottomInset: 0)]
         center.post(name: NSApplication.didChangeScreenParametersNotification, object: nil)

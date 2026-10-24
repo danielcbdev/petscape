@@ -26,7 +26,7 @@ Companion documents: [milestones.md](milestones.md) (what and status),
 | M6 Dock integration last of MVP | **M6 Dock + MVP hardening** (sleep/wake, screen changes, errors, perf) | MVP quality items belong before release v0.1.0 |
 | Settings unscheduled | Settings v1 in **M9** with behaviors | Settings are mostly behavior toggles |
 | Climbing (M11) before window detection (M12) | Kept, but M12 depends only on M7 and can run in parallel with M8–M11 | Reduces critical path |
-| Optimization (M14) as last | **M14** multi-display + stabilization, **M15** release pipeline | Distribution is its own concern |
+| Optimization and distribution sequence | **M14** multi-display + stabilization, **M15** animation quality, **M16** new behaviors/art, **M17** localization, **M18** bundled character selection, **M19** pack discovery/installation, **M20** release pipeline | Product work precedes distribution |
 
 ## Phases and dependencies
 
@@ -46,7 +46,7 @@ flowchart LR
   M10 --> M14
   M11 --> M14
   M13 --> M14
-  M14 --> M15
+  M14 --> M15 --> M16 --> M17 --> M18 --> M19 --> M20
 ```
 
 Critical path to MVP: M0 → M1 → M2 → (M3 ∥ M4) → M5 → M6.
@@ -75,7 +75,7 @@ Sizes: **S** ≤ ½ day, **M** ≤ 1 day, **L** ≤ 2 days (anything bigger must
 | M2–M6 MVP | ~45 | 3–4 weeks part-time |
 | M7–M11 | ~35 | 4–6 weeks + art |
 | M12–M13 | ~14 | 2–3 weeks |
-| M14–M15 | ~14 | 2–3 weeks |
+| M14–M20 | Scope and estimates to be planned per milestone |
 
 ## M7/M8 planning revision (2026-10-18)
 
