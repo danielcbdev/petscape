@@ -50,6 +50,8 @@ DEBUG launch arguments (ignored in Release):
 |---|---|
 | `--animation-preview` | Opens the Animation Preview as soon as the character has loaded |
 | `--character-pack <folder>` | Loads that pack folder instead of the bundled cat (e.g. to check a broken manifest: placeholder, menu status line, `assets` error log) |
+| `--characters-folder <folder>` | Discovers character packs from that folder instead of the bundled resources; DEBUG UI tests use it for isolated empty and multi-pack catalogs |
+| `--preferred-languages <list>` | Overrides the system preferred-language list only in DEBUG, for deterministic UI localization tests |
 
 ```bash
 open -n build/DerivedData/Build/Products/Debug/PetScape.app --args --animation-preview

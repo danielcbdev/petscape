@@ -49,7 +49,10 @@ including branch creation, commit and local merge into `develop`. **M18 is Done 
 with only `cat` bundled: real two-character selection remains deferred (AC-M18-08 unmet), and native
 Automation Mode/V8/performance evidence limits remain recorded in the
 [M18 closeout](docs/planning/milestones.md#owner-m18-closeout--2026-10-24). No push, release or tag is
-implied. M17 and M19–M20 remain Not started; their implementation is not authorized.
+implied. The owner separately authorized and accepted **M17 localization** on 2026-10-24, with
+native visual, VoiceOver and live system-language-change checks explicitly unverified and accepted
+as evidence limits in the [M17 closeout](docs/planning/milestones.md#owner-m17-closeout--2026-10-24).
+M19–M20 remain Not started and are not authorized.
 Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack

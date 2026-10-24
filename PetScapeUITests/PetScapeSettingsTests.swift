@@ -3,26 +3,33 @@ import XCTest
 /// Uses an isolated preferences suite AND a fake login service; Restore Defaults never changes the owner.
 final class PetScapeSettingsTests: XCTestCase {
     @MainActor
+    private func setLanguage(_ preferredLanguages: String, for app: XCUIApplication) {
+        var arguments = app.launchArguments
+        while let index = arguments.firstIndex(of: "--preferred-languages") {
+            let end = min(index + 2, arguments.count)
+            arguments.removeSubrange(index..<end)
+        }
+        app.launchArguments = arguments + ["--preferred-languages", preferredLanguages]
+    }
+
+    @MainActor
     private func integerValue(of element: XCUIElement) -> Int? {
         if let number = element.value as? NSNumber { return number.intValue }
         if let string = element.value as? String { return Int(string) }
         return nil
     }
 
-    /// UI fixtures live only in a temporary COPY of the built application. No shipping resources,
-    /// original art, external discovery path or owner preferences are changed.
+    /// Fixture packs live in a temporary directory that is passed to the DEBUG app. No shipping
+    /// resources, original art or owner preferences are changed.
     @MainActor
     private func fixtureApplication(characterCount: Int) throws -> (app: XCUIApplication, root: URL, suite: String) {
         var products = Bundle(for: Self.self).bundleURL
         for _ in 0..<4 { products.deleteLastPathComponent() }
-        let original = products.appending(path: "PetScape.app")
         let root = FileManager.default.temporaryDirectory.appending(path: "PetScapeUIFixture-\(UUID().uuidString)")
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         do {
-            let appURL = root.appending(path: "PetScape.app")
-            try FileManager.default.copyItem(at: original, to: appURL)
-            let characters = appURL.appending(path: "Contents/Resources/characters")
-            let source = characters.appending(path: "cat")
+            let characters = root.appending(path: "characters")
+            let source = products.appending(path: "PetScape.app/Contents/Resources/characters/cat")
             let manifest = try XCTUnwrap(
                 JSONSerialization.jsonObject(with: Data(contentsOf: source.appending(path: "character.json")))
                     as? [String: Any])
@@ -30,7 +37,6 @@ final class PetScapeSettingsTests: XCTestCase {
             let frames = try XCTUnwrap(animations["walk"]?["frames"] as? [[String: Any]])
             let path = try XCTUnwrap(frames.first?["image"] as? String)
             let image = try Data(contentsOf: source.appending(path: path))
-            try FileManager.default.removeItem(at: characters)
             try FileManager.default.createDirectory(at: characters, withIntermediateDirectories: true)
             for index in 0..<characterCount {
                 let id = index == 0 ? "fixture-a" : "fixture-b"
@@ -48,25 +54,14 @@ final class PetScapeSettingsTests: XCTestCase {
                 try JSONSerialization.data(withJSONObject: fixture).write(to: folder.appending(path: "character.json"))
                 try image.write(to: folder.appending(path: "frame.png"))
             }
-            let infoURL = appURL.appending(path: "Contents/Info.plist")
-            let infoData = try Data(contentsOf: infoURL)
-            var info = try XCTUnwrap(
-                PropertyListSerialization.propertyList(from: infoData, format: nil) as? [String: Any])
-            info["CFBundleIdentifier"] = "com.petscape.ui-fixture.\(UUID().uuidString)"
-            try PropertyListSerialization.data(fromPropertyList: info, format: .xml, options: 0).write(to: infoURL)
-            let signing = Process()
-            signing.executableURL = URL(fileURLWithPath: "/usr/bin/codesign")
-            signing.arguments = ["--force", "--sign", "-", appURL.path]
-            try signing.run()
-            signing.waitUntilExit()
-            XCTAssertEqual(signing.terminationStatus, 0)
             let suite = "PetScapeUITests.\(UUID().uuidString)"
             // Start paused and nonautonomous: initial attached Spawning is a safe character boundary.
             let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
             defaults.set(true, forKey: "petscape.isPaused")
             defaults.set(false, forKey: "petscape.autonomy")
-            let app = XCUIApplication(url: appURL)
-            app.launchArguments = ["--settings-test-suite", suite]
+            let app = XCUIApplication()
+            app.launchArguments = ["--settings-test-suite", suite, "--characters-folder", characters.path]
+            setLanguage("en", for: app)
             return (app, root, suite)
         } catch {
             try? FileManager.default.removeItem(at: root)
@@ -129,6 +124,7 @@ final class PetScapeSettingsTests: XCTestCase {
         let suiteName = "PetScapeUITests.\(UUID().uuidString)"
         let app = XCUIApplication()
         app.launchArguments = ["--settings-test-suite", suiteName]
+        setLanguage("en", for: app)
         defer {
             if app.state != .notRunning { app.terminate() }
             UserDefaults.standard.removePersistentDomain(forName: suiteName)
@@ -143,7 +139,7 @@ final class PetScapeSettingsTests: XCTestCase {
         XCTAssertTrue(window.waitForExistence(timeout: 5))
         let singleCharacter = window.staticTexts["settings.singleCharacter"]
         XCTAssertTrue(singleCharacter.waitForExistence(timeout: 15))
-        XCTAssertEqual(singleCharacter.label, "This is the only character included with this app.")
+        XCTAssertEqual(singleCharacter.value as? String, "This is the only character included with this app.")
         XCTAssertTrue(window.descendants(matching: .any)["settings.activeCharacter"].exists)
         XCTAssertFalse(window.popUpButtons["settings.character"].exists)
         XCTAssertFalse(window.staticTexts["settings.characterError"].exists)
@@ -192,5 +188,76 @@ final class PetScapeSettingsTests: XCTestCase {
         statusItem.click()
         app.typeKey("q", modifierFlags: .command)
         XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
+    }
+
+    @MainActor
+    func testBrazilianPortugueseMenuSettingsAndMusicConsent() throws {
+        let fixture = try fixtureApplication(characterCount: 1)
+        setLanguage("pt-BR", for: fixture.app)
+        defer {
+            fixture.app.terminate()
+            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
+            try? FileManager.default.removeItem(at: fixture.root)
+        }
+
+        let app = fixture.app
+        app.launch()
+        let statusItem = app.statusItems.firstMatch
+        XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
+        statusItem.click()
+        XCTAssertTrue(app.menuItems["Ocultar pet"].waitForExistence(timeout: 5))
+        XCTAssertTrue(app.menuItems["Pausar"].exists)
+        XCTAssertTrue(app.menuItems["Encerrar PetScape"].exists)
+
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let window = app.windows.firstMatch
+        let singleCharacter = window.staticTexts["settings.singleCharacter"]
+        XCTAssertTrue(singleCharacter.waitForExistence(timeout: 15))
+        XCTAssertEqual(singleCharacter.value as? String, "Este é o único personagem incluído no app.")
+        XCTAssertEqual(window.switches["settings.windowInteraction"].label, "Interagir com janelas")
+        XCTAssertEqual(window.switches["settings.musicDancing"].label, "Dançar ao som da música")
+        XCTAssertEqual(
+            window.staticTexts["settings.musicStatus"].value as? String, "A detecção de música está desativada.")
+        XCTAssertTrue(
+            (window.staticTexts["settings.windowInteractionExplanation"].value as? String)?.contains(
+                "posições das janelas") == true)
+
+        window.switches["settings.musicDancing"].click()
+        let enableMusic = app.buttons["Ativar detecção de música"]
+        XCTAssertTrue(enableMusic.waitForExistence(timeout: 5))
+        XCTAssertTrue(
+            app.staticTexts.containing(NSPredicate(format: "value CONTAINS %@", "não usa o microfone")).firstMatch
+                .exists)
+        window.sheets.firstMatch.buttons["Cancelar"].click()
+    }
+
+    @MainActor
+    func testBrazilianPortugueseEmptyCharacterAndPlaceholderStates() throws {
+        let fixture = try fixtureApplication(characterCount: 0)
+        setLanguage("pt-BR", for: fixture.app)
+        defer {
+            fixture.app.terminate()
+            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
+            try? FileManager.default.removeItem(at: fixture.root)
+        }
+
+        let app = fixture.app
+        app.launch()
+        let statusItem = app.statusItems.firstMatch
+        XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
+        statusItem.click()
+        XCTAssertTrue(
+            app.menuItems["Não foi possível carregar o pet. Exibindo um personagem provisório."]
+                .waitForExistence(timeout: 10))
+
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let window = app.windows.firstMatch
+        XCTAssertEqual(
+            window.staticTexts["settings.noCharacters"].value as? String, "Nenhum personagem incluído está disponível.")
+        XCTAssertEqual(
+            window.staticTexts["settings.characterError"].value as? String,
+            "Não foi possível carregar nenhum personagem incluído no app.")
     }
 }

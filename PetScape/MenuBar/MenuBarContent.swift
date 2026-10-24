@@ -10,7 +10,10 @@ struct MenuBarContent: View {
 
     var body: some View {
         if let status = model.characterStatus {
-            Text(status)
+            switch status {
+            case .degraded: Text("Some pet animations could not be loaded.")
+            case .placeholder: Text("The pet could not be loaded. Showing a placeholder.")
+            }
             Divider()
         }
         Button {

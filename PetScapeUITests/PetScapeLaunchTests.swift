@@ -6,7 +6,7 @@ final class PetScapeLaunchTests: XCTestCase {
     func testLaunchShowsStatusItemAndQuitTerminates() throws {
         let suiteName = "PetScapeUITests.\(UUID().uuidString)"
         let app = XCUIApplication()
-        app.launchArguments = ["--settings-test-suite", suiteName]
+        app.launchArguments = ["--settings-test-suite", suiteName, "--preferred-languages", "en"]
         defer {
             if app.state != .notRunning { app.terminate() }
             UserDefaults.standard.removePersistentDomain(forName: suiteName)

@@ -228,6 +228,25 @@ acceptance is not a fabricated pass for unrun checks.
 - AC-M16-10 [Review, Man]: Complete per-clip prompts and paths; unchanged images and valid existing manifest. M16 cannot be Done until owner art integration and visual QA.
 - AC-M16-11 [Auto, Review]: Record lint, package/UI, Debug/Release and asset validator results; preserve M15 V8 exception and all unverified evidence.
 
+### M17 — Portuguese and English localization
+
+- AC-M17-01 [Review]: Every user-visible product string is inventoried, including menu, Settings, M16 music/dance and permission copy, M18 character states, accessibility text, debug UI, and localized Info.plist values. Logs and developer-only diagnostics are identified separately.
+- AC-M17-02 [Auto]: Every shipped source string has a nonempty English source and Brazilian Portuguese (`pt-BR`) translation; no M17-introduced dead or duplicate catalog keys remain. English is the source language.
+- AC-M17-03 [Auto]: Language selection respects the ordered macOS preferred languages and uses the first supported language; English and English regional variants select English, `pt` variants including `pt-PT` select `pt-BR`, and no supported match falls back to English.
+- AC-M17-04 [Auto, Man]: The selected locale reaches MenuBarExtra, Settings, consent/status/errors and all M18 UI. Product messages are not materialized using the process-default locale outside the views.
+- AC-M17-05 [Review, Man]: Audio-capture and Accessibility permission explanations and privacy descriptions are accurate and understandable in both languages; the native audio usage-description is localized.
+- AC-M17-06 [Auto]: Placeholders and interpolated values preserve meaning and use locale-aware number, plural and unit formatting where applicable.
+- AC-M17-07 [Auto]: Localized catalogs and Info.plist resources are present in the app bundle in Debug and Release; source language and supported regions match the catalog.
+- AC-M17-08 [Auto, Review]: Existing M15/M16 behavior and M18 character-selection behavior are preserved; the M18 second-real-character criterion remains deferred and no M19/M20 feature is introduced.
+- AC-M17-09 [Man]: Menu and Settings fit and remain legible in English and Brazilian Portuguese; no clipped text or unusable controls in the longer Portuguese copy.
+- AC-M17-10 [Man]: Keyboard and VoiceOver labels, hints, statuses, consent sheets and character selection are reviewed in both locales; any unexecuted native evidence is recorded as pending.
+- AC-M17-11 [Auto, Man]: A running app updates its SwiftUI locale after a supported system locale-change notification; if macOS does not deliver a language-preference change during the process, the restart limitation and user indication are documented.
+
+M17 was closed by explicit owner acceptance on 2026-10-24 with AC-M17-09 (native layout),
+AC-M17-10 (native keyboard/VoiceOver review), and the native portion of AC-M17-11 (live system
+language-change behavior) unverified and accepted as evidence limits. These criteria are not
+recorded as passed; see the [M17 closeout](milestones.md#owner-m17-closeout--2026-10-24).
+
 ### M20 — Release pipeline
 - AC-M20-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
 
@@ -256,7 +275,8 @@ Status: **Done by explicit owner acceptance**, 2026-10-24, with retained excepti
 implementation is delivered; only one real character ships. **AC-M18-08 remains unmet and deferred**
 by the owner, rather than passed. Native keyboard/VoiceOver/visual execution and performance remain
 unverified; the existing V8 exception is unchanged. Synthetic test fixtures are never shipping
-options. M17 is not implemented. See the [owner closeout](milestones.md#owner-m18-closeout--2026-10-24)
+options. At M18 closeout, M17 had not yet been implemented; it was subsequently authorized and
+closed separately with native evidence limits recorded. See the [owner closeout](milestones.md#owner-m18-closeout--2026-10-24)
 and [engineering evidence](milestones.md#m18-engineering-evidence--2026-10-24).
 
 | ID | Objective criterion | Verification |

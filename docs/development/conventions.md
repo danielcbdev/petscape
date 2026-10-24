@@ -78,6 +78,10 @@ Model: [ADR-0012](../decisions/0012-concurrency-model.md).
   to an `@Observable` model (`AppModel`, `SettingsModel`) that forwards intents.
 - Use native controls and `Settings`/`MenuBarExtra` patterns; follow macOS HIG; all strings
   localizable via the String Catalog.
+- English is the String Catalog source language; `pt-BR` is the Brazilian Portuguese localization.
+  Resolve the ordered macOS preferred-language list at the app boundary, pass the selected locale to
+  SwiftUI, and keep model/service statuses semantic until the view renders localized text. Do not
+  materialize view copy with the process-default locale in Runtime or Platform.
 
 ## Logging
 

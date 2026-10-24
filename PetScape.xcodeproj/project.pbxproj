@@ -171,6 +171,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				"pt-BR",
 				Base,
 			);
 			mainGroup = EC2BD7D9B6D8ACF9F20EAF3E;

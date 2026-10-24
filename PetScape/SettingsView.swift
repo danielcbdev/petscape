@@ -89,6 +89,7 @@ struct SettingsView: View {
                         get: { model.isMusicDancingEnabled }, set: model.setMusicDancingEnabled)
                 )
                 .accessibilityIdentifier("settings.musicDancing")
+                .accessibilityLabel("Dance to music")
                 Text(
                     "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access."
                 )
@@ -116,11 +117,16 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                 if let error = model.loginError {
-                    Text(error.localizedDescription)
+                    loginErrorText(error)
                         .font(.caption)
                         .foregroundStyle(.red)
                         .accessibilityIdentifier("settings.loginError")
                 }
+                Text(
+                    "The interface follows your Mac’s preferred languages. Restart PetScape if a language change is not reflected."
+                )
+                .font(.caption)
+                .foregroundStyle(.secondary)
             }
             Section("Interaction") {
                 Toggle(
@@ -182,7 +188,7 @@ struct SettingsView: View {
             Button("Restore Defaults", action: model.restoreDefaults)
         }
         .formStyle(.grouped)
-        .frame(width: 440)
+        .frame(width: 520)
         .frame(maxHeight: 720, alignment: .top)
         .onAppear {
             model.refreshLoginStatus()
@@ -229,21 +235,33 @@ struct SettingsView: View {
                         set: { id in Task { await selection.select(id) } })
                 ) {
                     ForEach(selection.characters) { character in
-                        Text(verbatim: character.displayName).tag(character.id)
+                        if character.id.rawValue == "cat" {
+                            Text("Cat").tag(character.id)
+                        } else {
+                            Text(verbatim: character.displayName).tag(character.id)
+                        }
                     }
                 }
                 .disabled(!selection.canSelect)
                 .accessibilityIdentifier("settings.character")
                 .accessibilityLabel("Character")
             } else if let name = selection.activeName {
-                LabeledContent("Character", value: name)
-                    .accessibilityIdentifier("settings.activeCharacter")
+                LabeledContent("Character") {
+                    if selection.activeID?.rawValue == "cat" {
+                        Text("Cat")
+                    } else {
+                        Text(verbatim: name)
+                    }
+                }
+                .accessibilityIdentifier("settings.activeCharacter")
                 Text("This is the only character included with this app.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
+                    .accessibilityLabel(Text("This is the only character included with this app."))
                     .accessibilityIdentifier("settings.singleCharacter")
             } else if !selection.isLoading {
                 Text("No bundled characters are available.")
+                    .accessibilityLabel(Text("No bundled characters are available."))
                     .accessibilityIdentifier("settings.noCharacters")
             }
             if selection.isLoading {
@@ -255,12 +273,37 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            if let error = selection.error {
-                Text(error)
+            if let issue = selection.issue {
+                characterSelectionIssueText(issue)
                     .font(.caption)
                     .foregroundStyle(.red)
+                    .accessibilityLabel(characterSelectionIssueLabel(issue))
                     .accessibilityIdentifier("settings.characterError")
             }
+        }
+    }
+
+    @ViewBuilder private func characterSelectionIssueText(_ issue: CharacterSelectionIssue) -> some View {
+        switch issue {
+        case .noBundledCharacters: Text("No bundled characters could be loaded.")
+        case .characterCouldNotLoad: Text("This character could not be loaded. Your current pet is unchanged.")
+        case .waitForSafeBoundary:
+            Text("Wait until your pet is walking or idle with enough room, then try again.")
+        }
+    }
+
+    private func characterSelectionIssueLabel(_ issue: CharacterSelectionIssue) -> Text {
+        switch issue {
+        case .noBundledCharacters: Text("No bundled characters could be loaded.")
+        case .characterCouldNotLoad: Text("This character could not be loaded. Your current pet is unchanged.")
+        case .waitForSafeBoundary: Text("Wait until your pet is walking or idle with enough room, then try again.")
+        }
+    }
+
+    @ViewBuilder private func loginErrorText(_ error: LaunchAtLoginError) -> some View {
+        switch error {
+        case .registrationFailed: Text("Could not enable launch at login. Check System Settings and try again.")
+        case .unregistrationFailed: Text("Could not disable launch at login. Check System Settings and try again.")
         }
     }
 

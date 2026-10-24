@@ -385,3 +385,49 @@ Owner/manual matrix after a second real pack is supplied:
    process peak or startup latency from the ≤16 MiB initial cat-frame assertion.
 
 No M18 acceptance changes the retained M15 V8 pixel-QA exception or M16 owner closeout.
+
+## M17 localization
+
+Automated coverage resolves English, English regional variants, Brazilian and other Portuguese
+variants, unsupported leading preferences followed by supported languages, English fallback, and
+runtime refresh from an injected preferred-language list and notification center. UI tests use
+DEBUG-only `--preferred-languages` and `--characters-folder` arguments with the ordinary built app
+to check English and pt-BR, menu and Settings copy, M16 music consent, and M18 empty/single/multiple
+character states without changing shipping resources or granting audio access. The application
+locale is applied to each scene's content so menu and Settings text both update.
+
+**Verification (2026-10-24):** `make format`, `make lint`, Debug and Release builds passed; the UI
+suite passed 6 tests. Focused language tests (5), bundled character selection tests (10), and isolated
+`PetRuntime` tests (32) passed. The full `make test-core` run still reports the documented M15 V8
+pixel-QA exception (48 issues) and 62 `PetRuntime` assertions when that suite runs concurrently with
+the M15 image checks; `PetRuntime` passes in isolation. The String Catalog compiles with 94 entries,
+all with pt-BR translations; both built configurations contain the pt-BR catalog and localized
+Info.plist resources. Release emitted the existing Xcode AppIntents metadata-extraction warning
+because the app has no `AppIntents.framework` dependency; no Swift compiler warnings were emitted.
+Native visual layout, live system language-change behavior and VoiceOver were not run in this
+implementation. The owner accepted M17 closure on 2026-10-24 with these evidence limits recorded;
+the checklist below remains available for a later native review and does not represent passed checks.
+
+For each release configuration, inspect the built app for `pt-BR.lproj/Localizable.strings`,
+`en.lproj/InfoPlist.strings`, `pt-BR.lproj/InfoPlist.strings`, and the `en` / `pt-BR` values in
+`CFBundleLocalizations`. Compare Xcode-emitted `.stringsdata` with `Localizable.xcstrings` using
+`xcrun xcstringstool sync`, then compile the catalog with `xcrun xcstringstool compile`. Native
+layout, consent-system text and VoiceOver still require manual review in both languages; UI test
+accessibility labels do not prove a VoiceOver audit or visual fit.
+
+Unrun owner visual/accessibility follow-up matrix (accepted as an evidence limit at M17 closeout):
+
+1. Set the Mac's preferred languages to English, launch PetScape, inspect the status menu, Settings,
+   Dance/Stop Dance, character status, permission sheets and menu help. Check buttons and descriptions
+   remain readable at the installed app's native size.
+2. Set the preferred language to Brazilian Portuguese, relaunch, and repeat the same screens. Check
+   the 520-point Settings width, wrapped consent/privacy copy, disabled reasons, buttons, menu width,
+   and menu/Settings keyboard traversal for clipping or truncation.
+3. With VoiceOver in each language, inspect menu item names, toggle labels, selection states,
+   Settings descriptions, consent dialogs, character loading/failure and disabled controls.
+4. Change the system preferred language while PetScape remains open. Confirm the locale-change
+   notification updates menu and Settings; if macOS does not deliver it for that change, relaunch and
+   confirm the Settings hint explains the restart fallback.
+
+Do not grant Accessibility or audio permission solely for this localization review. Existing M15,
+M16 and M18 acceptance exceptions remain unchanged.

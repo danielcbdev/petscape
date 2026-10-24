@@ -1,7 +1,7 @@
 #if DEBUG
     import SwiftUI
 
-    /// "Debug" submenu (DEBUG builds only; strings are not localized on purpose).
+    /// Developer controls, localized like the rest of the menu in DEBUG builds.
     struct DebugMenu: View {
         @Bindable var model: DebugOverlayModel
 
@@ -10,74 +10,83 @@
                 Button {
                     model.jump()
                 } label: {
-                    Text(verbatim: "Jump vertically")
+                    Text("Jump vertically")
                 }
                 Button {
                     model.jump(horizontalOffset: -60)
                 } label: {
-                    Text(verbatim: "Short jump left")
+                    Text("Short jump left")
                 }
                 Button {
                     model.jump(horizontalOffset: 60)
                 } label: {
-                    Text(verbatim: "Short jump right")
+                    Text("Short jump right")
                 }
                 Button {
                     model.jumpToDock()
                 } label: {
-                    Text(verbatim: "Jump to Dock")
+                    Text("Jump to Dock")
                 }
                 Button {
                     model.setIdle(true)
                 } label: {
-                    Text(verbatim: "Idle")
+                    Text("Idle")
                 }
                 Button {
                     model.setIdle(false)
                 } label: {
-                    Text(verbatim: "Walk")
+                    Text("Walk")
                 }
                 Divider()
-                Toggle(isOn: $model.showsOverlayBounds) { Text(verbatim: "Show overlay bounds") }
-                Toggle(isOn: $model.showsPassthroughState) { Text(verbatim: "Show pass-through state") }
-                Toggle(isOn: $model.showsWalkway) { Text(verbatim: "Show walkway") }
-                Toggle(isOn: $model.showsWindowSurfaces) { Text(verbatim: "Show window surfaces") }
+                Toggle(isOn: $model.showsOverlayBounds) { Text("Show overlay bounds") }
+                Toggle(isOn: $model.showsPassthroughState) { Text("Show pass-through state") }
+                Toggle(isOn: $model.showsWalkway) { Text("Show walkway") }
+                Toggle(isOn: $model.showsWindowSurfaces) { Text("Show window surfaces") }
                 if model.showsWindowSurfaces {
-                    Text(verbatim: model.windowSurfaceStatus)
+                    windowSurfaceStatus
                 }
                 // A menu cannot host a live Stepper, so the stepper is a submenu of fixed steps (T6.3).
                 Menu {
                     Button {
                         model.adjustDockOffset(by: 1)
                     } label: {
-                        Text(verbatim: "Raise 1 pt")
+                        Text("Raise 1 pt")
                     }
                     Button {
                         model.adjustDockOffset(by: -1)
                     } label: {
-                        Text(verbatim: "Lower 1 pt")
+                        Text("Lower 1 pt")
                     }
                     Button {
                         model.adjustDockOffset(by: 5)
                     } label: {
-                        Text(verbatim: "Raise 5 pt")
+                        Text("Raise 5 pt")
                     }
                     Button {
                         model.adjustDockOffset(by: -5)
                     } label: {
-                        Text(verbatim: "Lower 5 pt")
+                        Text("Lower 5 pt")
                     }
                     Divider()
                     Button {
                         model.setDockOffset(0)
                     } label: {
-                        Text(verbatim: "Reset to 0 pt")
+                        Text("Reset to 0 pt")
                     }
                 } label: {
-                    Text(verbatim: "Dock offset: \(model.dockOffset.formatted(.number.sign(strategy: .always()))) pt")
+                    Text("Dock offset: \(model.dockOffset, format: .number.sign(strategy: .always())) pt")
                 }
             } label: {
-                Text(verbatim: "Debug")
+                Text("Debug")
+            }
+        }
+
+        @ViewBuilder private var windowSurfaceStatus: some View {
+            switch model.windowSurfaceStatus {
+            case .interactionDisabled: Text("Enable Interact with windows in Settings.")
+            case .permissionMissing: Text("Accessibility permission is missing.")
+            case .noSegments: Text("Tracking is enabled; no visible window top segments were detected.")
+            case .segmentCount(let count): Text("Visible window segments detected: \(count).")
             }
         }
     }

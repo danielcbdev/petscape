@@ -644,6 +644,18 @@ Contract, file responsibilities, task evidence and Git authorization:
 | T16.9 | Owner follow-up: emit real audio usage-description key, preserve first session after startup/failure, clean after held drop onto Dock/screen ground | App config, Core, Platform | Artifact key gate, red/green music/drop regressions, lint/build/UI; owner confirmed all behavior working at closeout; detailed native evidence limits retained |
 | T16.10 | Owner-requested Stop Dance in normal menu and Settings, with live availability and consumed-session preservation | Core, Runtime, App | Manual/automatic stop and non-dance guards; model availability; native UI |
 
+## M17 — Portuguese and English localization (authorized 2026-10-24)
+
+| ID | Task | Modules/files | Verification |
+|---|---|---|---|
+| T17.1 | Inventory product strings, metadata, model/service statuses, M16/M18 surfaces; establish translation rules | App, Runtime, Platform, catalog, InfoPlist, Docs | Complete source audit and resource inventory |
+| T17.2 | Resolve the first supported macOS preferred language (`en`, `pt-BR`); route other Portuguese variants to `pt-BR`, otherwise English; observe locale changes | Platform, App | Deterministic ordered-preference tests; notification/update test where supported |
+| T17.3 | Translate menu, Settings, consent/privacy, help/accessibility, debug-visible UI, bundled Cat name and app identity | App, String Catalog | Catalog validation, both locale UI assertions and manual layout review |
+| T17.4 | Keep Runtime/App status and character-selection errors semantic until rendered; localize login errors; preserve diagnostic logs | App, Runtime, Platform | Model and UI locale tests; no UI error rendered from process-default `localizedDescription` |
+| T17.5 | Localize audio usage text and configure source language, supported regions and target resources | Xcode project, Config, Resources | Debug/Release bundle inspection for catalog and `InfoPlist.strings` |
+| T17.6 | Add regression coverage for selection, locale changes, M16/M18 copy and fallback behavior | Platform, Runtime, UI tests | `make lint`, `make test-core`, UI tests, Debug/Release builds and catalog checks |
+| T17.7 | Record real verification results, visual/accessibility limits and owner follow-up without changing M15/M16/M18 closeouts | Planning, testing docs | Closeout inventory and exact manual matrix |
+
 ## M16–M19 — Planned product milestones
 
 | ID | Scope | Boundary for M15 |
@@ -661,7 +673,7 @@ branch creation, commit and local merge into develop. This does not claim two re
 passing native UI tests. See the [closeout](milestones.md#owner-m18-closeout--2026-10-24).
 
 Design and execution checklist: [M18 register](milestones.md#m18--bundled-character-selection).
-M17 translations remain separate; M19 external discovery/installation remains unauthorized.
+M17 localization was completed separately; M19 external discovery/installation remains unauthorized.
 
 | ID | Task | Modules/files | Verification |
 |---|---|---|---|

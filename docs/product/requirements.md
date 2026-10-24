@@ -73,7 +73,7 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | NFR-10 | Accessibility | Menu and Settings fully usable with VoiceOver and keyboard; pets are decorative and hidden from the accessibility tree. |
 | NFR-11 | Maintainability | Code follows [conventions.md](../development/conventions.md); no third-party runtime dependencies without an ADR. |
 | NFR-12 | Observability | Structured OSLog categories and DEBUG-only visual diagnostics (see [debugging.md](../development/debugging.md)). |
-| NFR-13 | Localization | UI strings are localizable from day one (String Catalog); English is the source language. |
+| NFR-13 | Localization | UI strings use the String Catalog with English as the source language and Brazilian Portuguese (`pt-BR`) as a supported translation; the app follows the first supported macOS preferred language and falls back to English. |
 
 ## Constraints
 

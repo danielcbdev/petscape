@@ -1,0 +1,2 @@
+"CFBundleDisplayName" = "PetScape";
+"NSAudioCaptureUsageDescription" = "PetScape analyzes system audio on this Mac to let your pet dance to music. Audio is never saved or sent.";

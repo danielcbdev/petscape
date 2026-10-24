@@ -25,7 +25,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M14 | Multi-display, optimization & stabilization | v1.0.0 | **Done by explicit owner acceptance** (2026-10-23; see [implementation record](m14-implementation.md); evidence limits and waived soak remain documented) |
 | M15 | Animation quality | — | **Done by explicit owner acceptance** (2026-10-23; revised animations and pacing tested by the owner; retained V8 pixel-QA exception — [closeout](m15-implementation.md#owner-m15-closeout--2026-10-23)) |
 | M16 | New behaviors and animations | — | **Done by explicit owner acceptance** (2026-10-24; owner confirmed all behavior works and authorized integration/push; V8 QA exception and measurement limits preserved — [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24)) |
-| M17 | Portuguese/English localization | — | Not started |
+| M17 | Portuguese/English localization | — | **Done by explicit owner acceptance** (2026-10-24; native visual/VoiceOver/live locale checks unverified, package-run exceptions retained — [closeout](#owner-m17-closeout--2026-10-24)) |
 | M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
 | M19 | Character pack discovery and installation | — | Not started |
 | M20 | Release pipeline | v1.0.0 | Not started |
@@ -438,9 +438,23 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 ## M17 — Portuguese and English localization
 
 - **Objective:** offer Portuguese and English UI with automatic language detection.
-- **Scope:** localization resources, language selection/detection and localized app strings. No M17 implementation is authorized by the M15 request.
-- **Prerequisites:** M16 planning/implementation as later specified.
-- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+- **Authorization:** explicit owner request on 2026-10-24 to implement M17 end to end. No manual language setting or persisted language preference.
+- **Scope:** English source, Brazilian Portuguese translation, first supported macOS preferred language, runtime locale updates where public APIs allow, all user-visible app and M18 text, and localized app metadata.
+- **Prerequisites:** M16 and M18 accepted. Preserve their behavior and closeout evidence; M19/M20 excluded.
+- **Status:** **Done by explicit owner acceptance, 2026-10-24.** Native visual, VoiceOver and live system language-change checks remain unverified and are recorded as accepted evidence limits; no pass is claimed.
+- **API impact:** `CharacterSelectionModel.error: String?` became the typed `issue: CharacterSelectionIssue?` so package code no longer freezes UI copy using the process locale. The package is only consumed by this app and its in-repo tests; all current callers were updated. No persisted key, manifest schema or Core API changed.
+- **Verification (2026-10-24):** `make format`, `make lint`, Debug build, Release build, and the UI suite (6 tests) passed. Focused M17 language selection (5 tests), M18 bundled selection (10 tests), and isolated `PetRuntime` (32 tests) passed. The String Catalog compiles with 94 entries and no missing pt-BR values; Debug and Release bundles contain the pt-BR catalog, both localized Info.plist resources, English development region, and `en` / `pt-BR` localizations. Release emitted the existing Xcode AppIntents metadata-extraction warning (the app has no `AppIntents.framework` dependency); no Swift compiler warnings were emitted. The full `make test-core` run exited with the pre-existing M15 V8 image-QA failure (48 issues) and 62 `PetRuntime` issues in the same concurrent package run; isolated `PetRuntime` passed. These do not change the accepted M15 V8 exception or M18's deferred second-character criterion.
+
+### Owner M17 closeout — 2026-10-24
+
+After receiving the verification results and the exact native visual/VoiceOver/language-change
+follow-up, the owner explicitly requested M17 closure, branch creation, commit, local merge to
+`develop` and push. M17 is **Done by explicit owner acceptance** with the limits above: no native
+visual layout, VoiceOver, or live macOS preferred-language change was observed during this run.
+Automated UI assertions and locale-monitor unit tests do not substitute for those checks. The
+complete package run retains the M15 V8 exception and the concurrent `PetRuntime` failures recorded
+above; isolated `PetRuntime` and all six UI tests passed. No M15/M16/M18 exception or M18's deferred
+second-character criterion is changed.
 
 ## M18 — Bundled character selection
 
@@ -448,9 +462,10 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 - **Authorization:** explicit owner request on 2026-10-24 includes generic implementation even if
   fewer than two real packs exist; original-art changes remain prohibited. Subsequent owner closeout
   below separately authorizes branch creation, commit and local merge into develop.
-- **Prerequisites:** M16 accepted. M17 is an integration dependency for translated copy, not a
-  technical blocker: use existing SwiftUI localizable literals and `String(localized:)`; no language
-  detection, translations or general string refactor. M17 stays Not started.
+- **Prerequisites:** M16 accepted. At M18 implementation/closeout, M17 remained separate and was not
+  a technical blocker: existing SwiftUI literals were localizable without changing M18 selection
+  behavior. M17 was later authorized and closed separately; its locale detection and translations
+  are recorded in the M17 plan and owner closeout above.
 - **Design:** bundle-only catalog at immediate `characters/*/character.json` roots, manifest IDs as
   identity, strict resource validation, independent image caches. A native Settings picker appears
   only with multiple valid packs; zero/one options have honest text. No extra menu or preview art.

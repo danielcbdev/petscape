@@ -3,6 +3,12 @@ import Observation
 import PetScapeCore
 import PetScapePlatform
 
+public enum CharacterSelectionIssue: Equatable, Sendable {
+    case noBundledCharacters
+    case characterCouldNotLoad
+    case waitForSafeBoundary
+}
+
 /// Validates first, applies synchronously on MainActor, then persists only a successful transaction.
 @Observable
 public final class CharacterSelectionModel {
@@ -10,7 +16,8 @@ public final class CharacterSelectionModel {
     public private(set) var activeID: CharacterID?
     public private(set) var isLoading = true
     public private(set) var unavailableCount = 0
-    public private(set) var error: String?
+    /// A semantic issue for the app layer to localize in its current SwiftUI environment.
+    public private(set) var issue: CharacterSelectionIssue?
     public var onApplied: ((LoadedCharacter) -> Void)?
     public var canSelect: Bool { characters.count > 1 && !isLoading }
     public var activeName: String? { characters.first { $0.id == activeID }?.displayName }
@@ -38,7 +45,7 @@ public final class CharacterSelectionModel {
         isStopped = false
         isLoading = true
         activeID = nil
-        error = nil
+        issue = nil
         characters = catalog.characters.sorted { $0.id.rawValue < $1.id.rawValue }
         unavailableCount = catalog.unavailableCount
         defer { if generation == token { isLoading = false } }
@@ -54,7 +61,7 @@ public final class CharacterSelectionModel {
             guard isCurrent(token) else { return }
             if isValid(character, for: candidate) {
                 if commit(character) { return }
-                error = Self.retryMessage
+                issue = .waitForSafeBoundary
                 return
             }
             exclude(candidate.id)
@@ -62,7 +69,7 @@ public final class CharacterSelectionModel {
         guard isCurrent(token) else { return }
         let placeholder = CharacterLoader.placeholder(failure: .manifestMissing)
         if apply(placeholder) { onApplied?(placeholder) }
-        error = String(localized: "No bundled characters could be loaded.")
+        issue = .noBundledCharacters
     }
 
     public func select(_ id: CharacterID) async {
@@ -70,27 +77,23 @@ public final class CharacterSelectionModel {
             let candidate = characters.first(where: { $0.id == id })
         else { return }
         isLoading = true
-        error = nil
+        issue = nil
         let token = generation
         defer { if generation == token { isLoading = false } }
         let character = await load(candidate.packURL)
         guard isCurrent(token) else { return }
         guard isValid(character, for: candidate) else {
             exclude(id)
-            error = String(localized: "This character could not be loaded. Your current pet is unchanged.")
+            issue = .characterCouldNotLoad
             return
         }
-        if !commit(character) { error = Self.retryMessage }
+        if !commit(character) { issue = .waitForSafeBoundary }
     }
 
     public func stop() {
         generation += 1
         isStopped = true
         isLoading = false
-    }
-
-    private static var retryMessage: String {
-        String(localized: "Wait until your pet is walking or idle with enough room, then try again.")
     }
 
     private func isCurrent(_ token: Int) -> Bool {

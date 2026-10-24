@@ -138,3 +138,10 @@ M16 is closed by explicit owner acceptance after the owner reported all behavior
 The limits above remain evidence limits: no new revocation/route matrix, CPU/energy/leak, frame-
 pacing or memory measurement is claimed, and no target or permission restriction is weakened.
 See the [owner closeout](../planning/m16-implementation.md#owner-m16-closeout--2026-10-24).
+
+### M17 localized permission copy
+
+The Accessibility explanation, local system-audio consent copy and `NSAudioCaptureUsageDescription`
+are translated in the app's `pt-BR` localization. English remains the source language. This changes
+presentation only: permission defaults, triggers, APIs, retention and privacy boundaries above are
+unchanged. Native system prompts use macOS's own language and were not replaced by app-authored UI.

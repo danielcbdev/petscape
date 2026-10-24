@@ -3,6 +3,13 @@
     import PetScapeCore
     import PetScapeRuntime
 
+    enum WindowSurfaceDiagnostic: Equatable {
+        case interactionDisabled
+        case permissionMissing
+        case noSegments
+        case segmentCount(Int)
+    }
+
     /// DEBUG menu state for the overlay and the Dock walkway (debugging.md#debug-menu). Forwards to the runtime;
     /// no logic.
     @Observable
@@ -27,17 +34,17 @@
         }
         private(set) var windowSurfaceCount = 0
 
-        var windowSurfaceStatus: String {
+        var windowSurfaceStatus: WindowSurfaceDiagnostic {
             guard settings.isWindowInteractionEnabled else {
-                return "Enable Interact with windows in Settings."
+                return .interactionDisabled
             }
             guard !settings.isWindowPermissionMissing else {
-                return "Accessibility permission is missing."
+                return .permissionMissing
             }
             guard windowSurfaceCount > 0 else {
-                return "Tracking is enabled; no visible window top segments were detected."
+                return .noSegments
             }
-            return "Detected \(windowSurfaceCount) visible window segment\(windowSurfaceCount == 1 ? "" : "s")."
+            return .segmentCount(windowSurfaceCount)
         }
         /// The persisted `dockOffsetAdjustment` in points (T6.3).
         var dockOffset: Double { settings.dockOffsetAdjustment }

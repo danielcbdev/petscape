@@ -39,11 +39,13 @@ menu bar (paw print icon); quit it from its menu.
   four test targets ([modules.md](../architecture/modules.md)). Core is nonisolated; Platform,
   Rendering, Runtime and their tests use `.defaultIsolation(MainActor.self)`. The app links
   `PetScapeRuntime`, `PetScapePlatform` and `PetScapeCore`.
-- `Config/*.xcconfig`: all project build settings. `project.pbxproj` holds only per-target values
-  (`PRODUCT_NAME`; for UI tests the bundle ID, `TEST_TARGET_NAME`, isolation and Hardened Runtime).
-- The Info.plist is generated (`GENERATE_INFOPLIST_FILE`); its keys come from `INFOPLIST_KEY_*`
-  settings. Resources: `PetScape/Resources/Assets.xcassets` (placeholder `AppIcon`) and
-  `Localizable.xcstrings` (English source).
+- `Config/*.xcconfig`: shared build settings. `project.pbxproj` holds localization metadata and
+  per-target values (`PRODUCT_NAME`; for UI tests the bundle ID, `TEST_TARGET_NAME`, isolation and
+  Hardened Runtime).
+- The Info.plist is generated (`GENERATE_INFOPLIST_FILE`) and merged with
+  `Config/PetScape-Info.plist`. Resources include `PetScape/Resources/Assets.xcassets`,
+  `Localizable.xcstrings` (English source, `pt-BR` translation), and `en.lproj/InfoPlist.strings` /
+  `pt-BR.lproj/InfoPlist.strings` for the display name and system-audio consent description.
 
 ## Project settings
 
@@ -59,6 +61,9 @@ menu bar (paw print icon); quit it from its menu.
 | `SWIFT_TREAT_WARNINGS_AS_ERRORS`, `GCC_TREAT_WARNINGS_AS_ERRORS` | `YES` in Release; always passed by the Makefile's `xcodebuild` calls | `Config/Release.xcconfig`, `Makefile` |
 | `INFOPLIST_KEY_LSUIElement` | `YES` (no Dock icon, no app menu) | `Config/Base.xcconfig` |
 | `INFOPLIST_KEY_CFBundleDisplayName` | `PetScape` | `Config/Base.xcconfig` |
+| `CFBundleDevelopmentRegion` | `en` | `Config/PetScape-Info.plist`, `Config/Base.xcconfig` |
+| `CFBundleLocalizations` | `en`, `pt-BR` | `Config/PetScape-Info.plist`; project regions in `project.pbxproj` |
+| `LOCALIZATION_PREFERS_STRING_CATALOGS`, `SWIFT_EMIT_LOC_STRINGS` | `YES` | `Config/Base.xcconfig` |
 | `ALWAYS_SEARCH_USER_PATHS` | `NO` (otherwise Xcode warns about traditional headermaps) | `Config/Base.xcconfig` |
 | Code signing | `CODE_SIGN_IDENTITY = -` ("Sign to Run Locally"), automatic style, no team | `Config/Base.xcconfig` |
 
@@ -130,3 +135,18 @@ permission API is needed. Run the bundled installed app with a stable developmen
 native consent tests; a changed ad-hoc signature can affect stored OS grants. Do not enable capture
 inside unattended tests. Fakes exercise lifecycle; real audio/consent/route checks remain owner-run.
 See [M16](../planning/m16-implementation.md) and [V9 art handoff](../specifications/animation-assets-v9.md).
+
+## Localization (M17)
+
+`PetScapeLanguage` resolves `Locale.preferredLanguages` in order: English variants map to `en`, all
+Portuguese variants map to the Brazilian Portuguese resources, and unsupported lists fall back to
+English. `SystemLanguageMonitor` observes `NSLocale.currentLocaleDidChangeNotification`; the app
+applies its selected locale to the content inside MenuBarExtra and Settings. Status and error models
+expose typed values so the view resolves their copy using that same SwiftUI locale. There is no app
+language preference or selector.
+
+When editing copy, update both the English source and `pt-BR` entry in `Localizable.xcstrings`.
+`xcodebuild` compiles the catalog into the app resources; `xcrun xcstringstool sync` can compare the
+catalog with build-emitted `.stringsdata`, and `xcrun xcstringstool compile` validates catalog
+compilation. Verify the built Debug and Release bundles contain `pt-BR.lproj/Localizable.strings`
+and both localized `InfoPlist.strings` resources.

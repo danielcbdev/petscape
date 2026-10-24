@@ -98,7 +98,7 @@ struct BundledCharacterSelectionTests {
         #expect(applied === working)
         #expect(previous !== working)
         #expect(model.activeID == CharacterID("cat"))
-        #expect(model.error != nil)
+        #expect(model.issue == .characterCouldNotLoad)
         #expect(prefs.selectedCharacterID == "cat")
         #expect(prefs.petSettings == before)
         #expect(prefs.isPaused && prefs.isHidden && prefs.isMusicDancingEnabled)
@@ -116,6 +116,7 @@ struct BundledCharacterSelectionTests {
         #expect(model.isLoading, "Settings must not show an empty catalog while initial discovery is running")
         await model.start(catalog: BundledCharacterCatalog())
         #expect(model.characters.isEmpty && !model.canSelect && model.activeID == nil)
+        #expect(model.issue == .noBundledCharacters)
         #expect(prefs.selectedCharacterID == "removed")
         await model.start(catalog: BundledCharacterCatalog(characters: [entry]))
         #expect(!model.canSelect && model.activeID == CharacterID("only"))
@@ -146,10 +147,10 @@ struct BundledCharacterSelectionTests {
         accepts = false
         await model.select(CharacterID("second"))
         #expect(model.activeID == CharacterID("cat") && prefs.selectedCharacterID == "cat")
-        #expect(model.characters.count == 2 && model.error != nil && model.canSelect)
+        #expect(model.characters.count == 2 && model.issue == .waitForSafeBoundary && model.canSelect)
         accepts = true
         await model.select(CharacterID("second"))
-        #expect(model.activeID == CharacterID("second") && model.error == nil)
+        #expect(model.activeID == CharacterID("second") && model.issue == nil)
     }
 
     @Test func startupSkipsACandidateThatBecameInvalidAndUsesLexicalIDWhenCatIsAbsent() async throws {

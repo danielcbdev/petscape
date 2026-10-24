@@ -14,6 +14,7 @@ final class AppContainer {
 
     private let model: AppModel
     private let runtime: PetRuntime
+    let languageMonitor: SystemLanguageMonitor
     let settingsModel: SettingsModel
     private var activationObserver: (any NSObjectProtocol)?
     private let characterSelection: CharacterSelectionModel
@@ -27,6 +28,15 @@ final class AppContainer {
 
     init(model: AppModel) {
         self.model = model
+        #if DEBUG
+            if let preferredLanguages = LaunchOptions.preferredLanguages {
+                languageMonitor = SystemLanguageMonitor(preferredLanguages: { preferredLanguages })
+            } else {
+                languageMonitor = SystemLanguageMonitor()
+            }
+        #else
+            languageMonitor = SystemLanguageMonitor()
+        #endif
         let preferences = Self.makePreferences()
         let runtime = PetRuntime(
             screenProvider: ScreenProvider(),
@@ -37,7 +47,7 @@ final class AppContainer {
         self.runtime = runtime
         runtime.onCharacterIssuesChange = { [weak model] issues in
             if issues.contains(where: { $0.severity == .error }) {
-                model?.characterStatus = String(localized: "Some pet animations could not be loaded.")
+                model?.characterStatus = .degraded
             }
         }
         let selection = CharacterSelectionModel(preferences: preferences) { [weak runtime] character in
@@ -62,6 +72,7 @@ final class AppContainer {
 
     func start() {
         Log.app.notice("PetScape started")
+        languageMonitor.start()
         runtime.start()
         activationObserver = NotificationCenter.default.addObserver(
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
@@ -76,7 +87,13 @@ final class AppContainer {
             opensPreviewWhenLoaded = LaunchOptions.opensAnimationPreview
         #endif
         let resources = Bundle.main.resourceURL ?? Bundle.main.bundleURL
-        let root = resources.appending(path: Self.charactersFolder)
+        #if DEBUG
+            let root =
+                LaunchOptions.charactersFolderPath.map { URL(fileURLWithPath: $0, isDirectory: true) }
+                ?? resources.appending(path: Self.charactersFolder)
+        #else
+            let root = resources.appending(path: Self.charactersFolder)
+        #endif
         loadTask = Task { [weak self] in
             #if DEBUG
                 if let path = LaunchOptions.characterPackPath {
@@ -105,6 +122,7 @@ final class AppContainer {
         #endif
         if let activationObserver { NotificationCenter.default.removeObserver(activationObserver) }
         activationObserver = nil
+        languageMonitor.stop()
         runtime.stop()
         Log.app.notice("PetScape stopped")
     }
@@ -116,9 +134,9 @@ final class AppContainer {
         #endif
         self.character = character
         if character.isPlaceholder {
-            model.characterStatus = String(localized: "The pet could not be loaded. Showing a placeholder.")
+            model.characterStatus = .placeholder
         } else if character.isDegraded {
-            model.characterStatus = String(localized: "Some pet animations could not be loaded.")
+            model.characterStatus = .degraded
         } else {
             model.characterStatus = nil
         }
@@ -193,6 +211,25 @@ final class AppContainer {
                 guard let index = arguments.firstIndex(of: "--character-pack"), arguments.indices.contains(index + 1)
                 else { return nil }
                 return arguments[index + 1]
+            }
+
+            static var charactersFolderPath: String? {
+                let arguments = ProcessInfo.processInfo.arguments
+                guard let index = arguments.firstIndex(of: "--characters-folder"),
+                    arguments.indices.contains(index + 1)
+                else { return nil }
+                return arguments[index + 1]
+            }
+
+            static var preferredLanguages: [String]? {
+                let arguments = ProcessInfo.processInfo.arguments
+                guard let index = arguments.firstIndex(of: "--preferred-languages"),
+                    arguments.indices.contains(index + 1)
+                else { return nil }
+                let languages = arguments[index + 1].split(separator: ",").map {
+                    $0.trimmingCharacters(in: .whitespacesAndNewlines)
+                }.filter { !$0.isEmpty }
+                return languages.isEmpty ? nil : languages
             }
         }
     #endif
