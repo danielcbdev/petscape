@@ -5,6 +5,7 @@ import PetScapePlatform
 /// Native Settings presentation and intents. Domain mutations stay in PetRuntime/PetWorld.
 @Observable
 public final class SettingsModel {
+    public let characterSelection: CharacterSelectionModel?
     public private(set) var petSettings: PetSettings
     public private(set) var userIntent: UserIntent
     public private(set) var dockOffsetAdjustment: Double
@@ -27,8 +28,10 @@ public final class SettingsModel {
 
     public init(
         runtime: PetRuntime, preferences: any PreferencesStore, loginService: any LaunchAtLoginService,
-        accessibilityPermission: any AccessibilityPermissionProviding = AccessibilityPermission()
+        accessibilityPermission: any AccessibilityPermissionProviding = AccessibilityPermission(),
+        characterSelection: CharacterSelectionModel? = nil
     ) {
+        self.characterSelection = characterSelection
         self.runtime = runtime
         self.preferences = preferences
         self.loginService = loginService

@@ -5,6 +5,7 @@ import PetScapeCore
 public final class UserDefaultsPreferencesStore: PreferencesStore {
     /// Stored keys: part of the persistence contract, change only with a migration.
     public enum Key {
+        public static let selectedCharacterID = "petscape.selectedCharacterID"
         public static let version = "petscape.preferencesVersion"
         public static let scale = "petscape.scale"
         public static let speed = "petscape.speed"
@@ -30,6 +31,12 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
     public init(defaults: UserDefaults = .standard) {
         self.defaults = defaults
         migrate()
+    }
+
+    /// Additive M18 key. Restore Defaults retains this content choice and all unknown keys.
+    public var selectedCharacterID: String? {
+        get { defaults.string(forKey: Key.selectedCharacterID) }
+        set { defaults.set(newValue, forKey: Key.selectedCharacterID) }
     }
 
     public var isPaused: Bool {

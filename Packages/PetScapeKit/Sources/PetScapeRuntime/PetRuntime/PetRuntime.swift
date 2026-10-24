@@ -34,7 +34,7 @@ public final class PetRuntime {
     )
     private var accumulator = FixedStepAccumulator()
     private var character: LoadedCharacter?
-    private var loadingBehaviorFamilies: Set<String> = []
+    private(set) var behaviorFamilyTasks: [String: Task<Void, Never>] = [:]
     private var renderers: [ScreenID: PetRenderer] = [:]
     private var rendererViews: [ScreenID: OverlayContentView] = [:]
     private var screenSnapshots: [ScreenID: RenderSnapshot] = [:]
@@ -211,6 +211,10 @@ public final class PetRuntime {
     /// Stops frames, observers and overlays (FR-13) and drops the pet layers.
     public func stop() {
         isStarted = false
+        character = nil
+        world.removeAllPets()
+        snapshot.pets.removeAll(keepingCapacity: true)
+        events.removeAll(keepingCapacity: true)
         world.apply(.suspendMusicBehaviors)
         musicDetector.stop()
         windowTracker.stop()
@@ -220,7 +224,7 @@ public final class PetRuntime {
         rendererViews.removeAll()
         screenSnapshots.removeAll()
         hitTester.removeAll()
-        loadingBehaviorFamilies.removeAll()
+        cancelBehaviorFamilyLoads()
         accumulator.reset()
     }
 
@@ -281,7 +285,7 @@ public final class PetRuntime {
     public func show(_ character: LoadedCharacter) {
         interactionController.cancel(.petUnavailable)
         self.character = character
-        loadingBehaviorFamilies.removeAll()
+        cancelBehaviorFamilyLoads()
         world.removeAllPets()
         let id = world.spawn(character.definition, scale: preferences.petSettings.scale)
         let placement = world.pet(id)?.attachment.map { "on \($0.surfaceID)" } ?? "waiting for a surface"
@@ -289,6 +293,30 @@ public final class PetRuntime {
             "Pet \(id, privacy: .public) '\(character.definition.id.rawValue, privacy: .public)' spawned \(placement, privacy: .public)"
         )
         renderNow()
+    }
+
+    /// Candidate images have already been validated. Commit between frame callbacks on MainActor.
+    /// Rejection leaves every current layer, input session and simulation value untouched.
+    @discardableResult
+    public func replaceCharacter(_ candidate: LoadedCharacter) -> Bool {
+        guard isStarted, !candidate.isPlaceholder, !candidate.isDegraded else { return false }
+        if character == nil || character?.isPlaceholder == true || world.pets.isEmpty {
+            show(candidate)
+            return true
+        }
+        guard world.replaceSettledCharacter(with: candidate.definition, scale: preferences.petSettings.scale)
+        else { return false }
+        interactionController.cancel(.petUnavailable)
+        character = candidate
+        cancelBehaviorFamilyLoads()
+        accumulator.reset()
+        events.removeAll(keepingCapacity: true)
+        snapshot.pets.removeAll(keepingCapacity: true)
+        for id in Array(screenSnapshots.keys) { screenSnapshots[id]?.pets.removeAll(keepingCapacity: true) }
+        renderers.values.forEach { $0.removeAll() }
+        hitTester.removeAll()
+        renderNow()
+        return true
     }
 
     // MARK: - Overlay callbacks
@@ -471,16 +499,21 @@ public final class PetRuntime {
         publishDanceAvailability()
     }
 
+    private func cancelBehaviorFamilyLoads() {
+        for task in behaviorFamilyTasks.values { task.cancel() }
+        behaviorFamilyTasks.removeAll()
+    }
+
     private func requestBehaviorFamilyLoad(_ clip: String, for character: LoadedCharacter) {
         let family = CharacterFrameCatalog.family(for: clip)
-        guard !character.hasAttemptedBehaviorFamily(containing: clip), loadingBehaviorFamilies.insert(family).inserted
+        guard !character.hasAttemptedBehaviorFamily(containing: clip), behaviorFamilyTasks[family] == nil
         else {
             return
         }
-        Task { [weak self, character] in
+        behaviorFamilyTasks[family] = Task { [weak self, character] in
             let loaded = await character.loadBehaviorFamily(containing: clip)
-            guard let self, self.character === character else { return }
-            self.loadingBehaviorFamilies.remove(family)
+            guard let self, self.isStarted, self.character === character else { return }
+            self.behaviorFamilyTasks[family] = nil
             if !loaded { self.onCharacterIssuesChange?(character.issues) }
             self.renderNow()
         }

@@ -17,13 +17,17 @@ public final class CharacterLoader {
     }
 
     public func load(packURL: URL) async -> LoadedCharacter {
+        await load(packURL: packURL, confinedToPack: false)
+    }
+
+    private func load(packURL: URL, confinedToPack: Bool) async -> LoadedCharacter {
         let signpostID = Signposts.signposter.makeSignpostID()
         let interval = Signposts.signposter.beginInterval(Signposts.Interval.characterLoad, id: signpostID)
         defer { Signposts.signposter.endInterval(Signposts.Interval.characterLoad, interval) }
 
         let packName = packURL.lastPathComponent
         do {
-            let character = try await loadPack(at: packURL)
+            let character = try await loadPack(at: packURL, confinedToPack: confinedToPack)
             Log.assets.notice(
                 "Loaded character '\(character.definition.id.rawValue, privacy: .public)': \(character.definition.clips.count) clip(s), \(character.pixelSize) px, \(character.decodedByteCount) bytes decoded"
             )
@@ -36,9 +40,49 @@ public final class CharacterLoader {
         }
     }
 
+    /// Strict bundled-selection gate: all declared clips and sources must work. Validate full decoding,
+    /// then discard noninitial buffers so M14 lazy family residency remains unchanged.
+    public func loadForSelection(packURL: URL) async -> LoadedCharacter {
+        let character = await load(packURL: packURL, confinedToPack: true)
+        guard !character.isPlaceholder else { return character }
+        guard !character.isDegraded else {
+            return Self.placeholder(failure: .invalidPack(character.issues))
+        }
+        let definition = character.definition
+        let sources = Set(definition.clips.values.flatMap { $0.frames.map(\.source) })
+        let result = await store.preload(
+            character: definition.id, packURL: packURL, sources: sources, pixelSize: character.pixelSize)
+        guard result.failures.isEmpty else {
+            Log.assets.error("Bundled character has undecodable resources")
+            store.evict(character: definition.id)
+            return Self.placeholder(failure: .manifestUnreadable("Character resources could not be decoded"))
+        }
+        let family = CharacterFrameCatalog.family(for: definition.defaultClipName)
+        let initialSources = Set(
+            definition.clips.filter { CharacterFrameCatalog.family(for: $0.key) == family }
+                .values.flatMap { $0.frames.map(\.source) })
+        store.evict(character: definition.id, keeping: initialSources)
+        return character
+    }
+
+    @concurrent
+    nonisolated private static func sourcesStayInsidePack(
+        _ sources: Set<AnimationClip.FrameSource>, packURL: URL
+    ) async -> Bool {
+        let root = packURL.resolvingSymlinksInPath().standardizedFileURL.path + "/"
+        return sources.allSatisfy {
+            packURL.appending(path: $0.imagePath).resolvingSymlinksInPath().standardizedFileURL.path.hasPrefix(root)
+        }
+    }
+
     // MARK: - Steps
 
-    private func loadPack(at packURL: URL) async throws(CharacterLoadError) -> LoadedCharacter {
+    private func loadPack(at packURL: URL, confinedToPack: Bool) async throws(CharacterLoadError) -> LoadedCharacter {
+        if confinedToPack,
+            !(await Self.sourcesStayInsidePack([.image(Self.manifestFileName)], packURL: packURL))
+        {
+            throw .manifestUnreadable("Manifest outside character pack")
+        }
         let data = try await Self.readManifest(at: packURL.appending(path: Self.manifestFileName))
         let decoded: DecodedManifest
         do {
@@ -61,6 +105,9 @@ public final class CharacterLoader {
         let characterID = provisional.id
         let pixelSize = FrameImageStore.targetPixelSize(for: manifest.displaySize)
         let sources = Set(provisional.clips.values.flatMap { $0.frames.map(\.source) })
+        if confinedToPack, !(await Self.sourcesStayInsidePack(sources, packURL: packURL)) {
+            throw .manifestUnreadable("Resource outside character pack")
+        }
         let probe = await store.probe(packURL: packURL, sources: sources)
         var report = ManifestValidator.validate(decoded, images: probe.probes)
         Self.log(report.issues, pack: manifest.id)

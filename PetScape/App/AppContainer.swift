@@ -11,13 +11,12 @@ import PetScapeRuntime
 final class AppContainer {
     /// The bundled pack folder inside `Contents/Resources` (folder reference to `assets/characters`, T4.9).
     static let charactersFolder = "characters"
-    static let defaultCharacterID = "cat"
 
     private let model: AppModel
     private let runtime: PetRuntime
     let settingsModel: SettingsModel
     private var activationObserver: (any NSObjectProtocol)?
-    private let characterLoader = CharacterLoader()
+    private let characterSelection: CharacterSelectionModel
     private var loadTask: Task<Void, Never>?
     private(set) var character: LoadedCharacter?
     #if DEBUG
@@ -41,12 +40,24 @@ final class AppContainer {
                 model?.characterStatus = String(localized: "Some pet animations could not be loaded.")
             }
         }
-        settingsModel = SettingsModel(runtime: runtime, preferences: preferences, loginService: Self.makeLoginService())
+        let selection = CharacterSelectionModel(preferences: preferences) { [weak runtime] character in
+            guard let runtime else { return false }
+            if character.isPlaceholder {
+                runtime.show(character)
+                return true
+            }
+            return runtime.replaceCharacter(character)
+        }
+        characterSelection = selection
+        settingsModel = SettingsModel(
+            runtime: runtime, preferences: preferences, loginService: Self.makeLoginService(),
+            characterSelection: selection)
         runtime.onWindowPermissionRevoked = { [weak settingsModel] in settingsModel?.windowPermissionWasRevoked() }
         model.settings = settingsModel
         #if DEBUG
             debugModel = DebugOverlayModel(runtime: runtime, settings: settingsModel)
         #endif
+        selection.onApplied = { [weak self] character in self?.characterDidLoad(character) }
     }
 
     func start() {
@@ -64,16 +75,28 @@ final class AppContainer {
             model.openAnimationPreviewAction = { [weak self] in self?.openAnimationPreview() }
             opensPreviewWhenLoaded = LaunchOptions.opensAnimationPreview
         #endif
-        let loader = characterLoader
-        let packURL = Self.characterPackURL()
+        let resources = Bundle.main.resourceURL ?? Bundle.main.bundleURL
+        let root = resources.appending(path: Self.charactersFolder)
         loadTask = Task { [weak self] in
-            let character = await loader.load(packURL: packURL)
-            self?.characterDidLoad(character)
+            #if DEBUG
+                if let path = LaunchOptions.characterPackPath {
+                    let character = await CharacterLoader().load(packURL: URL(fileURLWithPath: path, isDirectory: true))
+                    guard !Task.isCancelled, let self else { return }
+                    self.characterSelection.stop()
+                    self.runtime.show(character)
+                    self.characterDidLoad(character)
+                    return
+                }
+            #endif
+            let catalog = await BundledCharacterCatalog.discover(in: root)
+            guard !Task.isCancelled, let self else { return }
+            await self.characterSelection.start(catalog: catalog)
         }
     }
 
     /// Tears everything down before the process exits (FR-13: observers removed, windows closed).
     func stop() {
+        characterSelection.stop()
         loadTask?.cancel()
         loadTask = nil
         #if DEBUG
@@ -87,8 +110,11 @@ final class AppContainer {
     }
 
     private func characterDidLoad(_ character: LoadedCharacter) {
+        #if DEBUG
+            animationPreview?.close()
+            animationPreview = nil
+        #endif
         self.character = character
-        runtime.show(character)
         if character.isPlaceholder {
             model.characterStatus = String(localized: "The pet could not be loaded. Showing a placeholder.")
         } else if character.isDegraded {
@@ -131,16 +157,6 @@ final class AppContainer {
             }
         }
     #endif
-
-    private static func characterPackURL() -> URL {
-        #if DEBUG
-            if let override = LaunchOptions.characterPackPath {
-                return URL(fileURLWithPath: override, isDirectory: true)
-            }
-        #endif
-        let resources = Bundle.main.resourceURL ?? Bundle.main.bundleURL
-        return resources.appending(path: charactersFolder).appending(path: defaultCharacterID)
-    }
 
     #if DEBUG
         private func openAnimationPreview() {

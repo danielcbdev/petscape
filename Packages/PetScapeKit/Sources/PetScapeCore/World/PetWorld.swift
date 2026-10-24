@@ -62,6 +62,50 @@ public struct PetWorld: Sendable {
         return id
     }
 
+    /// M18 transaction boundary: never teleport or interrupt a physical/interaction phase to change art.
+    /// A fresh pet identity prevents old events from addressing the new animation/behavior state.
+    @discardableResult
+    public mutating func replaceSettledCharacter(with definition: CharacterDefinition, scale: Double) -> Bool {
+        guard pets.count == 1, let old = pets.first,
+            old.state == .walking || old.state == .grounded(.idle) || old.state == .spawning,
+            old.interactionID == nil, old.windowExcursionPhase == nil,
+            let surface = attachedSurface(of: old), !surface.isVertical
+        else { return false }
+        var replacement = Pet(id: PetID(nextPetID), definition: definition, scale: scale)
+        replacement.facing = old.facing
+        replacement.animation.setFacing(old.facing)
+        replacement.animation.rate = tuning.speedScale
+        replacement.position = old.position
+        replacement.attachment = old.attachment
+        let state: PetState = old.state == .grounded(.idle) ? .grounded(.idle) : .walking
+        var discardedEvents: [WorldEvent] = []
+        enter(state, pet: &replacement, events: &discardedEvents)
+        guard let geometry = replacement.contactGeometry else { return false }
+        let margin = surface.kind == .windowTop ? geometry.halfWidth : max(geometry.halfWidth, replacement.edgeMargin)
+        // walkableRange intentionally returns a midpoint for oversized sprites during recovery.
+        // Selection must reject that case rather than introducing an incompatible character in place.
+        guard surface.width >= margin * 2,
+            surface.walkableRange(margin: margin).contains(old.position.x),
+            attachedSurface(of: replacement) != nil
+        else { return false }
+        let top =
+            replacement.position.y
+            + (1 - replacement.animation.currentFrame.anchor.y) * replacement.size.height
+        guard
+            screens.isEmpty
+                || screens.contains(where: {
+                    replacement.position.x >= $0.frame.minX + replacement.edgeMargin
+                        && replacement.position.x <= $0.frame.maxX - replacement.edgeMargin
+                        && replacement.position.y >= $0.frame.minY && top <= $0.frame.maxY
+                })
+        else { return false }
+        nextPetID += 1
+        pets = [replacement]
+        pendingEvents.removeAll(keepingCapacity: true)
+        animationEvents.removeAll(keepingCapacity: true)
+        return true
+    }
+
     public mutating func removeAllPets() {
         pets.removeAll()
         pendingEvents.removeAll(keepingCapacity: true)
