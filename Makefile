@@ -8,7 +8,7 @@ DERIVED_DATA := build/DerivedData
 APP          := $(DERIVED_DATA)/Build/Products/Debug/PetScape.app
 
 XCODEBUILD := xcodebuild -project $(PROJECT) -scheme $(SCHEME) -destination 'platform=macOS' \
-	-derivedDataPath $(DERIVED_DATA) SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES
+	-derivedDataPath $(DERIVED_DATA) SWIFT_TREAT_WARNINGS_AS_ERRORS=YES SWIFT_SUPPRESS_WARNINGS=NO GCC_TREAT_WARNINGS_AS_ERRORS=YES
 
 # Matches `import M`, `@preconcurrency import M`, `public import M`, `import struct M.T`.
 IMPORT_OF := ^[[:space:]]*(@[A-Za-z_]+[[:space:]]+)*((public|package|internal|fileprivate|private)[[:space:]]+)?import[[:space:]]+((typealias|struct|class|enum|protocol|let|var|func)[[:space:]]+)?

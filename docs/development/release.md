@@ -127,6 +127,10 @@ Output is ignored `dist/release/PetScape-VERSION-BUILD-universal/`, or `dist/reh
 Repeatable means the same verified process/content contract, not bit-identical Xcode artifacts.
 Timestamps, version/build and debug paths can change hashes. Existing AppIntents metadata and
 ambiguous-local-destination diagnostics are reported; no Swift warning is ignored.
+Both canonical and release Xcode commands explicitly use `SWIFT_SUPPRESS_WARNINGS=NO` alongside
+warnings-as-errors: Xcode 26 otherwise adds warning suppression to local SwiftPM packages, which
+conflicts with strict warning enforcement. The hosted workflow runs `make build` first to expose
+app/toolchain incompatibilities before the longer package-test rounds.
 
 ## GitHub Actions and publication
 

@@ -303,3 +303,11 @@ time spent blocked by other tests. Every callback/state assertion remains unchan
 latency test or a waiver. Release run `40218905502` was cancelled while this blocking race was
 addressed. The report validator now supports both exact complete layouts: Swift 6.2's 573 tests/65
 suites aggregate, and Swift 6.4's four-module summaries. Both still require only V8 with 48 issues.
+
+Run `40219644927` confirmed both complete package runs now fail **only** V8 (48 issues); the exact
+exception matcher accepted both. It then blocked normal packaging because Xcode 26's implicit
+`-suppress-warnings` for local SwiftPM packages conflicted with explicit `-warnings-as-errors` in
+Debug, Release and UI builds. All three raw failures are retained in its uploaded logs. Canonical
+Makefile and release Xcode commands now explicitly set `SWIFT_SUPPRESS_WARNINGS=NO`; warning
+enforcement stays enabled. A canonical `make build` preflight was added before the long hosted
+test sequence so further toolchain incompatibilities fail early. No additional gate was waived.

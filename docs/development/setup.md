@@ -30,7 +30,7 @@ Standalone Release build (also executed by the release script):
 ```bash
 xcodebuild -project PetScape.xcodeproj -scheme PetScape -destination 'platform=macOS' \
   -derivedDataPath build/DerivedData -configuration Release \
-  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES build
+  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES SWIFT_SUPPRESS_WARNINGS=NO GCC_TREAT_WARNINGS_AS_ERRORS=YES build
 ```
 
 ## Getting started

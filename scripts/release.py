@@ -279,7 +279,7 @@ def main():
     results = {}
     xcb = ["xcodebuild", "-project", "PetScape.xcodeproj", "-scheme", "PetScape",
            "-destination", "platform=macOS", "-derivedDataPath", str(destination / "DerivedData"),
-           "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "GCC_TREAT_WARNINGS_AS_ERRORS=YES"]
+           "SWIFT_TREAT_WARNINGS_AS_ERRORS=YES", "SWIFT_SUPPRESS_WARNINGS=NO", "GCC_TREAT_WARNINGS_AS_ERRORS=YES"]
     # Run canonical commands intact. A failed make test still blocks publication.
     for phase, command in [("lint", ["make", "lint"]), ("test-core", ["make", "test-core"]),
                            ("test", ["make", "test"]), ("debug", ["make", "build"]),
