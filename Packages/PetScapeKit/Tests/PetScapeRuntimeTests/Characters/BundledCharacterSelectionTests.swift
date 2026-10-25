@@ -5,12 +5,17 @@ import Testing
 
 @testable import PetScapeRuntime
 
-@Suite("M18 bundled character selection", .serialized)
+@Suite("M20 character roster", .serialized)
 struct BundledCharacterSelectionTests {
     private func pack(_ id: String) throws -> URL {
         try TestPacks.make(
             manifest: TestPacks.manifest(walkFrames: ["walk.png"]).replacingOccurrences(
                 of: "\"fixture\"", with: "\"\(id)\""), images: ["walk.png"])
+    }
+
+    private func entry(_ id: String, at url: URL) async -> CharacterCatalogEntry {
+        let loaded = await CharacterLoader().loadForSelection(packURL: url)
+        return CharacterCatalogEntry(character: loaded, packURL: url)
     }
 
     @Test func catalogUsesManifestIdentityRejectsInvalidAndDuplicatePacksWithoutRecursing() async throws {
@@ -26,7 +31,7 @@ struct BundledCharacterSelectionTests {
         try FileManager.default.moveItem(at: nested, to: root.appending(path: "container"))
         let hidden = try pack("nested")
         try FileManager.default.moveItem(at: hidden, to: root.appending(path: "container/nested"))
-        let catalog = await BundledCharacterCatalog.discover(in: root)
+        let catalog = await CharacterCatalog.discover(in: root)
         #expect(catalog.characters.map(\.id) == [CharacterID("cat")])
         #expect(catalog.unavailableCount == 4)
         #expect(catalog.characters.first?.packURL.lastPathComponent == "renamed-folder")
@@ -34,7 +39,7 @@ struct BundledCharacterSelectionTests {
 
     @Test func actualShippingSourceContainsOnlyOneCompleteCatWithLazyInitialResidency() async {
         let root = TestPacks.catPackURL.deletingLastPathComponent()
-        let catalog = await BundledCharacterCatalog.discover(in: root)
+        let catalog = await CharacterCatalog.discover(in: root)
         #expect(catalog.characters.map(\.id) == [CharacterID("cat")])
         #expect(catalog.unavailableCount == 0)
         let cat = await CharacterLoader().loadForSelection(packURL: TestPacks.catPackURL)
@@ -52,149 +57,153 @@ struct BundledCharacterSelectionTests {
         #expect(await CharacterLoader().loadForSelection(packURL: url).isPlaceholder)
     }
 
-    @Test func defaultsPersistenceRestartUnknownRemovedAndFailurePreserveGlobalPreferences() async throws {
-        let first = try pack("cat")
-        let second = try pack("second")
-        defer {
-            try? FileManager.default.removeItem(at: first)
-            try? FileManager.default.removeItem(at: second)
-        }
-        let cat = await CharacterLoader().loadForSelection(packURL: first)
-        let other = await CharacterLoader().loadForSelection(packURL: second)
-        let entries = [
-            BundledCharacter(character: cat, packURL: first), BundledCharacter(character: other, packURL: second),
-        ]
-        let catalog = BundledCharacterCatalog(characters: entries)
-        let prefs = InMemoryPreferencesStore(isPaused: true, isHidden: true)
-        prefs.isMusicDancingEnabled = true
-        let before = prefs.petSettings
-        var applied: LoadedCharacter?
-        let model = CharacterSelectionModel(
-            preferences: prefs,
-            apply: {
-                applied = $0; return true
-            })
-        await model.start(catalog: catalog)
-        #expect(model.activeID == CharacterID("cat"))
-        #expect(model.canSelect)
-        await model.select(CharacterID("second"))
-        #expect(applied !== other)  // Loading uses an independent image cache.
-        #expect(applied?.definition.id == CharacterID("second"))
-        #expect(prefs.selectedCharacterID == "second")
-        let restarted = CharacterSelectionModel(preferences: prefs, apply: { _ in true })
-        await restarted.start(catalog: catalog)
-        #expect(restarted.activeID == CharacterID("second"))
-        await restarted.start(catalog: BundledCharacterCatalog(characters: [entries[0]]))
-        #expect(restarted.activeID == CharacterID("cat"))
-        prefs.selectedCharacterID = "removed"
-        await restarted.start(catalog: catalog)
-        #expect(prefs.selectedCharacterID == "cat")
-        try FileManager.default.removeItem(at: second.appending(path: "walk.png"))
-        let previous = applied
-        await model.select(CharacterID("second"))  // Already active: no reload.
-        await model.select(CharacterID("cat"))
-        let working = applied
-        await model.select(CharacterID("second"))
-        #expect(applied === working)
-        #expect(previous !== working)
-        #expect(model.activeID == CharacterID("cat"))
-        #expect(model.issue == .characterCouldNotLoad)
-        #expect(prefs.selectedCharacterID == "cat")
-        #expect(prefs.petSettings == before)
-        #expect(prefs.isPaused && prefs.isHidden && prefs.isMusicDancingEnabled)
-    }
-
-    @Test func zeroOneAndMultipleStatesAndBusyRuntimeRejectionAreHonest() async throws {
-        let url = try pack("only")
-        defer { try? FileManager.default.removeItem(at: url) }
-        let loaded = await CharacterLoader().loadForSelection(packURL: url)
-        let entry = BundledCharacter(character: loaded, packURL: url)
-        let prefs = InMemoryPreferencesStore()
-        prefs.selectedCharacterID = "removed"
-        var accepts = true
-        let model = CharacterSelectionModel(preferences: prefs, apply: { _ in accepts })
-        #expect(model.isLoading, "Settings must not show an empty catalog while initial discovery is running")
-        await model.start(catalog: BundledCharacterCatalog())
-        #expect(model.characters.isEmpty && !model.canSelect && model.activeID == nil)
-        #expect(model.issue == .noCharactersAvailable)
-        #expect(prefs.selectedCharacterID == "removed")
-        await model.start(catalog: BundledCharacterCatalog(characters: [entry]))
-        #expect(!model.canSelect && model.activeID == CharacterID("only"))
-        #expect(prefs.selectedCharacterID == "only")
-        accepts = false
-        await model.select(CharacterID("unknown"))
-        #expect(model.activeID == CharacterID("only"))
-        #expect(prefs.selectedCharacterID == "only")
-    }
-
-    @Test func rejectedRuntimeCommitKeepsSelectionAndAllowsExplicitRetry() async throws {
+    @Test func startupAddsSavedRosterInOrderAndRestoreDefaultsKeepsIt() async throws {
         let firstURL = try pack("cat")
         let secondURL = try pack("second")
         defer {
             try? FileManager.default.removeItem(at: firstURL)
             try? FileManager.default.removeItem(at: secondURL)
         }
-        let first = await CharacterLoader().loadForSelection(packURL: firstURL)
-        let second = await CharacterLoader().loadForSelection(packURL: secondURL)
-        let catalog = BundledCharacterCatalog(characters: [
-            BundledCharacter(character: first, packURL: firstURL),
-            BundledCharacter(character: second, packURL: secondURL),
+        let catalog = CharacterCatalog(characters: [
+            await entry("second", at: secondURL), await entry("cat", at: firstURL),
         ])
-        let prefs = InMemoryPreferencesStore()
-        var accepts = true
-        let model = CharacterSelectionModel(preferences: prefs, apply: { _ in accepts })
-        await model.start(catalog: catalog)
-        accepts = false
-        await model.select(CharacterID("second"))
-        #expect(model.activeID == CharacterID("cat") && prefs.selectedCharacterID == "cat")
-        #expect(model.characters.count == 2 && model.issue == .waitForSafeBoundary && model.canSelect)
-        accepts = true
-        await model.select(CharacterID("second"))
-        #expect(model.activeID == CharacterID("second") && model.issue == nil)
+        let prefs = InMemoryPreferencesStore(isPaused: true, isHidden: true)
+        prefs.isMusicDancingEnabled = true
+        let firstHarness = PetRuntimeTests.Harness(preferences: prefs)
+        firstHarness.runtime.start()
+        let firstModel = CharacterRosterModel(preferences: prefs, runtime: firstHarness.runtime)
+        await firstModel.start(catalog: catalog)
+        #expect(firstModel.activeCharacters.map { $0.character.id } == [CharacterID("cat")])
+        await firstModel.add(CharacterID("second"))
+        #expect(firstModel.activeCharacters.map { $0.character.id } == [CharacterID("cat"), CharacterID("second")])
+        #expect(prefs.activeCharacterIDs == ["cat", "second"])
+        #expect(firstHarness.runtime.pets.map(\.id) == firstModel.activeCharacters.map(\.petID))
+
+        let secondHarness = PetRuntimeTests.Harness(preferences: prefs)
+        secondHarness.runtime.start()
+        let restarted = CharacterRosterModel(preferences: prefs, runtime: secondHarness.runtime)
+        await restarted.start(catalog: catalog)
+        #expect(restarted.activeCharacters.map { $0.character.id } == [CharacterID("cat"), CharacterID("second")])
+        #expect(restarted.activeCharacters.map(\.petID) == secondHarness.runtime.pets.map(\.id))
+
+        #expect(restarted.remove(restarted.activeCharacters[0].petID))
+        #expect(restarted.activeCharacters.map { $0.character.id } == [CharacterID("second")])
+        #expect(prefs.activeCharacterIDs == ["second"])
+        prefs.restoreDefaults()
+        #expect(prefs.activeCharacterIDs == ["second"])
+        #expect(prefs.isPaused == false && prefs.isHidden == false && !prefs.isMusicDancingEnabled)
+        secondHarness.runtime.stop()
+        firstHarness.runtime.stop()
     }
 
-    @Test func startupSkipsACandidateThatBecameInvalidAndUsesLexicalIDWhenCatIsAbsent() async throws {
+    @Test func explicitEmptyRosterSurvivesRestartWithoutPlaceholderOrDefaultPet() async throws {
+        let url = try pack("cat")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let catalog = CharacterCatalog(characters: [await entry("cat", at: url)])
+        let prefs = InMemoryPreferencesStore()
+        prefs.activeCharacterIDs = []
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime)
+        await model.start(catalog: catalog)
+        #expect(model.activeCharacters.isEmpty)
+        #expect(harness.runtime.pets.isEmpty)
+        #expect(!harness.runtime.hasPlaceholderCharacter)
+        #expect(prefs.activeCharacterIDs == [])
+        harness.runtime.stop()
+    }
+
+    @Test func startupFiltersDuplicateAndMissingIDsThenUsesAvailableSavedCharacter() async throws {
         let firstURL = try pack("alpha")
         let secondURL = try pack("zeta")
         defer {
             try? FileManager.default.removeItem(at: firstURL)
             try? FileManager.default.removeItem(at: secondURL)
         }
-        let first = await CharacterLoader().loadForSelection(packURL: firstURL)
-        let second = await CharacterLoader().loadForSelection(packURL: secondURL)
-        let catalog = BundledCharacterCatalog(characters: [
-            BundledCharacter(character: second, packURL: secondURL),
-            BundledCharacter(character: first, packURL: firstURL),
+        let catalog = CharacterCatalog(characters: [
+            await entry("zeta", at: secondURL), await entry("alpha", at: firstURL),
         ])
         let prefs = InMemoryPreferencesStore()
-        let model = CharacterSelectionModel(preferences: prefs, apply: { _ in true })
+        prefs.activeCharacterIDs = ["removed", "zeta", "zeta"]
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime)
         await model.start(catalog: catalog)
-        #expect(model.activeID == CharacterID("alpha"))
-        try FileManager.default.removeItem(at: firstURL.appending(path: "character.json"))
-        await model.start(catalog: catalog)
-        #expect(model.activeID == CharacterID("zeta") && prefs.selectedCharacterID == "zeta")
-        #expect(model.characters.count == 1 && model.unavailableCount == 1)
+        #expect(model.activeCharacters.map { $0.character.id } == [CharacterID("zeta")])
+        #expect(prefs.activeCharacterIDs == ["zeta"])
+        harness.runtime.stop()
     }
 
-    @Test func changedManifestIdentityIsNotCommittedUnderTheOldCatalogID() async throws {
+    @Test func startupFallsBackLexicallyWhenNoSavedRosterIDIsUsable() async throws {
+        let zetaURL = try pack("zeta")
+        let alphaURL = try pack("alpha")
+        defer {
+            try? FileManager.default.removeItem(at: zetaURL)
+            try? FileManager.default.removeItem(at: alphaURL)
+        }
+        let catalog = CharacterCatalog(
+            characters: [await entry("zeta", at: zetaURL), await entry("alpha", at: alphaURL)])
+        let prefs = InMemoryPreferencesStore()
+        prefs.activeCharacterIDs = ["", "missing"]
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime)
+        await model.start(catalog: catalog)
+
+        #expect(model.activeCharacters.map { $0.character.id } == [CharacterID("alpha")])
+        #expect(prefs.activeCharacterIDs == ["alpha"])
+        harness.runtime.stop()
+    }
+
+    @Test func addRejectsConcurrentDuplicateRequestsAndCancelledLateResult() async throws {
+        let url = try pack("second")
+        defer { try? FileManager.default.removeItem(at: url) }
+        let candidate = await entry("second", at: url)
+        let prefs = InMemoryPreferencesStore()
+        prefs.activeCharacterIDs = []
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        var loadCount = 0
+        var continuation: CheckedContinuation<LoadedCharacter, Never>?
+        let model = CharacterRosterModel(
+            preferences: prefs, runtime: harness.runtime,
+            load: { _ in
+                loadCount += 1
+                return await withCheckedContinuation { continuation = $0 }
+            })
+        await model.start(catalog: CharacterCatalog(characters: [candidate]))
+        let task = Task { await model.add(CharacterID("second")) }
+        while continuation == nil { await Task.yield() }
+        await model.add(CharacterID("second"))
+        #expect(loadCount == 1)
+        model.cancelAdd(CharacterID("second"))
+        continuation?.resume(returning: await CharacterLoader().loadForSelection(packURL: url))
+        await task.value
+        #expect(model.activeCharacters.isEmpty)
+        #expect(prefs.activeCharacterIDs == [])
+        harness.runtime.stop()
+    }
+
+    @Test func changedManifestIdentityIsNotAddedUnderItsOldCatalogID() async throws {
         let url = try pack("cat")
         defer { try? FileManager.default.removeItem(at: url) }
-        let cat = await CharacterLoader().loadForSelection(packURL: url)
-        let entry = BundledCharacter(character: cat, packURL: url)
+        let candidate = await entry("cat", at: url)
         let manifestURL = url.appending(path: "character.json")
         let data = try String(contentsOf: manifestURL, encoding: .utf8).replacingOccurrences(
             of: "\"cat\"", with: "\"changed\"")
         try data.write(to: manifestURL, atomically: true, encoding: .utf8)
         let prefs = InMemoryPreferencesStore()
-        var IDs: [CharacterID] = []
-        let model = CharacterSelectionModel(
-            preferences: prefs,
-            apply: {
-                IDs.append($0.definition.id); return true
-            })
-        await model.start(catalog: BundledCharacterCatalog(characters: [entry]))
-        #expect(IDs == [CharacterID("placeholder")])
-        #expect(prefs.selectedCharacterID == nil && model.characters.isEmpty)
+        prefs.activeCharacterIDs = ["cat"]
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime)
+        await model.start(catalog: CharacterCatalog(characters: [candidate]))
+        #expect(model.characters.isEmpty)
+        #expect(model.activeCharacters.isEmpty)
+        #expect(harness.runtime.hasPlaceholderCharacter)
+        #expect(prefs.activeCharacterIDs == ["cat"])
+        harness.runtime.stop()
     }
 
     @Test func catalogDoesNotFollowDirectoryOrResourceSymlinksOutsideItsRoot() async throws {
@@ -211,31 +220,7 @@ struct BundledCharacterSelectionTests {
         try FileManager.default.removeItem(at: moved.appending(path: "walk.png"))
         try FileManager.default.createSymbolicLink(
             at: moved.appending(path: "walk.png"), withDestinationURL: outside.appending(path: "walk.png"))
-        let catalog = await BundledCharacterCatalog.discover(in: root)
+        let catalog = await CharacterCatalog.discover(in: root)
         #expect(catalog.characters.isEmpty && catalog.unavailableCount == 1)
-    }
-
-    @Test(arguments: [false, true])
-    func stoppedOrCancelledLoadingCannotApplyOrPersistALateResult(_ cancel: Bool) async throws {
-        let url = try pack("cat")
-        defer { try? FileManager.default.removeItem(at: url) }
-        let loaded = await CharacterLoader().loadForSelection(packURL: url)
-        let catalog = BundledCharacterCatalog(characters: [BundledCharacter(character: loaded, packURL: url)])
-        let prefs = InMemoryPreferencesStore()
-        var commits = 0
-        var resume: CheckedContinuation<LoadedCharacter, Never>?
-        let model = CharacterSelectionModel(
-            preferences: prefs,
-            apply: { _ in
-                commits += 1; return true
-            },
-            load: { _ in await withCheckedContinuation { resume = $0 } })
-        let task = Task { await model.start(catalog: catalog) }
-        while resume == nil { await Task.yield() }
-        if cancel { task.cancel() } else { model.stop() }
-        resume?.resume(returning: loaded)
-        await task.value
-        #expect(commits == 0 && prefs.selectedCharacterID == nil)
-        #expect(!model.isLoading)
     }
 }

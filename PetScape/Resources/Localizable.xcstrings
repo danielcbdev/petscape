@@ -1,1164 +1,1494 @@
 {
-  "sourceLanguage": "en",
-  "strings": {
-    "%@ — Included": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ — Incluído"
+  "sourceLanguage" : "en",
+  "strings" : {
+    "%@ — Active" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — Ativo"
           }
         }
       }
     },
-    "%@ — Installed": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "%@ — Instalado"
+    "%@ — Included" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — Incluído"
           }
         }
       }
     },
-    "+40 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "+40 pt"
+    "%@ — Installed" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "%@ — Instalado"
           }
         }
       }
     },
-    "A character with this ID is already installed. PetScape never overwrites installed packs.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Já há um personagem com este ID instalado. O PetScape nunca substitui pacotes instalados."
+    "+40 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "+40 pt"
           }
         }
       }
     },
-    "Accessibility permission is missing.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Falta a permissão de Acessibilidade."
+    "A character with this ID is already installed. PetScape never overwrites installed packs." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Já há um personagem com este ID instalado. O PetScape nunca substitui pacotes instalados."
           }
         }
       }
     },
-    "Activities": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atividades"
+    "Accessibility permission is missing." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Falta a permissão de Acessibilidade."
           }
         }
       }
     },
-    "Adjust the paws if they appear above or below the Dock.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste as patas se parecerem acima ou abaixo do Dock."
+    "Active" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativo"
           }
         }
       }
     },
-    "Advanced": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Avançado"
+    "Active pets" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pets ativos"
           }
         }
       }
     },
-    "Allow PetScape to use Accessibility?": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permitir que o PetScape use Acessibilidade?"
+    "Activities" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atividades"
           }
         }
       }
     },
-    "Allow click and drag": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permitir cliques e arraste"
+    "Add" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar"
           }
         }
       }
     },
-    "Allow music detection?": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Permitir a detecção de música?"
+    "Add Character" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionar personagem"
           }
         }
       }
     },
-    "Animation Preview": {
-      "comment": "DEBUG builds only: menu item that opens the animation preview window.",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pré-visualização das animações"
+    "Add a character from the catalog below, or install a local character pack." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicione um personagem do catálogo abaixo ou instale um pacote local."
           }
         }
       }
     },
-    "Approval required in System Settings › General › Login Items.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "É necessária aprovação em Ajustes do Sistema › Geral › Itens de Início de Sessão."
+    "Adding…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Adicionando…"
           }
         }
       }
     },
-    "Autonomous activities": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Atividades autônomas"
+    "Adjust pet size, pace, and Dock placement." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuste o tamanho, a velocidade e o posicionamento dos pets no Dock."
           }
         }
       }
     },
-    "Cancel": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Cancelar"
+    "Adjust the paws if they appear above or below the Dock." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuste as patas se parecerem acima ou abaixo do Dock."
           }
         }
       }
     },
-    "Cat": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gato"
+    "Advanced" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Avançado"
           }
         }
       }
     },
-    "Character": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Personagem"
+    "Allow PetScape to use Accessibility?" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir que o PetScape use Acessibilidade?"
           }
         }
       }
     },
-    "Character pack installed. Select it above to use it.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pacote de personagem instalado. Selecione-o acima para usá-lo."
+    "Allow click and drag" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir cliques e arraste"
           }
         }
       }
     },
-    "Choose a folder containing character.json and its referenced PNG files.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Escolha uma pasta com character.json e os arquivos PNG referenciados."
+    "Allow music detection?" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permitir a detecção de música?"
           }
         }
       }
     },
-    "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Clique para chamar a atenção do pet. Arraste-o para pegá-lo. A pausa interrompe as interações. As reações opcionais respeitam a opção Reduzir Movimento do sistema."
+    "Animation Preview" : {
+      "comment" : "DEBUG builds only: menu item that opens the animation preview window.",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pré-visualização das animações"
           }
         }
       }
     },
-    "Could not disable launch at login. Check System Settings and try again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível desativar a abertura ao iniciar sessão. Confira os Ajustes do Sistema e tente novamente."
+    "App state" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Estado do app"
           }
         }
       }
     },
-    "Could not enable launch at login. Check System Settings and try again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível ativar a abertura ao iniciar sessão. Confira os Ajustes do Sistema e tente novamente."
+    "Appearance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparência"
           }
         }
       }
     },
-    "Dance": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dançar"
+    "Approval required in System Settings › General › Login Items." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "É necessária aprovação em Ajustes do Sistema › Geral › Itens de Início de Sessão."
           }
         }
       }
     },
-    "Dance and cleanup artwork is pending. Your pet holds a still pose during these activities.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "As animações de dança e limpeza ainda não estão disponíveis. Durante essas atividades, o pet fica em uma pose parada."
+    "Autonomous activities" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Atividades autônomas"
           }
         }
       }
     },
-    "Dance for 5–30 seconds. Requires an active pet with autonomous activities enabled.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dança por 5 a 30 segundos. Requer um pet ativo com as atividades autônomas ativadas."
+    "Behavior" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Comportamento"
           }
         }
       }
     },
-    "Dance to music": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dançar ao som da música"
+    "Cancel" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancelar"
           }
         }
       }
     },
-    "Debug": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Depuração"
+    "Cat" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Gato"
           }
         }
       }
     },
-    "Disabled": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Desativado"
+    "Character" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Personagem"
           }
         }
       }
     },
-    "Dock offset": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste do Dock"
+    "Character catalog" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Catálogo de personagens"
           }
         }
       }
     },
-    "Dock offset: %lld pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajuste do Dock: %lld pt"
+    "Character pack installed. Add it from the catalog to use it." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pacote de personagem instalado. Adicione-o ao catálogo para usá-lo."
           }
         }
       }
     },
-    "Enable Interact with windows in Settings.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ative Interagir com janelas nos Ajustes."
+    "Character pack installed. Select it above to use it." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pacote de personagem instalado. Selecione-o acima para usá-lo."
           }
         }
       }
     },
-    "Enable Music Detection": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ativar detecção de música"
+    "Choose a folder containing character.json and its referenced PNG files." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha uma pasta com character.json e os arquivos PNG referenciados."
           }
         }
       }
     },
-    "Enable autonomous activities, show and resume your pet, then wait until it is walking or idle.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ative as atividades autônomas, mostre e retome o pet e aguarde até ele estar andando ou parado."
+    "Choose how pets respond to the cursor and windows." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha como os pets respondem ao cursor e às janelas."
           }
         }
       }
     },
-    "Enabled": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ativado"
+    "Choose which characters live on your desktop." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Escolha quais personagens vivem na área de trabalho."
           }
         }
       }
     },
-    "Expressions": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Expressões"
+    "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Clique para chamar a atenção do pet. Arraste-o para pegá-lo. A pausa interrompe as interações. As reações opcionais respeitam a opção Reduzir Movimento do sistema."
           }
         }
       }
     },
-    "Fast": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rápido"
+    "Control app state, login, language guidance, and defaults." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Controle o estado do app, a inicialização com o sistema, o idioma e os ajustes padrão."
           }
         }
       }
     },
-    "General": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Geral"
+    "Could not disable launch at login. Check System Settings and try again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível desativar a abertura ao iniciar sessão. Confira os Ajustes do Sistema e tente novamente."
           }
         }
       }
     },
-    "Hide Pet": {
-      "comment": "Menu item: hides the pet and its overlay (FR-02, FR-12).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ocultar pet"
+    "Could not enable launch at login. Check System Settings and try again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível ativar a abertura ao iniciar sessão. Confira os Ajustes do Sistema e tente novamente."
           }
         }
       }
     },
-    "Idle": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parado"
+    "Dance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dançar"
           }
         }
       }
     },
-    "Import cancelled.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Importação cancelada."
+    "Dance and cleanup artwork is pending. Your pet holds a still pose during these activities." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "As animações de dança e limpeza ainda não estão disponíveis. Durante essas atividades, o pet fica em uma pose parada."
           }
         }
       }
     },
-    "Included": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Incluído"
+    "Dance for 5–30 seconds. Requires an active pet with autonomous activities enabled." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dança por 5 a 30 segundos. Requer um pet ativo com as atividades autônomas ativadas."
           }
         }
       }
     },
-    "Install Character Pack…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Instalar pacote de personagem…"
+    "Dance to music" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Dançar ao som da música"
           }
         }
       }
     },
-    "Installed": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Instalado"
+    "Debug" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Depuração"
           }
         }
       }
     },
-    "Installing character pack…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Instalando pacote de personagem…"
+    "Disabled" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Desativado"
           }
         }
       }
     },
-    "Interact with windows": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interagir com janelas"
+    "Dock offset" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuste do Dock"
           }
         }
       }
     },
-    "Interaction": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interação"
+    "Dock offset: %@ pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Deslocamento do Dock: %@ pt"
           }
         }
       }
     },
-    "Jump to Dock": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saltar até o Dock"
+    "Dock offset: %lld pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuste do Dock: %lld pt"
           }
         }
       }
     },
-    "Jump vertically": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saltar na vertical"
+    "Dock placement" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Posição no Dock"
           }
         }
       }
     },
-    "Jumping": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Saltos"
+    "Enable Interact with windows in Settings." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative Interagir com janelas nos Ajustes."
           }
         }
       }
     },
-    "Large": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Grande"
+    "Enable Music Detection" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativar detecção de música"
           }
         }
       }
     },
-    "Launch at login": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir ao iniciar sessão"
+    "Enable autonomous activities, show and resume your pet, then wait until it is walking or idle." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ative as atividades autônomas, mostre e retome o pet e aguarde até ele estar andando ou parado."
           }
         }
       }
     },
-    "System audio capture started. If the cat does not dance while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A captura de áudio do sistema foi iniciada. Se o gato não dançar enquanto a música toca, confira a permissão do PetScape para gravar áudio do sistema em Privacidade e Segurança e reinicie a detecção. Depois de uma pausa, a música precisa parar e recomeçar."
+    "Enabled" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ativado"
           }
         }
       }
     },
-    "Loading characters…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Carregando personagens…"
+    "Expressions" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Expressões"
           }
         }
       }
     },
-    "Lower 1 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descer 1 pt"
+    "Fast" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Rápido"
           }
         }
       }
     },
-    "Lower 5 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descer 5 pt"
+    "General" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Geral"
           }
         }
       }
     },
-    "Music and dance": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Música e dança"
+    "Hide Pet" : {
+      "comment" : "Menu item: hides the pet and its overlay (FR-02, FR-12).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ocultar pet"
           }
         }
       }
     },
-    "Music detection is off.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A detecção de música está desativada."
+    "Idle" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parado"
           }
         }
       }
     },
-    "Music detection is paused while your pet is unavailable or autonomous activities are off.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A detecção de música fica pausada enquanto o pet não está disponível ou as atividades autônomas estão desativadas."
+    "Import cancelled." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Importação cancelada."
           }
         }
       }
     },
-    "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A detecção de música parou. Confira se o PetScape tem permissão para gravar áudio do sistema em Privacidade e Segurança e verifique o dispositivo de saída; depois, reinicie a detecção. A dança manual continua disponível."
+    "Included" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Incluído"
           }
         }
       }
     },
-    "No bundled characters are available.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nenhum personagem incluído está disponível."
+    "Install Character Pack…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalar pacote de personagem…"
           }
         }
       }
     },
-    "No bundled characters could be loaded.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível carregar nenhum personagem incluído no app."
+    "Install a character pack" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalar pacote de personagem"
           }
         }
       }
     },
-    "No characters are available.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Nenhum personagem está disponível."
+    "Installed" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalado"
           }
         }
       }
     },
-    "No characters could be loaded.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível carregar nenhum personagem."
+    "Installing character pack…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instalando pacote de personagem…"
           }
         }
       }
     },
-    "Open Accessibility Settings": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abrir Ajustes de Acessibilidade"
+    "Interact with windows" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interagir com janelas"
           }
         }
       }
     },
-    "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O acesso opcional ao áudio do sistema detecta músicas reproduzidas no Mac, inclusive nos fones de ouvido. O áudio é analisado neste Mac e nunca é salvo nem enviado. Requer o macOS 14.2 ou posterior. A dança manual não precisa de acesso ao áudio."
+    "Interaction" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interação"
           }
         }
       }
     },
-    "Pause": {
-      "comment": "Menu item: freezes the pet's animation and movement (FR-02, FR-11).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pausar"
+    "Jump to Dock" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltar até o Dock"
           }
         }
       }
     },
-    "Pet": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pet"
+    "Jump vertically" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltar na vertical"
           }
         }
       }
     },
-    "PetScape": {
-      "shouldTranslate": false,
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "PetScape"
+    "Jumping" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Saltos"
           }
         }
       }
     },
-    "PetScape cannot access its character storage. Check that Application Support is writable.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O PetScape não consegue acessar o armazenamento de personagens. Verifique se a pasta Application Support permite gravação."
+    "Language" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Idioma"
           }
         }
       }
     },
-    "PetScape could not install this pack. Your current character and installed packs are unchanged.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O PetScape não conseguiu instalar este pacote. O personagem atual e os pacotes instalados não foram alterados."
+    "Large" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grande"
           }
         }
       }
     },
-    "PetScape reads window positions so pets can walk on them. It does not move, click, close, resize, or activate windows, and does not read titles or contents. You can allow access in Privacy & Security › Accessibility.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O PetScape lê as posições das janelas para que os pets possam caminhar sobre elas. O app não move, clica, fecha, redimensiona nem ativa janelas, e não lê títulos ou conteúdo. Você pode permitir o acesso em Privacidade e Segurança › Acessibilidade."
+    "Launch at login" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir ao iniciar sessão"
           }
         }
       }
     },
-    "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O PetScape lê as posições das janelas para que os pets possam caminhar sobre elas. Nunca move, clica, fecha, redimensiona nem ativa janelas, e nunca lê títulos ou conteúdo. O acesso à Acessibilidade é opcional."
+    "Loading characters…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Carregando personagens…"
           }
         }
       }
     },
-    "PetScape will ask macOS for system audio recording access to recognize music locally. It does not use your microphone or capture your screen. No audio is saved or sent. You can turn this off at any time.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O PetScape solicitará ao macOS acesso à gravação do áudio do sistema para reconhecer músicas localmente. O app não usa o microfone nem captura a tela. Nenhum áudio é salvo ou enviado. Você pode desativar esse recurso a qualquer momento."
+    "Lower 1 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descer 1 pt"
           }
         }
       }
     },
-    "Quit PetScape": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Encerrar PetScape"
+    "Lower 5 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descer 5 pt"
           }
         }
       }
     },
-    "Raise 1 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subir 1 pt"
+    "Music and dance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Música e dança"
           }
         }
       }
     },
-    "Raise 5 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Subir 5 pt"
+    "Music detection is off." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A detecção de música está desativada."
           }
         }
       }
     },
-    "React to cursor": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reagir ao cursor"
+    "Music detection is paused while your pet is unavailable or autonomous activities are off." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A detecção de música fica pausada enquanto o pet não está disponível ou as atividades autônomas estão desativadas."
           }
         }
       }
     },
-    "Reset to 0 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Redefinir para 0 pt"
+    "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A detecção de música parou. Confira se o PetScape tem permissão para gravar áudio do sistema em Privacidade e Segurança e verifique o dispositivo de saída; depois, reinicie a detecção. A dança manual continua disponível."
           }
         }
       }
     },
-    "Resting": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Descanso"
+    "No bundled characters are available." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum personagem incluído está disponível."
           }
         }
       }
     },
-    "Restore Defaults": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Restaurar padrões"
+    "No bundled characters could be loaded." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar nenhum personagem incluído no app."
           }
         }
       }
     },
-    "Restart Music Detection": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Reiniciar detecção de música"
+    "No characters are available." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum personagem está disponível."
           }
         }
       }
     },
-    "Resume": {
-      "comment": "Menu item shown while paused: the pet continues from where it stopped (FR-02, FR-11).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Retomar"
+    "No characters could be loaded." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar nenhum personagem."
           }
         }
       }
     },
-    "Settings…": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ajustes…"
+    "No pets are active" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nenhum pet está ativo"
           }
         }
       }
     },
-    "Short jump left": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salto curto à esquerda"
+    "Open Accessibility Settings" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Abrir Ajustes de Acessibilidade"
           }
         }
       }
     },
-    "Short jump right": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Salto curto à direita"
+    "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O acesso opcional ao áudio do sistema detecta músicas reproduzidas no Mac, inclusive nos fones de ouvido. O áudio é analisado neste Mac e nunca é salvo nem enviado. Requer o macOS 14.2 ou posterior. A dança manual não precisa de acesso ao áudio."
           }
         }
       }
     },
-    "Show Pet": {
-      "comment": "Menu item shown while the pet is hidden: shows it again (FR-02, FR-12).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Mostrar pet"
+    "Pause" : {
+      "comment" : "Menu item: freezes the pet's animation and movement (FR-02, FR-11).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pausar"
           }
         }
       }
     },
-    "Show overlay bounds": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exibir limites da sobreposição"
+    "Pet" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pet"
           }
         }
       }
     },
-    "Show pass-through state": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exibir estado de passagem de cliques"
+    "Pet appearance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aparência do pet"
           }
         }
       }
     },
-    "Show walkway": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exibir área de caminhada"
+    "PetScape" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "PetScape"
           }
         }
+      },
+      "shouldTranslate" : false
+    },
+    "PetScape cannot access its character storage. Check that Application Support is writable." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape não consegue acessar o armazenamento de personagens. Verifique se a pasta Application Support permite gravação."
+          }
+        }
+      }
+    },
+    "PetScape could not install this pack. Your active pets and installed packs are unchanged." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape não conseguiu instalar este pacote. Seus pets ativos e os pacotes instalados não foram alterados."
+          }
+        }
+      }
+    },
+    "PetScape could not install this pack. Your current character and installed packs are unchanged." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape não conseguiu instalar este pacote. O personagem atual e os pacotes instalados não foram alterados."
+          }
+        }
+      }
+    },
+    "PetScape reads window positions so pets can walk on them. It does not move, click, close, resize, or activate windows, and does not read titles or contents. You can allow access in Privacy & Security › Accessibility." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape lê as posições das janelas para que os pets possam caminhar sobre elas. O app não move, clica, fecha, redimensiona nem ativa janelas, e não lê títulos ou conteúdo. Você pode permitir o acesso em Privacidade e Segurança › Acessibilidade."
+          }
+        }
+      }
+    },
+    "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape lê as posições das janelas para que os pets possam caminhar sobre elas. Nunca move, clica, fecha, redimensiona nem ativa janelas, e nunca lê títulos ou conteúdo. O acesso à Acessibilidade é opcional."
+          }
+        }
+      }
+    },
+    "PetScape will ask macOS for system audio recording access to recognize music locally. It does not use your microphone or capture your screen. No audio is saved or sent. You can turn this off at any time." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O PetScape solicitará ao macOS acesso à gravação do áudio do sistema para reconhecer músicas localmente. O app não usa o microfone nem captura a tela. Nenhum áudio é salvo ou enviado. Você pode desativar esse recurso a qualquer momento."
+          }
+        }
+      }
+    },
+    "Pets" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pets"
+          }
+        }
+      }
+    },
+    "Pets currently on your desktop" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pets atualmente na área de trabalho"
+          }
+        }
+      }
+    },
+    "Quit PetScape" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Encerrar PetScape"
+          }
+        }
+      }
+    },
+    "Raise 1 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir 1 pt"
+          }
+        }
+      }
+    },
+    "Raise 5 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Subir 5 pt"
+          }
+        }
+      }
+    },
+    "React to cursor" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reagir ao cursor"
+          }
+        }
+      }
+    },
+    "Remove" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Remover"
+          }
+        }
+      }
+    },
+    "Reset app settings and turn off optional interaction and music detection." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaure os ajustes do app e desative as interações opcionais e a detecção de música."
+          }
+        }
+      }
+    },
+    "Reset to 0 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Redefinir para 0 pt"
+          }
+        }
+      }
+    },
+    "Restart Music Detection" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Reiniciar detecção de música"
+          }
+        }
+      }
+    },
+    "Resting" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Descanso"
+          }
+        }
+      }
+    },
+    "Restore Defaults" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar padrões"
+          }
+        }
+      }
+    },
+    "Restore defaults" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Restaurar ajustes padrão"
+          }
+        }
+      }
+    },
+    "Resume" : {
+      "comment" : "Menu item shown while paused: the pet continues from where it stopped (FR-02, FR-11).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retomar"
+          }
+        }
+      }
+    },
+    "Settings" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes"
+          }
+        }
+      }
+    },
+    "Settings…" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajustes…"
+          }
+        }
+      }
+    },
+    "Short jump left" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salto curto à esquerda"
+          }
+        }
+      }
+    },
+    "Short jump right" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Salto curto à direita"
+          }
+        }
+      }
+    },
+    "Show Pet" : {
+      "comment" : "Menu item shown while the pet is hidden: shows it again (FR-02, FR-12).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Mostrar pet"
+          }
+        }
+      }
+    },
+    "Show overlay bounds" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir limites da sobreposição"
+          }
+        }
+      }
+    },
+    "Show pass-through state" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir estado de passagem de cliques"
+          }
+        }
+      }
+    },
+    "Show walkway" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir área de caminhada"
+          }
+        }
+      }
+    },
+    "Show window surfaces" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Exibir superfícies das janelas"
+          }
+        }
+      }
+    },
+    "Size" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Tamanho"
+          }
+        }
+      }
+    },
+    "Slow" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Lento"
+          }
+        }
+      }
+    },
+    "Small" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Pequeno"
+          }
+        }
+      }
+    },
+    "Some character packs are unavailable because their files are invalid." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alguns pacotes de personagens estão indisponíveis porque seus arquivos são inválidos."
+          }
+        }
       }
     },
-    "Show window surfaces": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Exibir superfícies das janelas"
+    "Some included characters are unavailable because their files are invalid." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Alguns personagens incluídos estão indisponíveis porque seus arquivos são inválidos."
           }
         }
       }
     },
-    "Size": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tamanho"
+    "Some pet animations could not be loaded." : {
+      "comment" : "Menu status line: the character loaded but some clips use fallbacks (FR-15).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar algumas animações do pet."
           }
         }
       }
     },
-    "Slow": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lento"
+    "Speed" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Velocidade"
           }
         }
       }
     },
-    "Small": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pequeno"
+    "Stop Dance" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Parar de dançar"
           }
         }
       }
     },
-    "Some character packs are unavailable because their files are invalid.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alguns pacotes de personagens estão indisponíveis porque seus arquivos são inválidos."
+    "System audio capture started. If no pet dances while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A captura de áudio do sistema foi iniciada. Se nenhum pet dançar enquanto a música tocar, confira o acesso do PetScape à Gravação de Áudio do Sistema em Privacidade e Segurança e reinicie a detecção de música. Depois de uma pausa, a música precisa parar e recomeçar."
           }
         }
       }
     },
-    "Some included characters are unavailable because their files are invalid.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Alguns personagens incluídos estão indisponíveis porque seus arquivos são inválidos."
+    "System audio capture started. If the cat does not dance while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A captura de áudio do sistema foi iniciada. Se o gato não dançar enquanto a música toca, confira a permissão do PetScape para gravar áudio do sistema em Privacidade e Segurança e reinicie a detecção. Depois de uma pausa, a música precisa parar e recomeçar."
           }
         }
       }
     },
-    "Some pet animations could not be loaded.": {
-      "comment": "Menu status line: the character loaded but some clips use fallbacks (FR-15).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível carregar algumas animações do pet."
+    "The interface follows your Mac’s preferred languages. Restart PetScape if a language change is not reflected." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "A interface segue os idiomas preferidos do Mac. Reinicie o PetScape se a mudança de idioma não aparecer."
           }
         }
       }
     },
-    "Speed": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Velocidade"
+    "The pet could not be loaded. Showing a placeholder." : {
+      "comment" : "Menu status line: the character pack failed to load (FR-15).",
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar o pet. Exibindo um personagem provisório."
           }
         }
       }
     },
-    "Stop Dance": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Parar de dançar"
+    "This character could not be loaded. Your active pets are unchanged." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar este personagem. Seus pets ativos permanecem como estão."
           }
         }
       }
     },
-    "The interface follows your Mac’s preferred languages. Restart PetScape if a language change is not reflected.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "A interface segue os idiomas preferidos do Mac. Reinicie o PetScape se a mudança de idioma não aparecer."
+    "This character could not be loaded. Your current pet is unchanged." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Não foi possível carregar este personagem. O pet atual não foi alterado."
           }
         }
       }
     },
-    "The pet could not be loaded. Showing a placeholder.": {
-      "comment": "Menu status line: the character pack failed to load (FR-15).",
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível carregar o pet. Exibindo um personagem provisório."
+    "This character is already active." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este personagem já está ativo."
           }
         }
       }
     },
-    "This character could not be loaded. Your current pet is unchanged.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Não foi possível carregar este personagem. O pet atual não foi alterado."
+    "This character pack contains an unsafe path, alias, link, or unsupported file." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este pacote de personagem contém um caminho inseguro, alias, link ou arquivo não compatível."
           }
         }
       }
     },
-    "This character pack contains an unsafe path, alias, link, or unsupported file.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este pacote de personagem contém um caminho inseguro, alias, link ou arquivo não compatível."
+    "This character pack exceeds PetScape’s supported file or image limits." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este pacote de personagem excede os limites de arquivos ou imagens compatíveis com o PetScape."
           }
         }
       }
     },
-    "This character pack exceeds PetScape’s supported file or image limits.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este pacote de personagem excede os limites de arquivos ou imagens compatíveis com o PetScape."
+    "This character pack is invalid. Choose a folder with a valid manifest and every referenced PNG." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este pacote de personagem é inválido. Escolha uma pasta com um manifesto válido e todos os arquivos PNG referenciados."
           }
         }
       }
     },
-    "This character pack is invalid. Choose a folder with a valid manifest and every referenced PNG.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este pacote de personagem é inválido. Escolha uma pasta com um manifesto válido e todos os arquivos PNG referenciados."
+    "This is the only character currently available." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este é o único personagem disponível no momento."
           }
         }
       }
     },
-    "This is the only character currently available.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este é o único personagem disponível no momento."
+    "This is the only character included with this app." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este é o único personagem incluído no app."
           }
         }
       }
     },
-    "This is the only character included with this app.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este é o único personagem incluído no app."
+    "This pack ID is already used by a character included with PetScape. Choose a different ID." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Este ID já é usado por um personagem incluído no PetScape. Escolha outro ID."
           }
         }
       }
     },
-    "This pack ID is already used by a character included with PetScape. Choose a different ID.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Este ID já é usado por um personagem incluído no PetScape. Escolha outro ID."
+    "Tracking is enabled; no visible window top segments were detected." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "O rastreamento está ativo; nenhum trecho visível do topo de uma janela foi detectado."
           }
         }
       }
     },
-    "Tracking is enabled; no visible window top segments were detected.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "O rastreamento está ativo; nenhum trecho visível do topo de uma janela foi detectado."
+    "Tune autonomous activities and music detection." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ajuste as atividades autônomas e a detecção de música."
           }
         }
       }
     },
-    "Unavailable. Run PetScape from its installed application to try again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Indisponível. Abra o PetScape pelo app instalado e tente novamente."
+    "Unavailable. Run PetScape from its installed application to try again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Indisponível. Abra o PetScape pelo app instalado e tente novamente."
           }
         }
       }
     },
-    "Visible window segments detected: %lld.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Trechos visíveis de janelas detectados: %lld."
+    "Visible window segments detected: %lld." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Trechos visíveis de janelas detectados: %lld."
           }
         }
       }
     },
-    "Wait until your pet is walking or idle with enough room, then try again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aguarde até o pet estar andando ou parado com espaço suficiente e tente novamente."
+    "Wait until your pet is walking or idle with enough room, then try again." : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Aguarde até o pet estar andando ou parado com espaço suficiente e tente novamente."
           }
         }
       }
     },
-    "Wake Pet": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Acordar pet"
+    "Wake Pet" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Acordar pet"
           }
         }
       }
     },
-    "Walk": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Andar"
+    "Walk" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Andar"
           }
         }
       }
     },
-    "Window interaction paused — permission missing": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Interação com janelas pausada — falta a permissão"
+    "Window interaction paused — permission missing" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Interação com janelas pausada — falta a permissão"
           }
         }
       }
     },
-    "−40 pt": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "−40 pt"
+    "−40 pt" : {
+      "localizations" : {
+        "pt-BR" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "−40 pt"
           }
         }
       }
     }
   },
-  "version": "1.0"
+  "version" : "1.0"
 }

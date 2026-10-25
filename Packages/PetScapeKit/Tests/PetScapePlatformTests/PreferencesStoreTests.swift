@@ -21,25 +21,57 @@ struct PreferencesStoreTests {
         }
     }
 
-    @Test func characterSelectionIsAdditivePersistsAndRestoreKeepsTheContentChoice() throws {
+    @Test func characterRosterPersistsAndRestoreKeepsTheContentChoice() throws {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
-        #expect(store.selectedCharacterID == nil)
+        #expect(store.activeCharacterIDs == nil)
         store.isPaused = true
         store.petSettings = PetSettings(speed: 3)
         store.isMusicDancingEnabled = true
-        store.selectedCharacterID = "second"
+        store.activeCharacterIDs = ["second", "third"]
         let restored = UserDefaultsPreferencesStore(defaults: suite.defaults)
-        #expect(restored.selectedCharacterID == "second")
+        #expect(restored.activeCharacterIDs == ["second", "third"])
         #expect(restored.isPaused && restored.isMusicDancingEnabled)
         #expect(restored.petSettings.speed == 3)
-        #expect(suite.defaults.integer(forKey: UserDefaultsPreferencesStore.Key.version) == 3)
+        #expect(suite.defaults.integer(forKey: UserDefaultsPreferencesStore.Key.version) == 4)
         restored.restoreDefaults()
-        #expect(restored.selectedCharacterID == "second")
+        #expect(restored.activeCharacterIDs == ["second", "third"])
         let memory = InMemoryPreferencesStore()
-        memory.selectedCharacterID = "second"
+        memory.activeCharacterIDs = ["second"]
         memory.restoreDefaults()
-        #expect(memory.selectedCharacterID == "second")
+        #expect(memory.activeCharacterIDs == ["second"])
+    }
+
+    @Test func legacyCharacterMigratesToRosterAndExplicitEmptyRosterSurvivesRestartAndRestore() throws {
+        let suite = try Suite()
+        suite.defaults.set("second", forKey: "petscape.selectedCharacterID")
+
+        let migrated = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(migrated.activeCharacterIDs == ["second"])
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 4)
+
+        migrated.activeCharacterIDs = []
+        let relaunched = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(relaunched.activeCharacterIDs == [])
+        relaunched.restoreDefaults()
+        #expect(UserDefaultsPreferencesStore(defaults: suite.defaults).activeCharacterIDs == [])
+    }
+
+    @Test func missingRosterRemainsDistinctFromAnExplicitlyEmptyRoster() throws {
+        let suite = try Suite()
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+        #expect(store.activeCharacterIDs == nil)
+        store.activeCharacterIDs = []
+        #expect(UserDefaultsPreferencesStore(defaults: suite.defaults).activeCharacterIDs == [])
+    }
+
+    @Test func malformedRosterValueSurvivesAsInvalidEntryForRuntimeFallback() throws {
+        let suite = try Suite()
+        suite.defaults.set([12, true], forKey: UserDefaultsPreferencesStore.Key.activeCharacterIDs)
+
+        let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
+
+        #expect(store.activeCharacterIDs == [""])
     }
 
     @Test func defaultsAreRunningAndVisible() throws {
@@ -90,7 +122,7 @@ struct PreferencesStoreTests {
         let suite = try Suite()
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
         store.isPaused = true
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 4)
         #expect(suite.defaults.bool(forKey: "petscape.isPaused"))
         #expect(suite.defaults.object(forKey: "petscape.isHidden") == nil)
     }
@@ -106,7 +138,7 @@ struct PreferencesStoreTests {
         #expect(suite.defaults.double(forKey: "petscape.dockOffsetAdjustment") == 40)
         suite.defaults.set(-500.0, forKey: "petscape.dockOffsetAdjustment")  // edited by hand
         #expect(store.dockOffsetAdjustment == -40)
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 4)
     }
 
     @Test func inMemoryStoreKeepsValues() {
@@ -128,7 +160,7 @@ struct PreferencesStoreTests {
         #expect(store.userIntent == UserIntent(isPaused: true, isHidden: true))
         #expect(store.dockOffsetAdjustment == -7.5)
         #expect(store.petSettings == PetSettings())
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 4)
     }
 
     @Test func interactionDefaultsAndVersionTwoMigrationPreserveOldValues() throws {
@@ -138,7 +170,7 @@ struct PreferencesStoreTests {
         let store = UserDefaultsPreferencesStore(defaults: suite.defaults)
         #expect(store.petSettings.interaction == InteractionSettings())
         #expect(!store.petSettings.behavior.isEnabled)
-        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 3)
+        #expect(suite.defaults.integer(forKey: "petscape.preferencesVersion") == 4)
 
         store.petSettings = PetSettings(
             interaction: InteractionSettings(

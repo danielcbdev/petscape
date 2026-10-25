@@ -46,6 +46,8 @@ public struct Pet: Sendable {
     public internal(set) var personality: Personality
     public internal(set) var activity: Activity?
     public internal(set) var activityDecisionCount = 0
+    /// Each pet advances its own deterministic stream. The world seeds this once from its injected source.
+    var random: any RandomSource
     var activityDeadline: Double = 0
     var activityDuration: Double = 0
     var previousActivity: Activity?
@@ -73,8 +75,9 @@ public struct Pet: Sendable {
     var clickSavedActivity: Activity?
     var clickSavedActivityRemaining = 0.0
 
-    init(id: PetID, definition: CharacterDefinition, scale: Double) {
+    init(id: PetID, definition: CharacterDefinition, scale: Double, randomSeed: UInt64) {
         self.id = id
+        random = SeededRandomSource(seed: randomSeed)
         personality = Personality(definition.personality)
         position = .zero
         attachment = nil

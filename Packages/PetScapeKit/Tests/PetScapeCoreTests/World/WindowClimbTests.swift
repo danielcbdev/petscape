@@ -54,20 +54,71 @@ struct WindowClimbTests {
 
         var events: [WorldEvent] = []
         var sideContactY: CGFloat?
+        var topWalkDuration: Double?
         for _ in 0..<3600 {
             let eventStart = events.count
             world.step(dt: Self.dt, into: &events)
             if sideContactY == nil, events[eventStart...].contains(.landed(petID, side.id)) {
                 sideContactY = world.pet(petID)?.position.y
             }
+            if topWalkDuration == nil, events[eventStart...].contains(.landed(petID, top.id)) {
+                topWalkDuration = world.pet(petID)?.activityDuration
+            }
         }
 
         #expect(events.contains(.landed(petID, side.id)))
-        #expect(try #require(sideContactY) < side.maxY - 80)
+        #expect(try #require(sideContactY) < 240)
         #expect(events.contains(.stateChanged(petID, from: .falling, to: .climbing)))
         #expect(events.contains(.landed(petID, top.id)))
+        let duration = try #require(topWalkDuration)
+        #expect(duration >= 7 && duration < 19)
         #expect(events.contains(.landed(petID, dock.id)))
         #expect(world.pet(petID)?.attachment?.surfaceID == dock.id)
+    }
+
+    @Test func defaultAutonomyChoosesJumpsAndWindowExcursionsAcrossSeeds() throws {
+        let dock = Surface(id: .dock, kind: .dockTop, y: 0, minX: 0, maxX: 1470)
+        let side = Surface(
+            id: SurfaceID("window:42:left:window:42:bottom:window:42:top"),
+            kind: .windowLeft, x: 700, minY: 100, maxY: 400)
+        let top = Surface(
+            id: SurfaceID("window:42:top:window:42:left:window:42:right"),
+            kind: .windowTop, y: 400, minX: 700, maxX: 1000)
+        let definition = try Fixtures.walkingDefinition(nominalSpeed: 20)
+        var choices: [Activity] = []
+        var previousPolicyChoices: [Activity] = []
+        let previousWeights: [Activity: Double] = [
+            .walk: 4, .idle: 0.1, .jump: 0.7, .sit: 0.075, .sleep: 0,
+            .stretch: 0.15, .observe: 0.15, .explore: 0.8, .windowExcursion: 0.6,
+        ]
+        let previousCandidates = Activity.allCases.map {
+            ActivityCandidate($0, weight: previousWeights[$0] ?? 0)
+        }
+
+        for seed in 1...256 {
+            var world = PetWorld(random: SeededRandomSource(seed: UInt64(seed)))
+            world.apply(.screens([Self.screen]))
+            world.apply(.surfaces([dock, side, top]))
+            let petID = world.spawn(definition)
+            PetWorldTests.set(&world, x: 660, facing: .right)
+            world.apply(.configureBehavior(AutonomySettings()))
+            var previousRandom = try #require(world.pet(petID)?.random)
+            previousPolicyChoices.append(
+                ActivitySelector.select(
+                    previousCandidates, previous: nil, repetitions: 0, random: &previousRandom))
+            _ = world.step(dt: Self.dt)
+            if let activity = world.pet(petID)?.previousActivity {
+                choices.append(activity)
+            }
+        }
+
+        #expect(choices.count == 256)
+        #expect(previousPolicyChoices.count == choices.count)
+        #expect(choices.filter { $0 == .jump }.count > previousPolicyChoices.filter { $0 == .jump }.count)
+        #expect(
+            choices.filter { $0 == .windowExcursion }.count
+                > previousPolicyChoices.filter { $0 == .windowExcursion }.count)
+        #expect(Activity.windowExcursion.cooldown == 20)
     }
 
     @Test func multipleEligibleWindowsAreChosenRandomly() throws {

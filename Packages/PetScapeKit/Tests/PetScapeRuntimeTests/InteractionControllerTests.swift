@@ -67,4 +67,29 @@ struct InteractionControllerTests {
         #expect(controller.phase == .idle)
         #expect(captureCount == 0)
     }
+
+    @Test func targetedRemovalCancellationReleasesOnlyTheOwningPetCapture() {
+        let owner = PetID(3)
+        let other = PetID(8)
+        var submitted: [(PetID, InteractionCommand)] = []
+        var captures: [InteractionID?] = []
+        let controller = InteractionController(
+            hitTest: { _ in owner }, footPosition: { _ in .zero },
+            submit: { id, command in
+                submitted.append((id, command)); return true
+            },
+            setCapture: { captures.append($0) })
+
+        controller.handle(OverlayMouseEvent(kind: .down, location: .zero, timestamp: 1))
+        controller.handle(OverlayMouseEvent(kind: .dragged, location: CGPoint(x: 8, y: 0), timestamp: 1.1))
+        controller.cancel(.petUnavailable, for: other)
+        #expect(controller.phase == .dragging(petID: owner, id: InteractionID(1)))
+        #expect(captures == [InteractionID(1)])
+
+        controller.cancel(.petUnavailable, for: owner)
+        #expect(controller.phase == .idle)
+        #expect(submitted.last?.0 == owner)
+        #expect(submitted.last?.1 == .cancel(InteractionID(1), reason: .petUnavailable))
+        #expect(captures == [InteractionID(1), nil])
+    }
 }

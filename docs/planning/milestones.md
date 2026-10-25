@@ -28,7 +28,8 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M17 | Portuguese/English localization | — | **Done by explicit owner acceptance** (2026-10-24; native visual/VoiceOver/live locale checks unverified, package-run exceptions retained — [closeout](#owner-m17-closeout--2026-10-24)) |
 | M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
 | M19 | Character pack discovery and installation | — | **Done by explicit owner acceptance** (2026-10-24; real-pack/manual/VoiceOver/performance evidence limits retained — [closeout](#owner-m19-closeout--2026-10-24)) |
-| M20 | Release pipeline | v1.0.0 | Not started |
+| M20 | Settings redesign & multiple active characters | — | **Done by explicit owner acceptance** (2026-10-25; minimum-window, native accessibility/keyboard, and matched Release resource checks remain unverified; package test run retains the existing M15 V8 pixel-QA exception — [closeout](m20-implementation.md#owner-closeout-2026-10-25)) |
+| M21 | Release pipeline | v1.0.0 | Not started |
 
 M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
 Baseline HEAD is 2f7f33f; M6 is merged, but v0.1.0 remains unreleased. M9 is reauthorized; no
@@ -623,7 +624,7 @@ above remains unchanged; no new native/performance success is claimed at owner a
 ## M19 — Character pack discovery and installation
 
 - **Objective:** discover and install character packs.
-- **Authorization:** the owner explicitly requested end-to-end M19 implementation on 2026-10-24. The owner later accepted closure and authorized local branch/commit/merge. This does not authorize M20, network, publication, push, tag, release or PR.
+- **Authorization:** the owner explicitly requested end-to-end M19 implementation on 2026-10-24. The owner later accepted closure and authorized local branch/commit/merge. At that time this did not authorize M20, network, publication, push, tag, release or PR.
 - **Scope:** local folder selection, bounded validation, atomic installation, immediate-directory discovery in `~/Library/Application Support/PetScape/Characters`, and integration with M18 selection. No ZIP, network, publishing, update/overwrite, or in-app removal.
 - **Prerequisites:** M18 selection and M17 localization are accepted. Their closeouts and evidence limits remain unchanged.
 - **Status:** **Done by explicit owner acceptance, 2026-10-24, with evidence limits recorded below.** The real external-pack/manual flow gate remains unverified and is not recorded as passed.
@@ -643,10 +644,38 @@ imported-art performance measurements remain unverified. The 48-issue M15 V8 pix
 unchanged and is not attributed to M19.
 
 The owner authorized local Git integration only. No push, tag, release or PR is authorized by this
-closeout. M20 remains Not started and unauthorized. The unmet manual components of AC-M19-01,
+closeout. At that closeout, M20 remained Not started and unauthorized. The unmet manual components of AC-M19-01,
 AC-M19-08 and AC-M19-10 are recorded as accepted evidence limits, not passed criteria.
 
-## M20 — Release pipeline
+## M20 — Settings redesign & multiple active characters (planned 2026-10-24; accepted 2026-10-25)
+
+- **Objective:** replace the crowded Settings presentation with a clear native macOS layout, and allow one active pet per unique character pack at the same time.
+- **Authorization:** the owner explicitly requested end-to-end M20 implementation on 2026-10-25 and directed use of `feature/T20-settings-multi-pet`. On 2026-10-25, the owner reported that the final autonomy-variety refinement worked perfectly after testing, accepted M20 closure, and authorized branch commit, local merge into `develop`, and push. This does not authorize M21, tag, release or PR.
+- **Status:** **Done by explicit owner acceptance**, with the evidence limits below retained. Existing M18/M19 acceptance records and evidence limits remain unchanged.
+- **Scope:** redesign Settings presentation from the ground up while preserving every existing setting, action, permission explanation, status, import flow, localization and persistence behavior; replace single-character selection/replacement with an active roster that can contain at most one instance for each valid bundled or installed character ID; add/remove roster entries independently; ensure each spawned pet owns independent behavior, movement, animation, timing, interaction and lifecycle state. Existing `cat` and `human-programmer`/Dimas packs are examples, not hard-coded special cases.
+- **Suggested Settings information architecture:** a native tab or sidebar layout with (1) Pets and pack management, (2) Behavior and music, (3) Appearance and placement, (4) Interaction, and (5) General. Pets should show each active character as an accessible row/card with source label, per-pet Dance/Stop Dance when eligible, and an individual Remove action; a clear Add Character picker should list only inactive valid packs and disable duplicates. Keep import progress/errors and empty/loading states in the pack-management area. The implementation agent may improve this proposal after auditing the current Settings and native macOS conventions.
+- **Shared preferences versus independent state:** settings that are currently global (pause/hide, scale/speed, autonomy toggles, music detection, window/cursor interaction, login item and Dock offset) remain global unless a documented existing contract says otherwise. Runtime state is per `PetID`: autonomous choices and timers, random sequence, dance duration/phase, animation frame, position/velocity/surface, interaction/hold, climbing/window excursion, and cleanup must not be copied, mirrored or synchronized between pets. Preserve the current rule that a music-start signal reaches each eligible pet; each pet then advances its own behavior and bounded dance interval using its independent seeded state, so synchronized copies of another pet's later behavior do not occur.
+- **Persistence:** replace the singular active-character preference with a versioned/list preference appropriate to the existing store. Migrate an existing valid `petscape.selectedCharacterID` into a one-entry roster without losing the user's selection; preserve sensible first-launch/default and Restore Defaults behavior; safely handle unknown, missing, invalid and duplicate IDs. Do not create duplicate instances for one stable character ID.
+- **Resource policy:** lazy-load assets for active characters, release resources after removal when safe, and evaluate aggregate memory/frame cost against existing per-pack limits and `docs/specifications/performance.md`. Support all valid unique catalog entries unless measured evidence requires a concurrency cap; any cap must be justified, documented, localized and exposed accessibly. Do not claim performance targets without measurement.
+- **Prerequisites:** M17 localization, M18 character selection and M19 local pack discovery/installation accepted. Preserve their historical closeouts; M20 supersedes the one-active-character constraint without rewriting prior evidence.
+- **Non-goals:** new art/image generation, new character packs, new animation behaviors, network discovery, pack publishing, release signing/notarization/CI, and distribution. The existing release pipeline moves to M21.
+- **Risks:** per-pet identity and asset ownership leaking across render/runtime boundaries; old singular preferences being lost; global controls becoming ambiguous; aggregate resources scaling with roster size; Settings redesign regressing accessibility or localization.
+- **Verification:** Core/runtime lifecycle and independence tests; migration and invalid-roster tests; per-pet manual-action targeting tests; Settings UI/model assertions for zero/one/many installed and bundled entries, add/remove/duplicate prevention, statuses and localization; keyboard/VoiceOver review; lint, package/UI suites, Debug/Release builds, and relevant asset validation. Retain the known M15 V8 pixel-QA exception rather than suppressing it.
+- **Definition of Done:** AC-M20-01…AC-M20-12 pass or each unverified native/manual evidence item is explicitly recorded for owner review without being reported as passed; all existing Settings behavior remains available; simultaneous distinct pets remain independently simulated and controllable; migration is tested; docs and localization are complete; no unresolved implementation task remains.
+
+### M20 owner closeout (2026-10-25)
+
+The owner explicitly accepted M20 closure after testing and confirming that the final autonomous
+animation-variation refinement worked as expected. The owner authorized committing the existing
+`feature/T20-settings-multi-pet` branch, merging it locally into `develop`, and pushing the result.
+The existing M15 V8 pixel-QA exception remains a failed package gate, not a product pass; VoiceOver
+and complete keyboard traversal, supported-minimum Settings size, and matched native Release CPU/
+physical-footprint comparison remain unverified and accepted evidence limits. The separate UI suite,
+Debug/Release builds, real Dimas pack integration and focused autonomy/window-climb tests are recorded
+in the [M20 implementation closeout](m20-implementation.md#owner-closeout-2026-10-25). M21, tags,
+releases and PRs remain out of scope.
+
+## M21 — Release pipeline
 
 - **Objective:** reproducible, signed, notarized releases on GitHub.
 - **Scope:** owner decisions (license, bundle ID, Developer ID), versioning, changelog, archive/export, notarization, DMG, GitHub Actions release workflow, install docs.

@@ -491,3 +491,47 @@ bundled asset copy/validation script produced 201 files. These runs used macOS 2
 27.1. No owner-provided external pack was available, and no successful real-pack UI installation,
 visual review, VoiceOver review or imported-art performance measurement was performed. The owner
 accepted M19 closure with these evidence limits on 2026-10-24; they remain unverified, not passed.
+
+## M20 active roster and Settings redesign
+
+M20 automated coverage exercises unique stable IDs, saved-roster migration and empty-roster
+semantics, concurrent add rejection, adding/removing one pet while preserving others, independent
+movement/animation/dance timers and random streams, scoped interaction cancellation, independent
+character definitions/frame sequences, shared music fan-out, stale lazy-family completion, and
+installed-pack discovery. `CharacterPackInstallationTests.realDimasPackInstallsAndRunsBesideTheBundledCat`
+uses the existing Dimas pack through the production installer/catalog path; it does not modify
+original assets. UI tests use unique UserDefaults suites and temporary installed-pack roots.
+`PetWorldPerformanceMeasureTests.testTwoPetWorldStepCost` compares the Core fixed-step workload with
+the existing one-pet measure; it has no environment-sensitive pass/fail time threshold and does not
+measure AppKit, rendering, aggregate process CPU or memory.
+
+M20 native review results (macOS 27.0.1, build 26A434; Debug app; isolated
+`PetScapeUITests.<UUID>` preference domains and a temporary installed-pack folder):
+
+| Scenario | Result |
+|---|---|
+| Open Settings in English and `pt-BR`; inspect all five sidebar sections and long copy | Passed at the observed default window size. All sections navigated; headings, controls and long privacy copy were visible in both locales. Resizing to the supported minimum was not verified. |
+| Install the existing Dimas pack through the native folder picker in an isolated test app | Passed. The real `packs/human-programmer` pack installed as Dimas; the catalog showed Installed and did not activate it until Add. |
+| Add bundled Cat and installed Dimas together; use each Dance/Stop Dance and Remove action | Passed. Both active rows showed their own source and controls. Dance worked for each pet, Stop Dance on Cat left Dimas dancing, and removing Cat preserved Dimas. |
+| Navigate with keyboard and VoiceOver through Add, active rows, Dance, Stop Dance, Remove and status/error messages | Not verified. The accessibility tree exposes localized labels, hints, identifiers and enabled states; a VoiceOver session and end-to-end keyboard traversal were not completed. |
+| Relaunch the isolated app; Restore Defaults | Restore Defaults passed manually in an isolated suite: Pause and Hide reset, the injected login-item service changed to Disabled, and Cat remained active. Multi-pet relaunch persistence is covered by preference/runtime tests but was not manually observed. |
+| Compare one active pet and Cat+Dimas in the same Release app/environment | Native Release CPU and physical-footprint comparison not run. Package step timings and combined initial decoded frame bytes are recorded in [performance.md](../specifications/performance.md#m20-package-measurements-2026-10-25). |
+| Verify the revised autonomous activity mix and longer window-side climb | Owner manually tested the updated behavior and reported that it worked perfectly on 2026-10-25. This is owner-reported native evidence; no separate instrumented cadence measurement was made. |
+
+The native import used only the isolated test folder; it did not alter the original pack or the
+owner's installed-pack directory. Restore Defaults used the test launch item's injected service, so
+the system login item was not changed. The default window size was observed; the minimum-size resize
+and actual VoiceOver/keyboard-navigation checks remain unverified and were accepted as M20 evidence
+limits. No concurrency cap was introduced.
+
+`make test` exits at the package gate before invoking UI tests because of the existing M15 V8
+pixel-QA exception (48 issues); the separate final XCUITest run passed 7 tests across two suites,
+including launch/menu, Settings controls, localization, pack cancellation/installation, roster
+empty/add/remove/relaunch, and Restore Defaults. An earlier attempt timed out while enabling
+Automation Mode; retry succeeded without changing a privacy permission. The V8 issue is not
+reported as an M20 product-test failure.
+
+The owner accepted M20 on 2026-10-25 after reporting that the revised autonomous activity variation
+worked perfectly, and authorized branch commit, local merge into `develop`, and push. VoiceOver/
+keyboard, supported-minimum Settings size, multi-pet native relaunch, full consent/error scenarios,
+and matched native Release resource comparisons remain explicitly unverified evidence limits.

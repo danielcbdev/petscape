@@ -18,7 +18,7 @@ public enum Activity: String, CaseIterable, Hashable, Sendable {
     var cooldown: Double {
         switch self {
         case .jump: 8
-        case .windowExcursion: 30
+        case .windowExcursion: 20
         case .sleep, .stretch: 20
         default: 0
         }

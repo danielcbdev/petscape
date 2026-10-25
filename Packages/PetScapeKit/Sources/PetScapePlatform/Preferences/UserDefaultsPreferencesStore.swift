@@ -6,6 +6,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
     /// Stored keys: part of the persistence contract, change only with a migration.
     public enum Key {
         public static let selectedCharacterID = "petscape.selectedCharacterID"
+        public static let activeCharacterIDs = "petscape.activeCharacterIDs"
         public static let version = "petscape.preferencesVersion"
         public static let scale = "petscape.scale"
         public static let speed = "petscape.speed"
@@ -24,7 +25,7 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
     }
 
     /// Bump with a migration in `migrate()` when keys or meanings change.
-    public static let currentVersion = 3
+    public static let currentVersion = 4
 
     private let defaults: UserDefaults
 
@@ -33,10 +34,13 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         migrate()
     }
 
-    /// Additive M18 key. Restore Defaults retains this content choice and all unknown keys.
-    public var selectedCharacterID: String? {
-        get { defaults.string(forKey: Key.selectedCharacterID) }
-        set { defaults.set(newValue, forKey: Key.selectedCharacterID) }
+    /// Roster preference. `nil` is distinct from `[]` so an intentionally empty roster stays empty on relaunch.
+    public var activeCharacterIDs: [String]? {
+        get {
+            guard defaults.object(forKey: Key.activeCharacterIDs) != nil else { return nil }
+            return (defaults.array(forKey: Key.activeCharacterIDs) as? [String]) ?? [""]
+        }
+        set { defaults.set(newValue, forKey: Key.activeCharacterIDs) }
     }
 
     public var isPaused: Bool {
@@ -105,11 +109,17 @@ public final class UserDefaultsPreferencesStore: PreferencesStore {
         defaults.object(forKey: key) == nil || defaults.bool(forKey: key)
     }
 
-    /// V2 adds autonomy and V3 interaction keys with absence defaults; older values need no rewrite.
+    /// V2 adds autonomy, V3 interaction and V4 roster keys. V4 copies the legacy selected ID once.
     /// An unknown newer schema is retained, including its version and unknown keys.
     private func migrate() {
         let stored = defaults.integer(forKey: Key.version)
         if stored < Self.currentVersion {
+            if defaults.object(forKey: Key.activeCharacterIDs) == nil,
+                let selectedID = defaults.string(forKey: Key.selectedCharacterID)
+            {
+                defaults.set([selectedID], forKey: Key.activeCharacterIDs)
+            }
+            defaults.removeObject(forKey: Key.selectedCharacterID)
             Log.app.info(
                 "Preferences version \(stored, privacy: .public) → \(Self.currentVersion, privacy: .public)")
             defaults.set(Self.currentVersion, forKey: Key.version)

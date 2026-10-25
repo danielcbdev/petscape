@@ -31,7 +31,7 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | FR-17 | The overlay follows screen configuration changes (resolution, scaling, display connect/disconnect, Dock size/position change). |
 | FR-18 | Pause/hidden state is persisted across launches (UserDefaults). |
 
-### Next (milestones M7–M20)
+### Next (milestones M7–M21)
 
 | ID | Requirement | Milestone |
 |---|---|---|
@@ -45,17 +45,17 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | FR-27 | Detection of other apps' windows (opt-in, permission requested only when enabled). | M12 |
 | FR-28 | Walking on window top edges, riding moving windows, reacting to closed/minimized windows. | M13 |
 | FR-29 | Multiple displays: pets can live on and move between displays. | M14 |
-| FR-30 | Signed, notarized DMG published on GitHub Releases. | M20 |
+| FR-30 | Signed, notarized DMG published on GitHub Releases. | M21 |
+| FR-40 | Multiple simultaneous pets, with at most one active pet per character pack and independent behavior/runtime state. | M20 |
+| FR-42 | Additional characters selectable in Settings. | M18–M19 |
+| FR-44 | User-installed character packs from `~/Library/Application Support/PetScape/Characters`. | M19 |
 
 ### Future (unscheduled)
 
 | ID | Requirement |
 |---|---|
-| FR-40 | Multiple simultaneous pets. |
 | FR-41 | Pet-to-pet interactions: meet, chase, play, sleep together, react to movements. |
-| FR-42 | Additional characters selectable in Settings. |
 | FR-43 | Dock on left/right edges used as a climbable vertical surface. |
-| FR-44 | User-installed character packs from `~/Library/Application Support/PetScape/Characters`. |
 
 ## Non-functional requirements
 

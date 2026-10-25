@@ -176,36 +176,41 @@ UserDefaults suite and a fake login service (initially enabled to exercise resto
 allocation stays in memory; it never falls back to owner preferences. Test teardown terminates the
 app and removes only that suite. Release builds have neither launch-argument selection nor fake.
 
-### M18 bundled character transaction
+### M20 character catalog and active roster
 
-AppContainer supplies only `Bundle.main.resourceURL/characters` to `BundledCharacterCatalog`.
-Only immediate directories are considered; resource/manifest symlinks escaping a pack are rejected
-before reading them. A fresh loader/cache validates each candidate's manifest, declared clips and
-full pixel decoding, then evicts noninitial families. Catalog entries retain only ID, name and URL;
-assets remain lazily resident after validation. Duplicate manifest IDs are all excluded.
+AppContainer supplies the bundled character root and the user's installed character root to the
+existing catalog/installer seams. Catalog discovery validates each immediate pack directory,
+rejects escaping symlinks and duplicate IDs, and retains IDs, names, source labels and URLs rather
+than decoded frame images. Import remains a local folder-picker operation and installs a pack without
+activating it. Asset validation and lazy family loading retain the existing M19 per-pack limits.
 
-`CharacterSelectionModel` owns observable options/loading/error state. It restores the additive
-`petscape.selectedCharacterID` string through PreferencesStore: saved valid ID, then `cat`, then
-lexical manifest ID. Each candidate is revalidated before application, including unchanged identity.
-Zero valid packs use the existing placeholder without overwriting the saved ID. Only successful
-application writes the key. There is no schema bump or per-character preference partition. Restore
-Defaults retains this content choice while resetting the existing global settings as before.
+`CharacterRosterModel` owns observable catalog, active rows, import/add/remove progress and error
+state. The version-4 preference `petscape.activeCharacterIDs` stores an ordered list of unique
+manifest IDs. A missing list migrates the legacy `petscape.selectedCharacterID` into a one-entry
+roster; a missing or invalid old selection falls back to `cat`, then the first usable ID in lexical
+order. An explicit empty list remains empty. On restore, unknown, invalid and duplicate IDs are
+skipped; if no saved ID remains usable, the default fallback is loaded. Restore Defaults resets
+global settings but preserves the active roster. Catalog loading does not eagerly retain every
+character's decoded images.
 
-A selection loads off-main while the previous pet remains active, then calls the runtime on
-MainActor between frame callbacks. PetWorld's `replaceSettledCharacter` accepts supported Walking,
-Idle or attached initial Spawning only; the new manifest geometry must fit at the same contact
-point on the same horizontal surface. Physical/rest/dance/held/climbing/excursion phases or
-incompatible dimensions reject without mutation and Settings asks the user to retry. Pause/hide
-never advance simulation just to change character. No deferred selection timer or event queue.
+Adding a character validates/decodes it off-main and asks `PetWorld` to spawn only if its stable
+character ID is not already active. The existing pets retain their PetID, position, state, animation,
+interaction and events. `PetWorld` seeds each new pet's deterministic random stream independently;
+subsequent behavior choices and durations use that stream. Removing a pet removes only its world
+events and identity. `InteractionController` cancels only a capture owned by that PetID.
 
-The replacement has a fresh PetID, animation controller and transient activity/interaction state;
-world environment and global preference policy stay in place. Runtime clears old layers, masks,
-snapshots, accumulated dt and events synchronously before rendering the new pet. Lazy completions
-check both runtime-started state and LoadedCharacter identity. Selection stop/cancellation uses a
-generation guard before any commit. AppContainer closes any old DEBUG animation preview when a
-new selection applies. No module dependency, physics model or character manifest schema changes.
+`PetRuntime` owns each loaded character, behavior-family task and render resource by PetID. A lazy
+family completion verifies both that the runtime is still started and that the same PetID still owns
+the same loaded character before publishing frames. Removal cancels only that pet's activity task,
+interaction, subscriptions, render layer, hit mask and snapshot. Every snapshot and hit-test route
+resolves each active pet through its own `CharacterDefinition`. Shared preferences and environmental
+signals remain global; music-start fans out to eligible pets while their state and dance deadlines
+advance independently. Manual Dance and Stop Dance require an explicit PetID when multiple pets are
+active; ambiguous legacy no-argument calls do nothing.
 
-Native Settings contains the selector; the menu remains compact. Zero/one options are text-only,
-multiple options use a native accessible Picker with manifest display names verbatim. No dedicated
-preview artwork exists. New static copy uses the existing localizable-literal/String(localized:)
-pattern; translation/catalog consolidation belongs to M17, external discovery/install to M19.
+Settings uses a native sidebar with Pets, Behavior, Appearance, Interaction and General sections.
+Roster rows show localized source labels and per-pet Dance/Stop Dance/Remove actions; Add lists only
+inactive valid catalog entries. Existing permission consent, errors, login-item state, music status,
+importer and global controls remain in their sections. No new module, dependency, permission, network
+access, character schema or concurrency cap is introduced. Aggregate multi-pack profiling remains
+subject to the recorded M20 verification evidence; no target is claimed from the per-pack limits.

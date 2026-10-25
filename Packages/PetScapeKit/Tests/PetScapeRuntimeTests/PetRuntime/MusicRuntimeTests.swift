@@ -1,8 +1,8 @@
 import AppKit
-import PetScapeCore
 import PetScapePlatform
 import Testing
 
+@testable import PetScapeCore
 @testable import PetScapeRuntime
 
 extension PetRuntimeTests {
@@ -33,7 +33,7 @@ extension PetRuntimeTests {
                 })
         }
 
-        @Test func consentIsExplicitManualNeedsNoCaptureAndRestoreDisablesIt() async {
+        @Test func consentIsExplicitManualNeedsNoCaptureAndRestoreDisablesIt() async throws {
             let source = Source()
             let detector = MusicDetectionController(source: source)
             let h = Self.harness(detector)
@@ -43,15 +43,16 @@ extension PetRuntimeTests {
             h.runtime.start()
             h.runtime.show(await CharacterLoader().load(packURL: TestPacks.catPackURL))
             h.frames(2)
+            let petID = try #require(h.runtime.pets.first?.id)
             #expect(!model.isSpecialArtworkPending, "The cat pack ships dance and cleanup")
             model.setAutonomyEnabled(true)
             h.runtime.setActivity(.idle)
             #expect(model.canDance)
-            model.dance()
+            model.dance(petID)
             #expect(h.runtime.pets[0].state == .grounded(.dancing(.manual)))
             #expect(!model.canDance)
             #expect(model.canStopDance)
-            model.stopDance()
+            model.stopDance(petID)
             #expect(!model.canStopDance)
             #expect(model.canDance)
             #expect(h.runtime.pets[0].state == .grounded(.idle))
@@ -134,6 +135,56 @@ extension PetRuntimeTests {
             h.runtime.retryUnavailableMusicDetection()
             #expect(source.starts == 2, "App activation does not restart healthy monitoring")
             #expect(h.runtime.pets[0].state == .grounded(.dancing(.automatic)))
+            h.runtime.stop()
+        }
+
+        @Test func sharedMusicStartsIndependentDancesAndManualStopTargetsOnePet() async throws {
+            func pack(_ id: String) throws -> URL {
+                let frames = ["walk.png"]
+                let manifest = TestPacks.manifest(walkFrames: frames).replacingOccurrences(
+                    of: "\"fixture\"", with: "\"\(id)\"")
+                return try TestPacks.make(manifest: manifest, images: frames)
+            }
+            let firstURL = try pack("first")
+            let secondURL = try pack("second")
+            defer {
+                try? FileManager.default.removeItem(at: firstURL)
+                try? FileManager.default.removeItem(at: secondURL)
+            }
+            let source = Source()
+            let h = Self.harness(MusicDetectionController(source: source))
+            h.runtime.start()
+            h.runtime.show(await CharacterLoader().loadForSelection(packURL: firstURL))
+            h.frames(3)
+            let firstID = try #require(h.runtime.pets.first?.id)
+            let secondCharacter = await CharacterLoader().loadForSelection(packURL: secondURL)
+            let secondID = try #require(h.runtime.addCharacter(secondCharacter))
+            h.frames(3)
+            h.runtime.setPetSettings(PetSettings(behavior: AutonomySettings(isEnabled: true)))
+            h.runtime.setActivity(.idle, for: firstID)
+            h.runtime.setActivity(.idle, for: secondID)
+
+            #expect(h.runtime.canDance(for: firstID) && h.runtime.canDance(for: secondID))
+            h.runtime.requestDance(for: firstID)
+            #expect(h.runtime.pets.first(where: { $0.id == firstID })?.state == .grounded(.dancing(.manual)))
+            #expect(h.runtime.pets.first(where: { $0.id == secondID })?.state == .grounded(.idle))
+            h.runtime.stopDance(for: firstID)
+
+            h.runtime.setMusicDancingEnabled(true)
+            source.onScore?(1, 1)
+            #expect(h.runtime.pets.first(where: { $0.id == firstID })?.state == .grounded(.dancing(.automatic)))
+            #expect(h.runtime.pets.first(where: { $0.id == secondID })?.state == .grounded(.dancing(.automatic)))
+            let firstDuration = try #require(h.runtime.pets.first(where: { $0.id == firstID })?.specialBehaviorDuration)
+            let secondDuration = try #require(
+                h.runtime.pets.first(where: { $0.id == secondID })?.specialBehaviorDuration)
+            #expect((5...30).contains(firstDuration) && (5...30).contains(secondDuration))
+            #expect(firstDuration != secondDuration)
+
+            h.runtime.stopDance(for: firstID)
+            #expect(h.runtime.pets.first(where: { $0.id == firstID })?.state == .grounded(.idle))
+            #expect(h.runtime.pets.first(where: { $0.id == secondID })?.state == .grounded(.dancing(.automatic)))
+            h.runtime.setPaused(true)
+            #expect(h.runtime.pets.first(where: { $0.id == secondID })?.state == .grounded(.idle))
             h.runtime.stop()
         }
     }

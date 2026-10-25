@@ -3,6 +3,18 @@ import PetScapeCore
 import PetScapePlatform
 import PetScapeRendering
 
+public struct PetDanceAvailability: Equatable, Sendable {
+    public let canDance: Bool
+    public let canStopDance: Bool
+    public let specialArtworkPending: Bool
+
+    public init(canDance: Bool, canStopDance: Bool, specialArtworkPending: Bool) {
+        self.canDance = canDance
+        self.canStopDance = canStopDance
+        self.specialArtworkPending = specialArtworkPending
+    }
+}
+
 /// Owns the simulation and connects it to the overlay (modules.md, data-flow.md#per-frame-pipeline):
 ///
 /// display frame → fixed steps of `PetWorld` → snapshot → `PetRenderer` (layers) → `PetHitTester` → the
@@ -20,8 +32,10 @@ public final class PetRuntime {
     public var onMusicStatusChange: ((MusicDetectionStatus) -> Void)?
     public var onDanceAvailabilityChange: ((Bool) -> Void)?
     public var onStopDanceAvailabilityChange: ((Bool) -> Void)?
+    public var onPetDanceAvailabilityChange: (([PetID: PetDanceAvailability]) -> Void)?
     private var publishedDanceAvailability = false
     private var publishedStopDanceAvailability = false
+    private var publishedPetDanceAvailability: [PetID: PetDanceAvailability] = [:]
     private let preferences: any PreferencesStore
     private let windowTracker: CompositeWindowTracker
     private let hitTester: PetHitTester
@@ -33,8 +47,8 @@ public final class PetRuntime {
         setCapture: { [weak self] id in self?.overlay.setInteractionCapture(id) }
     )
     private var accumulator = FixedStepAccumulator()
-    private var character: LoadedCharacter?
-    private(set) var behaviorFamilyTasks: [String: Task<Void, Never>] = [:]
+    private var charactersByPetID: [PetID: LoadedCharacter] = [:]
+    private(set) var behaviorFamilyTasks: [PetID: [String: Task<Void, Never>]] = [:]
     private var renderers: [ScreenID: PetRenderer] = [:]
     private var rendererViews: [ScreenID: OverlayContentView] = [:]
     private var screenSnapshots: [ScreenID: RenderSnapshot] = [:]
@@ -47,7 +61,7 @@ public final class PetRuntime {
     public private(set) var trackedWindowSurfaces: [Surface] = []
     public var onTrackedWindowSurfacesChange: (([Surface]) -> Void)?
     public var onWindowPermissionRevoked: (() -> Void)?
-    public var onCharacterIssuesChange: (([ManifestIssue]) -> Void)?
+    public var onCharacterIssuesChange: ((PetID, [ManifestIssue]) -> Void)?
     #if DEBUG
         private var frameRateWindow = FrameRateWindow()
     #endif
@@ -100,6 +114,9 @@ public final class PetRuntime {
     /// The current simulation state (tests, debugging).
     public var currentSnapshot: RenderSnapshot { snapshot }
     public var pets: [Pet] { world.pets }
+    public var hasPlaceholderCharacter: Bool { charactersByPetID.values.contains(where: \.isPlaceholder) }
+    public var hasDegradedCharacter: Bool { charactersByPetID.values.contains(where: \.isDegraded) }
+    public func loadedCharacter(for id: PetID) -> LoadedCharacter? { charactersByPetID[id] }
     public var simulationTime: Double { world.time }
     public var petSettings: PetSettings { preferences.petSettings }
     public var onUserIntentChange: ((UserIntent) -> Void)?
@@ -119,33 +136,54 @@ public final class PetRuntime {
 
     public var musicStatus: MusicDetectionStatus { musicDetector.status }
 
-    public var canDance: Bool {
-        overlay.runState.status.state == .running && world.pets.first.map { world.canDance($0.id) } == true
+    public var canDance: Bool { uniquePetID.map { canDance(for: $0) } ?? false }
+
+    public var canStopDance: Bool { uniquePetID.map { canStopDance(for: $0) } ?? false }
+
+    public func stopDance() {
+        guard let id = uniquePetID else { return }
+        stopDance(for: id)
     }
 
-    public var canStopDance: Bool {
-        guard overlay.runState.status.state == .running, let pet = world.pets.first,
+    public var isSpecialArtworkPending: Bool {
+        guard let id = uniquePetID else { return true }
+        return isSpecialArtworkPending(for: id)
+    }
+
+    public func isSpecialArtworkPending(for id: PetID) -> Bool {
+        guard let definition = world.pet(id)?.animation.definition else { return true }
+        return definition.clips["dance"] == nil || definition.clips["cleanup"] == nil
+    }
+
+    public func requestDance() {
+        guard let id = uniquePetID else { return }
+        requestDance(for: id)
+    }
+
+    public func canDance(for id: PetID) -> Bool {
+        overlay.runState.status.state == .running && world.canDance(id)
+    }
+
+    public func canStopDance(for id: PetID) -> Bool {
+        guard overlay.runState.status.state == .running, let pet = world.pet(id),
             case .grounded(.dancing) = pet.state
         else { return false }
         return true
     }
 
-    public func stopDance() {
-        guard canStopDance, let id = world.pets.first?.id else { return }
+    public func stopDance(for id: PetID) {
+        guard canStopDance(for: id) else { return }
         world.apply(.stopDance(id))
         renderNow()
     }
 
-    public var isSpecialArtworkPending: Bool {
-        guard let definition = world.pets.first?.animation.definition else { return true }
-        return definition.clips["dance"] == nil || definition.clips["cleanup"] == nil
-    }
-
-    public func requestDance() {
-        guard canDance, let id = world.pets.first?.id else { return }
+    public func requestDance(for id: PetID) {
+        guard canDance(for: id) else { return }
         world.apply(.requestDance(id))
         renderNow()
     }
+
+    private var uniquePetID: PetID? { world.pets.count == 1 ? world.pets[0].id : nil }
 
     public func setMusicDancingEnabled(_ enabled: Bool) {
         preferences.isMusicDancingEnabled = enabled
@@ -178,6 +216,19 @@ public final class PetRuntime {
     }
 
     private func publishDanceAvailability() {
+        let petAvailability = Dictionary(
+            uniqueKeysWithValues: world.pets.map { pet in
+                (
+                    pet.id,
+                    PetDanceAvailability(
+                        canDance: canDance(for: pet.id), canStopDance: canStopDance(for: pet.id),
+                        specialArtworkPending: isSpecialArtworkPending(for: pet.id))
+                )
+            })
+        if publishedPetDanceAvailability != petAvailability {
+            publishedPetDanceAvailability = petAvailability
+            onPetDanceAvailabilityChange?(petAvailability)
+        }
         let available = canDance
         if publishedDanceAvailability != available {
             publishedDanceAvailability = available
@@ -227,7 +278,7 @@ public final class PetRuntime {
     /// Stops frames, observers and overlays (FR-13) and drops the pet layers.
     public func stop() {
         isStarted = false
-        character = nil
+        charactersByPetID.removeAll()
         world.removeAllPets()
         snapshot.pets.removeAll(keepingCapacity: true)
         events.removeAll(keepingCapacity: true)
@@ -261,7 +312,13 @@ public final class PetRuntime {
     /// Explicit movement commands retain their independent physical guards alongside autonomy.
     @discardableResult
     public func requestJump(_ request: JumpRequest) -> Bool {
-        guard overlay.runState.status.state == .running, let id = snapshot.pets.first?.id else { return false }
+        guard let id = uniquePetID else { return false }
+        return requestJump(request, for: id)
+    }
+
+    @discardableResult
+    public func requestJump(_ request: JumpRequest, for id: PetID) -> Bool {
+        guard overlay.runState.status.state == .running else { return false }
         let previous = world.pet(id)?.state
         world.apply(.requestJump(id, request))
         let accepted =
@@ -274,12 +331,23 @@ public final class PetRuntime {
     /// A target-only debug intent preserves the current activity across landing.
     @discardableResult
     public func requestJump(to target: JumpRequest.Target) -> Bool {
-        guard let activity = world.pets.first?.resumeActivity else { return false }
-        return requestJump(JumpRequest(target: target, returnActivity: activity))
+        guard let id = uniquePetID else { return false }
+        return requestJump(to: target, for: id)
+    }
+
+    @discardableResult
+    public func requestJump(to target: JumpRequest.Target, for id: PetID) -> Bool {
+        guard let activity = world.pet(id)?.resumeActivity else { return false }
+        return requestJump(JumpRequest(target: target, returnActivity: activity), for: id)
     }
 
     public func setActivity(_ activity: ResumeActivity) {
-        guard overlay.runState.status.state == .running, let id = snapshot.pets.first?.id else { return }
+        guard let id = uniquePetID else { return }
+        setActivity(activity, for: id)
+    }
+
+    public func setActivity(_ activity: ResumeActivity, for id: PetID) {
+        guard overlay.runState.status.state == .running else { return }
         world.apply(.setActivity(id, activity))
         renderNow()
     }
@@ -297,13 +365,16 @@ public final class PetRuntime {
 
     // MARK: - Character
 
-    /// Puts one pet of `character` into the world (replacing any previous one) and shows it, even while paused.
+    /// Displays a placeholder when no usable catalog entry exists. Real characters use `addCharacter`.
     public func show(_ character: LoadedCharacter) {
-        interactionController.cancel(.petUnavailable)
-        self.character = character
-        cancelBehaviorFamilyLoads()
-        world.removeAllPets()
+        guard character.isPlaceholder else {
+            _ = addCharacter(character)
+            return
+        }
+        guard character.isPlaceholder, world.pets.isEmpty else { return }
         let id = world.spawn(character.definition, scale: preferences.petSettings.scale)
+        charactersByPetID[id] = character
+        onCharacterIssuesChange?(id, character.issues)
         let placement = world.pet(id)?.attachment.map { "on \($0.surfaceID)" } ?? "waiting for a surface"
         Log.simulation.notice(
             "Pet \(id, privacy: .public) '\(character.definition.id.rawValue, privacy: .public)' spawned \(placement, privacy: .public)"
@@ -311,28 +382,39 @@ public final class PetRuntime {
         renderNow()
     }
 
-    /// Candidate images have already been validated. Commit between frame callbacks on MainActor.
-    /// Rejection leaves every current layer, input session and simulation value untouched.
+    /// Adds a validated character without replacing or mutating any existing pet.
     @discardableResult
-    public func replaceCharacter(_ candidate: LoadedCharacter) -> Bool {
-        guard isStarted, !candidate.isPlaceholder, !candidate.isDegraded else { return false }
-        if character == nil || character?.isPlaceholder == true || world.pets.isEmpty {
-            show(candidate)
-            return true
-        }
-        guard world.replaceSettledCharacter(with: candidate.definition, scale: preferences.petSettings.scale)
-        else { return false }
-        interactionController.cancel(.petUnavailable)
-        character = candidate
-        cancelBehaviorFamilyLoads()
-        accumulator.reset()
-        events.removeAll(keepingCapacity: true)
-        snapshot.pets.removeAll(keepingCapacity: true)
-        for id in Array(screenSnapshots.keys) { screenSnapshots[id]?.pets.removeAll(keepingCapacity: true) }
-        renderers.values.forEach { $0.removeAll() }
-        hitTester.removeAll()
+    public func addCharacter(_ candidate: LoadedCharacter) -> PetID? {
+        guard isStarted, !candidate.isPlaceholder, !candidate.isDegraded,
+            !world.pets.contains(where: { $0.characterID == candidate.definition.id })
+        else { return nil }
+        let id = world.spawn(candidate.definition, scale: preferences.petSettings.scale)
+        guard world.pet(id)?.characterID == candidate.definition.id else { return nil }
+        charactersByPetID[id] = candidate
+        onCharacterIssuesChange?(id, candidate.issues)
+        let placement = world.pet(id)?.attachment.map { "on \($0.surfaceID)" } ?? "waiting for a surface"
+        Log.simulation.notice(
+            "Pet \(id, privacy: .public) '\(candidate.definition.id.rawValue, privacy: .public)' spawned \(placement, privacy: .public)"
+        )
         renderNow()
-        return true
+        return id
+    }
+
+    /// Removes one PetID and only its active pointer capture, lazy loads, events and render state.
+    @discardableResult
+    public func removeCharacter(_ id: PetID) -> Bool {
+        guard world.pet(id) != nil else { return false }
+        interactionController.cancel(.petUnavailable, for: id)
+        cancelBehaviorFamilyLoads(for: id)
+        charactersByPetID[id] = nil
+        onCharacterIssuesChange?(id, [])
+        let removed = world.removePet(id)
+        events.removeAll { $0.petID == id }
+        for snapshotID in screenSnapshots.keys {
+            screenSnapshots[snapshotID]?.pets.removeAll { $0.id == id }
+        }
+        if removed { renderNow() }
+        return removed
     }
 
     // MARK: - Overlay callbacks
@@ -494,17 +576,17 @@ public final class PetRuntime {
             for screen in overlay.screens {
                 guard let screenSnapshot = screenSnapshots[screen.id] else { continue }
                 renderers[screen.id]?.render(screenSnapshot, converter: converter, screen: screen) { pet in
-                    guard let character else { return nil }
+                    guard let character = charactersByPetID[pet.id] else { return nil }
                     if let frame = character.frame(pet.frame) { return frame.image }
-                    requestBehaviorFamilyLoad(pet.frame.clip, for: character)
+                    requestBehaviorFamilyLoad(pet.frame.clip, petID: pet.id, character: character)
                     return character.fallbackFrame(for: pet.frame)?.image
                 }
             }
         }
         hitTester.update(snapshot) { pet in
-            guard let character else { return nil }
+            guard let character = charactersByPetID[pet.id] else { return nil }
             if let frame = character.frame(pet.frame) { return frame.hitMask }
-            requestBehaviorFamilyLoad(pet.frame.clip, for: character)
+            requestBehaviorFamilyLoad(pet.frame.clip, petID: pet.id, character: character)
             return character.fallbackFrame(for: pet.frame)?.hitMask
         }
         let demand = world.needsSimulationSteps || world.needsAnimationFrames
@@ -515,22 +597,32 @@ public final class PetRuntime {
         publishDanceAvailability()
     }
 
+    private func cancelBehaviorFamilyLoads(for petID: PetID) {
+        guard let tasks = behaviorFamilyTasks.removeValue(forKey: petID) else { return }
+        for task in tasks.values { task.cancel() }
+    }
+
     private func cancelBehaviorFamilyLoads() {
-        for task in behaviorFamilyTasks.values { task.cancel() }
+        for tasks in behaviorFamilyTasks.values {
+            for task in tasks.values { task.cancel() }
+        }
         behaviorFamilyTasks.removeAll()
     }
 
-    private func requestBehaviorFamilyLoad(_ clip: String, for character: LoadedCharacter) {
+    private func requestBehaviorFamilyLoad(_ clip: String, petID: PetID, character: LoadedCharacter) {
         let family = CharacterFrameCatalog.family(for: clip)
-        guard !character.hasAttemptedBehaviorFamily(containing: clip), behaviorFamilyTasks[family] == nil
+        guard !character.hasAttemptedBehaviorFamily(containing: clip), behaviorFamilyTasks[petID]?[family] == nil
         else {
             return
         }
-        behaviorFamilyTasks[family] = Task { [weak self, character] in
+        behaviorFamilyTasks[petID, default: [:]][family] = Task { [weak self, character] in
             let loaded = await character.loadBehaviorFamily(containing: clip)
-            guard let self, self.isStarted, self.character === character else { return }
-            self.behaviorFamilyTasks[family] = nil
-            if !loaded { self.onCharacterIssuesChange?(character.issues) }
+            guard let self, self.isStarted, self.charactersByPetID[petID] === character,
+                self.world.pet(petID) != nil
+            else { return }
+            self.behaviorFamilyTasks[petID]?[family] = nil
+            if self.behaviorFamilyTasks[petID]?.isEmpty == true { self.behaviorFamilyTasks[petID] = nil }
+            if !loaded { self.onCharacterIssuesChange?(petID, character.issues) }
             self.renderNow()
         }
     }

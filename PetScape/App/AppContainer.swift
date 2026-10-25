@@ -17,10 +17,9 @@ final class AppContainer {
     let languageMonitor: SystemLanguageMonitor
     let settingsModel: SettingsModel
     private var activationObserver: (any NSObjectProtocol)?
-    private let characterSelection: CharacterSelectionModel
+    private let characterRoster: CharacterRosterModel
     private let userCharactersRoot: URL?
     private var loadTask: Task<Void, Never>?
-    private(set) var character: LoadedCharacter?
     #if DEBUG
         let debugModel: DebugOverlayModel
         private var animationPreview: AnimationPreviewController?
@@ -48,31 +47,27 @@ final class AppContainer {
             fullScreenDetector: FullScreenSpaceDetector(),
             preferences: preferences)
         self.runtime = runtime
-        runtime.onCharacterIssuesChange = { [weak model] issues in
-            if issues.contains(where: { $0.severity == .error }) {
+        runtime.onCharacterIssuesChange = { [weak model, weak runtime] _, _ in
+            guard let runtime else { return }
+            if runtime.hasPlaceholderCharacter {
+                model?.characterStatus = .placeholder
+            } else if runtime.hasDegradedCharacter {
                 model?.characterStatus = .degraded
+            } else {
+                model?.characterStatus = nil
             }
         }
-        let selection = CharacterSelectionModel(
-            preferences: preferences, installedPacksRoot: userCharactersRoot
-        ) { [weak runtime] character in
-            guard let runtime else { return false }
-            if character.isPlaceholder {
-                runtime.show(character)
-                return true
-            }
-            return runtime.replaceCharacter(character)
-        }
-        characterSelection = selection
+        let roster = CharacterRosterModel(
+            preferences: preferences, runtime: runtime, installedPacksRoot: userCharactersRoot)
+        characterRoster = roster
         settingsModel = SettingsModel(
             runtime: runtime, preferences: preferences, loginService: Self.makeLoginService(),
-            characterSelection: selection)
+            characterRoster: roster)
         runtime.onWindowPermissionRevoked = { [weak settingsModel] in settingsModel?.windowPermissionWasRevoked() }
         model.settings = settingsModel
         #if DEBUG
             debugModel = DebugOverlayModel(runtime: runtime, settings: settingsModel)
         #endif
-        selection.onApplied = { [weak self] character in self?.characterDidLoad(character) }
     }
 
     func start() {
@@ -106,22 +101,29 @@ final class AppContainer {
                 if let path = LaunchOptions.characterPackPath {
                     let character = await CharacterLoader().load(packURL: URL(fileURLWithPath: path, isDirectory: true))
                     guard !Task.isCancelled, let self else { return }
-                    self.characterSelection.stop()
-                    self.runtime.show(character)
-                    self.characterDidLoad(character)
+                    self.characterRoster.stop()
+                    if character.isPlaceholder {
+                        self.runtime.show(character)
+                    } else {
+                        _ = self.runtime.addCharacter(character)
+                    }
+                    if self.opensPreviewWhenLoaded { self.openAnimationPreview() }
                     return
                 }
             #endif
             let catalog = await CharacterCatalog.discover(
                 bundledRoot: root, installedRoot: installedRoot)
             guard !Task.isCancelled, let self else { return }
-            await self.characterSelection.start(catalog: catalog)
+            await self.characterRoster.start(catalog: catalog)
+            #if DEBUG
+                if self.opensPreviewWhenLoaded { self.openAnimationPreview() }
+            #endif
         }
     }
 
     /// Tears everything down before the process exits (FR-13: observers removed, windows closed).
     func stop() {
-        characterSelection.stop()
+        characterRoster.stop()
         loadTask?.cancel()
         loadTask = nil
         #if DEBUG
@@ -133,27 +135,6 @@ final class AppContainer {
         languageMonitor.stop()
         runtime.stop()
         Log.app.notice("PetScape stopped")
-    }
-
-    private func characterDidLoad(_ character: LoadedCharacter) {
-        #if DEBUG
-            animationPreview?.close()
-            animationPreview = nil
-        #endif
-        self.character = character
-        if character.isPlaceholder {
-            model.characterStatus = .placeholder
-        } else if character.isDegraded {
-            model.characterStatus = .degraded
-        } else {
-            model.characterStatus = nil
-        }
-        #if DEBUG
-            if opensPreviewWhenLoaded {
-                opensPreviewWhenLoaded = false
-                openAnimationPreview()
-            }
-        #endif
     }
 
     private static func makePreferences() -> any PreferencesStore {
@@ -204,10 +185,12 @@ final class AppContainer {
 
     #if DEBUG
         private func openAnimationPreview() {
-            guard let character else {
-                opensPreviewWhenLoaded = true
+            guard runtime.pets.count == 1, let pet = runtime.pets.first,
+                let character = runtime.loadedCharacter(for: pet.id)
+            else {
                 return
             }
+            opensPreviewWhenLoaded = false
             let preview = animationPreview ?? AnimationPreviewController(character: character)
             animationPreview = preview
             preview.show()

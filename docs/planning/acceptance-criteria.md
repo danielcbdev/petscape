@@ -247,8 +247,24 @@ AC-M17-10 (native keyboard/VoiceOver review), and the native portion of AC-M17-1
 language-change behavior) unverified and accepted as evidence limits. These criteria are not
 recorded as passed; see the [M17 closeout](milestones.md#owner-m17-closeout--2026-10-24).
 
-### M20 — Release pipeline
-- AC-M20-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
+### M20 — Settings redesign & multiple active characters
+
+- AC-M20-01 [Review, Man]: The Settings screen has a substantially redesigned, coherent native macOS information architecture and visual hierarchy. It remains legible at supported window sizes and long English/pt-BR copy does not clip or hide controls.
+- AC-M20-02 [Auto, Review, Man]: Every pre-M20 Settings capability remains available with its control, permission, persistence, status/error handling and global scope preserved: character discovery/import; size/speed; pause/hide/wake; autonomy, jumping, resting and expressions; manual Dance/Stop Dance; music-dance consent/status/retry; login item; window interaction; cursor reaction; click/drag; Dock offset; language guidance; and Restore Defaults. Autonomous activity cadence follows AC-M20-13.
+- AC-M20-03 [Auto, Man]: The active roster supports empty, one-pet and multiple-pet states and presents stable character names/source labels clearly. The user can add any valid inactive bundled or installed character and remove any individual active pet, including one in an active behavior/interaction phase, without removing or disturbing another. When both packs are available, manual verification activates Cat and Dimas together.
+- AC-M20-04 [Auto]: At most one active pet exists for each stable character ID. Add is disabled or otherwise safely rejected for an already-active ID, including concurrent/late requests and after relaunch.
+- AC-M20-05 [Auto]: Existing `petscape.selectedCharacterID` migrates to the new roster without losing a valid saved selection. Missing, unknown, invalid and duplicate persisted IDs recover according to documented fallback rules; restart and Restore Defaults behavior are tested.
+- AC-M20-06 [Auto]: Adding one pet does not replace, teleport, reset, interrupt, or change settings/animation/interaction of existing pets. Removing one pet in any behavior/interaction/physics phase safely releases only its identity, capture, subscriptions, async loading and render resources; remaining pets continue correctly.
+- AC-M20-07 [Auto]: Pet-specific state is independent: two pets may simultaneously occupy different states, positions/surfaces, animation frames, movement and activity timings. Seeded random choices/timers are independent per pet; an action or cancellation on one pet does not mirror onto or mutate another pet.
+- AC-M20-08 [Auto, Review]: Existing global preferences retain their documented semantics and apply consistently to eligible pets. A music-start signal reaches each eligible pet as it does today, while each pet advances its own behavior/timing state; manual Dance and Stop Dance always target an explicit pet and never silently target `pets.first` when several are active.
+- AC-M20-09 [Auto]: Each active pet renders with its own validated character definition, clip availability, display size, frame count and behavior-family resources; hit testing and interaction routes resolve to the correct PetID. Late async results for a removed pet cannot respawn it or affect another pet.
+- AC-M20-10 [Auto, Review]: Active-pack asset loading/release and aggregate memory/CPU are evaluated against existing limits. Any concurrency cap is based on evidence, localized, accessible and tested; absent such evidence, distinct valid catalog entries are not arbitrarily capped. Measurements include environment and method.
+- AC-M20-11 [Auto, Man]: All new or changed product copy is present in English and pt-BR, with source/source labels and errors localized. Keyboard navigation, focus order, control labels/hints, dynamic roster updates and VoiceOver are reviewed for add/remove and per-pet actions.
+- AC-M20-12 [Auto, Review]: `make lint`, `make test-core`, `make test`, Debug and Release builds, and relevant pack validation complete and are reported accurately. Existing M15 V8 pixel-QA failures are neither hidden nor reclassified as M20 failures/passes. Native visual, VoiceOver and performance checks not actually run remain explicitly unverified.
+- AC-M20-13 [Auto, Man]: Default autonomous choices expose Jump and eligible WindowExcursion more often while remaining seeded and bounded; window excursions land in the lower third of the available side span, climb to the top, dwell for 7–19 simulated seconds, return safely to the Dock, and observe a 20-second cooldown. Existing states and clips are used; no new art, animation state, or permission is introduced. Seeded distribution/trajectory tests pass; the owner manually tested the revised variation and confirmed it worked on 2026-10-25.
+
+### M21 — Release pipeline
+- AC-M21-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
 
 ## M7/M8 evidence status (2026-10-18)
 

@@ -48,6 +48,7 @@
         }
         /// The persisted `dockOffsetAdjustment` in points (T6.3).
         var dockOffset: Double { settings.dockOffsetAdjustment }
+        var hasUnambiguousPetTarget: Bool { runtime.pets.count == 1 }
 
         init(runtime: PetRuntime, settings: SettingsModel) {
             self.runtime = runtime
@@ -58,16 +59,18 @@
         }
 
         func jump(horizontalOffset: Double = 0) {
-            runtime.requestJump(to: .horizontal(horizontalOffset))
+            guard runtime.pets.count == 1 else { return }
+            runtime.requestJump(to: .horizontal(horizontalOffset), for: runtime.pets[0].id)
         }
 
         func jumpToDock() {
-            guard let x = runtime.currentSnapshot.pets.first?.position.x else { return }
-            runtime.requestJump(to: .surface(.dock, x: x))
+            guard runtime.pets.count == 1, let pet = runtime.currentSnapshot.pets.first else { return }
+            runtime.requestJump(to: .surface(.dock, x: pet.position.x), for: pet.id)
         }
 
         func setIdle(_ idle: Bool) {
-            runtime.setActivity(idle ? .idle : .walking)
+            guard runtime.pets.count == 1 else { return }
+            runtime.setActivity(idle ? .idle : .walking, for: runtime.pets[0].id)
         }
 
         func adjustDockOffset(by points: Double) {

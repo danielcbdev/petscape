@@ -689,7 +689,7 @@ authorization and its own scope below.
 
 **Authorization:** the owner explicitly requested end-to-end M19 implementation on 2026-10-24.
 The owner later accepted M19 closure and explicitly authorized branch creation, a commit, and local
-merge into `develop`. This does not authorize M20, network discovery, publishing, pushes, tags,
+merge into `develop`. At that closeout, this did not authorize M20, network discovery, publishing, pushes, tags,
 releases or PRs. The accepted real-pack/manual evidence limits are in the [owner closeout](milestones.md#owner-m19-closeout--2026-10-24).
 
 **Flow and contract:** the user chooses a local pack **folder** with root `character.json` using the
@@ -722,13 +722,28 @@ seen on the next launch. No bookmarks are kept.
 | T19.4 | Add localized Settings folder import, progress/result/error states and installed source labels; retain M18 transactional selection | App, Runtime, String Catalog | English/pt-BR UI/model assertions; cancellation and failed import preserve selection |
 | T19.5 | Add adversarial/import/selection regression coverage, update user docs and record lint, test, build, validator and manual evidence | Tests, docs, all touched modules | `make lint`, `make test-core`, UI tests, Debug/Release builds, pack validator and manual matrix |
 
-## M20 — Release pipeline
+## M20 — Settings redesign & multiple active characters (authorized 2026-10-25; implementation complete, in review)
+
+| ID | Task | Modules/files | Deps | Verify | Status |
+|---|---|---|---|---|
+| T20.1 | Audit current Settings controls, selection/import flows, preference keys, runtime pet ownership, menu actions, renderer caches, localization catalog and performance budgets; record current behavior to preserve | App, Runtime, Core, Platform, Rendering, Docs | M17–M19 accepted | Inventory maps every current control/action/status/permission and existing contract; no feature is silently dropped | Done |
+| T20.2 | Design and implement a complete native Settings information architecture and visual refresh; retain every current setting, consent/status/error/import state, localization and accessibility identifier or update its tests deliberately | App, String Catalog, UI tests | T20.1 | English/pt-BR assertions, keyboard traversal, VoiceOver labels, long-copy layout and full manual review | Accepted: native sections and long copy reviewed at default size; keyboard/VoiceOver and supported-minimum resize remain unverified |
+| T20.3 | Introduce a persisted active-character roster with one entry per stable character ID; migrate `petscape.selectedCharacterID`, preserve selection and default/Restore Defaults semantics, and recover safely from missing/unknown/invalid IDs | Platform/Preferences, Runtime/Characters | T20.1 | Store migration, round-trip, restore-defaults, duplicate and invalid-entry tests | Done: migration, empty roster and recovery covered; Restore Defaults manually reviewed with isolated preferences |
+| T20.4 | Replace character replacement-only lifecycle with add/remove-one-character lifecycle while preserving each existing pet's position, state, interaction and pending event correctness; reject duplicate active character IDs and make requested removal safe in every pet phase | Core/PetWorld, Runtime/PetRuntime | T20.3 | Core lifecycle tests for zero/one/many, duplicate ID, removal while dancing/held/falling/climbing/window-bound, snapshots/events and continued operation of remaining pets | Done: roster and scoped-removal tests pass; native removal of Cat preserved Dimas |
+| T20.5 | Make character loading/rendering/behavior-family ownership multi-pet and keyed by pet/character identity; clean up per-pet resources and stale tasks on removal; keep renderer snapshots and hit-testing unambiguous | Runtime, Rendering, character loaders/caches | T20.4 | Runtime/render tests with dissimilar definitions and frame counts; remove/re-add, async completion, hit-test and cache-lifecycle regressions | Done: automated runtime/render suites passed; native per-pet visual output was inspected |
+| T20.6 | Make behavior and interaction state independent per pet, including seeded autonomous choices/timers, dance eligibility and duration, manual Dance/Stop Dance targeting, cleanup, hold/drag and window excursions; fan out shared environment signals without mirroring pet state | Core, Runtime, App/menu and Settings models | T20.4–T20.5 | Deterministic tests prove different pets can occupy different states/timings and one pet's action/removal/cancellation does not alter another; automatic music and manual actions target eligible pets correctly | Done: deterministic/runtime tests pass; native Dance/Stop Dance and single-pet removal were reviewed |
+| T20.7 | Add accessible active-roster management in Settings: each active pet has an individual Remove action and per-pet Dance/Stop Dance where applicable; inactive catalog characters can be added; duplicates are disabled; source, loading, empty and error states remain clear/localized | App, Runtime/Characters, String Catalog, UI tests | T20.2–T20.6 | UI/model tests for zero/one/many bundled and installed packs, add/remove, duplicate prevention, import then add, restart persistence and status/error states | Accepted: isolated native install/add/remove, localization and 7 XCUITests passed; native VoiceOver/keyboard review remains unverified |
+| T20.8 | Evaluate aggregate active-pack resource use, add safe lazy loading/release or an evidence-based accessible cap if needed, and document measured results and tradeoffs | Runtime, Rendering, tests, performance docs | T20.5 | Repeatable profile/test across representative simultaneous packs; compare to existing targets; no unsupported performance claims | Accepted with limit: Core step and decoded-frame measurements recorded; matched native Release CPU/process footprint remains unverified; no arbitrary cap added |
+| T20.9 | Complete regression gates, manual matrix, docs, milestone status and honest evidence closeout | All touched modules, docs/planning, docs/development/testing.md | T20.1–T20.8 | `make lint`, `make test-core`, `make test`, `make build`, Release build, asset validation; owner-facing Settings/VoiceOver/visual checklist and exact unverified evidence record | Done by owner acceptance: lint, Debug/Release builds and separate 7-test XCUITest pass; package gate retains known V8 exception; remaining native evidence limits are documented and accepted |
+| T20.10 | Tune the existing seeded activity mix for more jump/window exploration; land lower on eligible window sides and extend the existing top walk without adding states, clips or permissions | Core, behavior docs/tests | T20.6, T13.7 | Seeded default-choice distribution; lower side contact, bounded top dwell/cooldown, full return-to-Dock regression | Done by owner acceptance: focused tests pass; owner manually tested the revised autonomous variation and reported it worked perfectly |
+
+## M21 — Release pipeline
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
-| T20.1 | Owner decisions: license, final bundle ID, Developer ID enrollment | Owner | — | S | Recorded in risks.md |
-| T20.2 | Versioning (`MARKETING_VERSION`, build number) + `CHANGELOG.md` (Keep a Changelog) | Repo | T20.1 | S | Review |
-| T20.3 | Archive/export script with Developer ID signing | Repo | T20.1 | M | Signed app verified with `codesign --verify` |
-| T20.4 | Notarize (`notarytool`), staple, build DMG, notarize DMG | Repo | T20.3 | M | `spctl --assess` passes |
-| T20.5 | GitHub Actions release workflow on tags (secrets via repository secrets, temporary keychain) | Repo | T20.4 | M | Dry run on a test tag |
-| T20.6 | Install/upgrade docs in README and release notes template | Docs | T20.4 | S | Review |
+| T21.1 | Owner decisions: license, final bundle ID, Developer ID enrollment | Owner | — | S | Recorded in risks.md |
+| T21.2 | Versioning (`MARKETING_VERSION`, build number) + `CHANGELOG.md` (Keep a Changelog) | Repo | T21.1 | S | Review |
+| T21.3 | Archive/export script with Developer ID signing | Repo | T21.1 | M | Signed app verified with `codesign --verify` |
+| T21.4 | Notarize (`notarytool`), staple, build DMG, notarize DMG | Repo | T21.3 | M | `spctl --assess` passes |
+| T21.5 | GitHub Actions release workflow on tags (secrets via repository secrets, temporary keychain) | Repo | T21.4 | M | Dry run on a test tag |
+| T21.6 | Install/upgrade docs in README and release notes template | Docs | T21.4 | S | Review |

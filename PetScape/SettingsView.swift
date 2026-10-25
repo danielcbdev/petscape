@@ -5,198 +5,92 @@ import PetScapeRuntime
 import SwiftUI
 import UniformTypeIdentifiers
 
-/// Native controls forward intents; the observable model owns all updates and error handling.
+private enum SettingsSection: String, CaseIterable, Identifiable {
+    case pets
+    case behavior
+    case appearance
+    case interaction
+    case general
+
+    var id: String { rawValue }
+    var title: LocalizedStringKey {
+        switch self {
+        case .pets: "Pets"
+        case .behavior: "Behavior"
+        case .appearance: "Appearance"
+        case .interaction: "Interaction"
+        case .general: "General"
+        }
+    }
+
+    var symbol: String {
+        switch self {
+        case .pets: "pawprint.fill"
+        case .behavior: "waveform.path"
+        case .appearance: "paintbrush.pointed"
+        case .interaction: "cursorarrow.rays"
+        case .general: "gearshape"
+        }
+    }
+
+    var subtitle: LocalizedStringKey {
+        switch self {
+        case .pets: "Choose which characters live on your desktop."
+        case .behavior: "Tune autonomous activities and music detection."
+        case .appearance: "Adjust pet size, pace, and Dock placement."
+        case .interaction: "Choose how pets respond to the cursor and windows."
+        case .general: "Control app state, login, language guidance, and defaults."
+        }
+    }
+}
+
+/// Native controls forward intents; the observable models own updates, runtime state, and errors.
 struct SettingsView: View {
     let model: SettingsModel
+    @State private var selectedSection: SettingsSection? = .pets
     @State private var isPackImporterPresented = false
 
     var body: some View {
-        Form {
-            if let selection = model.characterSelection {
-                characterSection(selection)
-            }
-            Section("Pet") {
-                Slider(value: Binding(get: { model.petSettings.scale }, set: model.setScale), in: 0.5...1.5) {
-                    Text("Size")
-                } minimumValueLabel: {
-                    Text("Small")
-                } maximumValueLabel: {
-                    Text("Large")
-                }
-                .accessibilityIdentifier("settings.scale")
-                .accessibilityLabel("Size")
-                Slider(
-                    value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: PetSettings.speedRange
-                ) {
-                    Text("Speed")
-                } minimumValueLabel: {
-                    Text("Slow")
-                } maximumValueLabel: {
-                    Text("Fast")
-                }
-                .accessibilityIdentifier("settings.speed")
-                .accessibilityLabel("Speed")
-                Toggle("Pause", isOn: Binding(get: { model.userIntent.isPaused }, set: model.setPaused))
-                    .accessibilityLabel("Pause")
-                Toggle("Hide Pet", isOn: Binding(get: { model.userIntent.isHidden }, set: model.setHidden))
-                    .accessibilityLabel("Hide Pet")
-                Button("Wake Pet", action: model.wakePet)
-            }
-            Section("Activities") {
-                Toggle(
-                    "Autonomous activities",
-                    isOn: Binding(
-                        get: { model.petSettings.behavior.isEnabled }, set: model.setAutonomyEnabled)
-                )
-                .accessibilityIdentifier("settings.autonomy")
-                .accessibilityLabel("Autonomous activities")
-                Toggle(
-                    "Jumping",
-                    isOn: Binding(
-                        get: { model.petSettings.behavior.jumpsEnabled }, set: model.setJumpsEnabled)
-                )
-                .accessibilityLabel("Jumping")
-                Toggle(
-                    "Resting",
-                    isOn: Binding(
-                        get: { model.petSettings.behavior.restEnabled }, set: model.setRestEnabled)
-                )
-                .accessibilityLabel("Resting")
-                Toggle(
-                    "Expressions",
-                    isOn: Binding(
-                        get: { model.petSettings.behavior.expressionsEnabled }, set: model.setExpressionsEnabled)
-                )
-                .accessibilityLabel("Expressions")
-            }
-            Section("Music and dance") {
-                HStack {
-                    Button("Dance", action: model.dance)
-                        .disabled(!model.canDance)
-                        .accessibilityIdentifier("settings.dance")
-                    Button("Stop Dance", action: model.stopDance)
-                        .disabled(!model.canStopDance)
-                        .accessibilityIdentifier("settings.stopDance")
-                }
-                if !model.canDance && !model.canStopDance {
-                    Text(
-                        "Enable autonomous activities, show and resume your pet, then wait until it is walking or idle."
+        NavigationSplitView {
+            List {
+                ForEach(SettingsSection.allCases) { section in
+                    Button {
+                        selectedSection = section
+                    } label: {
+                        Label(section.title, systemImage: section.symbol)
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                            .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(
+                        selectedSection == section ? Color.accentColor.opacity(0.18) : Color.clear
                     )
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                }
-                Toggle(
-                    "Dance to music",
-                    isOn: Binding(
-                        get: { model.isMusicDancingEnabled }, set: model.setMusicDancingEnabled)
-                )
-                .accessibilityIdentifier("settings.musicDancing")
-                .accessibilityLabel("Dance to music")
-                Text(
-                    "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access."
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                musicStatus
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("settings.musicStatus")
-                if model.isMusicDancingEnabled {
-                    Button("Restart Music Detection", action: model.retryMusicDetection)
-                        .disabled(model.canStopDance)
-                        .accessibilityIdentifier("settings.retryMusicDetection")
-                }
-                if model.isSpecialArtworkPending {
-                    Text("Dance and cleanup artwork is pending. Your pet holds a still pose during these activities.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                    .accessibilityAddTraits(selectedSection == section ? .isSelected : [])
+                    .accessibilityIdentifier("settings.navigation.\(section.id)")
                 }
             }
-            Section("General") {
-                Toggle(
-                    "Launch at login",
-                    isOn: Binding(
-                        get: { model.isLaunchAtLoginEnabled }, set: model.setLaunchAtLogin)
-                )
-                .accessibilityIdentifier("settings.login")
-                .accessibilityLabel("Launch at login")
-                loginStatus
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                if let error = model.loginError {
-                    loginErrorText(error)
-                        .font(.caption)
-                        .foregroundStyle(.red)
-                        .accessibilityIdentifier("settings.loginError")
+            .listStyle(.sidebar)
+            .navigationTitle("Settings")
+            .frame(minWidth: 175)
+        } detail: {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 22) {
+                    pageHeading
+                    switch selectedSection ?? .pets {
+                    case .pets: petsPage
+                    case .behavior: behaviorPage
+                    case .appearance: appearancePage
+                    case .interaction: interactionPage
+                    case .general: generalPage
+                    }
                 }
-                Text(
-                    "The interface follows your Mac’s preferred languages. Restart PetScape if a language change is not reflected."
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
+                .padding(24)
+                .frame(maxWidth: 720, alignment: .leading)
+                .frame(maxWidth: .infinity, alignment: .topLeading)
             }
-            Section("Interaction") {
-                Toggle(
-                    "Interact with windows",
-                    isOn: Binding(get: { model.isWindowInteractionEnabled }, set: model.setWindowInteractionEnabled)
-                )
-                .accessibilityIdentifier("settings.windowInteraction")
-                .accessibilityLabel("Interact with windows")
-                Text(
-                    "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional."
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .accessibilityIdentifier("settings.windowInteractionExplanation")
-                if model.isWindowPermissionMissing {
-                    Text("Window interaction paused — permission missing")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityIdentifier("settings.windowPermissionStatus")
-                }
-                Toggle(
-                    "React to cursor",
-                    isOn: Binding(
-                        get: { model.petSettings.interaction.cursorReactionsEnabled },
-                        set: model.setCursorReactionsEnabled)
-                )
-                .accessibilityIdentifier("settings.cursorReactions")
-                .accessibilityLabel("React to cursor")
-                Toggle(
-                    "Allow click and drag",
-                    isOn: Binding(
-                        get: { model.petSettings.interaction.directInteractionEnabled },
-                        set: model.setDirectInteractionEnabled)
-                )
-                .accessibilityIdentifier("settings.directInteraction")
-                .accessibilityLabel("Allow click and drag")
-                Text(
-                    "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion."
-                )
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-            Section("Advanced") {
-                Slider(
-                    value: Binding(get: { model.dockOffsetAdjustment }, set: model.setDockOffsetAdjustment),
-                    in: -40...40, step: 1
-                ) {
-                    Text("Dock offset")
-                } minimumValueLabel: {
-                    Text("−40 pt")
-                } maximumValueLabel: {
-                    Text("+40 pt")
-                }
-                .accessibilityLabel("Dock offset")
-                Text("Adjust the paws if they appear above or below the Dock.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            Button("Restore Defaults", action: model.restoreDefaults)
+            .frame(minWidth: 590, maxHeight: .infinity)
         }
-        .formStyle(.grouped)
-        .frame(width: 520)
-        .frame(maxHeight: 720, alignment: .top)
+        .frame(minWidth: 790, minHeight: 570)
         .onAppear {
             model.refreshLoginStatus()
             model.refreshWindowPermissionStatus()
@@ -237,119 +131,460 @@ struct SettingsView: View {
         ) { result in
             switch result {
             case .success(let urls):
-                guard let url = urls.first, let selection = model.characterSelection else { return }
+                guard let url = urls.first, let roster = model.characterRoster else { return }
                 Task { @MainActor in
                     let startedAccess = url.startAccessingSecurityScopedResource()
                     defer { if startedAccess { url.stopAccessingSecurityScopedResource() } }
-                    await selection.installPack(from: url)
+                    await roster.installPack(from: url)
                 }
             case .failure(let error):
                 let nsError = error as NSError
                 if nsError.code != NSUserCancelledError {
-                    model.characterSelection?.reportImportPickerFailure()
+                    model.characterRoster?.reportImportPickerFailure()
                 }
             }
         }
     }
 
-    private func characterSection(_ selection: CharacterSelectionModel) -> some View {
-        Section("Character") {
-            if selection.characters.count > 1, let activeID = selection.activeID {
-                Picker(
-                    "Character",
-                    selection: Binding(
-                        get: { selection.activeID ?? activeID },
-                        set: { id in Task { await selection.select(id) } })
-                ) {
-                    ForEach(selection.characters) { character in
-                        characterMenuTitle(character).tag(character.id)
-                    }
-                }
-                .disabled(!selection.canSelect)
-                .accessibilityIdentifier("settings.character")
-                .accessibilityLabel("Character")
-            } else if let name = selection.activeName {
-                LabeledContent("Character") {
-                    VStack(alignment: .leading) {
-                        if selection.activeID?.rawValue == "cat" {
-                            Text("Cat")
-                                .accessibilityIdentifier("settings.activeCharacter")
-                        } else {
-                            Text(verbatim: name)
-                                .accessibilityIdentifier("settings.activeCharacter")
-                        }
-                        if let origin = selection.activeOrigin {
-                            characterOriginLabel(origin)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .accessibilityIdentifier("settings.characterOrigin")
-                        }
-                    }
-                }
-                if selection.activeOrigin == .bundled {
-                    Text("This is the only character included with this app.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .accessibilityLabel(Text("This is the only character included with this app."))
-                        .accessibilityIdentifier("settings.singleCharacter")
-                } else {
-                    Text("This is the only character currently available.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                }
-            } else if !selection.isLoading {
-                Text("No characters are available.")
-                    .accessibilityLabel(Text("No characters are available."))
-                    .accessibilityIdentifier("settings.noCharacters")
-            }
-            if selection.isLoading {
-                Text("Loading characters…")
-                    .accessibilityIdentifier("settings.characterLoading")
-            }
-            if selection.unavailableCount > 0 {
-                Text("Some character packs are unavailable because their files are invalid.")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-            }
-            if let issue = selection.issue {
-                characterSelectionIssueText(issue)
-                    .font(.caption)
-                    .foregroundStyle(.red)
-                    .accessibilityLabel(characterSelectionIssueLabel(issue))
-                    .accessibilityIdentifier("settings.characterError")
-            }
-            Button("Install Character Pack…") { isPackImporterPresented = true }
-                .disabled(selection.isInstalling || selection.isLoading)
-                .accessibilityIdentifier("settings.installCharacterPack")
-            Text("Choose a folder containing character.json and its referenced PNG files.")
-                .font(.caption)
+    private var pageHeading: some View {
+        VStack(alignment: .leading, spacing: 7) {
+            Text((selectedSection ?? .pets).title)
+                .font(.largeTitle.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+            Text((selectedSection ?? .pets).subtitle)
+                .font(.body)
                 .foregroundStyle(.secondary)
-            if selection.isInstalling {
-                ProgressView("Installing character pack…")
-                    .accessibilityIdentifier("settings.characterPackInstalling")
+                .fixedSize(horizontal: false, vertical: true)
+        }
+        .padding(.bottom, 2)
+    }
+
+    @ViewBuilder private var petsPage: some View {
+        if let roster = model.characterRoster {
+            settingsCard("Active pets") {
+                HStack(alignment: .center) {
+                    Text("Pets currently on your desktop")
+                        .font(.headline)
+                    Spacer(minLength: 12)
+                    addCharacterMenu(roster)
+                }
+
+                if roster.isLoading {
+                    ProgressView("Loading characters…")
+                        .accessibilityIdentifier("settings.characterLoading")
+                } else if roster.activeCharacters.isEmpty {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("No pets are active", systemImage: "pawprint")
+                            .font(.headline)
+                            .accessibilityIdentifier("settings.emptyRoster")
+                        Text("Add a character from the catalog below, or install a local character pack.")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .fixedSize(horizontal: false, vertical: true)
+                    }
+                    .padding(.vertical, 5)
+                } else {
+                    VStack(spacing: 12) {
+                        ForEach(roster.activeCharacters) { pet in
+                            activePetRow(pet, roster: roster)
+                            if pet.petID != roster.activeCharacters.last?.petID {
+                                Divider().padding(.top, 1)
+                            }
+                        }
+                    }
+                }
             }
-            if selection.installationSucceeded {
-                Text("Character pack installed. Select it above to use it.")
+
+            settingsCard("Character catalog") {
+                if roster.characters.isEmpty, !roster.isLoading {
+                    Text("No characters are available.")
+                        .font(.callout)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("settings.noCharacters")
+                } else {
+                    ForEach(roster.characters) { character in
+                        catalogRow(character, roster: roster)
+                    }
+                }
+
+                if roster.unavailableCount > 0 {
+                    Text("Some character packs are unavailable because their files are invalid.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+                if let issue = roster.issue {
+                    rosterIssueText(issue)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .accessibilityIdentifier("settings.characterError")
+                }
+            }
+
+            settingsCard("Install a character pack") {
+                Button("Install Character Pack…") { isPackImporterPresented = true }
+                    .disabled(roster.isImportDisabled)
+                    .accessibilityIdentifier("settings.installCharacterPack")
+                Text("Choose a folder containing character.json and its referenced PNG files.")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-                    .accessibilityIdentifier("settings.characterPackInstalled")
+                    .fixedSize(horizontal: false, vertical: true)
+                if roster.isInstalling {
+                    ProgressView("Installing character pack…")
+                        .accessibilityIdentifier("settings.characterPackInstalling")
+                }
+                if roster.installationSucceeded {
+                    Text("Character pack installed. Add it from the catalog to use it.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("settings.characterPackInstalled")
+                }
+                if let issue = roster.installIssue {
+                    characterPackImportIssueText(issue)
+                        .font(.caption)
+                        .foregroundStyle(.red)
+                        .accessibilityLabel(characterPackImportIssueLabel(issue))
+                        .accessibilityIdentifier("settings.characterPackError")
+                }
             }
-            if let issue = selection.installIssue {
-                characterPackImportIssueText(issue)
+        } else {
+            ContentUnavailableView("No characters are available.", systemImage: "pawprint")
+        }
+    }
+
+    private func activePetRow(_ pet: CharacterRosterEntry, roster: CharacterRosterModel) -> some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(alignment: .top, spacing: 14) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(verbatim: pet.character.displayName)
+                        .font(.headline)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("settings.activeCharacter.\(pet.character.id.rawValue)")
+                    characterOriginLabel(pet.character.origin)
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .accessibilityIdentifier("settings.characterOrigin.\(pet.character.id.rawValue)")
+                }
+                Spacer(minLength: 8)
+                Button("Dance") { model.dance(pet.petID) }
+                    .disabled(!roster.canDance(pet.petID))
+                    .help("Dance for 5–30 seconds. Requires an active pet with autonomous activities enabled.")
+                    .accessibilityIdentifier("settings.dance.\(pet.character.id.rawValue)")
+                Button("Stop Dance") { model.stopDance(pet.petID) }
+                    .disabled(!roster.canStopDance(pet.petID))
+                    .accessibilityIdentifier("settings.stopDance.\(pet.character.id.rawValue)")
+                Button("Remove", role: .destructive) { roster.remove(pet.petID) }
+                    .accessibilityIdentifier("settings.removeCharacter.\(pet.character.id.rawValue)")
+            }
+            if roster.isSpecialArtworkPending(pet.petID) {
+                Text("Dance and cleanup artwork is pending. Your pet holds a still pose during these activities.")
                     .font(.caption)
-                    .foregroundStyle(.red)
-                    .accessibilityLabel(characterPackImportIssueLabel(issue))
-                    .accessibilityIdentifier("settings.characterPackError")
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .contain)
+        .accessibilityIdentifier("settings.activePetRow.\(pet.character.id.rawValue)")
+    }
+
+    private func catalogRow(_ character: CharacterCatalogEntry, roster: CharacterRosterModel) -> some View {
+        HStack(alignment: .center, spacing: 12) {
+            VStack(alignment: .leading, spacing: 4) {
+                Text(verbatim: character.displayName)
+                    .font(.body.weight(.medium))
+                    .fixedSize(horizontal: false, vertical: true)
+                characterOriginLabel(character.origin)
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            Spacer(minLength: 8)
+            if roster.isAdding(character.id) {
+                ProgressView("Adding…")
+                    .controlSize(.small)
+                    .accessibilityIdentifier("settings.addingCharacter.\(character.id.rawValue)")
+            } else if roster.isActive(character.id) {
+                Label("Active", systemImage: "checkmark.circle.fill")
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.characterActive.\(character.id.rawValue)")
+            } else {
+                Button("Add") {
+                    Task { await roster.add(character.id) }
+                }
+                .disabled(!roster.canAdd(character.id))
+                .accessibilityIdentifier("settings.addCharacter.\(character.id.rawValue)")
+            }
+        }
+        .padding(.vertical, 4)
+    }
+
+    private func addCharacterMenu(_ roster: CharacterRosterModel) -> some View {
+        Menu {
+            ForEach(roster.characters) { character in
+                if roster.isActive(character.id) {
+                    Label("\(character.displayName) — Active", systemImage: "checkmark")
+                        .disabled(true)
+                } else {
+                    Button {
+                        Task { await roster.add(character.id) }
+                    } label: {
+                        Label {
+                            Text(verbatim: character.displayName)
+                        } icon: {
+                            Image(systemName: character.origin == .bundled ? "shippingbox" : "externaldrive")
+                        }
+                    }
+                    .disabled(!roster.canAdd(character.id))
+                }
+            }
+        } label: {
+            Label("Add Character", systemImage: "plus")
+        }
+        .disabled(roster.isLoading || roster.characters.isEmpty)
+        .accessibilityIdentifier("settings.addCharacter")
+    }
+
+    private var behaviorPage: some View {
+        Group {
+            settingsCard("Autonomous activities") {
+                settingToggle("Autonomous activities", identifier: "settings.autonomy") {
+                    model.petSettings.behavior.isEnabled
+                } set: {
+                    model.setAutonomyEnabled($0)
+                }
+                settingToggle("Jumping", identifier: "settings.jumping") {
+                    model.petSettings.behavior.jumpsEnabled
+                } set: {
+                    model.setJumpsEnabled($0)
+                }
+                settingToggle("Resting", identifier: "settings.resting") {
+                    model.petSettings.behavior.restEnabled
+                } set: {
+                    model.setRestEnabled($0)
+                }
+                settingToggle("Expressions", identifier: "settings.expressions") {
+                    model.petSettings.behavior.expressionsEnabled
+                } set: {
+                    model.setExpressionsEnabled($0)
+                }
+            }
+            settingsCard("Dance to music") {
+                Toggle(
+                    "Dance to music",
+                    isOn: Binding(get: { model.isMusicDancingEnabled }, set: model.setMusicDancingEnabled)
+                )
+                .accessibilityIdentifier("settings.musicDancing")
+                .accessibilityLabel("Dance to music")
+                Text(
+                    "Optional system audio access detects music from your Mac, including headphones. Audio is analyzed on this Mac, never saved or sent. Requires macOS 14.2 or later. Manual dance needs no audio access."
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+                musicStatus
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                    .accessibilityIdentifier("settings.musicStatus")
+                if model.isMusicDancingEnabled {
+                    Button("Restart Music Detection", action: model.retryMusicDetection)
+                        .disabled(model.characterRoster?.canStopDanceAny == true)
+                        .accessibilityIdentifier("settings.retryMusicDetection")
+                }
             }
         }
     }
 
-    private func characterMenuTitle(_ character: CharacterCatalogEntry) -> Text {
-        let name = character.id.rawValue == "cat" ? Text("Cat") : Text(verbatim: character.displayName)
-        switch character.origin {
-        case .bundled: return Text("\(name) — Included")
-        case .installed: return Text("\(name) — Installed")
+    private var appearancePage: some View {
+        Group {
+            settingsCard("Pet appearance") {
+                Slider(value: Binding(get: { model.petSettings.scale }, set: model.setScale), in: 0.5...1.5) {
+                    Text("Size")
+                } minimumValueLabel: {
+                    Text("Small")
+                } maximumValueLabel: {
+                    Text("Large")
+                }
+                .accessibilityIdentifier("settings.scale")
+                .accessibilityLabel("Size")
+                Slider(
+                    value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: PetSettings.speedRange
+                ) {
+                    Text("Speed")
+                } minimumValueLabel: {
+                    Text("Slow")
+                } maximumValueLabel: {
+                    Text("Fast")
+                }
+                .accessibilityIdentifier("settings.speed")
+                .accessibilityLabel("Speed")
+            }
+            settingsCard("Dock placement") {
+                Slider(
+                    value: Binding(get: { model.dockOffsetAdjustment }, set: model.setDockOffsetAdjustment),
+                    in: -40...40, step: 1
+                ) {
+                    Text("Dock offset")
+                } minimumValueLabel: {
+                    Text("−40 pt")
+                } maximumValueLabel: {
+                    Text("+40 pt")
+                }
+                .accessibilityIdentifier("settings.dockOffset")
+                Text("Adjust the paws if they appear above or below the Dock.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
+    }
+
+    private var interactionPage: some View {
+        settingsCard("Interaction") {
+            Toggle(
+                "Interact with windows",
+                isOn: Binding(get: { model.isWindowInteractionEnabled }, set: model.setWindowInteractionEnabled)
+            )
+            .accessibilityIdentifier("settings.windowInteraction")
+            .accessibilityLabel("Interact with windows")
+            Text(
+                "PetScape reads window positions so pets can walk on them. It never moves, clicks, closes, resizes, or activates windows, and never reads window titles or contents. Accessibility access is optional."
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+            .accessibilityIdentifier("settings.windowInteractionExplanation")
+            if model.isWindowPermissionMissing {
+                Text("Window interaction paused — permission missing")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .accessibilityIdentifier("settings.windowPermissionStatus")
+            }
+            Divider()
+            settingToggle("React to cursor", identifier: "settings.cursorReactions") {
+                model.petSettings.interaction.cursorReactionsEnabled
+            } set: {
+                model.setCursorReactionsEnabled($0)
+            }
+            settingToggle("Allow click and drag", identifier: "settings.directInteraction") {
+                model.petSettings.interaction.directInteractionEnabled
+            } set: {
+                model.setDirectInteractionEnabled($0)
+            }
+            Text(
+                "Click to get your pet's attention. Drag to pick it up. Pause stops interactions. Optional reactions follow system Reduce Motion."
+            )
+            .font(.callout)
+            .foregroundStyle(.secondary)
+            .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+
+    private var generalPage: some View {
+        Group {
+            settingsCard("App state") {
+                Toggle("Pause", isOn: Binding(get: { model.userIntent.isPaused }, set: model.setPaused))
+                    .accessibilityLabel("Pause")
+                    .accessibilityIdentifier("settings.pause")
+                Toggle("Hide Pet", isOn: Binding(get: { model.userIntent.isHidden }, set: model.setHidden))
+                    .accessibilityLabel("Hide Pet")
+                    .accessibilityIdentifier("settings.hidePet")
+                Button("Wake Pet", action: model.wakePet)
+                    .accessibilityIdentifier("settings.wakePet")
+            }
+            settingsCard("Launch at login") {
+                Toggle(
+                    "Launch at login",
+                    isOn: Binding(get: { model.isLaunchAtLoginEnabled }, set: model.setLaunchAtLogin)
+                )
+                .accessibilityIdentifier("settings.login")
+                .accessibilityLabel("Launch at login")
+                loginStatus
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                if let error = model.loginError {
+                    loginErrorText(error)
+                        .font(.callout)
+                        .foregroundStyle(.red)
+                        .fixedSize(horizontal: false, vertical: true)
+                        .accessibilityIdentifier("settings.loginError")
+                }
+            }
+            settingsCard("Language") {
+                Text(
+                    "The interface follows your Mac’s preferred languages. Restart PetScape if a language change is not reflected."
+                )
+                .font(.callout)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+            }
+            settingsCard("Restore defaults") {
+                Text("Reset app settings and turn off optional interaction and music detection.")
+                    .font(.callout)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+                Button("Restore Defaults", action: model.restoreDefaults)
+            }
+        }
+    }
+
+    private var musicStatus: some View {
+        Group {
+            switch model.musicStatus {
+            case .off: Text("Music detection is off.")
+            case .suspended:
+                Text("Music detection is paused while your pet is unavailable or autonomous activities are off.")
+            case .monitoring:
+                Text(
+                    "System audio capture started. If no pet dances while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again."
+                )
+            case .unavailable:
+                Text(
+                    "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available."
+                )
+            }
+        }
+    }
+
+    private var loginStatus: some View {
+        Group {
+            switch model.loginStatus {
+            case .enabled: Text("Enabled")
+            case .disabled: Text("Disabled")
+            case .requiresApproval: Text("Approval required in System Settings › General › Login Items.")
+            case .notFound: Text("Unavailable. Run PetScape from its installed application to try again.")
+            }
+        }
+    }
+
+    private func settingsCard<Content: View>(
+        _ title: LocalizedStringKey, @ViewBuilder content: () -> Content
+    ) -> some View {
+        VStack(alignment: .leading, spacing: 14) {
+            Text(title)
+                .font(.title3.weight(.semibold))
+                .accessibilityAddTraits(.isHeader)
+            content()
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.background, in: RoundedRectangle(cornerRadius: 12, style: .continuous))
+        .overlay {
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .strokeBorder(.separator.opacity(0.55), lineWidth: 1)
+        }
+        .accessibilityElement(children: .contain)
+    }
+
+    private func settingToggle(
+        _ title: LocalizedStringKey,
+        identifier: String,
+        get: @escaping @MainActor @Sendable () -> Bool,
+        set: @escaping @MainActor @Sendable (Bool) -> Void
+    ) -> some View {
+        Toggle(title, isOn: Binding(get: get, set: set))
+            .accessibilityLabel(Text(title))
+            .accessibilityIdentifier(identifier)
     }
 
     private func characterOriginLabel(_ origin: CharacterPackOrigin) -> Text {
@@ -359,22 +594,12 @@ struct SettingsView: View {
         }
     }
 
-    @ViewBuilder private func characterSelectionIssueText(_ issue: CharacterSelectionIssue) -> some View {
+    @ViewBuilder private func rosterIssueText(_ issue: CharacterRosterIssue) -> some View {
         switch issue {
         case .noBundledCharacters: Text("No bundled characters could be loaded.")
         case .noCharactersAvailable: Text("No characters could be loaded.")
-        case .characterCouldNotLoad: Text("This character could not be loaded. Your current pet is unchanged.")
-        case .waitForSafeBoundary:
-            Text("Wait until your pet is walking or idle with enough room, then try again.")
-        }
-    }
-
-    private func characterSelectionIssueLabel(_ issue: CharacterSelectionIssue) -> Text {
-        switch issue {
-        case .noBundledCharacters: Text("No bundled characters could be loaded.")
-        case .noCharactersAvailable: Text("No characters could be loaded.")
-        case .characterCouldNotLoad: Text("This character could not be loaded. Your current pet is unchanged.")
-        case .waitForSafeBoundary: Text("Wait until your pet is walking or idle with enough room, then try again.")
+        case .characterCouldNotLoad: Text("This character could not be loaded. Your active pets are unchanged.")
+        case .characterAlreadyActive: Text("This character is already active.")
         }
     }
 
@@ -394,7 +619,7 @@ struct SettingsView: View {
         case .storageUnavailable:
             Text("PetScape cannot access its character storage. Check that Application Support is writable.")
         case .installationFailed:
-            Text("PetScape could not install this pack. Your current character and installed packs are unchanged.")
+            Text("PetScape could not install this pack. Your active pets and installed packs are unchanged.")
         }
     }
 
@@ -414,7 +639,7 @@ struct SettingsView: View {
         case .storageUnavailable:
             Text("PetScape cannot access its character storage. Check that Application Support is writable.")
         case .installationFailed:
-            Text("PetScape could not install this pack. Your current character and installed packs are unchanged.")
+            Text("PetScape could not install this pack. Your active pets and installed packs are unchanged.")
         }
     }
 
@@ -422,31 +647,6 @@ struct SettingsView: View {
         switch error {
         case .registrationFailed: Text("Could not enable launch at login. Check System Settings and try again.")
         case .unregistrationFailed: Text("Could not disable launch at login. Check System Settings and try again.")
-        }
-    }
-
-    @ViewBuilder private var musicStatus: some View {
-        switch model.musicStatus {
-        case .off: Text("Music detection is off.")
-        case .suspended:
-            Text("Music detection is paused while your pet is unavailable or autonomous activities are off.")
-        case .monitoring:
-            Text(
-                "System audio capture started. If the cat does not dance while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again."
-            )
-        case .unavailable:
-            Text(
-                "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available."
-            )
-        }
-    }
-
-    @ViewBuilder private var loginStatus: some View {
-        switch model.loginStatus {
-        case .enabled: Text("Enabled")
-        case .disabled: Text("Disabled")
-        case .requiresApproval: Text("Approval required in System Settings › General › Login Items.")
-        case .notFound: Text("Unavailable. Run PetScape from its installed application to try again.")
         }
     }
 }

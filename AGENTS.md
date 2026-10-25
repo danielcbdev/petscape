@@ -56,8 +56,19 @@ M19 was explicitly authorized and later closed by owner acceptance on 2026-10-24
 external-pack import/manual visual review, VoiceOver review and imported-art performance still
 unverified. These are accepted evidence limits in the [M19 closeout](docs/planning/milestones.md#owner-m19-closeout--2026-10-24),
 not passed criteria. The owner authorized the feature branch, commit and local merge into `develop`;
-no push, tag, release or PR is implied. M20 remains Not started and unauthorized.
-Do not start implementation without an explicit instruction naming the milestone/task.
+no push, tag, release or PR is implied. At that closeout, M20 remained not started and unauthorized.
+**Planning revision (2026-10-24):** M20 now covers a full Settings layout redesign that preserves
+existing functionality and a persisted active roster supporting one independently simulated pet
+per unique bundled or installed character pack. M21 is the previously planned release pipeline.
+The owner explicitly authorized end-to-end M20 on 2026-10-25 and accepted its closure on 2026-10-25
+after testing the final autonomous animation-variation refinement. M20 is Done with retained evidence
+limits: VoiceOver/keyboard, minimum supported window size, and matched Release resource evidence
+remain unverified, and the package gate retains the known M15 V8 pixel-QA exception. The owner also
+authorized branch commit, local merge into `develop`, and push; no tag, release, PR, or M21 work is
+implied. See
+[milestones](docs/planning/milestones.md),
+[tasks](docs/planning/task-breakdown.md) and [acceptance criteria](docs/planning/acceptance-criteria.md).
+Do not implement M21 without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
 

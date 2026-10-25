@@ -32,6 +32,40 @@ No performance target is weakened. M9 was subsequently reauthorized and closed b
 
 Post-MVP budgets: window tracking enabled and idle adds ≤ 1% CPU; each additional pet adds ≤ 1.5% CPU.
 
+## M20 multi-pet resource evaluation
+
+M20 retains the existing per-pack loader bounds and lazy behavior-family decoding. Active pets hold
+separate `LoadedCharacter` caches; removal drops the corresponding runtime ownership. There is no
+new aggregate concurrency cap: the single-pet CPU/footprint targets and the post-MVP ≤1.5% CPU per
+additional pet remain the review references, but aggregate multi-pet CPU and process footprint must be
+measured before claiming those targets. The deterministic two-pet XCTest records Core world-step cost
+without a wall-time threshold; it does not replace a Release process measurement.
+
+For the Cat+Dimas comparison, record the actual active walk-family decoded-byte total from
+`LoadedCharacter.decodedByteCount`, then run matched Release single-pet and two-pet scenarios on the
+same Mac/OS/build: 30 s warmup and at least three 60 s CPU-time windows, with visible active pets
+and equivalent walking state. Record physical footprint after each window and state whether any
+other pet families were loaded. This is separate from each pack's full-validation/transient decode
+limit and from RSS. Until such a matched native comparison is recorded, aggregate CPU and process
+footprint are unverified; do not add a cap based only on the sum of per-pack maxima.
+
+### M20 package measurements (2026-10-25)
+
+Environment: Mac16,12 (Apple M4), macOS 27.0.1 (26A434), Xcode 27.1. An isolated Debug Swift
+Package XCTest measured 600 explicit 1/60 s Core world steps over ten samples: one pet averaged
+0.004 s (relative standard deviation 27.5%); two pets averaged 0.007 s (relative standard deviation
+35.1%). This corresponds to about 0.0067 ms and 0.0121 ms per Core step, respectively, in this
+workload. The samples varied substantially and are not a Release result; they exclude AppKit, frame
+decoding, rendering, overlays and process memory. They do not establish a native CPU target or a
+0.3 ms p95 result.
+
+The production Cat + Dimas integration loaded both active initial behavior families and observed
+32,514,048 decoded frame bytes combined (about 31.01 MiB): Cat and Dimas each remain under the
+existing 16 MiB per-pack bound, and the two initial caches together are under 32 MiB. This measures
+`LoadedCharacter` cache bytes, not total app footprint or full simultaneous behavior-family residency.
+A matched native Release CPU/physical-footprint comparison remains unverified, so the existing
+additional-pet CPU target remains a target rather than a measured result.
+
 ## M13 tracking measurements
 
 **Not measured for M13.** The M12 short samples in

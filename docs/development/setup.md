@@ -71,7 +71,7 @@ Notes:
 
 - **Hardened Runtime with local signing.** Xcode prints `note: Disabling hardened runtime with ad-hoc
   codesigning`, so the setting is on but has no effect until the app is signed with a real
-  identity (Developer ID for releases, M20). Local Debug builds therefore run without it.
+  identity (Developer ID for releases, M21). Local Debug builds therefore run without it.
 - **UI test target.** With Hardened Runtime on, the test runner's library validation refuses to
   load the locally signed test bundle ("different Team IDs"). The UI test target never ships, so
   it turns Hardened Runtime off.
@@ -87,8 +87,8 @@ Notes:
 
 | Command | Runs | Verified |
 |---|---|---|
-| `make test-core` | `swift test --package-path Packages/PetScapeKit -Xswiftc -warnings-as-errors` | Yes |
-| `make test` | `make test-core`, then `xcodebuild … -configuration Debug test` (UI tests) | Package part yes; UI part needs Automation Mode (below) |
+| `make test-core` | `swift test --package-path Packages/PetScapeKit -Xswiftc -warnings-as-errors` | M20 run: nonzero only for the existing M15 V8 pixel-QA test (48 issues); M20 package suites passed |
+| `make test` | `make test-core`, then `xcodebuild … -configuration Debug test` (UI tests) | M20 run stops at the package V8 exception; separate XCUITest run passed 7/7 in Automation Mode |
 | `make build` | `xcodebuild -project PetScape.xcodeproj -scheme PetScape -destination 'platform=macOS' -derivedDataPath build/DerivedData -configuration Debug build` with warnings as errors | Yes |
 | `make lint` | `swift format lint --strict --recursive --parallel` over `PetScape`, `PetScapeUITests` and the package sources/tests, then a `grep` for forbidden imports (Core: no AppKit/SwiftUI/QuartzCore/SpriteKit/ApplicationServices/other PetScape modules; Rendering and Platform: no SpriteKit and not each other) | Yes |
 | `make format` | `swift format --in-place --recursive --parallel` over the same paths | Yes |

@@ -13,13 +13,13 @@ Probability/Impact: L/M/H.
 | R-05 | Overlay above Dock level interferes with Dock or system UI | L | H | PoC E8; lower level option | M1 |
 | R-06 | Prototype art quality (translucent body F6, fringe F7, no idle/turn clips) limits the experience | H | M | Hit threshold 128; request re-export; fallbacks; art roadmap | M4+ |
 | R-07 | Foot sliding / unnatural walk speed | M | M | Measure stride, `nominalSpeed`, playback rate coupling | T5.3 |
-| R-08 | Future art volume exceeds memory budget | M | M | Downsampling, lazy loading, target-size authoring | M14 |
+| R-08 | Active packs' combined decoded assets exceed memory budget | M | M | Downsampling, lazy loading, target-size authoring, profile simultaneous pets | M14, M20 |
 | R-09 | Accessibility API limitations (no AX→CGWindowID mapping, coalesced notifications, hung apps) | H | M | PID+frame correlation and timeouts; Accessibility-required policy (D-11); native event/timeout validation remains a follow-up for M13 | M12–M13 |
 | R-10 | Window-level/Spaces behavior changes across macOS versions (14 → 27) | M | M | Manual matrix on a macOS 14 VM and current OS per release | M14 |
 | R-11 | Toolchain drift: Xcode 27 features not available on CI runners | M | L | Swift 6.2 compatibility rule (ADR-0001) | M2 |
-| R-12 | No Developer ID → Gatekeeper friction; Accessibility grants reset between differently signed builds | M | M | Ad-hoc pre-releases with instructions; stable dev signing | M20 |
-| R-13 | Scope creep (multi-pet, interactions) before the core feels good | M | M | Milestone gates; FR-40+ unscheduled | All |
-| R-14 | AI-generated art licensing/provenance unclear for an open-source release | M | M | Owner decision D-08 before public release | M20 |
+| R-12 | No Developer ID → Gatekeeper friction; Accessibility grants reset between differently signed builds | M | M | Ad-hoc pre-releases with instructions; stable dev signing | M21 |
+| R-13 | Scope creep (pet-to-pet interactions) before the core feels good | M | M | Keep pet-to-pet interaction in future FR-41; M20 is limited to independent pets and Settings | All |
+| R-14 | AI-generated art licensing/provenance unclear for an open-source release | M | M | Owner decision D-08 before public release | M21 |
 | R-15 | Agents produce inconsistent changes across sessions | M | M | AGENTS.md process, task IDs, PR template, docs as source of truth | All |
 | R-16 | Overlay shows over full-screen apps; the detection rule (no Dock window on screen) is undocumented behavior and could change between macOS versions | M | M | PoC-validated rule (T3.10); re-check per release; opt-in AX fallback (M12) | M3, ADR-0003 |
 
@@ -29,16 +29,16 @@ Probability/Impact: L/M/H.
 |---|---|---|---|
 | D-01 | Source code license | **Decided 2026-10-16: MIT** (`LICENSE`). Art license still open (D-08) | — |
 | D-02 | Documentation and code language | **Decided 2026-10-16: English**; conversation may stay in Portuguese | — |
-| D-03 | Final bundle identifier | Keep `io.github.danielcbdev.petscape` unless you own a domain | Before M20 |
+| D-03 | Final bundle identifier | Keep `io.github.danielcbdev.petscape` unless you own a domain | Before M21 |
 | D-04 | Minimum macOS | 14.0 (ADR-0001) | Now |
 | D-05 | Approve PoC (M1) as the next step | **Decided 2026-10-16: approved** (T1.1–T1.3 started) | — |
 | D-06 | Enable GitHub Actions CI in M2 | Approved by owner closure instruction 2026-10-18; workflow authored, first remote run follows an authorized push | M2 closed |
-| D-07 | Apple Developer Program enrollment | Needed for notarized releases | Before M20 |
+| D-07 | Apple Developer Program enrollment | Needed for notarized releases | Before M21 |
 | D-08 | Art provenance/license for AI-generated sprites | Document source tool and terms; choose an asset license (e.g. CC BY 4.0) if allowed | Before public release |
 | D-09 | Default pet size (96 pt canvas ≈ 75–80 pt visible cat) | Confirm after PoC E3 visual check | M1 |
 | D-10 | Behavior over fullscreen apps (post-MVP) | Keep hidden over fullscreen apps | M14 |
 | D-11 | Window interaction degraded mode without Accessibility (CGWindowList only) | **Decided 2026-10-22: do not offer; Accessibility is required.** Native field/lag/CPU measurements remain validation work, not open product decision. See [ADR-0022](../decisions/0022-window-tracking-consent-and-sources.md) | — |
-| D-12 | Intel support | Best-effort; drop if unverifiable by M20 | M20 |
+| D-12 | Intel support | Best-effort; drop if unverifiable by M21 | M21 |
 | D-14 | Renderer: keep SpriteKit or switch to Core Animation | **Decided 2026-10-16: Core Animation** ([ADR-0015](../decisions/0015-core-animation-renderer.md)) | — |
 | D-13 | Source of future animations (who produces, which tool, target sizes) | Author at ≥ 288 px tall, opaque bodies, per asset-format.md | M6–M9 |
 

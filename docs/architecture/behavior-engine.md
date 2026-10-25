@@ -40,13 +40,13 @@ future interaction rather than inventing pet-to-pet behavior now.
 |---|---|---|---|
 | Walk | 4 × (1.5 − laziness) | 8–16 s | 0 |
 | Idle | 0.1 | 2–5 s | 0 |
-| Jump | 0.7 × (0.5 + playfulness) | M8 physical phases | 8 s |
+| Jump | 1.2 × (0.5 + playfulness) | M8 physical phases | 8 s |
 | Sit | 0.1 × (0.5 + laziness) | 2–4.4 s, plus 0.6 s transitions | 0 |
 | Sleep | 0 above energy 0.25; otherwise 0.2 × (0.5 + laziness) | 2–4.2 s, plus 0.8 s transitions | 20 s |
 | Stretch | 0.15 × (0.5 + playfulness) | 1.5 s | 20 s |
 | Observe | 0.15 × (0.5 + curiosity) | 3–5 s | 0 |
-| Explore | 0.8 × (0.5 + curiosity) | 6–10 s | 0 |
-| Window excursion | 0.6 × (0.5 + curiosity), only from Dock with an eligible visible window side | jump, climb, 5–17 s top walk, Dock return | 30 s |
+| Explore | 1.0 × (0.5 + curiosity) | 6–10 s | 0 |
+| Window excursion | 1.5 × (0.5 + curiosity), only from Dock with an eligible visible window side | jump to lower side, climb, 7–19 s top walk, Dock return | 20 s |
 
 At energy≤0.08 with rest enabled and the sleep cooldown expired, the next eligible decision forces Sleep. Activity weights are
 ordinary injectable BehaviorTuning data for deterministic scenarios; production uses the table.
@@ -60,11 +60,17 @@ Walk/Explore use existing supported walking, including edge turning; Explore is 
 walk, not a new window/surface service. Automatic Jump submits a validated M8 vertical request;
 WindowExcursion is a separate weighted activity available only while opted-in window surfaces
 include a visible reachable side. It chooses an eligible window with the injected random source,
-approaches along Dock when needed, attaches to the side below the top using the bounded M13 solver,
-reuses M11 climbing, walks on the top for 5–17 simulated seconds and walks to a launch point before
+approaches along Dock when needed, attaches near the lower third of the exposed side using the bounded M13 solver,
+reuses M11 climbing, walks on the top for 7–19 simulated seconds and walks to a launch point before
 jumping back to Dock. Explicit commands retain their target types. Unreachable/rejected requests produce a two-second
 Idle, never another choice in the same call. A walk with no progress for two simulated seconds also
 ends in bounded Idle.
+
+The 2026-10-25 owner-requested pacing refinement raises the seeded choice weights for Jump, Explore
+and WindowExcursion, reduces the window-excursion cooldown from 30 to 20 simulated seconds, and
+increases the top-walk interval. Window jumps target 30% of the available contact span above its lower
+contact bound (with at least 48 pt of ascent when feasible), leaving more of the side to climb. This
+uses existing states, clips and manifest fallbacks; it adds no art, animation state, or permission.
 
 Sit-down, stand-up and lie-down take 0.3 s each; wake-up takes 0.5 s. Explicit WorldInput.wake exits
 sleep through the bounded waking phase. Observe is an ambient look-around, without new cursor

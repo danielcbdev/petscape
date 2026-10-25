@@ -149,8 +149,8 @@ exists; forced safety/critical-energy fallback and single-eligible-action cases 
 
 M10 adds Dragged and cursor-driven observation; M11 adds Climbing within the same PetState hierarchy.
 M13 uses visible window-top support and window-side targets. Autonomous window excursions are chosen
-at ordinary activity boundaries, jump to an exposed side below the top, reuse the Climbing state,
-walk on the top for a seeded-random bounded interval, then jump toward the Dock. The bounded side
+at ordinary activity boundaries, jump near the lower third of the available side contact span, reuse
+the Climbing state, walk on the top for a seeded-random 7–19 s, then jump toward the Dock. The bounded side
 launch solver uses the existing fixed-step airborne integrator and screen bounds; it never targets the
 top directly. Occluded/unreachable sides are skipped, and the cat walks along the top until a safe
 Dock return jump is available. Window support removal, including a cover entering the logical support

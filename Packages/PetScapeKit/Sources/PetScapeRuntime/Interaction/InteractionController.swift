@@ -74,6 +74,12 @@ public final class InteractionController {
         setCapture(nil)
     }
 
+    /// Cancels native capture only when the requested pet owns the active pointer session.
+    public func cancel(_ reason: InteractionCancellation, for petID: PetID) {
+        guard activePetID == petID else { return }
+        cancel(reason)
+    }
+
     private var activePetID: PetID? {
         switch session.phase {
         case .idle: nil

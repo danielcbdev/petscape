@@ -283,7 +283,52 @@ struct CharacterPackInstallationTests {
         #expect(rediscovered.unavailableCount == 1)
     }
 
-    @Test func installationDoesNotSelectOrPersistUntilTheExistingPickerCommits() async throws {
+    @Test func realDimasPackInstallsAndRunsBesideTheBundledCat() async throws {
+        let root = try TestPacks.makeFolder()
+        let dimasURL = TestPacks.repositoryRoot.appending(path: "packs/human-programmer")
+        defer { try? FileManager.default.removeItem(at: root) }
+
+        let validatedDimas = await CharacterLoader().loadForSelection(packURL: dimasURL)
+        #expect(!validatedDimas.isPlaceholder && !validatedDimas.isDegraded)
+        #expect(validatedDimas.definition.id == CharacterID("human-programmer"))
+        #expect(validatedDimas.definition.displayName == "Dimas")
+        #expect(validatedDimas.definition.clips["dance"] != nil)
+        #expect(validatedDimas.definition.clips["cleanup"] != nil)
+
+        _ = try await CharacterPackInstaller(rootURL: root).install(
+            from: dimasURL, bundledIDs: [CharacterID("cat")], installedIDs: [], shouldContinue: { true })
+        let catalog = await CharacterCatalog.discover(
+            bundledRoot: TestPacks.catPackURL.deletingLastPathComponent(), installedRoot: root)
+        #expect(catalog.characters.map(\.id) == [CharacterID("cat"), CharacterID("human-programmer")])
+        #expect(catalog.characters.last?.origin == .installed)
+        #expect(catalog.unavailableCount == 0)
+
+        let preferences = InMemoryPreferencesStore()
+        let harness = PetRuntimeTests.Harness(preferences: preferences)
+        harness.runtime.start()
+        let roster = CharacterRosterModel(preferences: preferences, runtime: harness.runtime, installedPacksRoot: root)
+        await roster.start(catalog: catalog)
+        await roster.add(CharacterID("human-programmer"))
+
+        #expect(
+            roster.activeCharacters.map { $0.character.id } == [CharacterID("cat"), CharacterID("human-programmer")])
+        #expect(roster.activeCharacters.last?.character.origin == .installed)
+        #expect(harness.runtime.pets.count == 2)
+        #expect(harness.runtime.pets.map(\.characterID) == [CharacterID("cat"), CharacterID("human-programmer")])
+        #expect(preferences.activeCharacterIDs == ["cat", "human-programmer"])
+        let catID = try #require(harness.runtime.pets.first?.id)
+        let dimasID = try #require(harness.runtime.pets.last?.id)
+        let cat = try #require(harness.runtime.loadedCharacter(for: catID))
+        let dimas = try #require(harness.runtime.loadedCharacter(for: dimasID))
+        let aggregateInitialBytes = cat.decodedByteCount + dimas.decodedByteCount
+        print("M20 Cat + Dimas initial decoded frame bytes: \(aggregateInitialBytes)")
+        #expect(cat.decodedByteCount <= 16 * 1024 * 1024)
+        #expect(dimas.decodedByteCount <= 16 * 1024 * 1024)
+        #expect(aggregateInitialBytes <= 32 * 1024 * 1024)
+        harness.runtime.stop()
+    }
+
+    @Test func installationDoesNotActivateUntilTheUserAddsItFromTheRoster() async throws {
         let source = try pack("custom")
         let root = try TestPacks.makeFolder()
         let bundledURL = try pack("cat")
@@ -294,28 +339,27 @@ struct CharacterPackInstallationTests {
         }
         let bundled = await CharacterLoader().loadForSelection(packURL: bundledURL)
         let prefs = InMemoryPreferencesStore()
-        var applied: [CharacterID] = []
-        let model = CharacterSelectionModel(
-            preferences: prefs, installedPacksRoot: root,
-            apply: {
-                applied.append($0.definition.id); return true
-            })
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime, installedPacksRoot: root)
         await model.start(
             catalog: CharacterCatalog(characters: [
                 CharacterCatalogEntry(character: bundled, packURL: bundledURL)
             ]))
-        #expect(model.activeID == CharacterID("cat") && prefs.selectedCharacterID == "cat")
+        #expect(model.activeCharacters.map { $0.character.id } == [CharacterID("cat")])
+        #expect(prefs.activeCharacterIDs == ["cat"])
 
         await model.installPack(from: source)
         #expect(model.installationSucceeded && model.installIssue == nil)
         #expect(model.characters.map(\.id) == [CharacterID("cat"), CharacterID("custom")])
-        #expect(model.activeID == CharacterID("cat") && prefs.selectedCharacterID == "cat")
-        #expect(applied == [CharacterID("cat")])
+        #expect(model.activeCharacters.map { $0.character.id } == [CharacterID("cat")])
+        #expect(prefs.activeCharacterIDs == ["cat"])
 
-        await model.select(CharacterID("custom"))
-        #expect(model.activeID == CharacterID("custom") && prefs.selectedCharacterID == "custom")
-        #expect(model.activeOrigin == .installed)
-        #expect(applied == [CharacterID("cat"), CharacterID("custom")])
+        await model.add(CharacterID("custom"))
+        #expect(model.activeCharacters.map { $0.character.id } == [CharacterID("cat"), CharacterID("custom")])
+        #expect(prefs.activeCharacterIDs == ["cat", "custom"])
+        #expect(model.activeCharacters.last?.character.origin == .installed)
+        harness.runtime.stop()
     }
 
     @Test func removedInstalledPreferenceFallsBackOnlyAfterBundledCharacterApplies() async throws {
@@ -333,20 +377,27 @@ struct CharacterPackInstallationTests {
         _ = try await CharacterPackInstaller(rootURL: root).install(
             from: externalSource, bundledIDs: [], installedIDs: [], shouldContinue: { true })
         let preferences = InMemoryPreferencesStore()
-        preferences.selectedCharacterID = "external"
-        let selection = CharacterSelectionModel(
-            preferences: preferences, installedPacksRoot: root, apply: { _ in true })
+        preferences.activeCharacterIDs = ["external"]
+        let firstHarness = PetRuntimeTests.Harness(preferences: preferences)
+        firstHarness.runtime.start()
+        let selection = CharacterRosterModel(
+            preferences: preferences, runtime: firstHarness.runtime, installedPacksRoot: root)
         let present = await CharacterCatalog.discover(bundledRoot: bundledRoot, installedRoot: root)
         await selection.start(catalog: present)
-        #expect(selection.activeID == CharacterID("external"))
-        #expect(preferences.selectedCharacterID == "external")
+        #expect(selection.activeCharacters.map { $0.character.id } == [CharacterID("external")])
+        #expect(preferences.activeCharacterIDs == ["external"])
 
         try FileManager.default.removeItem(at: root.appending(path: "external"))
         let afterRemoval = await CharacterCatalog.discover(bundledRoot: bundledRoot, installedRoot: root)
         #expect(afterRemoval.characters.map(\.id) == [CharacterID("cat")])
-        await selection.start(catalog: afterRemoval)
-        #expect(selection.activeID == CharacterID("cat"))
-        #expect(preferences.selectedCharacterID == "cat")
+        let restartedHarness = PetRuntimeTests.Harness(preferences: preferences)
+        restartedHarness.runtime.start()
+        let restarted = CharacterRosterModel(preferences: preferences, runtime: restartedHarness.runtime)
+        await restarted.start(catalog: afterRemoval)
+        #expect(restarted.activeCharacters.map { $0.character.id } == [CharacterID("cat")])
+        #expect(preferences.activeCharacterIDs == ["cat"])
+        firstHarness.runtime.stop()
+        restartedHarness.runtime.stop()
     }
 
     @Test func interruptedSelectionNeverStartsAnImportOrChangesPreferences() async throws {
@@ -357,12 +408,15 @@ struct CharacterPackInstallationTests {
             try? FileManager.default.removeItem(at: root)
         }
         let prefs = InMemoryPreferencesStore()
-        prefs.selectedCharacterID = "persisted"
-        let model = CharacterSelectionModel(preferences: prefs, installedPacksRoot: root, apply: { _ in true })
+        prefs.activeCharacterIDs = ["persisted"]
+        let harness = PetRuntimeTests.Harness(preferences: prefs)
+        harness.runtime.start()
+        let model = CharacterRosterModel(preferences: prefs, runtime: harness.runtime, installedPacksRoot: root)
         model.stop()
         await model.installPack(from: source)
-        #expect(model.characters.isEmpty && prefs.selectedCharacterID == "persisted")
+        #expect(model.characters.isEmpty && prefs.activeCharacterIDs == ["persisted"])
         #expect(try FileManager.default.contentsOfDirectory(atPath: root.path).isEmpty)
+        harness.runtime.stop()
     }
 
     @Test func cancellationAfterStagingRemovesTemporaryDirectory() async throws {

@@ -2,7 +2,7 @@ import PetScapeCore
 
 /// `PreferencesStore` that keeps values in memory only (tests, previews).
 public final class InMemoryPreferencesStore: PreferencesStore {
-    public var selectedCharacterID: String?
+    public var activeCharacterIDs: [String]?
     public var petSettings: PetSettings
     public var isPaused: Bool
     public var isHidden: Bool

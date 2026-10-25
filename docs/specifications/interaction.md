@@ -114,7 +114,8 @@ These declarations are documentation of future APIs, not existing symbols.
 - Core `InteractionSession`: Sendable value reducer used by Runtime, with phase available,
   hovered(PetID), pressed(PetID, InteractionID), dragging(PetID, InteractionID); down location,
   foot offset and latest target. It produces commands, never changes Pet. Unknown/up duplicate
-  inputs return no command. It has one active primary owner for now; target IDs permit future pets.
+  inputs return no command. It has one active primary pointer owner at a time; that owner may be any
+  active pet, and commands remain keyed by PetID.
 - Core `InteractionTuning`: Sendable/Equatable injectable values from the parameter table.
 - Runtime `InteractionController`: MainActor final class; initializer injects hit-testing,
   `submit: (PetID, InteractionCommand) -> Bool` (Runtime applies/drains accepted facts),

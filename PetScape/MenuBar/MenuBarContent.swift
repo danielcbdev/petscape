@@ -26,11 +26,31 @@ struct MenuBarContent: View {
         } label: {
             if model.isPaused { Text("Resume") } else { Text("Pause") }
         }
-        Button("Dance") { model.settings?.dance() }
-            .disabled(!(model.settings?.canDance ?? false))
+        if let roster = model.settings?.characterRoster {
+            Menu("Dance") {
+                ForEach(roster.activeCharacters) { pet in
+                    Button {
+                        roster.dance(pet.petID)
+                    } label: {
+                        Text(verbatim: pet.character.displayName)
+                    }
+                    .disabled(!roster.canDance(pet.petID))
+                }
+            }
+            .disabled(!roster.canDanceAny)
             .help("Dance for 5–30 seconds. Requires an active pet with autonomous activities enabled.")
-        Button("Stop Dance") { model.settings?.stopDance() }
-            .disabled(!(model.settings?.canStopDance ?? false))
+            Menu("Stop Dance") {
+                ForEach(roster.activeCharacters) { pet in
+                    Button {
+                        roster.stopDance(pet.petID)
+                    } label: {
+                        Text(verbatim: pet.character.displayName)
+                    }
+                    .disabled(!roster.canStopDance(pet.petID))
+                }
+            }
+            .disabled(!roster.canStopDanceAny)
+        }
         Divider()
         SettingsLink {
             Text("Settings…")

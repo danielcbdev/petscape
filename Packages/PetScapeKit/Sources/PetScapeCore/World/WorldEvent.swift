@@ -16,4 +16,14 @@ public enum WorldEvent: Equatable, Sendable {
     case interactionAccepted(PetID, InteractionID)
     case interactionEnded(PetID, InteractionID)
     case interactionRejected(PetID, InteractionID)
+
+    public var petID: PetID {
+        switch self {
+        case .placed(let id, _), .stateChanged(let id, _, _), .edgeReached(let id), .surfaceLost(let id, _),
+            .landed(let id, _), .tookOff(let id), .apex(let id), .jumpRejected(let id, _),
+            .jumpCancelled(let id), .recovered(let id, _), .animationEvent(let id, _),
+            .interactionAccepted(let id, _), .interactionEnded(let id, _), .interactionRejected(let id, _):
+            id
+        }
+    }
 }

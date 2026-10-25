@@ -1,15 +1,15 @@
 # Pet Engine
 
-Current implementation: M7–M9 working tree over HEAD `2f7f33f` (M6), 2026-10-18.
-M7/M8 are Done by owner acceptance; M9 implementation/verification follows its [plan](../planning/m9-implementation.md).
-Code inventory: [technical review](../planning/m7-m8-technical-review.md).
+Current implementation includes the M20 active roster; historical M7–M9 decisions and acceptance
+records remain in their milestone documents. M20 details are in the [implementation record](../planning/m20-implementation.md).
 
 ## Implemented model
 
 PetWorld is a Sendable struct, mutated by PetRuntime on MainActor. It contains an ordered `[Pet]`,
-SurfaceMap, screens, `time: Double`, BehaviorTuning and an injected RandomSource. Needs, Personality
-and activity bookkeeping are Sendable pet values; ActivitySelector is a pure weighted selection system.
-There is no dictionary registry or separate KinematicBody.
+SurfaceMap, screens, `time: Double`, BehaviorTuning and an injected RandomSource used to seed each
+new pet's independent random stream. Needs, Personality and activity bookkeeping are Sendable pet
+values; ActivitySelector is a pure weighted selection system. There is no dictionary registry or
+separate KinematicBody.
 
 Pet contains identity, `position: CGPoint` (canonical global foot contact), optional
 SurfaceAttachment(surfaceID, parameter), Facing, PetState, stateElapsed, AnimationController and
@@ -17,7 +17,8 @@ world-owned scale, velocity, simulated airborne/cooldown counters, immutable pen
 walk/idle return intent, energy/personality and the current activity/deadline/cooldowns. CharacterDefinition is reached through the animation controller. `Pet.size`
 comes from definition.displaySize × scale, not decoded image pixels.
 
-Current APIs: spawn(definition, scale:), apply(WorldInput), step(dt:into:), writeSnapshot(into:).
+Current APIs include spawn(definition, scale:), removePet(PetID), apply(WorldInput), step(dt:into:),
+and writeSnapshot(into:). A stable character ID can appear at most once in one world.
 Settings/wake inputs are configureBehavior, setDisplayScale, setSpeedScale and wake. A default
 PetWorld remains explicit-command only; production PetRuntime restores enabled autonomy by default.
 Environment inputs are complete screens/surfaces, applied as surface diffs; same-ID surfaces
@@ -70,6 +71,7 @@ is nil, and the foot stays in the hosted screen plus existing margin. Animation 
 a playable clip/default/placeholder. Airborne watchdog and phase durations use simulated time,
 which freezes on pause/hide/suspension. Full recovery policy/test limits are owned by Physics Engine.
 
-Multiple-pet interactions remain future work. Existing stable pet IDs and value snapshots already
-provide the necessary boundary; pets must never hold references to other pets. Do not add ECS,
-GameplayKit, subclasses or new modules for M7–M9.
+Each pet owns independent state, animation, placement, interaction, deadlines and random sequence.
+Runtime and rendering resources are keyed by PetID; pets never hold references to other pets.
+Shared preferences and environmental signals remain global and are routed to each eligible pet.
+Do not add ECS, GameplayKit, subclasses or new modules for M20.

@@ -42,7 +42,7 @@ local, network-free app, while notarization gives users a trustworthy install.
 ## Consequences
 
 - Mac App Store distribution is not possible without a feature-reduced variant (not planned).
-- Owner decision needed: enrol in the Apple Developer Program before M20.
+- Owner decision needed: enrol in the Apple Developer Program before M21.
 
 ## Risks
 

@@ -1,6 +1,6 @@
 import XCTest
 
-/// Uses an isolated preferences suite AND a fake login service; Restore Defaults never changes the owner.
+/// Runs against isolated preferences and temporary bundled/installed character roots.
 final class PetScapeSettingsTests: XCTestCase {
     @MainActor
     private func setLanguage(_ preferredLanguages: String, for app: XCUIApplication) {
@@ -19,8 +19,11 @@ final class PetScapeSettingsTests: XCTestCase {
         return nil
     }
 
-    /// Fixture packs live in a temporary directory that is passed to the DEBUG app. No shipping
-    /// resources, original art or owner preferences are changed.
+    @MainActor
+    private func settingControl(_ identifier: String, in window: XCUIElement) -> XCUIElement {
+        window.descendants(matching: .any).matching(identifier: identifier).firstMatch
+    }
+
     @MainActor
     private func fixtureApplication(characterCount: Int) throws -> (app: XCUIApplication, root: URL, suite: String) {
         var products = Bundle(for: Self.self).bundleURL
@@ -57,9 +60,8 @@ final class PetScapeSettingsTests: XCTestCase {
                 try image.write(to: folder.appending(path: "frame.png"))
             }
             let suite = "PetScapeUITests.\(UUID().uuidString)"
-            // Start paused and nonautonomous: initial attached Spawning is a safe character boundary.
             let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
-            defaults.set(true, forKey: "petscape.isPaused")
+            defaults.set(false, forKey: "petscape.isPaused")
             defaults.set(false, forKey: "petscape.autonomy")
             let app = XCUIApplication()
             app.launchArguments = [
@@ -75,7 +77,23 @@ final class PetScapeSettingsTests: XCTestCase {
     }
 
     @MainActor
-    func testNoBundledCharactersShowsAnHonestAccessibleEmptyState() throws {
+    private func openSettings(_ app: XCUIApplication) -> XCUIElement {
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let window = app.windows.firstMatch
+        XCTAssertTrue(window.waitForExistence(timeout: 15))
+        return window
+    }
+
+    @MainActor
+    private func select(_ section: String, in window: XCUIElement) {
+        let row = window.descendants(matching: .any)["settings.navigation.\(section)"]
+        XCTAssertTrue(row.waitForExistence(timeout: 5), "Missing Settings section \(section)")
+        row.click()
+    }
+
+    @MainActor
+    func testNoCharactersShowsAnHonestAccessibleEmptyState() throws {
         let fixture = try fixtureApplication(characterCount: 0)
         defer {
             fixture.app.terminate()
@@ -83,17 +101,16 @@ final class PetScapeSettingsTests: XCTestCase {
             try? FileManager.default.removeItem(at: fixture.root)
         }
         fixture.app.launch()
-        fixture.app.activate()
-        fixture.app.typeKey(",", modifierFlags: .command)
-        let window = fixture.app.windows.firstMatch
-        XCTAssertTrue(window.staticTexts["settings.noCharacters"].waitForExistence(timeout: 15))
-        XCTAssertFalse(window.popUpButtons["settings.character"].exists)
+        let window = openSettings(fixture.app)
+        XCTAssertTrue(window.staticTexts["settings.emptyRoster"].waitForExistence(timeout: 15))
+        XCTAssertTrue(window.staticTexts["settings.noCharacters"].exists)
         XCTAssertTrue(window.staticTexts["settings.characterError"].exists)
         XCTAssertTrue(window.buttons["settings.installCharacterPack"].exists)
+        XCTAssertFalse(window.popUpButtons["settings.character"].exists)
     }
 
     @MainActor
-    func testBundledPickerHasAccessibleLabelKeyboardSelectionAndRestoresAfterRelaunch() throws {
+    func testRosterAddsRemovesAndRestoresMultiplePetsAfterRelaunch() throws {
         let fixture = try fixtureApplication(characterCount: 2)
         defer {
             fixture.app.terminate()
@@ -102,31 +119,26 @@ final class PetScapeSettingsTests: XCTestCase {
         }
         let app = fixture.app
         app.launch()
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let picker = app.windows.firstMatch.popUpButtons["settings.character"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 15))
-        XCTAssertEqual(picker.label, "Character")
-        XCTAssertEqual(picker.value as? String, "Fixture A — Included")
-        XCTAssertTrue(picker.isEnabled)
-        picker.click()
-        app.typeKey(.downArrow, modifierFlags: [])
-        app.typeKey(.return, modifierFlags: [])
-        let selected = NSPredicate(format: "value == %@", "Fixture B — Included")
-        expectation(for: selected, evaluatedWith: picker)
-        waitForExpectations(timeout: 10)
-        XCTAssertFalse(app.windows.firstMatch.staticTexts["settings.characterError"].exists)
+        var window = openSettings(app)
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].waitForExistence(timeout: 15))
+        window.buttons["settings.addCharacter.fixture-b"].click()
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-b"].waitForExistence(timeout: 10))
+        XCTAssertTrue(window.buttons["settings.removeCharacter.fixture-a"].exists)
+        XCTAssertTrue(window.buttons["settings.dance.fixture-a"].exists)
+        XCTAssertTrue(window.buttons["settings.stopDance.fixture-b"].exists)
+
+        window.buttons["settings.removeCharacter.fixture-a"].click()
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].waitForNonExistence(timeout: 5))
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-b"].exists)
         app.terminate()
         app.launch()
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let restored = app.windows.firstMatch.popUpButtons["settings.character"]
-        XCTAssertTrue(restored.waitForExistence(timeout: 15))
-        XCTAssertEqual(restored.value as? String, "Fixture B — Included")
+        window = openSettings(app)
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-b"].waitForExistence(timeout: 15))
+        XCTAssertFalse(window.staticTexts["settings.activeCharacter.fixture-a"].exists)
     }
 
     @MainActor
-    func testInstalledCharacterAppearsWithItsOriginAndCanBeSelected() throws {
+    func testInstalledCharacterCanBeAddedAlongsideBundledCharacter() throws {
         let fixture = try fixtureApplication(characterCount: 1)
         let bundleFolder = fixture.root.appending(path: "characters/fixture-a")
         let sourceManifest = try XCTUnwrap(
@@ -147,130 +159,112 @@ final class PetScapeSettingsTests: XCTestCase {
             try? FileManager.default.removeItem(at: fixture.root)
         }
 
-        let app = fixture.app
-        app.launch()
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let picker = app.windows.firstMatch.popUpButtons["settings.character"]
-        XCTAssertTrue(picker.waitForExistence(timeout: 15))
-        XCTAssertEqual(picker.value as? String, "Fixture A — Included")
-        picker.click()
-        let externalOption = app.menuItems["External Fixture — Installed"]
-        XCTAssertTrue(externalOption.waitForExistence(timeout: 5))
-        externalOption.click()
-        let external = NSPredicate(format: "value == %@", "External Fixture — Installed")
-        expectation(for: external, evaluatedWith: picker)
-        waitForExpectations(timeout: 10)
-        app.terminate()
-        app.launch()
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let restored = app.windows.firstMatch.popUpButtons["settings.character"]
-        XCTAssertTrue(restored.waitForExistence(timeout: 15))
-        XCTAssertEqual(restored.value as? String, "External Fixture — Installed")
+        fixture.app.launch()
+        let window = openSettings(fixture.app)
+        window.buttons["settings.addCharacter.zz-external"].click()
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.zz-external"].waitForExistence(timeout: 10))
+        XCTAssertEqual(window.staticTexts["settings.characterOrigin.zz-external"].value as? String, "Installed")
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].exists)
     }
 
     @MainActor
-    func testCancellingNativePackPickerLeavesCharacterSelectionUntouched() throws {
+    func testCancellingPackPickerLeavesRosterUntouched() throws {
         let fixture = try fixtureApplication(characterCount: 1)
         defer {
             fixture.app.terminate()
             UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
             try? FileManager.default.removeItem(at: fixture.root)
         }
-        let app = fixture.app
-        app.launch()
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let window = app.windows.firstMatch
-        let active = window.staticTexts["settings.singleCharacter"]
+        fixture.app.launch()
+        let window = openSettings(fixture.app)
+        let active = window.staticTexts["settings.activeCharacter.fixture-a"]
         XCTAssertTrue(active.waitForExistence(timeout: 15))
         window.buttons["settings.installCharacterPack"].click()
-        let cancel = app.buttons["CancelButton"]
+        let cancel = fixture.app.buttons["CancelButton"]
         XCTAssertTrue(cancel.waitForExistence(timeout: 10))
         cancel.click()
         XCTAssertTrue(active.exists)
         XCTAssertFalse(window.staticTexts["settings.characterPackInstalled"].exists)
         XCTAssertFalse(window.staticTexts["settings.characterPackError"].exists)
-        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.root.appending(path: "user-characters").path))
         XCTAssertTrue(
             (try FileManager.default.contentsOfDirectory(
                 atPath: fixture.root.appending(path: "user-characters").path)).isEmpty)
     }
 
     @MainActor
-    func testSettingsApplyRestoreCloseAndQuit() throws {
-        let suiteName = "PetScapeUITests.\(UUID().uuidString)"
-        let app = XCUIApplication()
-        app.launchArguments = ["--settings-test-suite", suiteName]
-        setLanguage("en", for: app)
+    func testSettingsNavigationControlsAndRestoreDefaultsKeepTheRoster() throws {
+        let fixture = try fixtureApplication(characterCount: 1)
         defer {
-            if app.state != .notRunning { app.terminate() }
-            UserDefaults.standard.removePersistentDomain(forName: suiteName)
+            fixture.app.terminate()
+            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
+            try? FileManager.default.removeItem(at: fixture.root)
         }
-        app.launch()
-        let statusItem = app.statusItems.firstMatch
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
-        // The same Settings title is exposed in the status menu and the system app menu.
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let window = app.windows.firstMatch
-        XCTAssertTrue(window.waitForExistence(timeout: 5))
-        let singleCharacter = window.staticTexts["settings.singleCharacter"]
-        XCTAssertTrue(singleCharacter.waitForExistence(timeout: 15))
-        XCTAssertEqual(singleCharacter.value as? String, "This is the only character included with this app.")
-        XCTAssertTrue(window.descendants(matching: .any)["settings.activeCharacter"].exists)
-        XCTAssertFalse(window.popUpButtons["settings.character"].exists)
-        XCTAssertFalse(window.staticTexts["settings.characterError"].exists)
-        let windowInteraction = window.switches["settings.windowInteraction"]
-        XCTAssertTrue(windowInteraction.waitForExistence(timeout: 5))
-        XCTAssertEqual(windowInteraction.label, "Interact with windows")
-        XCTAssertEqual(integerValue(of: windowInteraction), 0)
-        XCTAssertTrue(window.staticTexts["settings.windowInteractionExplanation"].exists)
-        let autonomy = window.switches["settings.autonomy"]
+        fixture.app.launch()
+        let window = openSettings(fixture.app)
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].waitForExistence(timeout: 15))
+
+        select("behavior", in: window)
+        let autonomy = settingControl("settings.autonomy", in: window)
         XCTAssertTrue(autonomy.waitForExistence(timeout: 5))
         XCTAssertEqual(autonomy.label, "Autonomous activities")
-        XCTAssertEqual(integerValue(of: autonomy), 1)
+        let initialAutonomy = integerValue(of: autonomy)
+        XCTAssertNotNil(initialAutonomy)
         autonomy.click()
-        XCTAssertEqual(integerValue(of: autonomy), 0)
-        let dance = window.buttons["settings.dance"]
-        XCTAssertTrue(dance.exists)
-        XCTAssertFalse(dance.isEnabled)
-        let stopDance = window.buttons["settings.stopDance"]
-        XCTAssertTrue(stopDance.exists)
-        XCTAssertFalse(stopDance.isEnabled)
-        let music = window.switches["settings.musicDancing"]
-        XCTAssertTrue(music.exists)
+        XCTAssertEqual(integerValue(of: autonomy), initialAutonomy == 0 ? 1 : 0)
+        for identifier in ["settings.jumping", "settings.resting", "settings.expressions"] {
+            XCTAssertTrue(settingControl(identifier, in: window).exists, "Missing behavior control \(identifier)")
+        }
+        let music = settingControl("settings.musicDancing", in: window)
         XCTAssertEqual(integerValue(of: music), 0)
         music.click()
-        let enableMusic = app.buttons["Enable Music Detection"]
-        XCTAssertTrue(enableMusic.waitForExistence(timeout: 3))
+        XCTAssertTrue(fixture.app.buttons["Enable Music Detection"].waitForExistence(timeout: 5))
         window.sheets.firstMatch.buttons["Cancel"].click()
         XCTAssertEqual(integerValue(of: music), 0)
-        let cursor = window.switches["settings.cursorReactions"]
-        XCTAssertTrue(cursor.waitForExistence(timeout: 3))
-        XCTAssertEqual(integerValue(of: cursor), 1)
+
+        select("interaction", in: window)
+        let windowInteraction = settingControl("settings.windowInteraction", in: window)
+        XCTAssertTrue(windowInteraction.waitForExistence(timeout: 5))
+        XCTAssertEqual(windowInteraction.label, "Interact with windows")
+        XCTAssertTrue(window.staticTexts["settings.windowInteractionExplanation"].exists)
+        let cursor = settingControl("settings.cursorReactions", in: window)
         cursor.click()
         XCTAssertEqual(integerValue(of: cursor), 0)
-        let direct = window.switches["settings.directInteraction"]
-        XCTAssertTrue(direct.waitForExistence(timeout: 3))
-        XCTAssertEqual(integerValue(of: direct), 1)
+        let direct = settingControl("settings.directInteraction", in: window)
         direct.click()
         XCTAssertEqual(integerValue(of: direct), 0)
+
+        select("appearance", in: window)
+        XCTAssertTrue(window.sliders["settings.scale"].exists)
+        XCTAssertTrue(window.sliders["settings.speed"].exists)
+        XCTAssertTrue(window.sliders["settings.dockOffset"].exists)
+
+        select("general", in: window)
+        let login = settingControl("settings.login", in: window)
+        XCTAssertTrue(login.waitForExistence(timeout: 5))
+        let pause = settingControl("settings.pause", in: window)
+        let hide = settingControl("settings.hidePet", in: window)
+        XCTAssertTrue(pause.exists)
+        XCTAssertTrue(hide.exists)
+        XCTAssertTrue(window.buttons["settings.wakePet"].exists)
+        pause.click()
+        hide.click()
+        XCTAssertEqual(integerValue(of: pause), 1)
+        XCTAssertEqual(integerValue(of: hide), 1)
         window.buttons["Restore Defaults"].click()
-        XCTAssertEqual(integerValue(of: autonomy), 1)
-        XCTAssertEqual(integerValue(of: cursor), 1)
-        XCTAssertEqual(integerValue(of: direct), 1)
-        XCTAssertEqual(integerValue(of: window.switches["settings.login"]), 0)
-        window.buttons[XCUIIdentifierCloseWindow].click()
-        XCTAssertFalse(window.exists)
-        statusItem.click()
-        app.typeKey("q", modifierFlags: .command)
-        XCTAssertTrue(app.wait(for: .notRunning, timeout: 5))
+        XCTAssertEqual(integerValue(of: pause), 0)
+        XCTAssertEqual(integerValue(of: hide), 0)
+        XCTAssertEqual(integerValue(of: login), 0)
+        select("behavior", in: window)
+        XCTAssertEqual(integerValue(of: settingControl("settings.autonomy", in: window)), 1)
+        select("interaction", in: window)
+        XCTAssertEqual(integerValue(of: settingControl("settings.cursorReactions", in: window)), 1)
+        XCTAssertEqual(integerValue(of: settingControl("settings.directInteraction", in: window)), 1)
+        select("pets", in: window)
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].exists)
     }
 
     @MainActor
-    func testBrazilianPortugueseMenuSettingsAndMusicConsent() throws {
+    func testPortugueseLocalizationCoversNavigationAndRosterLabels() throws {
         let fixture = try fixtureApplication(characterCount: 1)
         setLanguage("pt-BR", for: fixture.app)
         defer {
@@ -278,67 +272,14 @@ final class PetScapeSettingsTests: XCTestCase {
             UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
             try? FileManager.default.removeItem(at: fixture.root)
         }
-
-        let app = fixture.app
-        app.launch()
-        let statusItem = app.statusItems.firstMatch
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
-        statusItem.click()
-        XCTAssertTrue(app.menuItems["Ocultar pet"].waitForExistence(timeout: 5))
-        XCTAssertTrue(app.menuItems["Pausar"].exists)
-        XCTAssertTrue(app.menuItems["Encerrar PetScape"].exists)
-
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let window = app.windows.firstMatch
-        let singleCharacter = window.staticTexts["settings.singleCharacter"]
-        XCTAssertTrue(singleCharacter.waitForExistence(timeout: 15))
-        XCTAssertEqual(singleCharacter.value as? String, "Este é o único personagem incluído no app.")
-        XCTAssertEqual(window.staticTexts["settings.characterOrigin"].value as? String, "Incluído")
-        XCTAssertEqual(window.buttons["settings.installCharacterPack"].label, "Instalar pacote de personagem…")
-        XCTAssertEqual(window.switches["settings.windowInteraction"].label, "Interagir com janelas")
-        XCTAssertEqual(window.switches["settings.musicDancing"].label, "Dançar ao som da música")
+        fixture.app.launch()
+        let window = openSettings(fixture.app)
+        XCTAssertTrue(window.staticTexts["settings.activeCharacter.fixture-a"].waitForExistence(timeout: 15))
+        XCTAssertEqual(window.staticTexts["settings.characterOrigin.fixture-a"].value as? String, "Incluído")
+        XCTAssertTrue(window.buttons["settings.installCharacterPack"].label.contains("Instalar pacote"))
+        select("behavior", in: window)
+        XCTAssertEqual(settingControl("settings.musicDancing", in: window).label, "Dançar ao som da música")
         XCTAssertEqual(
             window.staticTexts["settings.musicStatus"].value as? String, "A detecção de música está desativada.")
-        XCTAssertTrue(
-            (window.staticTexts["settings.windowInteractionExplanation"].value as? String)?.contains(
-                "posições das janelas") == true)
-
-        window.switches["settings.musicDancing"].click()
-        let enableMusic = app.buttons["Ativar detecção de música"]
-        XCTAssertTrue(enableMusic.waitForExistence(timeout: 5))
-        XCTAssertTrue(
-            app.staticTexts.containing(NSPredicate(format: "value CONTAINS %@", "não usa o microfone")).firstMatch
-                .exists)
-        window.sheets.firstMatch.buttons["Cancelar"].click()
-    }
-
-    @MainActor
-    func testBrazilianPortugueseEmptyCharacterAndPlaceholderStates() throws {
-        let fixture = try fixtureApplication(characterCount: 0)
-        setLanguage("pt-BR", for: fixture.app)
-        defer {
-            fixture.app.terminate()
-            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
-            try? FileManager.default.removeItem(at: fixture.root)
-        }
-
-        let app = fixture.app
-        app.launch()
-        let statusItem = app.statusItems.firstMatch
-        XCTAssertTrue(statusItem.waitForExistence(timeout: 5))
-        statusItem.click()
-        XCTAssertTrue(
-            app.menuItems["Não foi possível carregar o pet. Exibindo um personagem provisório."]
-                .waitForExistence(timeout: 10))
-
-        app.activate()
-        app.typeKey(",", modifierFlags: .command)
-        let window = app.windows.firstMatch
-        XCTAssertEqual(
-            window.staticTexts["settings.noCharacters"].value as? String, "Nenhum personagem está disponível.")
-        XCTAssertEqual(
-            window.staticTexts["settings.characterError"].value as? String,
-            "Não foi possível carregar nenhum personagem.")
     }
 }

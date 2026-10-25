@@ -12,31 +12,37 @@
                 } label: {
                     Text("Jump vertically")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Button {
                     model.jump(horizontalOffset: -60)
                 } label: {
                     Text("Short jump left")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Button {
                     model.jump(horizontalOffset: 60)
                 } label: {
                     Text("Short jump right")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Button {
                     model.jumpToDock()
                 } label: {
                     Text("Jump to Dock")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Button {
                     model.setIdle(true)
                 } label: {
                     Text("Idle")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Button {
                     model.setIdle(false)
                 } label: {
                     Text("Walk")
                 }
+                .disabled(!model.hasUnambiguousPetTarget)
                 Divider()
                 Toggle(isOn: $model.showsOverlayBounds) { Text("Show overlay bounds") }
                 Toggle(isOn: $model.showsPassthroughState) { Text("Show pass-through state") }

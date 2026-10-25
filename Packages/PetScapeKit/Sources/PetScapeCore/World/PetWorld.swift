@@ -48,13 +48,15 @@ public struct PetWorld: Sendable {
 
     // MARK: - Lifecycle
 
-    /// Adds a pet of `definition` and places it right away when a surface exists (random position and facing,
-    /// walk clip at frame 0); otherwise it stays `spawning` until a surface appears.
+    /// Adds one pet per stable character ID and places it right away when a surface exists (random position and
+    /// facing, walk clip at frame 0); otherwise it stays `spawning` until a surface appears. A duplicate request
+    /// returns the existing identity without consuming randomness or changing its state.
     @discardableResult
     public mutating func spawn(_ definition: CharacterDefinition, scale: Double = 1) -> PetID {
+        if let existing = pets.first(where: { $0.characterID == definition.id }) { return existing.id }
         let id = PetID(nextPetID)
         nextPetID += 1
-        var pet = Pet(id: id, definition: definition, scale: scale)
+        var pet = Pet(id: id, definition: definition, scale: scale, randomSeed: random.next())
         pet.animation.rate = tuning.speedScale
         var events: [WorldEvent] = []
         place(&pet, events: &events)
@@ -62,47 +64,12 @@ public struct PetWorld: Sendable {
         return id
     }
 
-    /// M18 transaction boundary: never teleport or interrupt a physical/interaction phase to change art.
-    /// A fresh pet identity prevents old events from addressing the new animation/behavior state.
+    /// Removes only the addressed pet and its buffered events. Pet IDs are never reused.
     @discardableResult
-    public mutating func replaceSettledCharacter(with definition: CharacterDefinition, scale: Double) -> Bool {
-        guard pets.count == 1, let old = pets.first,
-            old.state == .walking || old.state == .grounded(.idle) || old.state == .spawning,
-            old.interactionID == nil, old.windowExcursionPhase == nil,
-            let surface = attachedSurface(of: old), !surface.isVertical
-        else { return false }
-        var replacement = Pet(id: PetID(nextPetID), definition: definition, scale: scale)
-        replacement.facing = old.facing
-        replacement.animation.setFacing(old.facing)
-        replacement.animation.rate = tuning.speedScale
-        replacement.position = old.position
-        replacement.attachment = old.attachment
-        let state: PetState = old.state == .grounded(.idle) ? .grounded(.idle) : .walking
-        var discardedEvents: [WorldEvent] = []
-        enter(state, pet: &replacement, events: &discardedEvents)
-        guard let geometry = replacement.contactGeometry else { return false }
-        let margin = surface.kind == .windowTop ? geometry.halfWidth : max(geometry.halfWidth, replacement.edgeMargin)
-        // walkableRange intentionally returns a midpoint for oversized sprites during recovery.
-        // Selection must reject that case rather than introducing an incompatible character in place.
-        guard surface.width >= margin * 2,
-            surface.walkableRange(margin: margin).contains(old.position.x),
-            attachedSurface(of: replacement) != nil
-        else { return false }
-        let top =
-            replacement.position.y
-            + (1 - replacement.animation.currentFrame.anchor.y) * replacement.size.height
-        guard
-            screens.isEmpty
-                || screens.contains(where: {
-                    replacement.position.x >= $0.frame.minX + replacement.edgeMargin
-                        && replacement.position.x <= $0.frame.maxX - replacement.edgeMargin
-                        && replacement.position.y >= $0.frame.minY && top <= $0.frame.maxY
-                })
-        else { return false }
-        nextPetID += 1
-        pets = [replacement]
-        pendingEvents.removeAll(keepingCapacity: true)
-        animationEvents.removeAll(keepingCapacity: true)
+    public mutating func removePet(_ id: PetID) -> Bool {
+        guard let index = pets.firstIndex(where: { $0.id == id }) else { return false }
+        pets.remove(at: index)
+        pendingEvents.removeAll { $0.petID == id }
         return true
     }
 
@@ -403,7 +370,7 @@ public struct PetWorld: Sendable {
         var events: [WorldEvent] = []
         finishActivity(&pet)
         pet.cursorInterest.cancel()
-        pet.specialBehaviorDuration = DanceSource.duration(using: &random)
+        pet.specialBehaviorDuration = DanceSource.duration(using: &pet.random)
         enter(.grounded(.dancing(source)), pet: &pet, events: &events)
         pets[index] = pet
         pendingEvents.append(contentsOf: events)
@@ -627,7 +594,7 @@ public struct PetWorld: Sendable {
         time += dt
         drainEvents(into: &events)
         for index in pets.indices {
-            // Stepped on a copy: the step also mutates other world state (random source, event buffer).
+            // Stepped on a copy: the step also mutates the pet's random stream and world event buffer.
             var pet = pets[index]
             step(&pet, dt: dt, events: &events)
             pets[index] = pet
@@ -798,7 +765,7 @@ public struct PetWorld: Sendable {
                         enterPreservingSpriteRect(.walking, facing: direction, pet: &pet, events: &events)
                         setPosition(of: &pet, x: x, on: top)
                         events.append(.landed(pet.id, top.id))
-                        let duration = 5 + nextUnitRandom() * 12
+                        let duration = 7 + nextUnitRandom(for: &pet) * 12
                         pet.activity = .windowExcursion
                         pet.activityDuration = duration
                         pet.activityDeadline = time + duration
@@ -945,12 +912,42 @@ public struct PetWorld: Sendable {
     }
 
     private func visualRange(for pet: Pet) -> ClosedRange<CGFloat> {
-        guard let screen = screens.first else {
+        let attachedSurface = pet.attachment.flatMap { surfaces.surface($0.surfaceID) }
+        return visualRange(for: pet, on: attachedSurface)
+    }
+
+    private func visualRange(for pet: Pet, on surface: Surface?) -> ClosedRange<CGFloat> {
+        let hostScreen =
+            surface.flatMap(screenHosting(_:))
+            ?? screens.first(where: { $0.frame.contains(pet.position) })
+            ?? screens.first
+        guard let screen = hostScreen else {
             return -CGFloat.greatestFiniteMagnitude...CGFloat.greatestFiniteMagnitude
         }
         let lower = screen.frame.minX + pet.edgeMargin
         let upper = screen.frame.maxX - pet.edgeMargin
         return lower <= upper ? lower...upper : screen.frame.midX...screen.frame.midX
+    }
+
+    private func screenHosting(_ surface: Surface) -> ScreenDescriptor? {
+        var best: ScreenDescriptor?
+        var bestOverlap: CGFloat = 0
+        for screen in screens {
+            let overlap: CGFloat
+            if surface.isVertical {
+                guard surface.minX >= screen.frame.minX && surface.minX <= screen.frame.maxX else { continue }
+                overlap = max(0, min(surface.maxY, screen.frame.maxY) - max(surface.minY, screen.frame.minY))
+            } else {
+                guard surface.y >= screen.frame.minY && surface.y <= screen.frame.maxY else { continue }
+                overlap = max(0, min(surface.maxX, screen.frame.maxX) - max(surface.minX, screen.frame.minX))
+            }
+            guard overlap > 0 else { continue }
+            if overlap > bestOverlap || (overlap == bestOverlap && screen.id.rawValue < (best?.id.rawValue ?? .max)) {
+                best = screen
+                bestOverlap = overlap
+            }
+        }
+        return best
     }
 
     private mutating func fall(_ pet: inout Pet, dt: Double, events: inout [WorldEvent]) {
@@ -1193,13 +1190,13 @@ public struct PetWorld: Sendable {
                 switch activity {
                 case .walk: weight = 4 * (1.5 - pet.personality.laziness)
                 case .idle: weight = 0.1
-                case .jump: weight = 0.7 * (0.5 + pet.personality.playfulness)
+                case .jump: weight = 1.2 * (0.5 + pet.personality.playfulness)
                 case .sit: weight = 0.1 * (0.5 + pet.personality.laziness)
                 case .sleep: weight = pet.needs.energy > 0.25 ? 0 : 0.2 * (0.5 + pet.personality.laziness)
                 case .stretch: weight = 0.15 * (0.5 + pet.personality.playfulness)
                 case .observe: weight = 0.15 * (0.5 + pet.personality.curiosity)
-                case .explore: weight = 0.8 * (0.5 + pet.personality.curiosity)
-                case .windowExcursion: weight = 0.6 * (0.5 + pet.personality.curiosity)
+                case .explore: weight = 1.0 * (0.5 + pet.personality.curiosity)
+                case .windowExcursion: weight = 1.5 * (0.5 + pet.personality.curiosity)
                 }
             }
             candidates.append(ActivityCandidate(activity, weight: weight))
@@ -1209,7 +1206,7 @@ public struct PetWorld: Sendable {
             ? Activity.sleep
             : ActivitySelector.select(
                 candidates,
-                previous: pet.previousActivity, repetitions: pet.activityRepetitions, random: &random)
+                previous: pet.previousActivity, repetitions: pet.activityRepetitions, random: &pet.random)
         pet.activityDecisionCount += 1
         if !forcedSleep, candidates.contains(where: { $0.weight.isFinite && $0.weight > 0 }) {
             pet.activityRepetitions = selected == pet.previousActivity ? pet.activityRepetitions + 1 : 1
@@ -1217,7 +1214,8 @@ public struct PetWorld: Sendable {
         }
         pet.activity = selected
         let duration = selected.duration
-        pet.activityDuration = duration.lowerBound + (duration.upperBound - duration.lowerBound) * nextUnitRandom()
+        pet.activityDuration =
+            duration.lowerBound + (duration.upperBound - duration.lowerBound) * nextUnitRandom(for: &pet)
         pet.activityDeadline = time + pet.activityDuration
         pet.progressPosition = pet.position
         switch selected {
@@ -1262,7 +1260,7 @@ public struct PetWorld: Sendable {
         let targets = eligibleWindowSideSurfaces(for: pet).sorted { $0.id.rawValue < $1.id.rawValue }
         let identities = Array(Set(targets.compactMap { SurfaceMap.windowIdentity(for: $0.id) })).sorted()
         guard !identities.isEmpty else { return false }
-        let startIndex = Int(random.next() % UInt64(identities.count))
+        let startIndex = Int(pet.random.next() % UInt64(identities.count))
         for offset in 0..<identities.count {
             let identity = identities[(startIndex + offset) % identities.count]
             let sides = targets.filter { SurfaceMap.windowIdentity(for: $0.id) == identity }
@@ -1355,10 +1353,12 @@ public struct PetWorld: Sendable {
         let lowerContact = max(side.minY + geometry.height, startY)
         let upperContact = side.maxY - CGFloat(1 - climbAnchorY) * pet.size.height - 1
         guard upperContact > lowerContact else { return nil }
-        // Jump to the middle of the climbable span, leaving a substantial wall section to climb.
-        let targetY = lowerContact + (upperContact - lowerContact) * 0.5
+        // Land low on the wall so the pet visibly climbs most of the exposed side.
+        let climbableSpan = upperContact - lowerContact
+        guard climbableSpan >= 48 else { return nil }
+        let targetY = max(lowerContact + climbableSpan * 0.3, startY + 48)
         guard targetY >= side.minY + geometry.height,
-            targetY >= startY + 48,
+            targetY <= upperContact,
             targetY.isFinite
         else { return nil }
         return targetY
@@ -1503,8 +1503,8 @@ public struct PetWorld: Sendable {
     private mutating func place(_ pet: inout Pet, events: inout [WorldEvent]) {
         guard let surface = placementSurface(for: pet) else { return }
         guard let range = horizontalPlacementRange(for: pet, on: surface) else { return }
-        let x = range.lowerBound + CGFloat(nextUnitRandom()) * (range.upperBound - range.lowerBound)
-        let facing: Facing = random.next() & 1 == 0 ? .right : .left
+        let x = range.lowerBound + CGFloat(nextUnitRandom(for: &pet)) * (range.upperBound - range.lowerBound)
+        let facing: Facing = pet.random.next() & 1 == 0 ? .right : .left
         pet.facing = facing
         pet.animation.setFacing(facing)
         pet.animation.request(
@@ -1528,8 +1528,8 @@ public struct PetWorld: Sendable {
     }
 
     /// Uniform in `0..<1` from the top 53 bits of the injected source.
-    private mutating func nextUnitRandom() -> Double {
-        Double(random.next() >> 11) * 0x1p-53
+    private func nextUnitRandom(for pet: inout Pet) -> Double {
+        Double(pet.random.next() >> 11) * 0x1p-53
     }
 
     /// Follows a moved surface: same parameter, then clamped into the walkable range (an edge reached this way
@@ -1628,7 +1628,7 @@ public struct PetWorld: Sendable {
         let supportMargin = surface.kind == .windowTop ? geometry.halfWidth : max(geometry.halfWidth, pet.edgeMargin)
         let supportRange = surface.walkableRange(margin: supportMargin)
         guard surface.kind == .windowTop else { return supportRange }
-        let visibleRange = visualRange(for: pet)
+        let visibleRange = visualRange(for: pet, on: surface)
         let lower = max(supportRange.lowerBound, visibleRange.lowerBound)
         let upper = min(supportRange.upperBound, visibleRange.upperBound)
         return lower <= upper ? lower...upper : nil
