@@ -284,7 +284,7 @@ def main():
     for phase, command in [("lint", ["make", "lint"]), ("test-core", ["make", "test-core"]),
                            ("test", ["make", "test"]), ("debug", ["make", "build"]),
                            ("release-tests", [sys.executable, "-m", "unittest", "discover", "-s", "scripts/tests", "-v"]),
-                           ("release-build", xcb + ["-configuration", "Release", "build", arch_setting, "ONLY_ACTIVE_ARCH=NO"])]:
+                           ("release-build", ["make", "build-release"])]:
         run_phase(phase, command, logs, results)
     if (args.rehearsal or args.allow_known_v8_failure) and results["test"]:
         run_phase("ui-separate", xcb + ["-configuration", "Debug", "test"], logs, results)

@@ -179,6 +179,7 @@ permissions or the login item again. See [full installation guidance](docs/devel
 | Command | Purpose |
 |---|---|
 | `make build` | Build the Debug app into `build/DerivedData` |
+| `make build-release` | Build the optimized universal Release app with strict warnings |
 | `make run` | Build and launch the Debug app |
 | `make test-core` | Run the Swift package's Core/Platform/Rendering/Runtime tests |
 | `make test` | Run package tests, then app/UI tests if the package gate passes |

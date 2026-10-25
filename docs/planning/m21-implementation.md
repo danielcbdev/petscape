@@ -322,3 +322,10 @@ exception. Local and fresh hosted builds must validate it before publication.
 Run `40221129574` confirmed the Bool thunk was eliminated, then exposed the identical compiler
 defect for a Double setter (`$sSdScA_pSgIeAghyg_SdIeAghn_TR`). The same forwarding pattern is now
 applied to Size, Speed and Dock offset bindings, preserving their values/ranges and model actions.
+
+Run `40221461065` passed the Debug build and all 7 hosted UI tests, and both 573-test package rounds
+again failed only the approved V8 test. Optimized universal Release compilation exposed Swift 6.2
+losing the implicit default-isolation metadata for MusicDetectionController's isolated deinitializer
+when imported into Runtime. Its class now explicitly declares the same existing MainActor isolation;
+cleanup and callback behavior are unchanged. `make build-release` centralizes the strict universal
+Release gate and runs alongside Debug in the hosted preflight, before the longer test rounds.

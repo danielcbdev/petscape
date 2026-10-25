@@ -15,11 +15,16 @@ IMPORT_OF := ^[[:space:]]*(@[A-Za-z_]+[[:space:]]+)*((public|package|internal|fi
 
 SWIFT_FORMAT_PATHS := PetScape PetScapeUITests $(PACKAGE)/Package.swift $(PACKAGE)/Sources $(PACKAGE)/Tests
 
-.PHONY: build test test-core lint format run
+.PHONY: build build-release test test-core lint format run
 
 build:
 	$(XCODEBUILD) -configuration Debug build
 	@/usr/libexec/PlistBuddy -c 'Print :NSAudioCaptureUsageDescription' "$(APP)/Contents/Info.plist" > /dev/null
+
+# Universal optimized build, also used as the release workflow's early toolchain gate.
+build-release:
+	$(XCODEBUILD) -configuration Release build ARCHS="arm64 x86_64" ONLY_ACTIVE_ARCH=NO
+	@/usr/libexec/PlistBuddy -c 'Print :NSAudioCaptureUsageDescription' "$(DERIVED_DATA)/Build/Products/Release/PetScape.app/Contents/Info.plist" > /dev/null
 
 test: test-core
 	$(XCODEBUILD) -configuration Debug test

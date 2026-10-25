@@ -1,6 +1,7 @@
 import PetScapeCore
 
 /// Opt-in lifecycle, generation fence and session hysteresis. No hardware is touched by initialization.
+@MainActor
 public final class MusicDetectionController {
     public private(set) var status: MusicDetectionStatus = .off
     public var onStatusChange: ((MusicDetectionStatus) -> Void)?

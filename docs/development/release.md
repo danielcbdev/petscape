@@ -131,6 +131,8 @@ Both canonical and release Xcode commands explicitly use `SWIFT_SUPPRESS_WARNING
 warnings-as-errors: Xcode 26 otherwise adds warning suppression to local SwiftPM packages, which
 conflicts with strict warning enforcement. The hosted workflow runs `make build` first to expose
 app/toolchain incompatibilities before the longer package-test rounds.
+The preflight also uses canonical `make build-release` for optimized universal compilation; the
+release script delegates that build gate to the same target, including its Info.plist check.
 
 ## GitHub Actions and publication
 
