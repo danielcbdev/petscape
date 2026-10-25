@@ -1,77 +1,294 @@
 # PetScape
 
-A native macOS app that turns your desktop into a place where small, expressive, autonomous pets
-live — walking on the Dock, climbing screen edges, hopping between windows, napping and playing —
-without ever getting in the way of your work.
+Small autonomous pets for your macOS desktop. They walk along the Dock, jump, climb screen edges,
+rest, react to your cursor and, with your permission, explore window tops or dance to music.
+PetScape lives in the menu bar and lets clicks outside the pets pass through to your work.
 
-> **Status:** M1–M9 accepted by the owner. M9 implementation and Settings UI automation pass; its
-> owner closeout records unverified real login, native cadence and installed-app playtest checks.
-> Build from source below; no release/tag has been published.
-> V4 idle/jump/fall/landing art is integrated ([production notes](assets/characters/cat/v4/README.md)).
-> Rest/expression states currently use held idle poses; window interaction comes later
-> ([roadmap](docs/product/roadmap.md)).
+<p align="center"><img src="assets/characters/cat/walk/walk_preview.gif" width="160" alt="Original prototype walk cycle of the PetScape cat"></p>
 
-<p align="center"><img src="assets/characters/cat/walk/walk_preview.gif" width="160" alt="Prototype walk cycle of the cat"></p>
+## Download and install
 
-## Highlights
+**[Download PetScape v1.0.0 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.0/PetScape-1.0.0-10-universal.dmg)**
 
-- Menu bar app; transparent overlay; clicks pass through everything that isn't a pet.
-- Data-driven animations: swap art by editing a JSON manifest — no code changes.
-- Autonomous behavior: hierarchical state machine + weighted activities, energy and rest.
-- Energy-conscious: rendering stops completely when paused, hidden or the Mac sleeps.
-- 100% native: Swift 6, SwiftUI, AppKit, Core Animation. No third-party dependencies. No network, no telemetry.
+For **Apple silicon and Intel Macs running macOS 14 or later**. The download contains the ready-to-run
+app; installation needs no Xcode, Git, project checkout or build commands.
+
+1. Download the **DMG** above, or find it under **Assets** on the
+   [v1.0.0 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0).
+   Choose `PetScape-1.0.0-10-universal.dmg`; GitHub's **Source code** links are for developers.
+2. Open the downloaded DMG and drag **PetScape.app** onto its **Applications** shortcut. If upgrading,
+   quit the old copy first and confirm replacement. Back up preferences and installed packs first.
+3. Eject the **PetScape 1.0.0** disk image in Finder, then open **Applications → PetScape**.
+4. Look for the **paw icon in the menu bar**. PetScape has no Dock icon; open **Settings…** from the
+   paw menu to manage pets and preferences.
+
+PetScape is **ad-hoc signed and not notarized**. macOS may warn or block opening because the developer
+is not identified by Apple. If you trust the official download and accept the risk, after attempting
+to open it macOS may offer **System Settings → Privacy & Security → Open Anyway**. Read the warning,
+authenticate if asked, and confirm opening. This is your security exception, not Apple verification.
+If macOS reports malware/damage or the option is unavailable, stop and consult the project owner or
+your administrator. Availability depends on OS version and device policy.
+
+See [installation in English and Brazilian Portuguese](docs/development/install.md) for the full
+warning, upgrade and troubleshooting flow. The release carries the documented, owner-approved
+[V8 artwork pixel-QA exception](docs/planning/m21-implementation.md); that failed test remains visible.
+
+### Verify your download
+
+Download the matching
+[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.0/PetScape-1.0.0-10-universal.dmg.sha256)
+to the same folder as the DMG. In Terminal, change to that download folder and run:
+
+```bash
+shasum -a 256 -c PetScape-1.0.0-10-universal.dmg.sha256
+```
+
+Expect `PetScape-1.0.0-10-universal.dmg: OK`. On a mismatch, stop and download both matching files
+again before opening the app. The release also offers a ZIP and its own `.zip.sha256` file; ZIP
+users extract it and drag the app to Applications. `SHA256SUMS` checks **both** formats, so use the
+format-specific file when you download only one. A checksum detects accidental corruption but does
+not independently authenticate the source if package and checksum are both replaced.
+
+## Features
+
+- A native menu bar app with transparent, non-activating pet overlays.
+- Autonomous walking, jumping, climbing, resting, expressions and dancing.
+- Multiple active characters, one pet per unique character pack, with independent movement,
+  animation, behavior and timing. The current bundled character is the cat; additional characters
+  come from locally installed packs.
+- Native Settings with separate Pets, Behavior, Appearance, Interaction and General sections.
+- Per-pet Dance, Stop Dance and Remove controls; shared size, speed and behavior preferences.
+- Local character-pack installation from manifest-and-PNG folders, validated before copying.
+- English and Brazilian Portuguese interface, following your Mac's preferred languages.
+- Simulation/rendering stop while paused, hidden or suspended by system conditions such as sleep,
+  screen lock or a full-screen Space.
+- Swift 6, SwiftUI, AppKit and Core Animation, with no third-party application dependencies.
+- Local operation: no backend, accounts, payments, network requests or telemetry.
 
 ## Requirements
 
-- macOS 14 Sonoma or later (Apple silicon primary; Intel best-effort).
-- To build: Xcode 26 or later (developed with Xcode 27.1 / Swift 6.4).
+| Use | Requirement |
+|---|---|
+| Run PetScape | macOS 14 or later; Apple silicon is the primary supported architecture |
+| Automatic music detection | macOS 14.2 or later and optional system audio consent |
+| Build from source | Xcode 26+ with Swift 6.2+ and the Xcode command-line tools |
+| Build a release ZIP | macOS/Xcode, `python3` standard library and built-in signing/archive tools |
 
-## Usage (working tree)
+Development and M21 packaging were verified on macOS 27.0.1 with Xcode 27.1 / Swift 6.4.
+Release DMG/ZIP packages are **universal**, containing arm64 and x86_64 executables. Both slices
+are built and signature-verified; native Intel execution and clean macOS 14–26 installation remain
+unverified. A paid Apple Developer Program account is not required for the current ad-hoc build path.
 
-Build and launch from a clone (Xcode 26+ installed):
+## Build and run from source (development)
+
+Select a full Xcode installation as the active developer directory, then clone and run:
 
 ```bash
+git clone https://github.com/danielcbdev/petscape.git
+cd petscape
 make run
 ```
 
-- PetScape lives in the menu bar (paw icon); it has no Dock icon. **Settings…** opens its native
-  preferences window.
-- A cat walks on top of the Dock, turns at screen edges and chooses short jumps, idle, rest and
-  ambient activities. Clicks anywhere except
-  on the cat's own pixels go to whatever is underneath; clicking the cat never takes focus.
-- **Hide Pet / Show Pet** removes or restores the cat; **Pause / Resume** freezes it in place. Both choices are
-  remembered after relaunch. **Quit PetScape** (⌘Q) exits.
-- With the Dock set to hide automatically, or placed on the left or right, the cat walks on the bottom edge of
-  the screen instead. It follows Dock size and position changes and display changes within about a second.
-- The cat disappears while a full-screen app is in front, and nothing is drawn while the Mac sleeps, the
-  screen is locked or the display is off.
-- Overlay and manual dance need no special permission. Window interaction asks for Accessibility only after opt-in. Optional music detection asks for system audio access on macOS 14.2+; audio is analyzed locally, never saved or sent. No Screen Recording or microphone permission is requested. See [permissions](docs/specifications/permissions.md).
-- In **Settings…**, change pet size/speed and enable or disable autonomous activities, jumping, resting
-  and expressions. Changes apply immediately and persist. **Wake Pet** exits sleep; **Restore Defaults**
-  resets PetScape choices and disables its login item.
-- If the paws float above or sink into the Dock, use **Settings › Advanced › Dock offset** (−40…+40 pt).
-- **Launch at login** changes only when explicitly toggled. Its status reflects macOS; approval, when
-  needed, is managed in System Settings › General › Login Items.
+Alternatively, open `PetScape.xcodeproj`, select the shared `PetScape` scheme and run it in Xcode.
+There is no package-manager bootstrap step. See [development setup](docs/development/setup.md)
+for toolchain selection, signing settings and build details.
 
-## Documentation
+Look for the **paw icon in the menu bar**; PetScape has no Dock icon. Open **Settings…** from that
+menu. **Hide Pet / Show Pet** and **Pause / Resume** apply to the active roster and persist across
+launches. **Quit PetScape** (⌘Q) exits the app. Clicking or dragging a pet does not intentionally
+activate PetScape or take keyboard focus from your current app.
 
-| Topic | Link |
+## Settings and everyday use
+
+| Section | Controls |
 |---|---|
-| Vision, requirements, scope, roadmap | [docs/product/](docs/product/vision.md) |
-| Architecture | [docs/architecture/overview.md](docs/architecture/overview.md) |
-| Specifications (assets, schema, coordinates, permissions, performance) | [docs/specifications/](docs/specifications/animation-schema.md) |
-| Decisions (ADRs) | [docs/decisions/](docs/decisions/README.md) |
-| Plan, milestones, tasks, acceptance criteria | [docs/planning/](docs/planning/implementation-plan.md) |
-| Development setup, conventions, testing, debugging, release | [docs/development/](docs/development/setup.md) |
-| Full index | [docs/README.md](docs/README.md) |
+| **Pets** | Add Character, active-pet Dance/Stop Dance/Remove, character catalog and Install Character Pack… |
+| **Behavior** | Autonomous activities, jumping, resting, expressions, optional Dance to music and Restart Music Detection |
+| **Appearance** | Shared size/speed and Dock offset adjustment (−40…+40 pt) |
+| **Interaction** | Cursor reactions, click/drag interaction and optional window interaction |
+| **General** | Pause/hide, Wake Pet, launch at login, language guidance and Restore Defaults |
 
-## Working with AI agents
+Pet settings apply immediately. The active roster is restored after relaunch; removing a pet from
+it does not uninstall its pack. An intentionally empty roster stays empty. Restore Defaults resets
+app settings, disables optional window/music interaction and turns off the login item while
+preserving the roster and installed packs.
 
-[AGENTS.md](AGENTS.md) is the canonical instruction file for Codex, Claude Code and Cursor;
-[CLAUDE.md](CLAUDE.md), [CODEX.md](CODEX.md) and `.cursor/rules/` add tool-specific details.
+Manual **Dance** is available for eligible active pets with autonomous activities enabled; it does
+not need audio permission. Choose the pet in the menu's Dance/Stop Dance submenu or use its Settings
+row. Individual packs may use a still-pose fallback when special artwork is unavailable.
+
+With a hidden Dock or a Dock on the left/right, pets use the screen bottom. If paws appear above
+or below the Dock, adjust **Settings → Appearance → Dock offset**. Dock placement uses a public-API
+estimate and spans the screen width, rather than the Dock shelf's exact horizontal ends.
+
+The interface follows your Mac's preferred languages, with English fallback. Restart PetScape if a
+system language change is not reflected. There is no separate in-app language selector.
+
+## Install a character pack
+
+1. Prepare a local **folder** with a schema-v1 `character.json` at its root and every referenced PNG
+   at the manifest-relative path. An archive/ZIP is not an accepted character-pack input.
+2. Open **Settings → Pets → Install Character Pack…** and select that folder.
+3. After validation and installation finish, use **Add Character** or **Add** in the catalog.
+   Installing a pack does not automatically add its pet to the desktop.
+
+Installed packs live at:
+
+```text
+~/Library/Application Support/PetScape/Characters/<character-id>
+```
+
+Each pack needs a unique manifest ID. Duplicate IDs and overwriting/updating existing packs are
+rejected. Invalid or missing packs are omitted from the catalog with status information. To uninstall
+a pack, quit PetScape, remove its folder in Finder and relaunch; there is no in-app uninstall action.
+
+See the [animation/manifest schema](docs/specifications/animation-schema.md) and
+[import resource/security limits](docs/planning/milestones.md#m19--character-pack-discovery-and-installation)
+before authoring a pack. Characters are data, not executable plug-ins.
+
+## Privacy and optional permissions
+
+Basic desktop pets, cursor interaction and manual dancing require no special privacy permission.
+Opening Settings alone does not request optional consent.
+
+| Feature | Permission and scope |
+|---|---|
+| **Interact with windows** | Opt-in Accessibility access to read window geometry; never window titles/contents or control of other apps' windows |
+| **Dance to music** | Opt-in System Audio Recording access on macOS 14.2+; sound is analyzed locally in memory, never saved or sent |
+| **Launch at login** | Explicit toggle using macOS Login Items; macOS may require approval in System Settings → General → Login Items |
+
+PetScape does not request Screen Recording, microphone, Input Monitoring, Automation or Full Disk
+Access. Music recognition classifies system output; it is not a media-player connection and can
+miss or misclassify audio. See the [permission flows and evidence limits](docs/specifications/permissions.md).
+
+## Release packages and updates
+
+The [GitHub release](https://github.com/danielcbdev/petscape/releases/latest) contains a universal DMG,
+an alternative ZIP, per-format SHA-256 files, `SHA256SUMS` and release notes. The DMG includes the
+complete app, Applications shortcut, installation notes and source/art license notices. Both formats
+include an internal file inventory; after mounting or extracting, run `shasum -a 256 -c CONTENTS.sha256`
+from that folder for an additional integrity check.
+
+Quit PetScape before replacing the app in `/Applications`. Preferences and local character packs
+remain in your user account; back them up before upgrading. There is no automatic updater or
+migration guarantee for downgrades. An ad-hoc signature change may require reviewing optional OS
+permissions or the login item again. See [full installation guidance](docs/development/install.md).
+
+## Development and checks
+
+| Command | Purpose |
+|---|---|
+| `make build` | Build the Debug app into `build/DerivedData` |
+| `make run` | Build and launch the Debug app |
+| `make test-core` | Run the Swift package's Core/Platform/Rendering/Runtime tests |
+| `make test` | Run package tests, then app/UI tests if the package gate passes |
+| `make lint` | Check Swift formatting and module boundaries |
+| `make format` | Apply the repository's Swift formatting |
+| `python3 -B -m unittest discover -s scripts/tests -v` | Test release input validation and failure boundaries |
+
+XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
+No product privacy permission should be enabled as a workaround for test setup.
+
+The latest M21 full rehearsals passed lint, Debug/Release/archive builds, all 13 release-tool tests
+and a separately executed 7-test UI suite. The package gate ran 573 tests and failed the existing
+M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
+Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
+For v1.0.0 only, the owner explicitly approved the exact known V8 failure as a disclosed release
+exception. That opt-in requires every other gate, including separately run UI tests, to pass.
+Earlier transient runtime/UI failures and Xcode tooling warnings are retained in the
+[complete M21 evidence](docs/planning/m21-implementation.md); these results are not an all-green CI claim.
+
+## Build a release candidate
+
+The same script drives local and GitHub Actions packaging. From a clean checkout, choose a stable
+version and a fresh increasing build number; for example:
+
+```bash
+scripts/release.sh 1.0.0 10
+```
+
+It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
+creates universal DMG/ZIP packages with notes/install instructions/checksums, mounts/extracts them
+and verifies them again.
+It writes to ignored `dist/release/PetScape-VERSION-BUILD-arm64/` without modifying version configs.
+Any failed gate prevents normal packaging. The explicitly approved v1.0.0 exception requires
+`--allow-known-v8-failure`; its versioned policy and complete raw test logs are checked before it
+is applied. Other failures always block. The script itself creates no tag and publishes nothing.
+
+For diagnostic local work with uncommitted edits:
+
+```bash
+scripts/release.sh 1.0.0 10 --rehearsal
+```
+
+Rehearsal uses `dist/rehearsal/`, may create a ZIP marked **NOT FOR PUBLICATION**, and still returns
+nonzero when a gate fails. Existing output directories are never overwritten. This mode does not
+waive V8 or permit publication.
+
+The [release workflow](.github/workflows/release.yml) is manual and defaults to `publish=false`.
+A separate `allow_known_v8_failure=false` input controls the version-specific exception.
+It uses Xcode 26.2 on the standard `macos-26` runner, checks repository visibility before scheduling
+macOS, pins actions and retains artifacts/logs for seven days. The optional draft-release job alone
+gets write permission and requires an already existing `vVERSION` tag at the selected `main` commit.
+It never creates or pushes tags. Initial manual availability requires the workflow on the default
+branch. Actual publication and hosted-run evidence are recorded in the release notes and
+[M21 record](docs/planning/m21-implementation.md).
+
+See the [release runbook](docs/development/release.md) for prerequisites, visibility/billing policy,
+artifact layout, local fallback and owner-controlled publication steps.
+
+## Project structure
+
+```text
+PetScape/                         SwiftUI app, menu and Settings
+Packages/PetScapeKit/Sources/
+  PetScapeCore/                   Pure Swift simulation, behavior, physics and animation
+  PetScapePlatform/               macOS adapters, permissions and preferences
+  PetScapeRendering/              Core Animation overlays and frame resources
+  PetScapeRuntime/                Main-actor orchestration and pet lifecycle
+assets/characters/               Original character assets and manifests
+scripts/                         Asset tooling and release entry point/tests
+docs/                            Product, architecture, specifications, plans and evidence
+```
+
+The simulation uses a fixed 60 Hz step; Core Animation displays its snapshots. Platform and
+Rendering meet in Runtime and do not import each other. See the
+[architecture overview](docs/architecture/overview.md) and [ADRs](docs/decisions/README.md).
+
+## Troubleshooting
+
+- **No pet visible:** check the paw menu's Show Pet/Resume controls, then Settings → Pets for an
+  active character or load error. A full-screen Space or system suspension can hide the overlay.
+- **Music plays but no dance:** enable autonomy, confirm optional System Audio Recording access,
+  and use Settings → Behavior → Restart Music Detection. After suspension, music may need to stop
+  and start again. Manual Dance remains independent of audio consent.
+- **No window interaction:** enable the optional setting and review Accessibility access; PetScape
+  pauses window interaction when permission is missing.
+- **A pack is unavailable:** check its manifest, referenced PNGs, unique ID and documented limits;
+  restart after external edits or removal.
+- **A downloaded app is blocked or its checksum fails:** follow the
+  [installation troubleshooting](docs/development/install.md); no warning-free opening is promised.
+
+For logs and reproducible diagnostics, see [debugging](docs/development/debugging.md).
+Report bugs through [GitHub Issues](https://github.com/danielcbdev/petscape/issues), including macOS,
+architecture, build/version, reproduction steps and relevant logs without private information.
+
+## Documentation and contributing
+
+Start with [AGENTS.md](AGENTS.md), [conventions](docs/development/conventions.md) and
+[testing](docs/development/testing.md). Keep changes scoped, add deterministic tests for domain
+logic and update relevant documentation. Do not modify original artwork under `assets/`.
+
+| Topic | Reference |
+|---|---|
+| Product and roadmap | [Vision](docs/product/vision.md), [requirements](docs/product/requirements.md), [roadmap](docs/product/roadmap.md) |
+| Plans and status | [Milestones](docs/planning/milestones.md), [tasks](docs/planning/task-breakdown.md), [acceptance criteria](docs/planning/acceptance-criteria.md) |
+| Changes | [Changelog](CHANGELOG.md) |
+| Distribution and remaining evidence | [Release process](docs/development/release.md), [M21 closeout](docs/planning/m21-implementation.md) |
+| Full documentation index | [docs/README.md](docs/README.md) |
 
 ## License
 
-Source code: [MIT](LICENSE). The license for the character art is still to be decided (open
-decision D-08 in [risks.md](docs/planning/risks.md)); until then the art is not covered by the MIT
-license.
+Source code is licensed under [MIT](LICENSE). The project owner authorized distributing the bundled
+art with PetScape; its rights are reserved and it is **not covered by the MIT license**. See
+[ARTWORK-LICENSE.md](ARTWORK-LICENSE.md). Imported packs remain subject to their authors' terms.

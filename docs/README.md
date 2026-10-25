@@ -44,4 +44,5 @@ Each topic has exactly one owning document; others link to it.
 | | [conventions.md](development/conventions.md) | Code style and rules |
 | | [testing.md](development/testing.md) | Test strategy, manual matrix |
 | | [debugging.md](development/debugging.md) | Logging, debug overlays, profiling |
-| | [release.md](development/release.md) | Versioning, signing, notarization, CI/CD plan |
+| | [release.md](development/release.md) | Universal DMG/ZIP, ad-hoc signatures, checksums, release exception and publication |
+| | [install.md](development/install.md) | English/pt-BR installation, upgrades and Gatekeeper guidance |

@@ -18,7 +18,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M7 | Basic physics | v0.2.0 | **Done** (2026-10-18: implemented; automated evidence plus owner confirmation of all remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M8 | Jumps & landings | v0.2.0 | **Done** (2026-10-18: jumps/V4 implemented and approved; automated evidence plus owner confirmation of remaining tests and explicit closure — [owner closeout](m7-m8-technical-review.md#owner-m7m8-closeout-2026-10-18)) |
 | M9 | Autonomous behaviors & Settings v1 | v0.3.0 | **Done by owner acceptance** (2026-10-18: 400 package tests, 2 UI tests, lint and Debug/Release pass; owner accepted documented gaps in real login-item action, native sleep cadence and installed-app playtest — [closeout](m9-implementation.md#owner-m9-closeout-2026-10-18)) |
-| M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)) |
+| M10 | Cursor interaction & dragging | v0.4.0 | **Done by owner acceptance** (2026-10-22; native/performance evidence limits remain in the [closeout](m10-implementation.md#owner-m10-closeout--2026-10-22)) |
 | M11 | Edge climbing | v0.4.0 | **Done by owner acceptance** (2026-10-22 — [record](m11-implementation.md#owner-closeout--2026-10-22)) |
 | M12 | Window detection | v0.5.0 | **Done by owner acceptance** (2026-10-23; native evidence limits accepted — [closeout](#m12-owner-closeout--2026-10-23)) |
 | M13 | Window interaction | v0.5.0 | **Done by owner acceptance** (2026-10-23 — [closeout](#m13-owner-closeout--2026-10-23)) |
@@ -28,8 +28,8 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M17 | Portuguese/English localization | — | **Done by explicit owner acceptance** (2026-10-24; native visual/VoiceOver/live locale checks unverified, package-run exceptions retained — [closeout](#owner-m17-closeout--2026-10-24)) |
 | M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
 | M19 | Character pack discovery and installation | — | **Done by explicit owner acceptance** (2026-10-24; real-pack/manual/VoiceOver/performance evidence limits retained — [closeout](#owner-m19-closeout--2026-10-24)) |
-| M20 | Settings redesign & multiple active characters | — | **Done by explicit owner acceptance** (2026-10-25; minimum-window, native accessibility/keyboard, and matched Release resource checks remain unverified; package test run retains the existing M15 V8 pixel-QA exception — [closeout](m20-implementation.md#owner-closeout-2026-10-25)) |
-| M21 | Release pipeline | v1.0.0 | Not started |
+| M20 | Settings redesign & multiple active characters | — | **Done by explicit owner acceptance** (2026-10-25; minimum-window, native accessibility/keyboard, and matched Release resource checks remain unverified; package test run retains the existing M15 V8 pixel-QA exception — [closeout](m20-implementation.md#owner-closeout--2026-10-25)) |
+| M21 | Reproducible ad-hoc release pipeline | v1.0.0 | **Done by owner-directed local closeout** (2026-10-25; V8 still blocks strict release; hosted/clean-install evidence unverified — [closeout](m21-implementation.md#owner-directed-local-closeout--2026-10-25)) |
 
 M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
 Baseline HEAD is 2f7f33f; M6 is merged, but v0.1.0 remains unreleased. M9 is reauthorized; no
@@ -422,7 +422,7 @@ in [AC-M13-01](acceptance-criteria.md) and [performance.md](../specifications/pe
 - **Prerequisites:** M14 accepted; current character pack and schema-v1 contracts.
 - **Risks:** inconsistent generated art, contact/anchor jitter, event drift, increased decoded image memory.
 - **Tests:** manifest/schema/path and image QA; existing Core/Rendering pack tests; preview each changed clip and adjacent transitions at the real manifest timing.
-- **DoD:** AC-M15-01…06 in [acceptance criteria](acceptance-criteria.md#milestone-specific-criteria); delivery and remaining owner actions in [M15 record](m15-implementation.md).
+- **DoD:** AC-M15-01…06 in [acceptance criteria](acceptance-criteria.md#m15--animation-quality); delivery and remaining owner actions in [M15 record](m15-implementation.md).
 
 ## M16 — New behaviors and animations
 
@@ -548,7 +548,7 @@ performed for M18. The later closeout separately authorizes the local Git integr
 |---|---|
 | Core | [PetWorld.swift](../../Packages/PetScapeKit/Sources/PetScapeCore/World/PetWorld.swift) |
 | Platform | [PreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/PreferencesStore.swift), [InMemoryPreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/InMemoryPreferencesStore.swift), [UserDefaultsPreferencesStore.swift](../../Packages/PetScapeKit/Sources/PetScapePlatform/Preferences/UserDefaultsPreferencesStore.swift) |
-| Runtime | [BundledCharacterCatalog.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/BundledCharacterCatalog.swift), [CharacterLoader.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterLoader.swift), [CharacterSelectionModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterSelectionModel.swift), [PetRuntime.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/PetRuntime/PetRuntime.swift), [SettingsModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Settings/SettingsModel.swift) |
+| Runtime | `BundledCharacterCatalog.swift` (current successor: [CharacterCatalog.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterCatalog.swift)), [CharacterLoader.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterLoader.swift), `CharacterSelectionModel.swift` (M20 replacement: [CharacterRosterModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Characters/CharacterRosterModel.swift)), [PetRuntime.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/PetRuntime/PetRuntime.swift), [SettingsModel.swift](../../Packages/PetScapeKit/Sources/PetScapeRuntime/Settings/SettingsModel.swift) |
 | App | [AppContainer.swift](../../PetScape/App/AppContainer.swift), [SettingsView.swift](../../PetScape/SettingsView.swift) |
 | Tests | [CharacterReplacementTests.swift](../../Packages/PetScapeKit/Tests/PetScapeCoreTests/World/CharacterReplacementTests.swift), [BundledCharacterSelectionTests.swift](../../Packages/PetScapeKit/Tests/PetScapeRuntimeTests/Characters/BundledCharacterSelectionTests.swift), [CharacterSwitchRuntimeTests.swift](../../Packages/PetScapeKit/Tests/PetScapeRuntimeTests/PetRuntime/CharacterSwitchRuntimeTests.swift), [PreferencesStoreTests.swift](../../Packages/PetScapeKit/Tests/PetScapePlatformTests/PreferencesStoreTests.swift), [PetScapeSettingsTests.swift](../../PetScapeUITests/PetScapeSettingsTests.swift) |
 | Documentation | [AGENTS.md](../../AGENTS.md), [data-flow.md](../architecture/data-flow.md), [testing.md](../development/testing.md), [milestones.md](milestones.md), [task-breakdown.md](task-breakdown.md), [acceptance-criteria.md](acceptance-criteria.md) |
@@ -672,14 +672,28 @@ The existing M15 V8 pixel-QA exception remains a failed package gate, not a prod
 and complete keyboard traversal, supported-minimum Settings size, and matched native Release CPU/
 physical-footprint comparison remain unverified and accepted evidence limits. The separate UI suite,
 Debug/Release builds, real Dimas pack integration and focused autonomy/window-climb tests are recorded
-in the [M20 implementation closeout](m20-implementation.md#owner-closeout-2026-10-25). M21, tags,
+in the [M20 implementation closeout](m20-implementation.md#owner-closeout--2026-10-25). M21, tags,
 releases and PRs remain out of scope.
 
 ## M21 — Release pipeline
 
-- **Objective:** reproducible, signed, notarized releases on GitHub.
-- **Scope:** owner decisions (license, bundle ID, Developer ID), versioning, changelog, archive/export, notarization, DMG, GitHub Actions release workflow, install docs.
-- **Prerequisites:** preceding product milestones accepted; Apple Developer Program membership.
-- **Risks:** secrets handling in CI; notarization failures.
-- **Tests:** dry-run release on a tag in a fork/branch; Gatekeeper check on a clean machine/VM.
-- **DoD:** FR-30 met; v1.0.0 published when asked.
+- **Objective:** produce a repeatable macOS release package and GitHub release workflow without paid Apple Developer membership.
+- **Authorization:** the owner explicitly requested end-to-end M21 local implementation on 2026-10-25 using `feature/T21-adhoc-release`, without paid Apple membership. No commit, push, tag, PR or release is authorized. Do not add Developer ID, notarization, App Store distribution or Apple credentials. See the [implementation and evidence](m21-implementation.md).
+- **Status:** **Done by owner-directed local closeout**, 2026-10-25. After receiving the completed implementation and its explicit evidence limits, the owner directed finalization and a comprehensive README update. All local script/workflow/package/test/documentation work is delivered. Diagnostic packaging passes integrity checks but returns nonzero for the existing V8 gate; normal release remains blocked. Hosted dry-run and clean supported-macOS installation/Gatekeeper behavior remain unverified, not passed. Local milestone closure does not waive a gate or authorize Git integration/publication. See the [closeout](m21-implementation.md#owner-directed-local-closeout--2026-10-25).
+- **Scope:** version/changelog validation, Release archive, ad-hoc code signature, DMG or ZIP packaging, SHA-256 checksum, minimal-permission GitHub Actions build/release workflow, and English/pt-BR installation and security guidance. Provide a local release script using the same steps as CI. A dry-run must not publish a release.
+- **Signing and Gatekeeper contract:** ad-hoc signature permits integrity verification but does not identify a developer. The artifact cannot be notarized, and downloaded copies may trigger Gatekeeper warnings or require a user-approved override in System Settings. Do not claim `spctl --assess` acceptance, notarization, identified-developer status or warning-free launch. Never disable Gatekeeper or strip quarantine attributes as a product workaround. Explain the supported manual override cautiously and only for users who trust the downloaded artifact and verified its checksum.
+- **Prerequisites:** M20 accepted; no paid Apple Developer Program membership is available or required for this M21 scope. Confirm repository visibility and GitHub Actions runner/usage constraints before selecting automation.
+- **Risks:** Gatekeeper friction and reduced provenance/identity assurances; artifact/checksum replacement together remains possible; GitHub Actions minutes/storage may be quota-limited for private repositories.
+- **Verification:** local Release build/package and signature-integrity checks; checksum round-trip; CI dry-run that uploads an artifact without publishing; release-workflow permissions and dependency review; installation on a clean supported macOS environment to record the actual Gatekeeper flow. Run and report all existing quality gates, preserving the accepted M15 V8 failure accurately.
+- **Definition of Done:** AC-M21-01…AC-M21-08 pass; a clean Release artifact can be built locally and by CI without Apple credentials; package, version and checksum are validated; installation instructions describe the real security prompts; no code/docs/workflow item in M21 remains. Publishing v1.0.0, creating a tag, pushing, or overriding a failing pre-existing quality gate requires a separate explicit owner instruction.
+
+### v1.0.0 publication authorization — 2026-10-25
+
+The owner subsequently explicitly requested Git integration, updating branches and publishing a
+release with a ready-to-install download linked from the README. Commit/merge/push/tag/publication
+are now authorized for this release. The owner also expressly approved publishing v1.0.0 with the
+existing V8 48-issue pixel-QA exception documented, keeping the failed test and original assets
+unchanged; all other gates must pass. D-08 is resolved by owner confirmation of art redistribution
+in the app with rights reserved, while source remains MIT. Official packages are universal
+arm64/x86_64 DMG and ZIP for macOS 14+. Native Intel/clean-machine evidence remains unverified.
+Actual publication and CI results: [M21 publication follow-up](m21-implementation.md#v100-publication-follow-up--2026-10-25).

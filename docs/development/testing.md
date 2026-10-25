@@ -1,5 +1,22 @@
 # Testing Strategy
 
+## M21 release verification
+
+Run `python3 -B -m unittest discover -s scripts/tests -v` for input/changelog validation,
+missing/altered resources, checksum corruption, metadata/signature rejection and strict gate failure.
+`scripts/release.sh VERSION BUILD [--rehearsal]` records canonical gates and artifact verification
+under ignored `dist/`; rehearsal never turns a failed gate into success. Do not suppress V8 pixel QA.
+See [release process](release.md) and [M21 evidence](../planning/m21-implementation.md).
+
+| Manual release check | Expected | M21 evidence |
+|---|---|---|
+| Download ZIP and checksum on a clean supported Mac | External checksum and extracted inventory report `OK` | Not verified on a clean Mac |
+| Copy to Applications and first launch | Record exact OS, architecture, warning, available macOS approval path and menu-bar launch | Not verified; local extraction is not a Gatekeeper test |
+| Upgrade an existing installed app | Preferences/packs retained; optional consent/login state reviewed | Not verified for downloaded M21 package |
+| Managed Mac and minimum macOS 14 | Record policy blocks or approval availability honestly | No hardware/environment available |
+
+Keep macOS security choices interactive. A successful user-approved launch is not Apple verification.
+
 ## Owner M7/M8 acceptance update (2026-10-18)
 
 The owner reports all remaining M7/M8 tests complete and explicitly requests closure; both

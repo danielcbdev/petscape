@@ -3,7 +3,39 @@
 All notable user-visible changes. Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions follow [Semantic Versioning](https://semver.org/). Release process: [release.md](docs/development/release.md).
 
-## [Unreleased] — v0.1.0 (MVP, not tagged)
+## [Unreleased]
+
+## [1.0.0] - 2026-10-25
+
+First public distribution: universal macOS 14+ DMG and ZIP, installed by dragging PetScape.app to
+Applications. No Xcode or project checkout is needed for installation.
+
+### Added
+
+- Autonomous pets with jumping, landing, climbing, resting and expression animations.
+- Optional window interaction through Accessibility and local music detection with manual dance controls.
+- Native Settings sections, English/Brazilian Portuguese localization and launch-at-login controls.
+- Local character-pack installation and a persisted roster of independently simulated characters.
+- Reproducible ad-hoc Release archives and universal DMG/ZIPs with release notes, bilingual install
+  guidance, internal file inventory and an external SHA-256 checksum.
+- Manual GitHub Actions packaging with strict quality gates and opt-in draft release creation for an
+  existing version tag. No Apple signing credentials or notarization are required or provided.
+
+### Security
+
+- Distributed builds have an ad-hoc signature without identified-developer assurance or Apple
+  notarization. Gatekeeper warnings/blocks are possible; opening is an explicit user trust decision.
+
+### Known limitations
+
+- The historical M15 V8 pixel-QA failure (48 issues) remains failed. The owner explicitly authorized
+  a narrowly scoped exception for v1.0.0; all other release gates must pass.
+- Clean-machine installation, actual Gatekeeper warnings and native Intel execution remain
+  unverified; cross-built x86_64 and arm64 signatures are validated.
+- Source code is MIT. The owner authorized art distribution in the app with rights reserved; see
+  `ARTWORK-LICENSE.md`. Historical art/provenance records remain unchanged.
+
+## MVP implementation history (unreleased, originally targeted v0.1.0)
 
 ### Added
 

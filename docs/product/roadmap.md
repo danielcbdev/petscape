@@ -40,7 +40,7 @@ flowchart LR
 | v0.3.0 | M9 | Autonomous life + Settings v1 |
 | v0.4.0 | M10–M11 | Cursor, dragging, climbing |
 | v0.5.0 | M12–M13 | Window-aware pets (opt-in Accessibility) |
-| v1.0.0 | M14–M21 | Multi-display, stabilization, animation quality, multiple active characters, notarized release pipeline |
+| v1.0.0 | M14–M21 | Multi-display, stabilization, animation quality, multiple active characters, ad-hoc release package and GitHub workflow |
 | later | — | Pet-to-pet interactions and Dock climbing on left/right edges (FR-41, FR-43) |
 
 ## Art dependencies

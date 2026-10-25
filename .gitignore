@@ -25,6 +25,7 @@ Packages/*/.swiftpm/
 *.dmg
 *.zip
 dist/
+__pycache__/
 
 # Signing & secrets (never commit)
 *.p12

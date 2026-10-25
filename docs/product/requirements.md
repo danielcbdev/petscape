@@ -45,7 +45,7 @@ Priority: **MVP** (first release), **Next** (scheduled post-MVP milestone), **Fu
 | FR-27 | Detection of other apps' windows (opt-in, permission requested only when enabled). | M12 |
 | FR-28 | Walking on window top edges, riding moving windows, reacting to closed/minimized windows. | M13 |
 | FR-29 | Multiple displays: pets can live on and move between displays. | M14 |
-| FR-30 | Signed, notarized DMG published on GitHub Releases. | M21 |
+| FR-30 | Repeatable macOS Release package with ad-hoc signature integrity verification, SHA-256 checksum, installation/security guidance, and an opt-in GitHub Releases workflow; no Developer ID identity or Apple notarization is promised. | M21 |
 | FR-40 | Multiple simultaneous pets, with at most one active pet per character pack and independent behavior/runtime state. | M20 |
 | FR-42 | Additional characters selectable in Settings. | M18–M19 |
 | FR-44 | User-installed character packs from `~/Library/Application Support/PetScape/Characters`. | M19 |

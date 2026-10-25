@@ -64,11 +64,34 @@ The owner explicitly authorized end-to-end M20 on 2026-10-25 and accepted its cl
 after testing the final autonomous animation-variation refinement. M20 is Done with retained evidence
 limits: VoiceOver/keyboard, minimum supported window size, and matched Release resource evidence
 remain unverified, and the package gate retains the known M15 V8 pixel-QA exception. The owner also
-authorized branch commit, local merge into `develop`, and push; no tag, release, PR, or M21 work is
-implied. See
+authorized branch commit, local merge into `develop`, and push; no tag, release or PR was implied
+by that closeout. The owner subsequently authorized end-to-end M21 local implementation on
+2026-10-25 and specified that no paid Apple Developer Program account will be used. M21 follows
+the ad-hoc, non-notarized release policy in [release.md](docs/development/release.md), with
+implementation/evidence in [m21-implementation.md](docs/planning/m21-implementation.md).
+The M21 instruction authorizes its feature branch but no commit, push, tag, PR or release. See
 [milestones](docs/planning/milestones.md),
 [tasks](docs/planning/task-breakdown.md) and [acceptance criteria](docs/planning/acceptance-criteria.md).
-Do not implement M21 without an explicit instruction naming the milestone/task.
+Do not create a tag or publish a release without an explicit instruction to do so.
+
+M21 is **Done by owner-directed local closeout** (2026-10-25): after receiving the implementation
+and its evidence limits, the owner requested finalization and a complete README update. The
+script/workflow/ZIP/checksum/tests/docs are delivered, with repeated validated diagnostic packaging.
+The existing V8 gate still blocks strict release; hosted dry-run and clean-machine Gatekeeper
+behavior remain unverified. Closure does not turn those criteria into passes, waive any release
+gate, or authorize commit, merge, push, tag, PR or publication. See the
+[M21 closeout](docs/planning/m21-implementation.md#owner-directed-local-closeout--2026-10-25).
+
+**v1.0.0 publication follow-up (2026-10-25):** the owner subsequently explicitly authorized the
+full Git integration/update, tag and public release process, with a ready-to-install download
+linked from the README. This later instruction supersedes the original local-only Git/publication
+boundary for this release. The owner separately authorized publishing v1.0.0 with the exact known
+48-issue V8 pixel-QA exception disclosed (test and original assets unchanged), and confirmed art
+redistribution in the app with art rights reserved and source MIT. See
+[release policy](docs/development/release.md) and [ARTWORK-LICENSE.md](ARTWORK-LICENSE.md).
+Official packages now use a universal arm64/x86_64 DMG plus ZIP alternative for macOS 14+.
+The exception is opt-in, version-scoped and fails closed on any other failure; native Intel and
+clean-machine Gatekeeper evidence are still not claimed. Never infer approval for future releases.
 
 ## 2. Stack
 

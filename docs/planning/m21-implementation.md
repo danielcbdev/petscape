@@ -1,0 +1,288 @@
+# M21 — Ad-hoc release pipeline
+
+Authorized on 2026-10-25 for local implementation only. No commit, push, tag, PR or release is
+authorized. Pre-existing planning/policy changes in the working tree are preserved.
+
+## Design and execution plan
+
+Use `scripts/release.sh VERSION BUILD [--rehearsal]` as the single local/CI entry point. Keep
+`Config/Base.xcconfig` development defaults; pass release versions as build settings. Stable
+three-component versions and positive increasing integer build numbers are validated before work.
+Versioned changelog sections or the explicitly unreleased changelog supply the notes.
+
+Choose ZIP over DMG: system `ditto` preserves the signed app hierarchy without mounting a disk
+image or introducing layout tooling. Include notes, installation guidance and an internal SHA-256
+inventory of bundle files; publish an external ZIP checksum alongside it. Extract with `ditto`,
+verify both inventories, metadata, original referenced resources and ad-hoc signature again.
+Repeatable means the same process and verified contents, not byte-identical Xcode archives.
+
+Default release mode requires a clean checkout and every gate to pass. Rehearsal accepts local
+edits, runs every gate, and may create an explicitly diagnostic package after quality-gate failures;
+it still exits nonzero and can never be used by the publishing job. Structural, signing, version,
+archive and checksum failures always abort packaging. No asset or test exception is waived.
+
+1. T21.1–2: inspect identity/toolchain/visibility, validate inputs and changelog; add failure tests.
+2. T21.3–4: canonical gates, Release archive, strict bundle checks, ZIP/checksums and extraction.
+3. T21.5: manual dry-run workflow, immutable actions and separate opt-in draft publication job
+   for an already existing `vVERSION` tag at the selected `main` commit; never create tags.
+4. T21.6: English repository documentation and bilingual packaged installation instructions.
+5. T21.7: run local gates, controlled failures, archive/package rehearsals and record exact evidence.
+
+Review focus: unsafe version/path input; missing or altered assets; metadata/signature mismatch;
+checksum corruption; gate failure reaching publication; tag/source mismatch; stale output reuse.
+Tests exercise these boundaries without changing original assets. Remote Actions and clean-machine
+Gatekeeper testing require external evidence and must stay unverified until actually run.
+
+## Evidence
+
+Local implementation and verification complete, with the failed/external gates below retained.
+Environment: macOS 27.0.1, Xcode 27.1 (27A9275),
+Apple silicon. Repository `danielcbdev/petscape` is PUBLIC (GitHub CLI read-only query).
+The official macOS 26 runner inventory includes Xcode 26.2; the workflow uses that stable
+Swift 6.2 toolchain, with a local Xcode 26+ fallback. No remote workflow was dispatched.
+
+## Delivered scope
+
+| Task | Local implementation |
+|---|---|
+| T21.1 | Existing bundle ID retained/validated; public repository/Actions visibility and official runner/toolchain inventory checked; no-cost Apple signing policy retained |
+| T21.2 | Deterministic version/build/changelog checks; version/build passed only as build settings; current unreleased notes and history separated |
+| T21.3 | Single shell/Python entry point, canonical gates, Release archive, explicit ad-hoc signing without injected debug entitlements, signature/bundle validation |
+| T21.4 | arm64 ZIP using system `ditto`, complete signed app, notes/install/source-license text, internal inventory, external checksum and fresh extraction round-trip |
+| T21.5 | Manual workflow; same strict script; seven-day artifacts/logs, public-repo preflight, immutable actions, read-only build token and isolated opt-in draft job for an existing main tag |
+| T21.6 | English process docs and English/pt-BR install/upgrade/troubleshooting/security copy, with real OS-evidence limits and no security-policy bypass |
+| T21.7 | Local gates, controlled integrity failures, code review and rehearsal evidence below; hosted dry-run and clean-machine observations remain external verification |
+
+No app, package code/tests, character originals, Xcode configuration or development CI was changed.
+The initial pre-existing policy edits remain present. Development version defaults stay `0.1.0`/`1`;
+candidate values are command-line overrides, not a claim that v1.0.0 was released.
+
+## Controlled failures and review
+
+- Nine release boundary tests pass (exit 0). They cover unsafe/noncanonical versions and builds,
+  missing/empty changelog, bounded note extraction, changed/missing/extra inventory files, missing or
+  changed character resources, traversal, CLI early failure, wrong bundle version/signature and
+  strict failure before archive. New implementation and note-extraction/English-fallback corrections
+  were exercised through failing then passing tests.
+- Real `codesign --verify --deep --strict` on a temporary copy returned 0 before tampering and 1
+  after changing its Info.plist. No original app/source asset was modified.
+- Real `shasum -a 256 -c` returned 0 for matching bytes and 1 after corruption. Test harness exit 0:
+  `build/m21-controlled-checks.log`.
+- Invalid version/build, strict dirty checkout and an existing rehearsal output directory each
+  returned 1 before packaging. Output is never overwritten. Positive candidate inputs proceed to
+  actual Xcode archive and resource/signature checks.
+- `bash -n scripts/release.sh`: exit 0. Local actionlint 1.7.12 on the workflow: exit 0; ShellCheck
+  was unavailable and disabled explicitly. Its binary was downloaded into ignored `build/m21-tools`
+  from the official release and matched that release's SHA-256 list; no project dependency added.
+- Independent read-only review found no actionable code defects and confirmed artifact path,
+  failed-gate isolation, tag checks and token-permission boundaries. It did not treat local review
+  as hosted or Gatekeeper evidence.
+- `git diff --check` and the scoped check of 33 new/changed Markdown targets returned 0. An
+  exploratory scan including all historical milestone links returned 1 for two pre-existing M18
+  filenames (`BundledCharacterCatalog.swift`, `CharacterSelectionModel.swift`) superseded by M20;
+  those historical references were left unchanged during implementation. The owner's subsequent
+  documentation-finalization request corrected them to explicitly labeled current successors.
+
+## Local gate and artifact results (2026-10-25)
+
+The first full rehearsal (`1.0.0`, build 2) ran lint/Debug/Release/archive/asset-copy successfully,
+then correctly stopped at an overstrict new validator assumption: Xcode emits English source-key
+fallbacks without `en.lproj/Localizable.strings`. The validator now requires the real bundle contract:
+both localized InfoPlist files and the translated pt-BR Localizable strings. A regression test
+demonstrated the former rejection and passes with that correction. No product translation/resource
+was removed. Build 2 did not produce a ZIP; its script exit was 1.
+
+| Gate | Build 2 exit/result | Build 3 exit/result |
+|---|---|---|
+| `make lint` | 0 | 0 |
+| `make test-core` | 2; V8 48 issues plus three unchanged runtime tests with six assertions | 2; V8 48 issues only |
+| `make test` | 2; V8 48 issues, stops before UI | 2; V8 48 issues, stops before UI |
+| `make build` | 0 | 0 |
+| Release `xcodebuild … build` | 0 | 0 |
+| Release-script tests | 0; 8 tests then present | 0; 9 tests |
+| Separate unchanged `xcodebuild … Debug test` | 65; 6/7 UI pass, navigation hit-point failure | 0; 7/7 pass |
+| Manifest asset-copy/parity | 0 | 0; complete referenced bundle inventory |
+| Release archive | 0 | 0 |
+| Complete release script | 1; validator stopped before ZIP | 1; diagnostic ZIP validated, failed gates still block publication |
+
+Each package invocation ran 573 tests: Core 344, Platform 51, Rendering 50 and Runtime 128.
+The build 3 package runs fail only `newDrawingsAreDistinctOpaqueContainedAndRegistered` with the
+existing 48 V8 issues. No test or original art was changed, skipped or weakened. In the first
+`make test-core`, `heldIdleStopsFramesAndJumpWakesTheSameDriver`,
+`debugTargetCommandPreservesIdleIntent` and `realIdleLoopAtLowerCallbackRatesKeepsSimulationTime`
+also failed (six assertions). They passed in the following full runs; no root cause is claimed.
+Build 2 UI failed `testSettingsNavigationControlsAndRestoreDefaultsKeepTheRoster` at line 92:
+“Unable to find hit point for ScrollView”. Build 3's full UI retry passed; the earlier failure is
+retained, not recast as a pass. These product tests predate M21 and have no diff.
+
+Debug/Release/archive emit no Swift compiler warnings. Xcode's existing AppIntents metadata warning
+(`Metadata extraction skipped, no AppIntents.framework dependency found`) remains when extraction
+runs. Xcode also reports `Using the first of multiple matching destinations` for the canonical
+`platform=macOS` destination (arm64/x86_64 candidates on this Mac); the actual packaged executable's
+architecture is explicitly checked as arm64. These tooling diagnostics are retained, not counted as
+a zero-tool-warning result.
+Logs are under ignored `dist/rehearsal/PetScape-1.0.0-{2,3}-arm64/logs/`; every phase's exact exit
+code is in its `results.json`. Top-level transcripts: `build/m21-rehearsal.log` and
+`build/m21-rehearsal-3.log`.
+
+Build 3 produced `dist/rehearsal/PetScape-1.0.0-3-arm64/PetScape-1.0.0-3-arm64.zip` (about 44 MiB),
+with SHA-256:
+
+```text
+f75b32396b7ca20035841e2393200913254b16b502e01de1a6dd8b71368840b9
+```
+
+`shasum -a 256 -c SHA256SUMS`: exit 0 (`OK`). Internal inventory contains 213 files, and its
+verification after fresh `ditto` extraction returns 0, including `shasum -a 256 -c CONTENTS.sha256`.
+Both archived and extracted `PetScape.app` pass `codesign --verify --deep --strict` (exit 0), version
+1.0.0/build 3, bundle ID `io.github.danielcbdev.petscape`, macOS 14.0 minimum and arm64 executable.
+Signature output records `Signature=adhoc`, `TeamIdentifier=not set`, no Authority and no
+entitlements; flags are `0x10002(adhoc,runtime)`. This is integrity evidence only, not Apple trust.
+
+### Repeated final rehearsal — build 4
+
+`scripts/release.sh 1.0.0 4 --rehearsal` repeated the entire process into a new output directory.
+Lint, Debug, Release build, nine script tests, all 7 UI tests, character validation and Release
+archive each returned 0. `make test-core` and `make test` each returned 2 for only the unchanged
+48-issue V8 test. Signature/bundle validation, external checksum and extracted 213-file inventory
+all passed again. The script returned **1**, preserving the publication block.
+
+The second independently built/packaged ZIP is
+`dist/rehearsal/PetScape-1.0.0-4-arm64/PetScape-1.0.0-4-arm64.zip`:
+
+```text
+8bdc8c1bce716098a564c3fed803e0a6e84dc8af7a1155ebb9cbef77f9d80099
+```
+
+Transcript: `build/m21-rehearsal-4.log`; phase logs and `results.json` are in the matching `logs/`.
+Its archived and extracted app again report ad-hoc signing, no developer team, no entitlements,
+version 1.0.0/build 4, the existing bundle ID and arm64. Builds 3 and 4 demonstrate repeated local
+archive/package/round-trip execution without a source/config/asset/app-test diff. Their hashes
+differ because the build metadata and archive outputs differ; bit-identical artifacts are not promised.
+Build 4 is the final diagnostic artifact, **not for publication**.
+
+## Acceptance evidence
+
+| Criterion | Recorded scope |
+|---|---|
+| AC-M21-01 | Local Release archive/diagnostic ZIP pass; hosted run unverified, strict package blocked by the existing test gate |
+| AC-M21-02 | Archived and extracted ad-hoc signatures validated; no developer/Apple identity claim |
+| AC-M21-03 | ZIP, notes/install copy, internal inventory, external checksum and local extraction validated; actual downloaded clean-Mac copy is not claimed |
+| AC-M21-04 | Input rejection, no source-config mutation, same local/CI script and two successful local archive/package round-trips recorded above |
+| AC-M21-05 | Workflow/actionlint/permissions/runner/action references reviewed locally; hosted dry-run not executed |
+| AC-M21-06 | Default-off manual publication, existing tag at main commit checked twice, no remote publication/tag/push performed |
+| AC-M21-07 | Bilingual installation/security guidance reviewed against Apple documentation; actual warning path remains unverified |
+| AC-M21-08 | Clean supported macOS download/install/first-launch unavailable and unverified; failed V8 gate remains explicit and blocking |
+
+Only macOS 27.0.1/Xcode 27.1 was exercised locally. No clean macOS VM, macOS 14–26 machine,
+managed-device policy, native downloaded-app upgrade or Intel runtime test was available. No
+Gatekeeper alert/override was observed or tested: the artifact was built/extracted, not downloaded
+and opened on a clean system. No `spctl` success is claimed. No M21 hosted CI was run.
+
+## Owner-directed local closeout — 2026-10-25
+
+After receiving the implementation report and the explicit V8/hosted/clean-machine limitations,
+the owner directed: “pois finaliza tudo, deixa no jeito e atualiza o readme com tudo que precisa
+estar lá”. This closes **the local M21 delivery** by owner direction, with those limitations
+retained. It does not assert that the owner ran a new test or that unverified criteria passed.
+
+The README now covers current product features, requirements, source quick start, all five Settings
+sections, independent active pets, local pack installation/removal, privacy and optional consent,
+ad-hoc ZIP installation/checksums, development commands, strict/diagnostic release modes, manual
+workflow boundaries, architecture, troubleshooting, contribution guidance and the unresolved art
+license. Obsolete single-pet and Settings/Advanced instructions were replaced with current behavior.
+The setup guide's character-pack instructions were synchronized with the active-roster UI.
+Broken historical source-file links in the milestone register now identify their current
+successors without rewriting the M18 implementation history; stale M10/M15/M20 anchors in
+the touched documentation were corrected.
+
+M21 is **Done by owner-directed local closeout** with no remaining local implementation or
+documentation task. The failed V8 gate, prior transient failures, hosted dry-run and clean-machine
+evidence gaps remain recorded. Strict CI/publication gates are unchanged and continue to block a
+release. No commit, merge, push, tag, PR, workflow dispatch or release is authorized by this
+finalization instruction; none was performed. External verification/publication actions below stay
+separate from local milestone completion.
+
+Fresh finalization checks (documentation-only follow-up): `make lint`, all 9 release-tool tests,
+`bash -n`, local actionlint, `git diff --check`, and the 197-link/path/anchor/README-image check
+returned 0. Fresh extraction of build 4 again passed the ZIP checksum, complete file inventory,
+metadata/resource checks and ad-hoc signature verification. App/package tests and native builds
+were not repeated for this documentation-only edit; their recorded failed/passed results above
+remain unchanged. The app, its tests, original assets, Xcode config and development CI still have
+no diff. No fresh clean-machine or hosted success is claimed.
+
+## Remaining owner/external verification
+
+Historical checklist from the local-only closeout. The owner subsequently authorized Git/tag/release
+actions, explicitly approved the v1.0.0 V8 exception and resolved D-08; the publication follow-up
+below supersedes those authorization prerequisites. Native/clean-machine evidence remains unverified.
+
+These are verification/publication actions, not missing M21 implementation:
+
+1. Resolve the existing package-gate failure under a separately scoped product/art task; do not
+   waive it in the release script. Re-run `make lint`, `make test-core`, `make test` and `make build`
+   and expect exit 0. Intermittent unchanged runtime/UI failures below also require a green actual
+   run; a retry does not erase an earlier failure.
+2. After separately authorizing integration/push of this work, from a clean checkout run
+   `scripts/release.sh 1.0.0 5` (or a fresh version/build greater than every distributed build).
+   Expect all gates and archive/round-trip checks to return 0 and output under `dist/release/`.
+   No automatic publication follows this command.
+3. After separately authorized integration/push makes the workflow available on the default branch
+   (`main`), dispatch a hosted **dry run**, for example
+   `gh workflow run release.yml --ref main -f version=1.0.0 -f build=5 -f publish=false`.
+   Expect a successful strict package job and a downloadable `petscape-release` artifact, with no
+   new tag/release. Inspect `gh run list --workflow release.yml` and `gh run view RUN_ID --log-failed`.
+   If a gate fails, expect logs only. No such dispatch occurred in this implementation.
+4. On a clean Apple-silicon Mac with supported macOS, obtain the ZIP and checksum through the intended
+   download channel. Run `shasum -a 256 -c SHA256SUMS`, extract, then run
+   `shasum -a 256 -c CONTENTS.sha256` inside the extracted folder: expect `OK` for every entry.
+   Follow [installation instructions](../development/install.md), record exact OS/security policy,
+   actual warning and whether the OS offers manual approval, then menu-bar launch and quit.
+   Record absence of an override/block honestly; do not change global policy or strip quarantine.
+   Repeat upgrade/preferences/optional-consent checks on an installed copy.
+5. Before any public art distribution, resolve D-08 provenance/license and review dated release notes.
+   Tag creation and publication require a new explicit owner instruction. This implementation
+   creates neither; the opt-in job only creates a draft for an already existing matching main tag.
+
+## v1.0.0 publication follow-up — 2026-10-25
+
+After local closeout, the owner explicitly requested the full Git process, branch updates and a
+public release containing a downloaded installer, with a complete installation path in the README.
+This authorizes commit/integration/push, an existing-main-commit v1.0.0 tag and public release.
+It supersedes the original local-only publication boundary for this release.
+
+The owner separately answered: **“Publicar com exceção V8 documentada”** and confirmed redistribution
+of all included art in the app, **with art rights reserved and source MIT**. Decision D-08 is now
+recorded in `ARTWORK-LICENSE.md`; original provenance and artwork remain unchanged. This is owner
+authorization, not an independent legal/provenance audit. The exact release exception is versioned
+in `docs/development/release-exceptions.json` and is default off in CLI/workflow operation.
+
+Publication changes:
+
+- Universal arm64/x86_64 build/archive and per-slice signature checks, macOS 14.0 minimum.
+- Primary compressed read-only DMG with fixed Applications shortcut; optional ZIP and complete
+  internal inventory. Mounts are validated read-only and automatically ejected in `finally`.
+- Per-format `.sha256` files avoid requiring both downloads to check only one format; combined
+  `SHA256SUMS` still checks both.
+- README now leads with the direct DMG download and ordinary Finder install steps, no developer
+  checkout or Xcode. Source instructions remain in their development section.
+- Full canonical test runs remain red for V8. Opt-in release validation requires the complete
+  573-test report with only the known named failure and exactly 48 issues; unrelated failures,
+  missing/changed summaries or compiler/signal errors block. UI runs separately and must pass.
+  Raw exit codes and applied exceptions are separately recorded and disclosed in release notes.
+- Both source and art notices, and an applied-exception record, accompany the actual release.
+
+Fresh local checks before Git integration: the universal Release build succeeds with both lipo
+slices, a real DMG creation/mount/inventory/per-slice signature/eject probe passes, all 13 release
+boundary tests pass and actionlint/shell syntax pass. The full package run still fails only V8.
+The universal diagnostic build 6 produced valid DMG/ZIP files but correctly exited 1: its UI phase
+timed out while enabling Automation Mode. `DevToolsSecurity -status` reported developer mode
+disabled. This is not a passed UI run and is not covered by the V8 exception. The separately run
+native and hosted results must be recorded honestly before publication. Native Intel and clean
+download/Gatekeeper testing remain unavailable; cross-compilation/mounting do not imply those pass.
+
+A separate local UI attempt also stopped during Automation Mode initialization; no test bodies ran.
+`sudo -n DevToolsSecurity -enable` could not run without an administrator password; no development
+security setting was changed. Authorized Git integration will make the manual workflow available
+on main so the public hosted runner can supply actual UI/build/package evidence before publication.
+No additional UI failure or missing native test is waived by the V8 policy.

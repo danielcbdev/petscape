@@ -1,0 +1,9 @@
+{
+  "version": "1.0.0",
+  "approved": true,
+  "approvedBy": "Daniel Carvalho (project owner)",
+  "approvedOn": "2026-10-25",
+  "test": "newDrawingsAreDistinctOpaqueContainedAndRegistered",
+  "issues": 48,
+  "reason": "Owner explicitly authorized the first release with the existing V8 pixel-QA failure disclosed. The test and original assets remain unchanged. All other gates must pass. This exception is not approval for a future version."
+}

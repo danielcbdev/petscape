@@ -17,7 +17,7 @@ Probability/Impact: L/M/H.
 | R-09 | Accessibility API limitations (no AX→CGWindowID mapping, coalesced notifications, hung apps) | H | M | PID+frame correlation and timeouts; Accessibility-required policy (D-11); native event/timeout validation remains a follow-up for M13 | M12–M13 |
 | R-10 | Window-level/Spaces behavior changes across macOS versions (14 → 27) | M | M | Manual matrix on a macOS 14 VM and current OS per release | M14 |
 | R-11 | Toolchain drift: Xcode 27 features not available on CI runners | M | L | Swift 6.2 compatibility rule (ADR-0001) | M2 |
-| R-12 | No Developer ID → Gatekeeper friction; Accessibility grants reset between differently signed builds | M | M | Ad-hoc pre-releases with instructions; stable dev signing | M21 |
+| R-12 | Ad-hoc release has no Apple-verified developer identity or notarization; Gatekeeper friction and weaker artifact provenance | H | H | Publish checksum and source/release links, verify signature integrity, explain macOS's user-approved override without weakening Gatekeeper, and record tested OS behavior | M21 |
 | R-13 | Scope creep (pet-to-pet interactions) before the core feels good | M | M | Keep pet-to-pet interaction in future FR-41; M20 is limited to independent pets and Settings | All |
 | R-14 | AI-generated art licensing/provenance unclear for an open-source release | M | M | Owner decision D-08 before public release | M21 |
 | R-15 | Agents produce inconsistent changes across sessions | M | M | AGENTS.md process, task IDs, PR template, docs as source of truth | All |
@@ -27,20 +27,29 @@ Probability/Impact: L/M/H.
 
 | ID | Decision | Recommendation | Needed by |
 |---|---|---|---|
-| D-01 | Source code license | **Decided 2026-10-16: MIT** (`LICENSE`). Art license still open (D-08) | — |
+| D-01 | Source code license | **Decided 2026-10-16: MIT** (`LICENSE`). Art distribution decision recorded separately in D-08 | — |
 | D-02 | Documentation and code language | **Decided 2026-10-16: English**; conversation may stay in Portuguese | — |
-| D-03 | Final bundle identifier | Keep `io.github.danielcbdev.petscape` unless you own a domain | Before M21 |
+| D-03 | Final bundle identifier | M21 retains and validates existing `io.github.danielcbdev.petscape` for preference/permission continuity; owner must explicitly review any future identity change | Before changing identity |
 | D-04 | Minimum macOS | 14.0 (ADR-0001) | Now |
 | D-05 | Approve PoC (M1) as the next step | **Decided 2026-10-16: approved** (T1.1–T1.3 started) | — |
 | D-06 | Enable GitHub Actions CI in M2 | Approved by owner closure instruction 2026-10-18; workflow authored, first remote run follows an authorized push | M2 closed |
-| D-07 | Apple Developer Program enrollment | Needed for notarized releases | Before M21 |
-| D-08 | Art provenance/license for AI-generated sprites | Document source tool and terms; choose an asset license (e.g. CC BY 4.0) if allowed | Before public release |
+| D-07 | Apple Developer Program enrollment | **Owner decision 2026-10-25: will not use a paid membership.** M21 must use ad-hoc signing, omit notarization, and document Gatekeeper friction; revisit only if the owner changes this decision. | M21 |
+| D-08 | Art provenance/license for AI-generated sprites | **Owner confirmed 2026-10-25:** all included art is authorized for redistribution in the app; art rights reserved, source MIT. See [notice](../../ARTWORK-LICENSE.md). Original provenance remains unchanged; no standalone permissive art license is granted | Decided for v1.0.0 |
 | D-09 | Default pet size (96 pt canvas ≈ 75–80 pt visible cat) | Confirm after PoC E3 visual check | M1 |
 | D-10 | Behavior over fullscreen apps (post-MVP) | Keep hidden over fullscreen apps | M14 |
 | D-11 | Window interaction degraded mode without Accessibility (CGWindowList only) | **Decided 2026-10-22: do not offer; Accessibility is required.** Native field/lag/CPU measurements remain validation work, not open product decision. See [ADR-0022](../decisions/0022-window-tracking-consent-and-sources.md) | — |
-| D-12 | Intel support | Best-effort; drop if unverifiable by M21 | M21 |
+| D-12 | Intel support | v1.0.0 supplies universal arm64/x86_64 binaries with per-slice signature verification. Native Intel/older-OS execution remains unverified and is disclosed | v1.0.0 evidence limit |
 | D-14 | Renderer: keep SpriteKit or switch to Core Animation | **Decided 2026-10-16: Core Animation** ([ADR-0015](../decisions/0015-core-animation-renderer.md)) | — |
 | D-13 | Source of future animations (who produces, which tool, target sizes) | Author at ≥ 288 px tall, opaque bodies, per asset-format.md | M6–M9 |
+
+M21 inspection (2026-10-25): repository is PUBLIC and Actions enabled. Standard `macos-26` is
+generally available with Xcode 26.2 in the official image inventory. Public standard-runner use is
+free under GitHub's current policy; private repositories have plan quotas and possible overages.
+The manual workflow stops private visibility before scheduling macOS and retains artifacts for seven
+days. No billing quota was assumed unlimited and no remote M21 run was dispatched. The known V8
+failure still blocks default strict packaging. The owner later explicitly approved a disclosed,
+version-scoped exception for v1.0.0 only and resolved D-08 as recorded above. See the current
+[release policy](../development/release.md#github-actions-and-publication).
 
 ## Questions that require practical validation
 

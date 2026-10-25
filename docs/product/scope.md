@@ -26,7 +26,7 @@ energy cost) with one cat walking back and forth on the Dock.
 - Fullscreen app spaces (the overlay does not appear over fullscreen apps).
 - Settings window (the menu is the only UI). Size/speed settings come in M9.
 - Launch at login.
-- Signed/notarized distribution (M21). MVP builds run locally from Xcode.
+- Public release packaging (M21) is ad-hoc signed and not notarized because the owner will not use a paid Apple Developer Program account. MVP builds run locally from Xcode.
 - Dock on left/right edges as a surface (fallback to the screen bottom is in scope).
 - Multi-display behavior beyond "the pet lives on the display that has the Dock".
 

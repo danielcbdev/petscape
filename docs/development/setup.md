@@ -17,6 +17,22 @@
 
 No package manager installs are required. Do not add Homebrew dependencies to the workflow.
 
+M21 local release tooling additionally uses `python3` with its standard library and macOS system
+tools (`codesign`, `ditto`, `hdiutil`, `diskutil`, `shasum`, `lipo`). No pip dependencies or Apple credentials are required.
+Run `scripts/release.sh VERSION BUILD` from a clean checkout for strict gates, or add `--rehearsal`
+for diagnostic packaging with local edits (failed gates still return nonzero). See
+[release commands and output](release.md#local-commands). Official distribution now defaults to
+universal arm64/x86_64 DMG and ZIP. The separately approved v1.0.0 V8 exception is explicit and
+default off; no other failing gate is waived.
+
+Standalone Release build (also executed by the release script):
+
+```bash
+xcodebuild -project PetScape.xcodeproj -scheme PetScape -destination 'platform=macOS' \
+  -derivedDataPath build/DerivedData -configuration Release \
+  SWIFT_TREAT_WARNINGS_AS_ERRORS=YES GCC_TREAT_WARNINGS_AS_ERRORS=YES build
+```
+
 ## Getting started
 
 ```bash
@@ -69,9 +85,13 @@ menu bar (paw print icon); quit it from its menu.
 
 Notes:
 
-- **Hardened Runtime with local signing.** Xcode prints `note: Disabling hardened runtime with ad-hoc
-  codesigning`, so the setting is on but has no effect until the app is signed with a real
-  identity (Developer ID for releases, M21). Local Debug builds therefore run without it.
+- **Hardened Runtime with local signing.** Normal local builds can print `note: Disabling hardened
+  runtime with ad-hoc codesigning`; the setting alone does not establish the final signature flags.
+  M21 archives explicitly disable injected base entitlements and inspect the resulting signature.
+  The verified 1.0.0 build 3 archive reports `flags=0x10002(adhoc,runtime)` and no entitlements;
+  this observation is not an Apple identity or notarization claim. M21 uses no paid Apple account,
+  Developer ID or notarization. Local Debug and M21 Release packages remain ad-hoc signed and may
+  trigger Gatekeeper warnings; see [release guidance](release.md).
 - **UI test target.** With Hardened Runtime on, the test runner's library validation refuses to
   load the locally signed test bundle ("different Team IDs"). The UI test target never ships, so
   it turns Hardened Runtime off.
@@ -98,7 +118,7 @@ The Makefile builds into `build/DerivedData` (git-ignored), so `make run` knows 
 Xcode itself keeps using its default DerivedData.
 
 Expected tool output that is not a warning about our code: `appintentsmetadataprocessor … warning:
-Metadata extraction skipped, no AppIntents.framework dependency found` (printed on every app build).
+Metadata extraction skipped, no AppIntents.framework dependency found` (when metadata extraction runs).
 
 ### UI tests and Automation Mode
 
@@ -140,14 +160,16 @@ See [M16](../planning/m16-implementation.md) and [V9 art handoff](../specificati
 
 1. Use a local **folder** containing a schema-v1 `character.json` at its root and every referenced
    PNG at its manifest-relative path. ZIP files and remote packs are not supported.
-2. Open PetScape Settings → Character → **Install Character Pack…** and choose that folder in the
+2. Open PetScape Settings → Pets → **Install Character Pack…** and choose that folder in the
    native folder picker. The app validates it and copies only the manifest and referenced PNGs to
    `~/Library/Application Support/PetScape/Characters/<id>`.
-3. After the success message, choose the installed character from the same Character picker. Import
-   does not switch the active pet automatically.
+3. After the success message, use **Add Character** or **Add** in the Pets catalog to activate the
+   installed character alongside other active pets. Import does not add it automatically. A unique
+   character ID can be active only once. Removing a pet from the active roster does not uninstall it.
 4. To remove a pack, quit PetScape and delete its `<id>` folder from the Characters directory in
-   Finder. The app discovers external changes at the next launch; if the saved character is missing
-   or invalid, it applies the M18 fallback after a successful swap.
+   Finder. The app discovers external changes at the next launch, omits invalid/missing saved IDs
+   and applies its fallback if a nonempty saved roster cannot restore any character. An intentionally
+   empty roster remains empty.
 
 PetScape does not update or overwrite an existing ID. Choose an ID that is unique among bundled and
 installed packs. Invalid packs stay on disk and are omitted from the selector; use the localized

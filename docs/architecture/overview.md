@@ -103,7 +103,7 @@ rationale: [modules.md](modules.md), [ADR-0002](../decisions/0002-project-struct
 | Assets | Data-driven character packs (JSON manifest + PNG frames) | [0007](../decisions/0007-character-packs.md) |
 | Coordinates | One canonical global space (AppKit global points, y-up); conversions centralized | [0008](../decisions/0008-coordinate-system.md) |
 | Dock | Public-API heuristics (`visibleFrame`) + manual offset; no private APIs | [0009](../decisions/0009-dock-geometry.md) |
-| Distribution | Developer ID + notarization, Hardened Runtime, **no App Sandbox** | [0010](../decisions/0010-distribution-no-sandbox.md) |
+| Distribution | Ad-hoc signed, no notarization/paid Apple account, **no App Sandbox**; Gatekeeper warning possible | [0010](../decisions/0010-distribution-no-sandbox.md) |
 | Tooling | No third-party dependencies; Swift Testing; bundled `swift-format` | [0011](../decisions/0011-tooling-and-dependencies.md) |
 | Concurrency | `@MainActor` for simulation/render/AppKit; `Sendable` value types in Core; off-main only for asset decoding | [0012](../decisions/0012-concurrency-model.md) |
 | Simulation loop | Fixed 60 Hz step with accumulator, driven by a `CADisplayLink`; render rate adaptive | [0013](../decisions/0013-simulation-loop.md), amended by [0015](../decisions/0015-core-animation-renderer.md) |

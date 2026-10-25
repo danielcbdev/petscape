@@ -155,7 +155,7 @@ A = deterministic automated, N = native/manual, P = measured performance.
 
 Automated results are recorded per task in the [M10 implementation record](m10-implementation.md).
 The owner confirmed all tests approved and directed closure on 2026-10-22. Specific native/performance
-measurement values were not supplied in that message; see the [owner closeout](m10-implementation.md#owner-m10-closeout-2026-10-22)
+measurement values were not supplied in that message; see the [owner closeout](m10-implementation.md#owner-m10-closeout--2026-10-22)
 for accepted evidence limits. Existing baseline check results are separately recorded in the
 [M10 planning verification](m10-implementation.md#current-baseline-verification-2026-10-18).
 
@@ -264,7 +264,26 @@ recorded as passed; see the [M17 closeout](milestones.md#owner-m17-closeout--202
 - AC-M20-13 [Auto, Man]: Default autonomous choices expose Jump and eligible WindowExcursion more often while remaining seeded and bounded; window excursions land in the lower third of the available side span, climb to the top, dwell for 7–19 simulated seconds, return safely to the Dock, and observe a 20-second cooldown. Existing states and clips are used; no new art, animation state, or permission is introduced. Seeded distribution/trajectory tests pass; the owner manually tested the revised variation and confirmed it worked on 2026-10-25.
 
 ### M21 — Release pipeline
-- AC-M21-01: DMG from CI passes `spctl --assess --type install` and launches on a clean macOS VM without Gatekeeper warnings.
+- AC-M21-01 [Auto, Review]: A clean Release build can be packaged locally and by GitHub Actions using ad-hoc signing and no paid Apple account, Developer ID certificate, Apple credentials, or notarization service.
+- AC-M21-02 [Auto]: The produced app bundle passes code-signature integrity verification and is clearly identified as ad-hoc signed. Documentation and logs never represent this signature as Developer ID identity, Apple verification or notarization.
+- AC-M21-03 [Auto]: The release package contains the expected app, version/release notes and SHA-256 checksum. The checksum validates after download/extraction; documentation explains it detects accidental corruption but does not independently authenticate a release if the package and checksum are both replaced.
+- AC-M21-04 [Auto]: The local script and CI use the same documented version, archive, package and checksum steps. Invalid version inputs fail before packaging; repeated builds do not alter source files or require untracked developer credentials.
+- AC-M21-05 [Auto, Review]: GitHub Actions runs relevant checks, uses a supported standard macOS runner and least-privilege token permissions, pins third-party actions to reviewed immutable references, and never exposes or requires Apple signing/notarization secrets. CI dry-run uploads an artifact but does not create/publish a release.
+- AC-M21-06 [Auto, Review]: Any workflow path that creates a GitHub release has explicit opt-in publication, defaults to dry-run/no publication, and is not exercised during this implementation without separate owner authorization. No tag, push or public release is created by implementation verification.
+- AC-M21-07 [Man, Review]: English installation documentation explains that macOS may warn that the developer is unidentified or that Apple cannot check the app; it never promises warning-free first launch or a passing `spctl --assess`. It gives accurate, cautious steps for a user who has independently chosen to trust the source, and does not instruct disabling Gatekeeper or removing quarantine metadata.
+- AC-M21-08 [Auto, Man, Review]: A clean supported macOS environment records the actual package/install/first-launch flow and checksum validation. Results distinguish a successful user-approved launch from Apple verification; existing M15 V8 test failure remains visible and is not weakened, hidden or claimed to pass.
+
+M21's criterion-by-criterion local evidence and unverified components are recorded in
+[m21-implementation.md](m21-implementation.md). M21's local delivery was closed by owner direction
+on 2026-10-25 with these evidence limits retained. AC-M21-01/05/08 still have unverified hosted or
+clean-machine components; closure does not turn them into passed checks. Existing failed quality
+gates remain a release blocker; no exception is silently converted into a pass.
+
+The subsequent v1.0.0 publication instruction explicitly authorizes a bounded exception for the
+known V8 failure only, recorded in [release-exceptions.json](../development/release-exceptions.json).
+The full failed test remains in reports; every other gate must pass. Universal DMG/ZIP and per-slice
+integrity are now part of publication validation. Native Intel and clean-machine Gatekeeper evidence
+are not inferred from cross-compilation or milestone closure. See the [publication follow-up](m21-implementation.md#v100-publication-follow-up--2026-10-25).
 
 ## M7/M8 evidence status (2026-10-18)
 

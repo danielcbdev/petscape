@@ -737,13 +737,24 @@ seen on the next launch. No bookmarks are kept.
 | T20.9 | Complete regression gates, manual matrix, docs, milestone status and honest evidence closeout | All touched modules, docs/planning, docs/development/testing.md | T20.1–T20.8 | `make lint`, `make test-core`, `make test`, `make build`, Release build, asset validation; owner-facing Settings/VoiceOver/visual checklist and exact unverified evidence record | Done by owner acceptance: lint, Debug/Release builds and separate 7-test XCUITest pass; package gate retains known V8 exception; remaining native evidence limits are documented and accepted |
 | T20.10 | Tune the existing seeded activity mix for more jump/window exploration; land lower on eligible window sides and extend the existing top walk without adding states, clips or permissions | Core, behavior docs/tests | T20.6, T13.7 | Seeded default-choice distribution; lower side contact, bounded top dwell/cooldown, full return-to-Dock regression | Done by owner acceptance: focused tests pass; owner manually tested the revised autonomous variation and reported it worked perfectly |
 
-## M21 — Release pipeline
+## M21 — Reproducible ad-hoc release pipeline (authorized 2026-10-25; no paid Apple Developer membership)
 
 | ID | Task | Mod | Deps | Size | Verify |
 |---|---|---|---|---|---|
-| T21.1 | Owner decisions: license, final bundle ID, Developer ID enrollment | Owner | — | S | Recorded in risks.md |
-| T21.2 | Versioning (`MARKETING_VERSION`, build number) + `CHANGELOG.md` (Keep a Changelog) | Repo | T21.1 | S | Review |
-| T21.3 | Archive/export script with Developer ID signing | Repo | T21.1 | M | Signed app verified with `codesign --verify` |
-| T21.4 | Notarize (`notarytool`), staple, build DMG, notarize DMG | Repo | T21.3 | M | `spctl --assess` passes |
-| T21.5 | GitHub Actions release workflow on tags (secrets via repository secrets, temporary keychain) | Repo | T21.4 | M | Dry run on a test tag |
-| T21.6 | Install/upgrade docs in README and release notes template | Docs | T21.4 | S | Review |
+| T21.1 | Record release policy: no paid Apple Developer membership, no Developer ID/notarization; verify final bundle ID, GitHub repo visibility, runner availability, free usage limits and publication authorization boundary | Owner, Docs | M20 accepted | S | `risks.md` and release docs state the approved no-cost Apple signing path and its Gatekeeper limitations |
+| T21.2 | Versioning (`MARKETING_VERSION`, build number), release notes and `CHANGELOG.md` (Keep a Changelog); keep version validation deterministic | Repo | T21.1 | S | Valid/invalid version tests and review; do not create a release tag |
+| T21.3 | Local Release archive/package script using the project's ad-hoc identity (`CODE_SIGN_IDENTITY = -` or verified equivalent); verify app-bundle signature integrity without treating it as Developer ID trust | Repo | T21.1–T21.2 | M | Repeated local builds package successfully; `codesign --verify` and recorded ad-hoc identity; no Apple secrets or notary calls |
+| T21.4 | Build a user-installable DMG or ZIP, include app and versioned release notes, produce SHA-256 checksum and validate the extracted app/resources | Repo | T21.3 | M | Package structure, checksum round-trip, clean install and launch test; no false `spctl` pass claim |
+| T21.5 | GitHub Actions workflow: run canonical validation and create/upload a dry-run artifact; release publication must require an explicit workflow input/approval, default off, and minimal `GITHUB_TOKEN` permissions | Repo | T21.2–T21.4 | M | Workflow validation; dry-run artifact; review trigger, permissions, pinned actions, runner and private-repo quota behavior; no release/tag pushed |
+| T21.6 | English/pt-BR install, verification, upgrade and troubleshooting docs, including the actual unidentified-developer/Notarization warning and safe user-approved macOS override; do not instruct disabling Gatekeeper or removing quarantine | Docs | T21.4 | S | Review on supported macOS; steps reflect Apple documentation and real clean-machine behavior |
+| T21.7 | Run final release rehearsal and record every quality gate, artifact digest, environment, expected security warning and remaining external owner action | All, Docs | T21.1–T21.6 | M | `make lint`, `make test-core`, `make test`, Debug/Release build, package/signature/checksum, CI dry run and manual Gatekeeper matrix reported honestly; preserve known M15 V8 exception |
+
+T21.1–T21.7 local implementation and documentation are complete and closed by owner direction on
+2026-10-25; see the [closeout and evidence](m21-implementation.md#owner-directed-local-closeout--2026-10-25).
+Hosted dry-run and clean-machine installation remain unverified; failed existing gates still block
+strict release packaging. Local closure does not claim those checks passed and authorizes no
+commit, merge, push, tag, PR or publication.
+
+Subsequent owner instruction authorizes v1.0.0 Git integration/tag/publication, universal DMG/ZIP
+delivery and the disclosed exact V8 exception; D-08's art redistribution decision is recorded.
+All other quality gates still apply. See the [publication follow-up](m21-implementation.md#v100-publication-follow-up--2026-10-25).
