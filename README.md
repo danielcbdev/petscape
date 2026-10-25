@@ -72,9 +72,10 @@ not independently authenticate the source if package and checksum are both repla
 | Run PetScape | macOS 14 or later; Apple silicon is the primary supported architecture |
 | Automatic music detection | macOS 14.2 or later and optional system audio consent |
 | Build from source | Xcode 26+ with Swift 6.2+ and the Xcode command-line tools |
-| Build a release ZIP | macOS/Xcode, `python3` standard library and built-in signing/archive tools |
+| Build release DMG/ZIP packages | macOS/Xcode, `python3` standard library and built-in signing/archive tools |
 
-Development and M21 packaging were verified on macOS 27.0.1 with Xcode 27.1 / Swift 6.4.
+Local development and M21 packaging were verified on macOS 27.0.1 with Xcode 27.1 / Swift 6.4.
+The published packages were built on GitHub's macOS 26.6.2 runner with Xcode 26.2 / Swift 6.2.3.
 Release DMG/ZIP packages are **universal**, containing arm64 and x86_64 executables. Both slices
 are built and signature-verified; native Intel execution and clean macOS 14–26 installation remain
 unverified. A paid Apple Developer Program account is not required for the current ad-hoc build path.
@@ -190,9 +191,10 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The latest M21 full rehearsals passed lint, Debug/Release/archive builds, all 14 release-tool tests
-and a separately executed 7-test UI suite. The package gate ran 573 tests and failed the existing
-M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
+The [v1.0.0 release validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+passed lint, Debug/universal Release/archive builds, all 14 release-tool tests, a separately executed
+7-test UI suite and DMG/ZIP round-trips. Both full package rounds ran 573 tests and failed only the
+existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
 Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
 For v1.0.0 only, the owner explicitly approved the exact known V8 failure as a disclosed release
 exception. That opt-in requires every other gate, including separately run UI tests, to pass.
@@ -211,7 +213,7 @@ scripts/release.sh 1.0.0 10
 It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
 creates universal DMG/ZIP packages with notes/install instructions/checksums, mounts/extracts them
 and verifies them again.
-It writes to ignored `dist/release/PetScape-VERSION-BUILD-arm64/` without modifying version configs.
+It writes to ignored `dist/release/PetScape-VERSION-BUILD-universal/` without modifying version configs.
 Any failed gate prevents normal packaging. The explicitly approved v1.0.0 exception requires
 `--allow-known-v8-failure`; its versioned policy and complete raw test logs are checked before it
 is applied. Other failures always block. The script itself creates no tag and publishes nothing.

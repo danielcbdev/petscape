@@ -6,6 +6,12 @@ binary package and follow [the README](../../README.md#download-and-install); no
 Xcode or compilation is required. macOS 14+ is required. Both arm64 and x86_64 slices are built
 and verified; native Intel execution and clean older-OS testing remain unverified.
 
+[v1.0.0 (build 10)](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0) was published on
+2026-10-25 from `c157cbf2dc31d69cc268b8de1b446a13d6211872`, following successful hosted validation
+with the explicit V8 exception. Its anonymous public DMG download, checksum and mounted payload
+were independently verified. See the [publication record](../planning/m21-implementation.md#public-release-and-download-verification--2026-10-25)
+for exact hashes, gates and remaining native-install evidence limits.
+
 ## Trust and signing policy
 
 The owner does not use paid Apple Developer Program membership. Distribution is **ad-hoc signed**,

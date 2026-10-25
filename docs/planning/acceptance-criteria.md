@@ -275,15 +275,21 @@ recorded as passed; see the [M17 closeout](milestones.md#owner-m17-closeout--202
 
 M21's criterion-by-criterion local evidence and unverified components are recorded in
 [m21-implementation.md](m21-implementation.md). M21's local delivery was closed by owner direction
-on 2026-10-25 with these evidence limits retained. AC-M21-01/05/08 still have unverified hosted or
-clean-machine components; closure does not turn them into passed checks. Existing failed quality
-gates remain a release blocker; no exception is silently converted into a pass.
+on 2026-10-25 with these evidence limits retained. At that closeout AC-M21-01/05/08 had unverified
+hosted or clean-machine components; closure did not turn them into passed checks. Failed quality
+gates block strict release packaging; no exception is silently converted into a pass.
 
 The subsequent v1.0.0 publication instruction explicitly authorizes a bounded exception for the
 known V8 failure only, recorded in [release-exceptions.json](../development/release-exceptions.json).
 The full failed test remains in reports; every other gate must pass. Universal DMG/ZIP and per-slice
 integrity are now part of publication validation. Native Intel and clean-machine Gatekeeper evidence
 are not inferred from cross-compilation or milestone closure. See the [publication follow-up](m21-implementation.md#v100-publication-follow-up--2026-10-25).
+
+Subsequent [hosted validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+supplies the missing CI build/artifact evidence for AC-M21-01/05. v1.0.0 was published under the
+explicit later authorization, and its public DMG download/checksum/mounted inventory were verified.
+AC-M21-08's clean-machine first-launch/Gatekeeper component remains unverified; downloading and
+mounting an installer is not that test. See the [publication record](m21-implementation.md#public-release-and-download-verification--2026-10-25).
 
 ## M7/M8 evidence status (2026-10-18)
 

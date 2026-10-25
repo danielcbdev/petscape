@@ -88,6 +88,6 @@ The current owner brief narrows the first M10 implementation to bounded observat
 click, pickup and predictable zero-impulse drop. FR-24's approach/startle locomotion and FR-25's
 throw impulse remain broader deferred requirements; their stable IDs and original text above
 are preserved. Do not claim those original requirements fully satisfied by initial M10.
-See [plan/approval decisions](../planning/m10-implementation.md#approval-decisions) and revised
+See [plan/approval decisions](../planning/m10-implementation.md#owner-authorization-applied) and revised
 [AC-M10](../planning/acceptance-criteria.md#m10--cursor--drag). Single-host clamping does not
 satisfy FR-29 handoff. This is proposed scope documentation, not implementation acceptance.

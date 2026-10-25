@@ -77,8 +77,8 @@ Do not create a tag or publish a release without an explicit instruction to do s
 M21 is **Done by owner-directed local closeout** (2026-10-25): after receiving the implementation
 and its evidence limits, the owner requested finalization and a complete README update. The
 script/workflow/ZIP/checksum/tests/docs are delivered, with repeated validated diagnostic packaging.
-The existing V8 gate still blocks strict release; hosted dry-run and clean-machine Gatekeeper
-behavior remain unverified. Closure does not turn those criteria into passes, waive any release
+At that local closeout, the existing V8 gate still blocked strict release; hosted dry-run and
+clean-machine Gatekeeper behavior were unverified. Closure did not turn those criteria into passes, waive any release
 gate, or authorize commit, merge, push, tag, PR or publication. See the
 [M21 closeout](docs/planning/m21-implementation.md#owner-directed-local-closeout--2026-10-25).
 
@@ -92,6 +92,15 @@ redistribution in the app with art rights reserved and source MIT. See
 Official packages now use a universal arm64/x86_64 DMG plus ZIP alternative for macOS 14+.
 The exception is opt-in, version-scoped and fails closed on any other failure; native Intel and
 clean-machine Gatekeeper evidence are still not claimed. Never infer approval for future releases.
+
+**Published:** [v1.0.0](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0), build 10,
+on 2026-10-25. [Hosted release validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+passed all other gates from `c157cbf2dc31d69cc268b8de1b446a13d6211872`: 7 UI tests, 14 release-tool
+tests, Debug/universal Release/archive and DMG/ZIP validation. Both full 573-test rounds retain
+only the approved 48-issue V8 failure. The public README DMG download and checksum were tested
+without authentication, with mounted inventory and both signatures verified. Native Intel and
+clean-machine first-launch/Gatekeeper remain unverified. See the
+[publication record](docs/planning/m21-implementation.md#public-release-and-download-verification--2026-10-25).
 
 ## 2. Stack
 

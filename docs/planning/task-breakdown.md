@@ -751,10 +751,16 @@ seen on the next launch. No bookmarks are kept.
 
 T21.1–T21.7 local implementation and documentation are complete and closed by owner direction on
 2026-10-25; see the [closeout and evidence](m21-implementation.md#owner-directed-local-closeout--2026-10-25).
-Hosted dry-run and clean-machine installation remain unverified; failed existing gates still block
-strict release packaging. Local closure does not claim those checks passed and authorizes no
+At that local closeout, hosted dry-run and clean-machine installation were unverified; failed gates
+still blocked strict packaging. Local closure did not claim those checks passed and authorized no
 commit, merge, push, tag, PR or publication.
 
 Subsequent owner instruction authorizes v1.0.0 Git integration/tag/publication, universal DMG/ZIP
 delivery and the disclosed exact V8 exception; D-08's art redistribution decision is recorded.
 All other quality gates still apply. See the [publication follow-up](m21-implementation.md#v100-publication-follow-up--2026-10-25).
+
+The subsequent hosted run passed all remaining release gates, generated verified universal DMG/ZIP
+artifacts, and v1.0.0 was published. The public README DMG download and matching checksum were
+validated without authentication, including mounted payload/signatures. This closes the hosted
+artifact work for T21.4/5/7; clean-machine first-launch/Gatekeeper and native Intel execution remain
+unverified. See the [publication record](m21-implementation.md#public-release-and-download-verification--2026-10-25).

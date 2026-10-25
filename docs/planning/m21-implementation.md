@@ -329,3 +329,79 @@ losing the implicit default-isolation metadata for MusicDetectionController's is
 when imported into Runtime. Its class now explicitly declares the same existing MainActor isolation;
 cleanup and callback behavior are unchanged. `make build-release` centralizes the strict universal
 Release gate and runs alongside Debug in the hosted preflight, before the longer test rounds.
+
+### Successful hosted release validation — 2026-10-25
+
+[Release run 40222864448](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+completed successfully from clean source commit `c157cbf2dc31d69cc268b8de1b446a13d6211872`.
+The runner reported macOS 26.6.2 (25G83), Xcode 26.2 (17C52) and Swift 6.2.3, arm64 host.
+The optimized isolation repair passed both the early Debug/universal Release preflight and the
+later canonical Release build/archive. A separate read-only code review found no release blockers.
+
+| Gate | Actual result |
+|---|---|
+| Lint/module boundaries | Exit 0 |
+| `make test-core` | Exit 2; complete 573 tests / 65 suites, only named V8 failure, exactly 48 issues |
+| `make test` | Exit 2 at the same complete package report; UI therefore runs separately |
+| Debug build | Exit 0 |
+| Universal Release build | Exit 0 |
+| Release tooling unit tests | Exit 0; 14/14 pass |
+| Separate native app/UI suite | Exit 0; 7/7 pass |
+| Character copy/resource parity | Exit 0 |
+| Universal ad-hoc archive | Exit 0 |
+| DMG/ZIP integrity and round-trips | Pass; both native slices, signatures, metadata, resources and checksums |
+| Exception review | Only `test-core` and `test` approved for the exact V8 failure; `blockingGates: []` |
+
+This is successful release validation under the explicit v1.0.0 exception, **not** an all-green
+package/development CI result. The original V8 test/art remain unchanged. Xcode emits its
+AppIntents metadata-extraction and signed-XCTest-library stripping notices; those tooling notices
+are retained rather than described as zero-warning logs. Compiler warnings remain errors.
+The hosted UI result does not erase the earlier local Automation Mode timeouts.
+
+The actual downloaded CI artifacts were independently checked on the owner's Mac: both external
+SHA-256 sums passed; DMG verification/read-only mount/eject and ZIP extraction passed; each payload's
+215-file inventory, original character resource hashes, version 1.0.0/build 10, arm64/x86_64 slices,
+per-slice ad-hoc signatures, source/art licenses and recorded V8 exception matched. The application
+was not launched by this integrity check, and no OS security setting was changed.
+
+| Artifact | SHA-256 |
+|---|---|
+| `PetScape-1.0.0-10-universal.dmg` | `04c79840756d2dd6db6abd002814e592b5564d142fb144d32e70dcff554362f5` |
+| `PetScape-1.0.0-10-universal.zip` | `ff5f474ed51a2deded2e658ee909f8ec68d310483bc4488604c4dd5b794bc0c0` |
+
+Hosted logs/artifacts are retained for seven days by the workflow; this record preserves their
+identities/results beyond that retention period. Native Intel execution, a clean installation on
+macOS 14–26, actual downloaded-app Gatekeeper approval, upgrade/login/permission playtests remain
+**unverified**. No cross-compilation or integrity result is presented as those manual tests passing.
+
+### Public release and download verification — 2026-10-25
+
+- **Release:** [PetScape v1.0.0](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0),
+  published at `2026-10-25T19:04:20Z`, latest stable release (`draft=false`, `prerelease=false`).
+- **Tag:** annotated `v1.0.0`, tag object `380adf93a038b22a2d2f7d06c15f2befe5eb2806`, pointing to
+  the exact tested source commit `c157cbf2dc31d69cc268b8de1b446a13d6211872`. It was created and
+  pushed only after the authorized hosted validation passed. It is not moved for documentation.
+- **Publication:** the dry-run workflow created no release. Its six verified artifacts were
+  downloaded, independently validated locally, uploaded to a draft via `gh release create
+  --verify-tag --draft`, inspected for expected names/sizes/server hashes, then explicitly published
+  via `gh release edit --draft=false --latest` under the owner's instruction. No rebuild substituted
+  untested bytes. The optional workflow publication job was skipped in this run.
+- **Assets:** universal DMG (48,492,493 bytes), ZIP (46,586,022 bytes), each format's `.sha256`,
+  combined `SHA256SUMS` and `RELEASE-NOTES.md`. GitHub's reported binary SHA-256 values match the
+  downloaded CI files and the table above. Both license notices and the V8 exception are inside
+  each package. Original `assets/` have no diff from the pre-M21 baseline `09751a7`.
+- **Public installation entry point:** the README's exact
+  [DMG URL](https://github.com/danielcbdev/petscape/releases/download/v1.0.0/PetScape-1.0.0-10-universal.dmg)
+  and matching `.dmg.sha256` were downloaded with ordinary unauthenticated `curl`, without `gh`,
+  a token, a source checkout or the ZIP. `shasum -a 256 -c` returned `OK`; the mounted DMG inventory,
+  version/build, resources and both ad-hoc signatures passed again, and the volume was ejected.
+  This verifies public delivery/integrity, not clean-machine launch or Gatekeeper acceptance.
+- **Git integration:** the M21 feature branch was committed and fast-forwarded into `develop`
+  and `main`; all three branches are synchronized with their remote counterparts. The final
+  documentation-only commit records the actual release evidence after the immutable tagged build.
+  Historical branches, unrelated worktrees and existing source/art were not force-updated/deleted.
+  No pull request was needed for this authorized direct integration.
+- **Remaining limits:** native Intel execution, clean supported-macOS installation/first launch,
+  downloaded-app Gatekeeper approval and installed upgrade/login/permission playtests remain
+  unverified. The exact V8 test remains failed and disclosed; normal strict/development CI still
+  reports that failure. Publication does not approve future version exceptions.
