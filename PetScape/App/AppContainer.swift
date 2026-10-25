@@ -18,6 +18,7 @@ final class AppContainer {
     let settingsModel: SettingsModel
     private var activationObserver: (any NSObjectProtocol)?
     private let characterSelection: CharacterSelectionModel
+    private let userCharactersRoot: URL?
     private var loadTask: Task<Void, Never>?
     private(set) var character: LoadedCharacter?
     #if DEBUG
@@ -38,6 +39,8 @@ final class AppContainer {
             languageMonitor = SystemLanguageMonitor()
         #endif
         let preferences = Self.makePreferences()
+        let userCharactersRoot = Self.userCharactersRoot()
+        self.userCharactersRoot = userCharactersRoot
         let runtime = PetRuntime(
             screenProvider: ScreenProvider(),
             cursorSampler: CursorSampler(),
@@ -50,7 +53,9 @@ final class AppContainer {
                 model?.characterStatus = .degraded
             }
         }
-        let selection = CharacterSelectionModel(preferences: preferences) { [weak runtime] character in
+        let selection = CharacterSelectionModel(
+            preferences: preferences, installedPacksRoot: userCharactersRoot
+        ) { [weak runtime] character in
             guard let runtime else { return false }
             if character.isPlaceholder {
                 runtime.show(character)
@@ -94,6 +99,7 @@ final class AppContainer {
         #else
             let root = resources.appending(path: Self.charactersFolder)
         #endif
+        let installedRoot = userCharactersRoot
         loadTask = Task { [weak self] in
             #if DEBUG
                 if let path = LaunchOptions.characterPackPath {
@@ -105,7 +111,8 @@ final class AppContainer {
                     return
                 }
             #endif
-            let catalog = await BundledCharacterCatalog.discover(in: root)
+            let catalog = await CharacterCatalog.discover(
+                bundledRoot: root, installedRoot: installedRoot)
             guard !Task.isCancelled, let self else { return }
             await self.characterSelection.start(catalog: catalog)
         }
@@ -157,6 +164,24 @@ final class AppContainer {
             }
         #endif
         return UserDefaultsPreferencesStore()
+    }
+
+    private static func userCharactersRoot() -> URL? {
+        #if DEBUG
+            if let path = LaunchOptions.userCharactersFolderPath {
+                return URL(fileURLWithPath: path, isDirectory: true)
+            }
+            if LaunchOptions.settingsTestSuite != nil {
+                return FileManager.default.temporaryDirectory
+                    .appending(path: "PetScapeUITests-\(UUID().uuidString)", directoryHint: .isDirectory)
+            }
+        #endif
+        guard
+            let applicationSupport = FileManager.default.urls(
+                for: .applicationSupportDirectory, in: .userDomainMask
+            ).first
+        else { return nil }
+        return CharacterPackLocations.userCharactersRoot(applicationSupportDirectory: applicationSupport)
     }
 
     private static func makeLoginService() -> any LaunchAtLoginService {
@@ -216,6 +241,14 @@ final class AppContainer {
             static var charactersFolderPath: String? {
                 let arguments = ProcessInfo.processInfo.arguments
                 guard let index = arguments.firstIndex(of: "--characters-folder"),
+                    arguments.indices.contains(index + 1)
+                else { return nil }
+                return arguments[index + 1]
+            }
+
+            static var userCharactersFolderPath: String? {
+                let arguments = ProcessInfo.processInfo.arguments
+                guard let index = arguments.firstIndex(of: "--user-characters-folder"),
                     arguments.indices.contains(index + 1)
                 else { return nil }
                 return arguments[index + 1]

@@ -136,6 +136,25 @@ native consent tests; a changed ad-hoc signature can affect stored OS grants. Do
 inside unattended tests. Fakes exercise lifecycle; real audio/consent/route checks remain owner-run.
 See [M16](../planning/m16-implementation.md) and [V9 art handoff](../specifications/animation-assets-v9.md).
 
+## Installing a character pack (M19)
+
+1. Use a local **folder** containing a schema-v1 `character.json` at its root and every referenced
+   PNG at its manifest-relative path. ZIP files and remote packs are not supported.
+2. Open PetScape Settings → Character → **Install Character Pack…** and choose that folder in the
+   native folder picker. The app validates it and copies only the manifest and referenced PNGs to
+   `~/Library/Application Support/PetScape/Characters/<id>`.
+3. After the success message, choose the installed character from the same Character picker. Import
+   does not switch the active pet automatically.
+4. To remove a pack, quit PetScape and delete its `<id>` folder from the Characters directory in
+   Finder. The app discovers external changes at the next launch; if the saved character is missing
+   or invalid, it applies the M18 fallback after a successful swap.
+
+PetScape does not update or overwrite an existing ID. Choose an ID that is unique among bundled and
+installed packs. Invalid packs stay on disk and are omitted from the selector; use the localized
+Settings message to correct the pack or quit and remove it. Unreferenced files are ignored and not
+copied. The import flow does not keep a bookmark or require Full Disk Access, Accessibility, Screen
+Recording, Input Monitoring, Automation, or network access.
+
 ## Localization (M17)
 
 `PetScapeLanguage` resolves `Locale.preferredLanguages` in order: English variants map to `en`, all

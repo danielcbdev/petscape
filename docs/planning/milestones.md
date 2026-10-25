@@ -27,7 +27,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M16 | New behaviors and animations | — | **Done by explicit owner acceptance** (2026-10-24; owner confirmed all behavior works and authorized integration/push; V8 QA exception and measurement limits preserved — [closeout](m16-implementation.md#owner-m16-closeout--2026-10-24)) |
 | M17 | Portuguese/English localization | — | **Done by explicit owner acceptance** (2026-10-24; native visual/VoiceOver/live locale checks unverified, package-run exceptions retained — [closeout](#owner-m17-closeout--2026-10-24)) |
 | M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
-| M19 | Character pack discovery and installation | — | Not started |
+| M19 | Character pack discovery and installation | — | **Done by explicit owner acceptance** (2026-10-24; real-pack/manual/VoiceOver/performance evidence limits retained — [closeout](#owner-m19-closeout--2026-10-24)) |
 | M20 | Release pipeline | v1.0.0 | Not started |
 
 M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
@@ -623,9 +623,28 @@ above remains unchanged; no new native/performance success is claimed at owner a
 ## M19 — Character pack discovery and installation
 
 - **Objective:** discover and install character packs.
-- **Scope:** local pack discovery and installation as later specified. No M19 implementation is authorized by the M15 request.
-- **Prerequisites:** M18 planning/implementation as later specified.
-- **Status:** Not started; detailed task and acceptance criteria to be planned before implementation.
+- **Authorization:** the owner explicitly requested end-to-end M19 implementation on 2026-10-24. The owner later accepted closure and authorized local branch/commit/merge. This does not authorize M20, network, publication, push, tag, release or PR.
+- **Scope:** local folder selection, bounded validation, atomic installation, immediate-directory discovery in `~/Library/Application Support/PetScape/Characters`, and integration with M18 selection. No ZIP, network, publishing, update/overwrite, or in-app removal.
+- **Prerequisites:** M18 selection and M17 localization are accepted. Their closeouts and evidence limits remain unchanged.
+- **Status:** **Done by explicit owner acceptance, 2026-10-24, with evidence limits recorded below.** The real external-pack/manual flow gate remains unverified and is not recorded as passed.
+- **Current contract:** choose a folder with root `character.json` (schema v1). Copy only the manifest and referenced PNGs. Ignore and omit unreferenced files. Reject symlinks, aliases, special files, unsafe paths and unsupported image content. Stage under the destination, validate the snapshot and staged copy, then promote exclusively and atomically to a folder named by manifest ID. Duplicate IDs are rejected; update and in-app removal are out of scope. External deletion/edits are detected after restart; a missing persisted selection uses M18 fallback after successful application.
+- **Resource limits:** 256 KiB manifest; 2,048 scanned tree entries/32 levels; 64 clips, 512 frame entries, 64 sheets with at most 16×16 cells; 256 unique referenced PNGs; 4 MiB per PNG/64 MiB aggregate referenced source bytes; 4,096 px per source dimension; 768 px target side; 64 MiB estimated decoded bytes across referenced images. Current cat art has 200 frame entries, 200 unique PNGs and ~45.2 MB referenced source bytes, within this profile. These are import bounds, not measured performance guarantees.
+- **Verification:** T19.1–T19.5 and AC-M19-01…10 are specified in the [task breakdown](task-breakdown.md#m19--character-pack-discovery-and-installation-authorized-2026-10-24) and [acceptance criteria](acceptance-criteria.md#m19--character-pack-discovery-and-installation).
+- **Implementation verification (2026-10-24):** `make format` and `make lint` passed. The focused M19 package suite passed all 15 tests; the full package run embedded in `make test` also passed M19. That full run exited nonzero only for the existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA exception (48 recorded issues): Core passed 338 tests/32 suites, Rendering 50/10 and Platform 47/9 passed, and the Runtime run recorded 123 tests/13 suites with the M19 suite passing and the 48 M15 issues. `make test` stopped before its app/UI phase, so UI was run separately: all 8 UI tests passed, including the native picker cancellation, isolated installed-pack discovery/selection/relaunch, empty catalog, pt-BR Settings and M18 keyboard selection. `make build` Debug and the Release `xcodebuild` build passed; no Swift compiler warnings were emitted. Release reported Xcode's existing AppIntents metadata-extraction warning because the app has no `AppIntents.framework` dependency. The String Catalog compiled with 114 entries and pt-BR values, emitted-string synchronization had no missing translations, and the bundled asset copy/validation script produced 201 files. Environment: macOS 27.0.1, Xcode 27.1.
+- **Evidence limits:** no owner-supplied external pack was present. Automated installer tests use temporary valid/invalid fixtures; UI automation exercised native picker cancellation and a separately pre-populated isolated installed directory, not a successful real-pack selection in the native picker. A successful real external import/select/relaunch and visual review in English and pt-BR, VoiceOver review, and measured imported-art performance remain unverified. These are accepted limitations for this owner-directed closeout, not passed checks; fixtures do not satisfy the real-pack/manual gate.
+
+### Owner M19 closeout — 2026-10-24
+
+After receiving the full test results and the outstanding real-pack/manual evidence limits, the owner
+explicitly directed finalization, branch creation, commit and local merge into `develop`. M19 is **Done
+by explicit owner acceptance** with those limitations retained. No external real-pack import or
+successful native-picker selection was verified; the English/pt-BR visual review, VoiceOver review and
+imported-art performance measurements remain unverified. The 48-issue M15 V8 pixel-QA exception is
+unchanged and is not attributed to M19.
+
+The owner authorized local Git integration only. No push, tag, release or PR is authorized by this
+closeout. M20 remains Not started and unauthorized. The unmet manual components of AC-M19-01,
+AC-M19-08 and AC-M19-10 are recorded as accepted evidence limits, not passed criteria.
 
 ## M20 — Release pipeline
 

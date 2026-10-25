@@ -116,7 +116,7 @@ struct BundledCharacterSelectionTests {
         #expect(model.isLoading, "Settings must not show an empty catalog while initial discovery is running")
         await model.start(catalog: BundledCharacterCatalog())
         #expect(model.characters.isEmpty && !model.canSelect && model.activeID == nil)
-        #expect(model.issue == .noBundledCharacters)
+        #expect(model.issue == .noCharactersAvailable)
         #expect(prefs.selectedCharacterID == "removed")
         await model.start(catalog: BundledCharacterCatalog(characters: [entry]))
         #expect(!model.canSelect && model.activeID == CharacterID("only"))
