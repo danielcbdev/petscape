@@ -397,7 +397,7 @@ struct SettingsView: View {
     private var appearancePage: some View {
         Group {
             settingsCard("Pet appearance") {
-                Slider(value: Binding(get: { model.petSettings.scale }, set: model.setScale), in: 0.5...1.5) {
+                Slider(value: Binding(get: { model.petSettings.scale }, set: { model.setScale($0) }), in: 0.5...1.5) {
                     Text("Size")
                 } minimumValueLabel: {
                     Text("Small")
@@ -407,7 +407,8 @@ struct SettingsView: View {
                 .accessibilityIdentifier("settings.scale")
                 .accessibilityLabel("Size")
                 Slider(
-                    value: Binding(get: { model.petSettings.speed }, set: model.setSpeed), in: PetSettings.speedRange
+                    value: Binding(get: { model.petSettings.speed }, set: { model.setSpeed($0) }),
+                    in: PetSettings.speedRange
                 ) {
                     Text("Speed")
                 } minimumValueLabel: {
@@ -420,7 +421,7 @@ struct SettingsView: View {
             }
             settingsCard("Dock placement") {
                 Slider(
-                    value: Binding(get: { model.dockOffsetAdjustment }, set: model.setDockOffsetAdjustment),
+                    value: Binding(get: { model.dockOffsetAdjustment }, set: { model.setDockOffsetAdjustment($0) }),
                     in: -40...40, step: 1
                 ) {
                     Text("Dock offset")

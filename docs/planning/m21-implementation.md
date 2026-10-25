@@ -318,3 +318,7 @@ into a generic indirect Bool setter. The direct Bool method/function references 
 now use forwarding closures; the existing MainActor/Sendable annotations, model intents, labels,
 IDs and assertions remain unchanged. This is a compiler-compatibility repair, not a release-gate
 exception. Local and fresh hosted builds must validate it before publication.
+
+Run `40221129574` confirmed the Bool thunk was eliminated, then exposed the identical compiler
+defect for a Double setter (`$sSdScA_pSgIeAghyg_SdIeAghn_TR`). The same forwarding pattern is now
+applied to Size, Speed and Dock offset bindings, preserving their values/ranges and model actions.
