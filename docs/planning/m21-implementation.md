@@ -405,3 +405,48 @@ macOS 14–26, actual downloaded-app Gatekeeper approval, upgrade/login/permissi
   downloaded-app Gatekeeper approval and installed upgrade/login/permission playtests remain
   unverified. The exact V8 test remains failed and disclosed; normal strict/development CI still
   reports that failure. Publication does not approve future version exceptions.
+
+## v1.0.1 installation follow-up — 2026-10-25
+
+The owner reported: “A Apple não pôde verificar se o item PetScape.app está livre de algum malware
+capaz de danificar o Mac ou comprometer sua privacidade.” They requested comparison with
+[MacDevClean](https://github.com/danielcbdev/mac-dev-clean), changes on a separate branch, merge
+into develop, a corrected README and the full release process again. The owner separately answered
+**“Sim, manter a mesma exceção na v1.0.1”** for the unchanged 48-issue V8 test. Target v1.0.1,
+build 11; no future version is authorized by this exception.
+
+### Investigation and chosen change
+
+- Read the reference README, `build-local.sh`, `package-dmg.sh`, `verify-artifact.sh` and manual
+  installation document in full. Downloaded the actual v1.0.1-unsigned DMG and inspected its app
+  without running it: `Signature=adhoc`, `flags=adhoc,linker-signed`, `TeamIdentifier=not set`,
+  no Developer ID authority. The temporary volume was ejected after inspection.
+- Both projects ship universal compressed DMGs with an Applications shortcut and no Apple
+  notarization. PetScape's prior checks validated integrity, not Gatekeeper acceptance. The
+  reference cannot supply a missing Apple identity or notarization ticket.
+- MacDevClean leads with Terminal `curl` download/checksum/open commands and manual approval.
+  Its older Control-click guidance is not a dependable path on every current macOS release;
+  [Apple's current article](https://support.apple.com/en-us/102445) uses Privacy & Security →
+  Open Anyway after an attempted launch. The owner did not record OS/download metadata/prior
+  approval, so the exact difference in their two experiences remains an inference, not a result.
+- Adopt the reference download flow using HTTPS-only redirects and dependent commands, preventing
+  image opening after a failed download or checksum. Place the exact Apple warning and the
+  bilingual app-specific approval steps before first use in README/install instructions.
+- Include `INSTALL-FIRST.txt` in DMG/ZIP, byte-for-byte from canonical bilingual `install.md`, so
+  Finder/TextEdit users can read the instructions offline without a Markdown viewer. The existing
+  full inventory covers it. No app code, signature trust policy, assets, preferences or permissions
+  change. No global security/quarantine operation is introduced.
+- Implementation branch: `feature/T21-installation-followup`, based on synchronized develop.
+  T21.4/6/7 follow-up only; authorized Git/publication continues after validation.
+
+### Verification in progress
+
+The updated exception-boundary test was first observed failing against the old 1.0.0-only validator,
+then passed after the explicit 1.0.1-only change. All 14 release tooling tests pass locally,
+including rejection of missing/revoked approval, 1.0.0, 1.0.2 (even with a changed policy version),
+and changed issue count. The original V8 test/art are untouched. Hosted gates, artifact/download
+verification and publication identities will be recorded below when actually completed.
+
+The owner's v1.0.0 warning is recorded as observed owner feedback, not a successful clean-machine
+approval/relaunch. Native Intel, old supported OS, managed-device policy and full clean-machine
+first-launch remain unverified. No unnotarized package promises a universally available override.

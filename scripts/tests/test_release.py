@@ -131,10 +131,15 @@ class ReleaseTests(unittest.TestCase):
                 self.assertFalse(self.release.only_known_v8_failure(changed))
 
     def test_release_exception_is_off_without_approval_and_scoped_to_one_version(self):
-        policy = {"version": "1.0.0", "approved": True, "test": "newDrawingsAreDistinctOpaqueContainedAndRegistered", "issues": 48}
-        self.release.validate_v8_approval(policy, "1.0.0")
-        for value, version in [({}, "1.0.0"), ({**policy, "approved": False}, "1.0.0"),
-                               (policy, "1.0.1"), ({**policy, "issues": 49}, "1.0.0")]:
+        policy = {"version": "1.0.1", "approved": True, "test": "newDrawingsAreDistinctOpaqueContainedAndRegistered", "issues": 48}
+        try:
+            self.release.validate_v8_approval(policy, "1.0.1")
+        except ValueError as error:
+            self.fail(f"The separately authorized 1.0.1 policy was rejected: {error}")
+        for value, version in [({}, "1.0.1"), ({**policy, "approved": False}, "1.0.1"),
+                               (policy, "1.0.0"), (policy, "1.0.2"),
+                               ({**policy, "version": "1.0.2"}, "1.0.2"),
+                               ({**policy, "issues": 49}, "1.0.1")]:
             with self.assertRaises(ValueError):
                 self.release.validate_v8_approval(value, version)
 

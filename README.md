@@ -8,24 +8,41 @@ PetScape lives in the menu bar and lets clicks outside the pets pass through to 
 
 ## Download and install
 
-**[Download PetScape v1.0.0 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.0/PetScape-1.0.0-10-universal.dmg)**
+**[Download PetScape v1.0.1 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg)**
 
 For **Apple silicon and Intel Macs running macOS 14 or later**. The download contains the ready-to-run
 app; installation needs no Xcode, Git, project checkout or build commands.
 
 1. Download the **DMG** above, or find it under **Assets** on the
-   [v1.0.0 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0).
-   Choose `PetScape-1.0.0-10-universal.dmg`; GitHub's **Source code** links are for developers.
+   [v1.0.1 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1).
+   Choose `PetScape-1.0.1-11-universal.dmg`; GitHub's **Source code** links are for developers.
 2. Open the downloaded DMG and drag **PetScape.app** onto its **Applications** shortcut. If upgrading,
    quit the old copy first and confirm replacement. Back up preferences and installed packs first.
-3. Eject the **PetScape 1.0.0** disk image in Finder, then open **Applications → PetScape**.
-4. Look for the **paw icon in the menu bar**. PetScape has no Dock icon; open **Settings…** from the
+3. Eject the **PetScape 1.0.1** disk image in Finder, then open **Applications → PetScape**.
+4. If macOS says **“Apple could not verify PetScape.app is free of malware”**, follow the first-open
+   steps below. Read `INSTALL-FIRST.txt` in the DMG in TextEdit if you need the instructions offline.
+5. Look for the **paw icon in the menu bar**. PetScape has no Dock icon; open **Settings…** from the
    paw menu to manage pets and preferences.
 
-PetScape is **ad-hoc signed and not notarized**. macOS may warn or block opening because the developer
-is not identified by Apple. If you trust the official download and accept the risk, after attempting
-to open it macOS may offer **System Settings → Privacy & Security → Open Anyway**. Read the warning,
-authenticate if asked, and confirm opening. This is your security exception, not Apple verification.
+### First open: Apple's verification warning
+
+PetScape is **ad-hoc signed and not notarized**. The message **“Apple could not verify
+PetScape.app is free of malware”** (in Portuguese, **“A Apple não pôde verificar se o item
+PetScape.app está livre de algum malware”**) is a possible first-open warning for this distribution.
+Signature/checksum verification does not replace Apple's notarization or a malware assessment.
+
+If you independently trust the official download and accept the risk:
+
+1. Try opening **PetScape from Applications** once, then dismiss the warning.
+2. Open **System Settings → Privacy & Security**, scroll to **Security**, and look for the PetScape
+   message with **Open Anyway**. In Portuguese: **Ajustes do Sistema → Privacidade e Segurança →
+   Abrir Mesmo Assim**.
+3. Click that button, authenticate if asked, then confirm **Open / Abrir** in the next dialog.
+4. Look for the paw icon in the menu bar. This approval is specific to the app.
+
+This is your explicit security exception, not Apple verification. Follow
+[Apple's current instructions](https://support.apple.com/en-us/102445); older Control-click → Open
+instructions do not apply consistently across macOS versions.
 If macOS reports malware/damage or the option is unavailable, stop and consult the project owner or
 your administrator. Availability depends on OS version and device policy.
 
@@ -33,17 +50,41 @@ See [installation in English and Brazilian Portuguese](docs/development/install.
 warning, upgrade and troubleshooting flow. The release carries the documented, owner-approved
 [V8 artwork pixel-QA exception](docs/planning/m21-implementation.md); that failed test remains visible.
 
+### Download through Terminal (MacDevClean flow)
+
+This follows [MacDevClean's download method](https://github.com/danielcbdev/mac-dev-clean#installing):
+download the published DMG and checksum with `curl`, verify, then open the disk image. It needs no
+Xcode, Git, Python or project checkout. Run these commands together in Terminal:
+
+```bash
+mkdir -p "$HOME/Downloads/PetScape-1.0.1" &&
+cd "$HOME/Downloads/PetScape-1.0.1" &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.1-11-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.1-11-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.1-11-universal.dmg.sha256 &&
+open PetScape-1.0.1-11-universal.dmg
+```
+
+Expect `OK`, then drag the app into Applications and follow the first-open steps above if prompted.
+The DMG is the same as the browser download, with the same signature and notarization limits.
+This does not guarantee a warning-free launch; no quarantine attributes or global security settings
+are changed. MacDevClean's published build is also ad-hoc and not notarized.
+
 ### Verify your download
 
 Download the matching
-[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.0/PetScape-1.0.0-10-universal.dmg.sha256)
+[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg.sha256)
 to the same folder as the DMG. In Terminal, change to that download folder and run:
 
 ```bash
-shasum -a 256 -c PetScape-1.0.0-10-universal.dmg.sha256
+shasum -a 256 -c PetScape-1.0.1-11-universal.dmg.sha256
 ```
 
-Expect `PetScape-1.0.0-10-universal.dmg: OK`. On a mismatch, stop and download both matching files
+Expect `PetScape-1.0.1-11-universal.dmg: OK`. On a mismatch, stop and download both matching files
 again before opening the app. The release also offers a ZIP and its own `.zip.sha256` file; ZIP
 users extract it and drag the app to Applications. `SHA256SUMS` checks **both** formats, so use the
 format-specific file when you download only one. A checksum detects accidental corruption but does
@@ -191,13 +232,14 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The [v1.0.0 release validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+The previous [v1.0.0 release validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
 passed lint, Debug/universal Release/archive builds, all 14 release-tool tests, a separately executed
 7-test UI suite and DMG/ZIP round-trips. Both full package rounds ran 573 tests and failed only the
 existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
 Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
-For v1.0.0 only, the owner explicitly approved the exact known V8 failure as a disclosed release
+For v1.0.1 only, the owner explicitly approved the exact known V8 failure as a disclosed release
 exception. That opt-in requires every other gate, including separately run UI tests, to pass.
+The v1.0.1 follow-up must complete its own hosted validation before publication.
 Earlier transient runtime/UI failures and Xcode tooling warnings are retained in the
 [complete M21 evidence](docs/planning/m21-implementation.md); these results are not an all-green CI claim.
 
@@ -207,21 +249,21 @@ The same script drives local and GitHub Actions packaging. From a clean checkout
 version and a fresh increasing build number; for example:
 
 ```bash
-scripts/release.sh 1.0.0 10
+scripts/release.sh 1.0.1 11
 ```
 
 It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
 creates universal DMG/ZIP packages with notes/install instructions/checksums, mounts/extracts them
 and verifies them again.
 It writes to ignored `dist/release/PetScape-VERSION-BUILD-universal/` without modifying version configs.
-Any failed gate prevents normal packaging. The explicitly approved v1.0.0 exception requires
+Any failed gate prevents normal packaging. The explicitly approved v1.0.1 exception requires
 `--allow-known-v8-failure`; its versioned policy and complete raw test logs are checked before it
 is applied. Other failures always block. The script itself creates no tag and publishes nothing.
 
 For diagnostic local work with uncommitted edits:
 
 ```bash
-scripts/release.sh 1.0.0 10 --rehearsal
+scripts/release.sh 1.0.1 11 --rehearsal
 ```
 
 Rehearsal uses `dist/rehearsal/`, may create a ZIP marked **NOT FOR PUBLICATION**, and still returns

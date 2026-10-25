@@ -102,6 +102,15 @@ without authentication, with mounted inventory and both signatures verified. Nat
 clean-machine first-launch/Gatekeeper remain unverified. See the
 [publication record](docs/planning/m21-implementation.md#public-release-and-download-verification--2026-10-25).
 
+**v1.0.1 installation follow-up (2026-10-25, in progress):** the owner reported the Apple
+verification warning, requested comparison/adaptation of MacDevClean distribution on a separate
+branch, merge into develop, README correction and another public release. The owner separately
+approved retaining the exact 48-issue V8 exception for v1.0.1/build 11. This authorizes branch,
+commit, merge/push, tag and publication after all other gates pass; v1.0.0 remains immutable.
+`feature/T21-installation-followup` adds verified Terminal download/DMG opening and native-readable
+offline instructions, retaining ad-hoc signing and app-specific manual approval. No quarantine or
+global security setting is changed. See the [follow-up](docs/planning/m21-implementation.md#v101-installation-follow-up--2026-10-25).
+
 ## 2. Stack
 
 Swift 6 (language mode 6, strict concurrency), SwiftUI (menu + settings), AppKit (windows, events,

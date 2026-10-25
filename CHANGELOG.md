@@ -5,6 +5,24 @@ versions follow [Semantic Versioning](https://semver.org/). Release process: [re
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-10-25
+
+### Fixed
+
+- Installation guidance now identifies the Apple verification warning and puts the app-specific
+  Privacy & Security → Open Anyway flow before first use, in English and Brazilian Portuguese.
+- README adds MacDevClean's Terminal download/verify/open method, using HTTPS-only redirects and
+  stopping before opening if a download/checksum fails; it requires no source checkout or Xcode.
+- DMG/ZIP now include `INSTALL-FIRST.txt` for offline instructions in TextEdit, alongside `INSTALL.md`.
+
+### Security and known limits
+
+- Signature remains ad-hoc with no Developer ID or Apple notarization. The referenced MacDevClean
+  release also has no Apple developer identity. Download method does not confer Apple approval;
+  no quarantine attribute/global security policy is changed and warning-free launch is not promised.
+- The owner separately authorized the unchanged 48-issue V8 pixel-QA exception for v1.0.1 only.
+  Every other gate remains mandatory; native Intel and clean-machine approval/relaunch are unverified.
+
 ## [1.0.0] - 2026-10-25
 
 First public distribution: universal macOS 14+ DMG and ZIP, installed by dragging PetScape.app to

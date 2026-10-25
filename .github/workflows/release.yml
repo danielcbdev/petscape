@@ -16,7 +16,7 @@ on:
         type: boolean
         default: false
       allow_known_v8_failure:
-        description: Apply the recorded owner-approved V8 exception for v1.0.0 only (all other gates required)
+        description: Apply the recorded owner-approved V8 exception for v1.0.1 only (all other gates required)
         type: boolean
         default: false
       existing_tag:

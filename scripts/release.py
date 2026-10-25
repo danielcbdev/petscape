@@ -197,7 +197,7 @@ def gate_failures(results):
 
 
 def validate_v8_approval(policy, version):
-    if not (policy.get("approved") is True and policy.get("version") == version == "1.0.0"
+    if not (policy.get("approved") is True and policy.get("version") == version == "1.0.1"
             and policy.get("test") == KNOWN_V8_TEST and policy.get("issues") == 48):
         raise ValueError("no owner-approved V8 exception for this version")
 
@@ -240,7 +240,7 @@ def main():
     parser.add_argument("version")
     parser.add_argument("build")
     parser.add_argument("--architecture", choices=["universal", "arm64"], default="universal")
-    parser.add_argument("--allow-known-v8-failure", action="store_true", help="explicit owner-approved 1.0.0 exception only; test stays failed")
+    parser.add_argument("--allow-known-v8-failure", action="store_true", help="explicit owner-approved 1.0.1 exception only; test stays failed")
     parser.add_argument("--rehearsal", action="store_true", help="diagnostic only; never waives a failed gate or returns success for one")
     args = parser.parse_args()
     validate_inputs(args.version, args.build)
@@ -322,6 +322,8 @@ def main():
     (payload / "RELEASE-NOTES.md").write_text(f"# PetScape {args.version} (build {args.build}, {args.architecture})\n\n{marker}\n\n"
         f"Gate failures: {', '.join(failures) or 'none'}.\n\nAd-hoc signed; no developer identity or Apple notarization.\n\n{notes}\n")
     shutil.copyfile(ROOT / "docs/development/install.md", payload / "INSTALL.md")
+    # Finder opens .txt in TextEdit without a Markdown viewer or a source checkout.
+    shutil.copyfile(ROOT / "docs/development/install.md", payload / "INSTALL-FIRST.txt")
     shutil.copyfile(ROOT / "LICENSE", payload / "SOURCE-LICENSE.txt")
     shutil.copyfile(ROOT / "ARTWORK-LICENSE.md", payload / "ARTWORK-LICENSE.md")
     if approved_failures:

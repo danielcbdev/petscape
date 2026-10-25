@@ -12,6 +12,31 @@ with the explicit V8 exception. Its anonymous public DMG download, checksum and 
 were independently verified. See the [publication record](../planning/m21-implementation.md#public-release-and-download-verification--2026-10-25)
 for exact hashes, gates and remaining native-install evidence limits.
 
+## v1.0.1 installation follow-up — authorized 2026-10-25
+
+The owner reported the Apple verification warning after opening v1.0.0 and requested comparison
+with [MacDevClean](https://github.com/danielcbdev/mac-dev-clean), a separate branch, integration into
+`develop`, README corrections and an updated public release. The owner separately and explicitly
+approved retaining the same 48-issue V8 exception for **v1.0.1 (build 11)**. This authorizes the
+feature branch, commit, merge/push into develop/main, new tag and public release; v1.0.0 remains
+immutable. No future version inherits this approval.
+
+MacDevClean's published v1.0.1-unsigned DMG was inspected: its app is `adhoc, linker-signed`, with
+no Authority and no TeamIdentifier. Its build/package scripts produce a universal unsigned app
+inside a compressed DMG with an Applications shortcut; that is not an Apple-verified distribution.
+Its README downloads via `curl`, verifies a checksum, opens the image and describes manual approval.
+PetScape already had equivalent universal DMG/ZIP packaging plus ad-hoc integrity validation.
+The different owner experience may involve download metadata, previous approval or OS behavior;
+those circumstances were not recorded and are not asserted as a proven cause.
+
+The follow-up adopts the reference's download/verify/open flow with HTTPS-only redirects and
+dependent commands so download/checksum failure prevents opening. The first-open instructions
+identify the actual alert and use Apple's current Privacy & Security → Open Anyway flow instead
+of promising older Control-click behavior. The packages also contain `INSTALL-FIRST.txt`, copied
+from the canonical bilingual installation document for native TextEdit access. It is part of the
+checksummed inventory. The signing policy, app architecture, original art and privacy behavior do
+not change; no global Gatekeeper/quarantine change or warning-free installation is promised.
+
 ## Trust and signing policy
 
 The owner does not use paid Apple Developer Program membership. Distribution is **ad-hoc signed**,
@@ -48,11 +73,12 @@ The owner separately confirmed:
 The earlier no-publication/no-Git instructions describe the original local implementation scope;
 this later explicit instruction supersedes them for the v1.0.0 publication only.
 
-## Gates and the bounded v1.0.0 exception
+## Gates and the bounded v1.0.1 exception
 
 Default packaging still requires a clean checkout and all gates green. The explicit
 `--allow-known-v8-failure` option is default off and requires the owner-approved
-[versioned policy](release-exceptions.json) for **1.0.0 only**. It does not skip or weaken a test.
+[versioned policy](release-exceptions.json) for **1.0.1 only**, separately approved by the owner.
+The v1.0.0 tag retains its original policy. The option does not skip or weaken a test.
 
 The full `make test-core` and `make test` commands run unchanged, retaining exit 2 and their raw
 logs when V8 fails. Before allowing that exact exception, the script requires complete Swift Testing
@@ -84,13 +110,13 @@ python3 -B -m unittest discover -s scripts/tests -v
 bash -n scripts/release.sh
 
 # Default strict candidate (blocked by the existing V8 failure):
-scripts/release.sh 1.0.0 10
+scripts/release.sh 1.0.1 11
 
-# Explicitly approved first release, from a clean checkout:
-scripts/release.sh 1.0.0 10 --allow-known-v8-failure
+# Explicitly approved follow-up, from a clean checkout:
+scripts/release.sh 1.0.1 11 --allow-known-v8-failure
 
 # Diagnostic local work; never distribute its output:
-scripts/release.sh 1.0.0 11 --rehearsal
+scripts/release.sh 1.0.1 12 --rehearsal
 ```
 
 Stable versions use `MAJOR.MINOR.PATCH`, without v/leading zeroes; build is a positive integer
@@ -99,7 +125,7 @@ The owner chooses monotonically increasing distributed builds; the local script 
 version queries. `CHANGELOG.md` needs matching version notes or nonempty Unreleased notes. Release
 notes should be reviewed and dated before distribution. Existing output directories never overwrite:
 move them aside or choose a fresh build. `--architecture arm64` is available for diagnostic/specialized
-builds; official v1.0.0 packages use the default `universal`.
+builds; official packages use the default `universal`.
 
 ## Build, package and verification sequence
 
@@ -111,7 +137,7 @@ builds; official v1.0.0 packages use the default `universal`.
 4. Archive Release with both architectures, explicit `CODE_SIGN_IDENTITY=-`, no team and
    `CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO`. Validate bundle/version/build/minimum OS, executable
    slices, localizations, resources, per-slice ad-hoc signatures and absence of entitlements.
-5. Stage the complete app, notes, bilingual installation instructions, source/art license notices,
+5. Stage the complete app, notes, bilingual `INSTALL.md` and native-readable `INSTALL-FIRST.txt`, source/art license notices,
    optional release-exception record and internal `CONTENTS.sha256` inventory.
 6. Create the ZIP with system `ditto`; create a read-only compressed DMG with system `hdiutil`,
    adding only the fixed `/Applications` shortcut. Verify image integrity, mount read-only without
@@ -144,7 +170,7 @@ release script delegates that build gate to the same target, including its Info.
 
 [release.yml](../../.github/workflows/release.yml) uses manual `workflow_dispatch`. Default
 `publish=false` and `allow_known_v8_failure=false` perform strict validation and upload artifacts
-without creating tags or releases. For the approved first release, explicitly set the exception
+without creating tags or releases. For the approved current follow-up, explicitly set the exception
 input true. The workflow calls the same local script; it has no second packaging implementation.
 
 The public repository `danielcbdev/petscape` and enabled Actions were verified read-only. Standard
@@ -170,14 +196,14 @@ Initial dispatch requires the workflow on default branch `main`, as
 After an authorized push, a publication rehearsal is:
 
 ```bash
-gh workflow run release.yml --ref main -f version=1.0.0 -f build=10 -f publish=false -f allow_known_v8_failure=true
+gh workflow run release.yml --ref main -f version=1.0.1 -f build=11 -f publish=false -f allow_known_v8_failure=true
 ```
 
 For `publish=true`, select main and supply an **already existing** `vVERSION` tag at that exact
 workflow commit. Tag identity is checked before building and again remotely before
 `gh release create --verify-tag --draft`; the workflow never creates/pushes tags or overwrites an
 existing release. Publish a reviewed draft only under owner authorization. The current owner's
-v1.0.0 request supplies that authorization; future releases need their own instruction.
+v1.0.1 request supplies that authorization; future releases need their own instruction.
 
 Actual Git/tag/run/release identities and validation results are recorded in the
 [M21 publication evidence](../planning/m21-implementation.md). Local and original closeout results

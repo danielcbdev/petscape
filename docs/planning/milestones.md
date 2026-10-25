@@ -29,7 +29,7 @@ Every milestone's Definition of Done also includes the task-level quality bar in
 | M18 | Bundled character selection | — | **Done by explicit owner acceptance** (2026-10-24; generic engineering accepted with one real bundled pack and retained native/V8 evidence limits — [closeout](#owner-m18-closeout--2026-10-24)) |
 | M19 | Character pack discovery and installation | — | **Done by explicit owner acceptance** (2026-10-24; real-pack/manual/VoiceOver/performance evidence limits retained — [closeout](#owner-m19-closeout--2026-10-24)) |
 | M20 | Settings redesign & multiple active characters | — | **Done by explicit owner acceptance** (2026-10-25; minimum-window, native accessibility/keyboard, and matched Release resource checks remain unverified; package test run retains the existing M15 V8 pixel-QA exception — [closeout](m20-implementation.md#owner-closeout--2026-10-25)) |
-| M21 | Reproducible ad-hoc release pipeline | v1.0.0 | **Done; v1.0.0 published** (2026-10-25; hosted validation/public DMG download verified with explicit V8 exception; native Intel/clean-install evidence unverified — [publication](m21-implementation.md#public-release-and-download-verification--2026-10-25)) |
+| M21 | Reproducible ad-hoc release pipeline | v1.0.1 | **Done; v1.0.1 installation follow-up in progress** (2026-10-25; v1.0.0 published; separate v1.0.1 Git/publication and same V8 exception authorized — [follow-up](m21-implementation.md#v101-installation-follow-up--2026-10-25)) |
 
 M2/M3/M5/M6 owner-directed closure and retained diagnostic/hardware limits: [closeout](m5-m6-closeout.md).
 Baseline HEAD is 2f7f33f; M6 is merged, but v0.1.0 remains unreleased. M9 is reauthorized; no
