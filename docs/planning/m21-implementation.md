@@ -450,3 +450,73 @@ verification and publication identities will be recorded below when actually com
 The owner's v1.0.0 warning is recorded as observed owner feedback, not a successful clean-machine
 approval/relaunch. Native Intel, old supported OS, managed-device policy and full clean-machine
 first-launch remain unverified. No unnotarized package promises a universally available override.
+
+### v1.0.1 hosted and installer verification — 2026-10-25
+
+[Run 40227041048](https://github.com/danielcbdev/petscape/actions/runs/40227041048) completed
+successfully on the feature branch from clean commit
+`a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`, with macOS 26.6.2 (25G83), Xcode 26.2 (17C52),
+Swift 6.2.3 on arm64. The optional publish job was skipped: validation created no release/tag.
+
+| Gate | Actual result |
+|---|---|
+| Lint/module boundaries | Exit 0 |
+| `make test-core`, `make test` | Each exit 2; complete 573 tests/65 suites, only the named V8 failure with exactly 48 issues |
+| Debug and universal Release builds | Exit 0, including early toolchain preflight |
+| Release tooling tests | Exit 0; 14/14 pass |
+| Separate app/UI suite | Exit 0; 7/7 pass |
+| Character resource/copy validation | Exit 0 |
+| Universal ad-hoc archive | Exit 0 |
+| DMG/ZIP round-trip/inventory/signatures | Pass |
+| Policy review | Only `test-core` and `test` match the owner's exact V8 exception; `blockingGates: []` |
+
+The full failed test still runs and its logs retain the actual failure. No other failure is waived.
+This is successful release validation under the explicit exception, not a green development
+package gate. Existing Xcode metadata-extraction/XCTest stripping notices remain in the logs.
+
+The actual CI artifacts were downloaded and independently verified on the owner's Mac: external
+checksums, DMG verification/read-only mount/eject, ZIP extraction, each 216-file inventory, original
+resources, bundle ID/version 1.0.1/build 11, arm64/x86_64 slices, per-slice ad-hoc signatures and
+source/art/V8 notices passed. In both formats, `INSTALL-FIRST.txt` exactly matches canonical
+`install.md`, and system `textutil -info` identifies it as **plain text** (11,938 bytes). The app
+was not launched and no global security/quarantine attribute was changed during these checks.
+A separate read-only reviewer found no actionable correctness or release blocker.
+
+| Artifact | SHA-256 |
+|---|---|
+| `PetScape-1.0.1-11-universal.dmg` | `1f402b9af3c2c3765bcdd247609eea275121dea9601deb922832ce3e9c801ccd` |
+| `PetScape-1.0.1-11-universal.zip` | `f3c65606e8e24ed8f832cc64f0f99b452eeeca808674355ffbed00b81da83954` |
+
+The reviewed feature commit was fast-forward merged into develop, then main, and both were pushed
+before tag/release creation. All app/package Swift sources, Config and original assets have no diff
+from v1.0.0; installation packaging/docs and version-specific release policy are the change.
+
+### v1.0.1 public release and README flow — 2026-10-25
+
+- **Release:** [PetScape v1.0.1](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1),
+  published at `2026-10-25T22:51:52Z`, latest stable (`draft=false`, `prerelease=false`). The six
+  verified CI assets were uploaded to a draft, inspected for names/sizes/server SHA-256, then
+  explicitly published under owner authorization. No untested rebuild replaced them.
+- **Tag:** annotated `v1.0.1`, object `6ff4ec982c5a527962c1061b9b1e72b1a58e118b`, points to the
+  exact tested/integrated source `a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`. v1.0.0's tag and
+  published artifacts remain unchanged. The final evidence commit is documentation-only and
+  does not move either release tag.
+- **Public delivery:** the exact README DMG URL and matching `.dmg.sha256` were downloaded using
+  unauthenticated `curl` with no `gh`/token. The 48,493,391-byte DMG checksum passed. Its mounted
+  216-file inventory, version/build, resources, both ad-hoc signatures and identical plain-text
+  offline guide passed, and the image was ejected. ZIP size is 46,592,096 bytes; both hashes are
+  recorded above and match GitHub's server digests.
+- **README commands:** the actual documented Terminal block was also executed against the public
+  v1.0.1 URLs, using an owned temporary download location. Its real HTTPS-only `curl` downloads
+  and `shasum -a 256 -c` passed. The final Finder `open` was replaced by a completion marker to
+  avoid changing the owner's UI or running the app; opening/approving/relaunching is not claimed
+  as tested by this command check.
+- **Integration:** feature → develop → main fast-forward merges and pushes were completed before
+  tagging/publication. The final documentation-only evidence commit is synchronized to main,
+  develop and `feature/T21-installation-followup`; historical branches/worktrees are preserved.
+  README points to v1.0.1/build 11 and the new successful hosted run.
+- **Limits:** this update reproduces the reference download/verify/open method and improves the
+  manual approval instructions. It does not add Apple identity/notarization or promise that the
+  alert disappears. Complete clean-machine approval/relaunch, native Intel, older supported OS
+  and managed-device policies remain unverified. The only waived failure is the separately
+  approved exact V8 test; development/default strict package validation remains red for it.

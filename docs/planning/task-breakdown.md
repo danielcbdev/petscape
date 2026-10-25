@@ -764,3 +764,9 @@ artifacts, and v1.0.0 was published. The public README DMG download and matching
 validated without authentication, including mounted payload/signatures. This closes the hosted
 artifact work for T21.4/5/7; clean-machine first-launch/Gatekeeper and native Intel execution remain
 unverified. See the [publication record](m21-implementation.md#public-release-and-download-verification--2026-10-25).
+
+T21.4/6/7 were subsequently updated for the separately authorized v1.0.1 installation follow-up:
+MacDevClean-style verified Terminal download, prominent app-specific approval guidance and
+`INSTALL-FIRST.txt` for TextEdit. v1.0.1/build 11 is published after successful hosted/public
+artifact checks with the separately approved exact V8 exception. Complete clean-machine
+approval/relaunch and native Intel remain unverified. See the [follow-up](m21-implementation.md#v101-installation-follow-up--2026-10-25).

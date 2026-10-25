@@ -14,6 +14,12 @@ for exact hashes, gates and remaining native-install evidence limits.
 
 ## v1.0.1 installation follow-up — authorized 2026-10-25
 
+[v1.0.1/build 11](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1) is published as the
+latest stable version from `a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`, after
+[hosted validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048). The actual
+public DMG download/checksum/mounted payload, both signatures and plain-text offline guide passed
+independent checks. Complete clean-machine approval/relaunch and native Intel remain unverified.
+
 The owner reported the Apple verification warning after opening v1.0.0 and requested comparison
 with [MacDevClean](https://github.com/danielcbdev/mac-dev-clean), a separate branch, integration into
 `develop`, README corrections and an updated public release. The owner separately and explicitly

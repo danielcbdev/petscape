@@ -102,14 +102,19 @@ without authentication, with mounted inventory and both signatures verified. Nat
 clean-machine first-launch/Gatekeeper remain unverified. See the
 [publication record](docs/planning/m21-implementation.md#public-release-and-download-verification--2026-10-25).
 
-**v1.0.1 installation follow-up (2026-10-25, in progress):** the owner reported the Apple
+**v1.0.1 installation follow-up (2026-10-25):** the owner reported the Apple
 verification warning, requested comparison/adaptation of MacDevClean distribution on a separate
 branch, merge into develop, README correction and another public release. The owner separately
 approved retaining the exact 48-issue V8 exception for v1.0.1/build 11. This authorizes branch,
 commit, merge/push, tag and publication after all other gates pass; v1.0.0 remains immutable.
 `feature/T21-installation-followup` adds verified Terminal download/DMG opening and native-readable
 offline instructions, retaining ad-hoc signing and app-specific manual approval. No quarantine or
-global security setting is changed. See the [follow-up](docs/planning/m21-implementation.md#v101-installation-follow-up--2026-10-25).
+global security setting is changed. **v1.0.1/build 11 is published**, following
+[run 40227041048](https://github.com/danielcbdev/petscape/actions/runs/40227041048) from
+`a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`; all other gates passed (7 UI/14 tooling tests).
+The public DMG download, checksum, 216-file inventory, both signatures and native-readable guide
+were verified. The owner's v1.0.0 warning is recorded; full clean-machine approval/relaunch and
+native Intel remain unverified. See the [follow-up](docs/planning/m21-implementation.md#v101-installation-follow-up--2026-10-25).
 
 ## 2. Stack
 

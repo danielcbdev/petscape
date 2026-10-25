@@ -232,14 +232,13 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The previous [v1.0.0 release validation](https://github.com/danielcbdev/petscape/actions/runs/40222864448)
+The [v1.0.1 release validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048)
 passed lint, Debug/universal Release/archive builds, all 14 release-tool tests, a separately executed
 7-test UI suite and DMG/ZIP round-trips. Both full package rounds ran 573 tests and failed only the
 existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
 Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
 For v1.0.1 only, the owner explicitly approved the exact known V8 failure as a disclosed release
 exception. That opt-in requires every other gate, including separately run UI tests, to pass.
-The v1.0.1 follow-up must complete its own hosted validation before publication.
 Earlier transient runtime/UI failures and Xcode tooling warnings are retained in the
 [complete M21 evidence](docs/planning/m21-implementation.md); these results are not an all-green CI claim.
 

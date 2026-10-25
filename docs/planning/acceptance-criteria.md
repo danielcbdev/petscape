@@ -291,6 +291,12 @@ explicit later authorization, and its public DMG download/checksum/mounted inven
 AC-M21-08's clean-machine first-launch/Gatekeeper component remains unverified; downloading and
 mounting an installer is not that test. See the [publication record](m21-implementation.md#public-release-and-download-verification--2026-10-25).
 
+The owner separately authorized v1.0.1/build 11 and the same exact V8 exception after reporting
+the Apple verification alert. That follow-up adds MacDevClean's verified Terminal download flow
+and native-readable offline instructions. Its hosted gates and public DMG checks passed; the
+complete clean-machine approval/relaunch part of AC-M21-08 remains unverified. See the
+[v1.0.1 follow-up](m21-implementation.md#v101-installation-follow-up--2026-10-25).
+
 ## M7/M8 evidence status (2026-10-18)
 
 Automated engineering evidence is recorded per task in [task-breakdown.md](task-breakdown.md#execution-evidence-2026-10-18):
