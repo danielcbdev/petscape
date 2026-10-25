@@ -106,9 +106,12 @@ shows unavailable. A zero-filled stream can look like genuine silence; denied/re
 cannot honestly be diagnosed from silence alone. Native denial/revocation behavior remains an
 open verification item, including whether this OS terminates the process or stalls/silences the
 stream. Do not claim immediate revocation detection, a passed native permission test, or an
-unbounded-silence workaround. Confirm the access in macOS Privacy & Security and toggle off/on to
-retry. A public-API solution that cannot satisfy native revocation requirements blocks final M16
-acceptance; do not substitute a forbidden permission or private TCC call.
+unbounded-silence workaround. A failed capture is retried when PetScape becomes active again; while
+the opt-in is on, Settings also has a Restart Music Detection action for silent monitoring. If the
+status says it is listening but no dance occurs, confirm PetScape's System Audio Recording access in
+macOS Privacy & Security, then restart detection. Restarting does not change the opt-in or weaken any
+permission boundary. Native denial/revocation verification remains an accepted evidence limit at the
+M16 owner closeout; do not substitute a forbidden permission or private TCC call.
 
 Audio lives only in bounded memory for analysis, is never saved/logged/transmitted, and no audio
 or classification history persists. The callback copies at most 16,384 mono floats per packet;

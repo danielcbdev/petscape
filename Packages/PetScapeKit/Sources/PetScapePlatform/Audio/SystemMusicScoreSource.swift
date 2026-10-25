@@ -1,6 +1,7 @@
 import AVFoundation
 import CoreAudio
 import Foundation
+import PetScapeCore
 
 /// Captures only outgoing system audio via the public macOS 14.2 tap API. Never microphone or screens.
 /// Samples are copied into a bounded stream for an isolated analyzer; nothing is written or logged.
@@ -176,7 +177,10 @@ public final class SystemMusicScoreSource: MusicScoreSource {
     }
 
     private func check(_ status: OSStatus) throws {
-        guard status == noErr else { throw MusicCaptureError.unavailable }
+        guard status == noErr else {
+            Log.permissions.error("Core Audio operation failed with OSStatus \(status, privacy: .public)")
+            throw MusicCaptureError.unavailable
+        }
     }
 
     isolated deinit { stop() }

@@ -292,3 +292,21 @@ Fresh checks on the integration tree:
 The inherited failing test was executed and retained, not skipped or weakened. These results do
 not create a measured native-performance, permission-revocation or VoiceOver pass. Owner acceptance
 and its explicit Git authorization govern closure with the documented exceptions.
+
+## Owner follow-up — music detection recovery — 2026-10-24
+
+After restarting PetScape, the owner reported that automatic music dancing no longer started even
+though manual Dance worked. A deterministic regression reproduced one concrete failure: if Core
+Audio capture failed during startup, `MusicDetectionController` latched unavailable and refused to
+start again while the persisted opt-in stayed enabled. Manual Dance bypasses capture, so it could
+still work. The fix adds an explicit capture retry that preserves the saved opt-in, retries an
+unavailable capture when the app becomes active, and exposes Restart Music Detection in Settings
+while the feature is enabled. Healthy monitoring is not restarted by app activation. The status copy
+now points users to System Audio Recording access and the restart action.
+
+This cannot establish that the owner's observed failure was specifically a macOS permission denial.
+When capture continues with zero-filled audio, public Core Audio supplies no reliable permission
+status, so the UI still reports monitoring until the user checks Privacy & Security. Manual restart
+recreates the tap without changing preference or permission settings. Native playback/consent was
+not re-tested by this code change; it does not remove the existing accepted evidence limit or reopen
+the M16 milestone.

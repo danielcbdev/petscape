@@ -13,7 +13,14 @@ extension PetRuntimeTests {
             var onFailure: (() -> Void)?
             var starts = 0
             var stops = 0
-            func start() throws { starts += 1 }
+            var failedStartsRemaining = 0
+            func start() throws {
+                starts += 1
+                if failedStartsRemaining > 0 {
+                    failedStartsRemaining -= 1
+                    throw MusicCaptureError.unavailable
+                }
+            }
             func stop() { stops += 1 }
         }
 
@@ -58,9 +65,12 @@ extension PetRuntimeTests {
             model.confirmMusicConsent()
             #expect(source.starts == 1)
             #expect(h.preferences.isMusicDancingEnabled)
+            model.retryMusicDetection()
+            #expect(source.starts == 2)
+            #expect(h.preferences.isMusicDancingEnabled)
             model.restoreDefaults()
             #expect(!h.preferences.isMusicDancingEnabled)
-            #expect(source.stops == 1)
+            #expect(source.stops == 2)
             #expect(model.musicStatus == .off)
             h.runtime.stop()
         }
@@ -99,6 +109,32 @@ extension PetRuntimeTests {
             h.runtime.stop()
             #expect(source.stops == 5)
             #expect(source.onScore == nil)
+        }
+
+        @Test func persistedOptInRecoversAfterOneStartupCaptureFailure() async {
+            let source = Source()
+            source.failedStartsRemaining = 1
+            let h = Self.harness(MusicDetectionController(source: source))
+            h.preferences.isMusicDancingEnabled = true
+
+            h.runtime.start()
+            h.runtime.show(await CharacterLoader().load(packURL: TestPacks.catPackURL))
+            h.frames(2)
+            h.runtime.setPetSettings(PetSettings())
+            h.runtime.setActivity(.idle)
+            #expect(source.starts == 1)
+            #expect(h.runtime.musicStatus == .unavailable)
+
+            h.runtime.retryUnavailableMusicDetection()
+
+            #expect(source.starts == 2)
+            #expect(h.runtime.musicStatus == .monitoring)
+            source.onScore?(0.9, 1)
+            #expect(h.runtime.pets[0].state == .grounded(.dancing(.automatic)))
+            h.runtime.retryUnavailableMusicDetection()
+            #expect(source.starts == 2, "App activation does not restart healthy monitoring")
+            #expect(h.runtime.pets[0].state == .grounded(.dancing(.automatic)))
+            h.runtime.stop()
         }
     }
 

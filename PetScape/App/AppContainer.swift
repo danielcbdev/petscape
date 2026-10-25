@@ -85,6 +85,7 @@ final class AppContainer {
             MainActor.assumeIsolated {
                 self?.settingsModel.refreshLoginStatus()
                 self?.settingsModel.refreshWindowPermissionStatus()
+                self?.runtime.retryUnavailableMusicDetection()
             }
         }
         #if DEBUG

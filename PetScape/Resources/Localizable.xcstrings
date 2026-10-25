@@ -513,6 +513,16 @@
         }
       }
     },
+    "System audio capture started. If the cat does not dance while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again.": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "A captura de áudio do sistema foi iniciada. Se o gato não dançar enquanto a música toca, confira a permissão do PetScape para gravar áudio do sistema em Privacidade e Segurança e reinicie a detecção. Depois de uma pausa, a música precisa parar e recomeçar."
+          }
+        }
+      }
+    },
     "Loading characters…": {
       "localizations": {
         "pt-BR": {
@@ -573,12 +583,12 @@
         }
       }
     },
-    "Music detection is unavailable. Check system audio access and your output device, then turn detection off and on to retry. Manual dance remains available.": {
+    "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available.": {
       "localizations": {
         "pt-BR": {
           "stringUnit": {
             "state": "translated",
-            "value": "A detecção de música está indisponível. Confira o acesso ao áudio do sistema e o dispositivo de saída; depois, desative e reative a detecção para tentar novamente. A dança manual continua disponível."
+            "value": "A detecção de música parou. Confira se o PetScape tem permissão para gravar áudio do sistema em Privacidade e Segurança e verifique o dispositivo de saída; depois, reinicie a detecção. A dança manual continua disponível."
           }
         }
       }
@@ -791,6 +801,16 @@
           "stringUnit": {
             "state": "translated",
             "value": "Restaurar padrões"
+          }
+        }
+      }
+    },
+    "Restart Music Detection": {
+      "localizations": {
+        "pt-BR": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Reiniciar detecção de música"
           }
         }
       }
@@ -1095,16 +1115,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "Aguarde até o pet estar andando ou parado com espaço suficiente e tente novamente."
-          }
-        }
-      }
-    },
-    "Waiting for music. If detection is silent, check PetScape's system audio access in Privacy & Security. After a pause, music must stop and start again.": {
-      "localizations": {
-        "pt-BR": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Aguardando música. Se a detecção não responder, confira o acesso do PetScape ao áudio do sistema em Privacidade e Segurança. Depois de uma pausa, a música precisa parar e recomeçar."
           }
         }
       }
