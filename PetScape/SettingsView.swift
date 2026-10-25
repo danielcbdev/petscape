@@ -370,7 +370,7 @@ struct SettingsView: View {
             settingsCard("Dance to music") {
                 Toggle(
                     "Dance to music",
-                    isOn: Binding(get: { model.isMusicDancingEnabled }, set: model.setMusicDancingEnabled)
+                    isOn: Binding(get: { model.isMusicDancingEnabled }, set: { model.setMusicDancingEnabled($0) })
                 )
                 .accessibilityIdentifier("settings.musicDancing")
                 .accessibilityLabel("Dance to music")
@@ -442,7 +442,7 @@ struct SettingsView: View {
         settingsCard("Interaction") {
             Toggle(
                 "Interact with windows",
-                isOn: Binding(get: { model.isWindowInteractionEnabled }, set: model.setWindowInteractionEnabled)
+                isOn: Binding(get: { model.isWindowInteractionEnabled }, set: { model.setWindowInteractionEnabled($0) })
             )
             .accessibilityIdentifier("settings.windowInteraction")
             .accessibilityLabel("Interact with windows")
@@ -482,10 +482,10 @@ struct SettingsView: View {
     private var generalPage: some View {
         Group {
             settingsCard("App state") {
-                Toggle("Pause", isOn: Binding(get: { model.userIntent.isPaused }, set: model.setPaused))
+                Toggle("Pause", isOn: Binding(get: { model.userIntent.isPaused }, set: { model.setPaused($0) }))
                     .accessibilityLabel("Pause")
                     .accessibilityIdentifier("settings.pause")
-                Toggle("Hide Pet", isOn: Binding(get: { model.userIntent.isHidden }, set: model.setHidden))
+                Toggle("Hide Pet", isOn: Binding(get: { model.userIntent.isHidden }, set: { model.setHidden($0) }))
                     .accessibilityLabel("Hide Pet")
                     .accessibilityIdentifier("settings.hidePet")
                 Button("Wake Pet", action: model.wakePet)
@@ -494,7 +494,7 @@ struct SettingsView: View {
             settingsCard("Launch at login") {
                 Toggle(
                     "Launch at login",
-                    isOn: Binding(get: { model.isLaunchAtLoginEnabled }, set: model.setLaunchAtLogin)
+                    isOn: Binding(get: { model.isLaunchAtLoginEnabled }, set: { model.setLaunchAtLogin($0) })
                 )
                 .accessibilityIdentifier("settings.login")
                 .accessibilityLabel("Launch at login")
@@ -582,7 +582,8 @@ struct SettingsView: View {
         get: @escaping @MainActor @Sendable () -> Bool,
         set: @escaping @MainActor @Sendable (Bool) -> Void
     ) -> some View {
-        Toggle(title, isOn: Binding(get: get, set: set))
+        // Swift 6.2 can crash emitting the isolated Bool reabstraction thunk for direct function values.
+        Toggle(title, isOn: Binding(get: { get() }, set: { set($0) }))
             .accessibilityLabel(Text(title))
             .accessibilityIdentifier(identifier)
     }

@@ -311,3 +311,10 @@ Debug, Release and UI builds. All three raw failures are retained in its uploade
 Makefile and release Xcode commands now explicitly set `SWIFT_SUPPRESS_WARNINGS=NO`; warning
 enforcement stays enabled. A canonical `make build` preflight was added before the long hosted
 test sequence so further toolchain incompatibilities fail early. No additional gate was waived.
+
+The fail-fast run `40220682699` resolved that flag conflict and then exposed a Swift 6.2.3 compiler
+IRGen crash in SettingsView: the demangled thunk converts an actor-isolated Sendable Bool setter
+into a generic indirect Bool setter. The direct Bool method/function references passed to Binding
+now use forwarding closures; the existing MainActor/Sendable annotations, model intents, labels,
+IDs and assertions remain unchanged. This is a compiler-compatibility repair, not a release-gate
+exception. Local and fresh hosted builds must validate it before publication.
