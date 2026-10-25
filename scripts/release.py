@@ -205,8 +205,10 @@ def validate_v8_approval(policy, version):
 def only_known_v8_failure(report):
     # Fail closed if Swift Testing's output changes or a run is incomplete. Never skip the test.
     summaries = re.findall(r"[✔✘] Test run with (\d+) tests in (\d+) suites (passed|failed)[^\n]*", report)
-    if sorted(summaries) != sorted([("128", "13", "failed"), ("50", "10", "passed"),
-                                    ("51", "9", "passed"), ("344", "33", "passed")]):
+    split_report = sorted([("128", "13", "failed"), ("50", "10", "passed"),
+                           ("51", "9", "passed"), ("344", "33", "passed")])
+    aggregate_report = [("573", "65", "failed")]
+    if sorted(summaries) not in [split_report, aggregate_report]:
         return False
     failed_summary = re.findall(r"^✘ Test run with [^\n]+", report, re.MULTILINE)
     if len(failed_summary) != 1 or not failed_summary[0].endswith("with 48 issues."):

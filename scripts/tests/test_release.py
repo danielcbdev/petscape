@@ -138,6 +138,18 @@ class ReleaseTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 self.release.validate_v8_approval(value, version)
 
+    def test_known_v8_report_accepts_complete_swift62_aggregate_without_other_failures(self):
+        report = "\n".join([
+            *["✘ Test newDrawingsAreDistinctOpaqueContainedAndRegistered() recorded an issue at M15CharacterPackTests.swift:190:13: Expectation failed" for _ in range(48)],
+            "✘ Test newDrawingsAreDistinctOpaqueContainedAndRegistered() failed after 170 seconds with 48 issues.",
+            '✘ Suite "M15 authored animation quality" failed after 180 seconds with 48 issues.',
+            "✘ Test run with 573 tests in 65 suites failed after 200 seconds with 48 issues.",
+        ])
+        self.assertTrue(self.release.only_known_v8_failure(report))
+        for changed in [report.replace("573 tests", "572 tests"), report.replace("65 suites", "64 suites"),
+                        report + "\n✘ Test other() failed after 1 seconds with 1 issue."]:
+            self.assertFalse(self.release.only_known_v8_failure(changed))
+
     def test_invalid_cli_inputs_fail_before_creating_output(self):
         for args in [["v1.0.0", "2"], ["1.0.0", "0"], ["1.0.0", "1"]]:
             result = subprocess.run([sys.executable, "-B", str(SCRIPT), *args], capture_output=True, text=True)

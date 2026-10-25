@@ -50,7 +50,8 @@ Default packaging still requires a clean checkout and all gates green. The expli
 
 The full `make test-core` and `make test` commands run unchanged, retaining exit 2 and their raw
 logs when V8 fails. Before allowing that exact exception, the script requires complete Swift Testing
-summaries for all **573 tests** (Core 344, Platform 51, Rendering 50, Runtime 128), exactly one failed
+summaries for all **573 tests** (Core 344, Platform 51, Rendering 50, Runtime 128), either the
+Swift 6.2 aggregate (65 suites) or four-module Swift 6.4 report, exactly one failed
 named test `newDrawingsAreDistinctOpaqueContainedAndRegistered`, exactly 48 recorded issues, and
 only the known failed M15 suite. Missing/truncated/changed output, another failure or a compiler/
 signal error blocks release. A changed test inventory requires a fresh policy/code review, not a

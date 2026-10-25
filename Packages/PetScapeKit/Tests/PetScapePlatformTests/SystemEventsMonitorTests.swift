@@ -4,12 +4,12 @@ import Testing
 @testable import PetScapeCore
 @testable import PetScapePlatform
 
-/// Waits (polling the main actor) until `condition` holds or `timeout` passes; notifications observed on
-/// `.main` may be delivered asynchronously.
-func waitUntil(timeout: Duration = .seconds(2), _ condition: () -> Bool) async {
-    let clock = ContinuousClock()
-    let deadline = clock.now + timeout
-    while !condition(), clock.now < deadline {
+/// Bounds scheduler opportunities rather than wall time: Swift 6.2 runs all test modules in one
+/// process, where unrelated synchronous image QA can occupy the main actor for several seconds.
+/// Notification tests assert delivery/state, not latency; a missing event still exhausts this bound.
+func waitUntil(_ condition: () -> Bool) async {
+    for _ in 0..<400 {
+        if condition() { return }
         try? await Task.sleep(for: .milliseconds(5))
     }
 }

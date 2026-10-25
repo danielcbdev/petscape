@@ -294,3 +294,12 @@ now separately typed before the macro. No threshold/test count was changed; the 
 remain untouched. Release dry run `40218628452` was cancelled after this concrete blocking defect
 was diagnosed, so its cancellation is not a successful package/UI result. A fresh committed run
 must validate the compatibility repair before any tag or public release.
+
+The repaired Swift 6.2 run (`40218879405`) compiled, then exposed main-actor starvation in two
+FullScreenSpaceDetector notification tests (three assertions). Swift 6.2 runs all 573 tests in one
+process; synchronous image QA delayed notification task scheduling beyond the helper's two-second
+wall deadline. The existing condition wait now bounds 400 polling opportunities instead of wall
+time spent blocked by other tests. Every callback/state assertion remains unchanged; this is not a
+latency test or a waiver. Release run `40218905502` was cancelled while this blocking race was
+addressed. The report validator now supports both exact complete layouts: Swift 6.2's 573 tests/65
+suites aggregate, and Swift 6.4's four-module summaries. Both still require only V8 with 48 issues.

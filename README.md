@@ -189,7 +189,7 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The latest M21 full rehearsals passed lint, Debug/Release/archive builds, all 13 release-tool tests
+The latest M21 full rehearsals passed lint, Debug/Release/archive builds, all 14 release-tool tests
 and a separately executed 7-test UI suite. The package gate ran 573 tests and failed the existing
 M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
 Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
