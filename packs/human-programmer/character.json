@@ -1,0 +1,840 @@
+{
+  "schemaVersion": 1,
+  "id": "human-programmer",
+  "displayName": "Dimas",
+  "defaultAnimation": "walk",
+  "defaultFacing": "right",
+  "canvas": {
+    "width": 512,
+    "height": 512
+  },
+  "displaySize": {
+    "width": 96,
+    "height": 96
+  },
+  "anchor": {
+    "x": 0.5,
+    "y": 0.074
+  },
+  "fallbacks": {
+    "idle": "walk",
+    "fall": "jump",
+    "land": "landing",
+    "jump-start": "idle",
+    "jump": "idle",
+    "landing": "idle",
+    "jump-air": "jump",
+    "sit-down": "idle",
+    "sit": "idle",
+    "stand-up": "idle",
+    "lie-down": "idle",
+    "sleep": "idle",
+    "wake-up": "idle",
+    "stretch": "idle",
+    "look-around": "curious",
+    "observe": "curious",
+    "curious": "idle",
+    "picked-up": "held",
+    "held": "idle",
+    "climb": "idle"
+  },
+  "animations": {
+    "walk": {
+      "playback": "loop",
+      "fps": 30,
+      "nominalSpeed": 27,
+      "frames": [
+        {
+          "image": "walk/frames/walk_01.png"
+        },
+        {
+          "image": "walk/frames/walk_02.png"
+        },
+        {
+          "image": "walk/frames/walk_03.png"
+        },
+        {
+          "image": "walk/frames/walk_04.png"
+        },
+        {
+          "image": "walk/frames/walk_05.png"
+        },
+        {
+          "image": "walk/frames/walk_06.png"
+        },
+        {
+          "image": "walk/frames/walk_07.png"
+        },
+        {
+          "image": "walk/frames/walk_08.png"
+        },
+        {
+          "image": "walk/frames/walk_09.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "walk/frames/walk_10.png"
+        },
+        {
+          "image": "walk/frames/walk_11.png"
+        },
+        {
+          "image": "walk/frames/walk_12.png"
+        },
+        {
+          "image": "walk/frames/walk_13.png"
+        },
+        {
+          "image": "walk/frames/walk_14.png"
+        },
+        {
+          "image": "walk/frames/walk_15.png"
+        },
+        {
+          "image": "walk/frames/walk_16.png"
+        },
+        {
+          "image": "walk/frames/walk_17.png"
+        },
+        {
+          "image": "walk/frames/walk_18.png"
+        },
+        {
+          "image": "walk/frames/walk_19.png"
+        },
+        {
+          "image": "walk/frames/walk_20.png"
+        },
+        {
+          "image": "walk/frames/walk_21.png"
+        },
+        {
+          "image": "walk/frames/walk_22.png"
+        },
+        {
+          "image": "walk/frames/walk_23.png"
+        },
+        {
+          "image": "walk/frames/walk_24.png",
+          "events": [
+            "footstep"
+          ]
+        },
+        {
+          "image": "walk/frames/walk_25.png"
+        },
+        {
+          "image": "walk/frames/walk_26.png"
+        },
+        {
+          "image": "walk/frames/walk_27.png"
+        },
+        {
+          "image": "walk/frames/walk_28.png"
+        },
+        {
+          "image": "walk/frames/walk_29.png"
+        },
+        {
+          "image": "walk/frames/walk_30.png"
+        }
+      ]
+    },
+    "idle": {
+      "playback": "loop",
+      "frames": [
+        {
+          "image": "idle/frames/idle_01.png",
+          "duration": 0.4166666667
+        },
+        {
+          "image": "idle/frames/idle_02.png",
+          "duration": 0.4
+        },
+        {
+          "image": "idle/frames/idle_03.png",
+          "duration": 0.65
+        },
+        {
+          "image": "idle/frames/idle_04.png",
+          "duration": 0.2833333333
+        },
+        {
+          "image": "idle/frames/idle_05.png",
+          "duration": 0.1833333333
+        },
+        {
+          "image": "idle/frames/idle_06.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "idle/frames/idle_07.png",
+          "duration": 0.1333333333,
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "idle/frames/idle_08.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "idle/frames/idle_09.png",
+          "duration": 0.3333333333
+        },
+        {
+          "image": "idle/frames/idle_10.png",
+          "duration": 0.6166666667
+        },
+        {
+          "image": "idle/frames/idle_11.png",
+          "duration": 0.1333333333
+        }
+      ]
+    },
+    "jump-start": {
+      "playback": "once",
+      "frames": [
+        {
+          "image": "jump-start/frames/jump-start_01.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump-start/frames/jump-start_02.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump-start/frames/jump-start_03.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump-start/frames/jump-start_04.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "jump-start/frames/jump-start_05.png",
+          "duration": 0.0333333333,
+          "events": [
+            "takeoff"
+          ]
+        }
+      ]
+    },
+    "jump": {
+      "playback": "once",
+      "frames": [
+        {
+          "image": "jump/frames/jump_01.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_02.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_03.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_06.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "jump/frames/jump_07.png",
+          "duration": 0.1333333333
+        }
+      ]
+    },
+    "fall": {
+      "playback": "loop",
+      "frames": [
+        {
+          "image": "fall/frames/fall_01.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_02.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_03.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_04.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_05.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_06.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_07.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_08.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_09.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_10.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_11.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "fall/frames/fall_12.png",
+          "duration": 0.0666666667
+        }
+      ]
+    },
+    "landing": {
+      "playback": "once",
+      "frames": [
+        {
+          "image": "landing/frames/landing_01.png",
+          "duration": 0.0166666667,
+          "events": [
+            "contact"
+          ]
+        },
+        {
+          "image": "landing/frames/landing_02.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "landing/frames/landing_03.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "landing/frames/landing_04.png",
+          "duration": 0.0166666667,
+          "events": [
+            "settled"
+          ]
+        }
+      ]
+    },
+    "curious": {
+      "playback": "loop",
+      "frames": [
+        {
+          "image": "curious/frames/curious_01.png",
+          "duration": 0.1
+        },
+        {
+          "image": "curious/frames/curious_02.png",
+          "duration": 0.0833333333
+        },
+        {
+          "image": "curious/frames/curious_03.png",
+          "duration": 0.1166666667
+        },
+        {
+          "image": "curious/frames/curious_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_06.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_07.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_08.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_09.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_10.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_11.png",
+          "duration": 0.45
+        },
+        {
+          "image": "curious/frames/curious_12.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "curious/frames/curious_13.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "curious/frames/curious_14.png",
+          "duration": 0.0833333333,
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "curious/frames/curious_15.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_16.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "curious/frames/curious_17.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_18.png",
+          "duration": 0.25
+        },
+        {
+          "image": "curious/frames/curious_19.png",
+          "duration": 0.05
+        },
+        {
+          "image": "curious/frames/curious_20.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_21.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_22.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_23.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "curious/frames/curious_24.png",
+          "duration": 0.05
+        },
+        {
+          "image": "curious/frames/curious_25.png",
+          "duration": 0.0833333333
+        },
+        {
+          "image": "curious/frames/curious_26.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "curious/frames/curious_27.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "curious/frames/curious_28.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "curious/frames/curious_29.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "curious/frames/curious_30.png",
+          "duration": 0.1
+        },
+        {
+          "image": "curious/frames/curious_31.png",
+          "duration": 0.45
+        },
+        {
+          "image": "curious/frames/curious_32.png",
+          "duration": 0.3666666667
+        },
+        {
+          "image": "curious/frames/curious_33.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "curious/frames/curious_34.png",
+          "duration": 0.05
+        },
+        {
+          "image": "curious/frames/curious_35.png",
+          "duration": 0.0666666667
+        },
+        {
+          "image": "curious/frames/curious_36.png",
+          "duration": 0.3333333333
+        }
+      ]
+    },
+    "picked-up": {
+      "playback": "once",
+      "frames": [
+        {
+          "image": "picked-up/frames/picked-up_01.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "picked-up/frames/picked-up_02.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "picked-up/frames/picked-up_03.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "picked-up/frames/picked-up_04.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "picked-up/frames/picked-up_05.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "picked-up/frames/picked-up_06.png",
+          "duration": 0.0333333333
+        }
+      ]
+    },
+    "held": {
+      "playback": "loop",
+      "frames": [
+        {
+          "image": "held/frames/held_01.png",
+          "duration": 0.15
+        },
+        {
+          "image": "held/frames/held_02.png",
+          "duration": 0.1833333333
+        },
+        {
+          "image": "held/frames/held_03.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "held/frames/held_04.png",
+          "duration": 0.4
+        },
+        {
+          "image": "held/frames/held_05.png",
+          "duration": 0.1666666667
+        },
+        {
+          "image": "held/frames/held_06.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "held/frames/held_07.png",
+          "duration": 0.0166666667
+        },
+        {
+          "image": "held/frames/held_08.png",
+          "duration": 0.1333333333,
+          "events": [
+            "blink"
+          ]
+        },
+        {
+          "image": "held/frames/held_09.png",
+          "duration": 0.0333333333
+        },
+        {
+          "image": "held/frames/held_10.png",
+          "duration": 0.1666666667
+        },
+        {
+          "image": "held/frames/held_11.png",
+          "duration": 0.2166666667
+        },
+        {
+          "image": "held/frames/held_12.png",
+          "duration": 0.3166666667
+        },
+        {
+          "image": "held/frames/held_13.png",
+          "duration": 0.2
+        },
+        {
+          "image": "held/frames/held_14.png",
+          "duration": 0.15
+        },
+        {
+          "image": "held/frames/held_15.png",
+          "duration": 0.0333333333
+        }
+      ]
+    },
+    "climb": {
+      "playback": "loop",
+      "fps": 30,
+      "frames": [
+        {
+          "image": "climb/frames/climb_01.png"
+        },
+        {
+          "image": "climb/frames/climb_02.png"
+        },
+        {
+          "image": "climb/frames/climb_03.png"
+        },
+        {
+          "image": "climb/frames/climb_04.png"
+        },
+        {
+          "image": "climb/frames/climb_05.png"
+        },
+        {
+          "image": "climb/frames/climb_06.png"
+        },
+        {
+          "image": "climb/frames/climb_07.png"
+        },
+        {
+          "image": "climb/frames/climb_08.png"
+        }
+      ],
+      "anchor": {
+        "x": 0.955,
+        "y": 0.5
+      },
+      "alignment": "right",
+      "interruptible": false
+    },
+    "dance": {
+      "playback": "loop",
+      "fps": 30,
+      "alignment": "bottom",
+      "mirrorable": true,
+      "interruptible": true,
+      "frames": [
+        {
+          "image": "dance/frames/dance_01.png"
+        },
+        {
+          "image": "dance/frames/dance_02.png"
+        },
+        {
+          "image": "dance/frames/dance_03.png"
+        },
+        {
+          "image": "dance/frames/dance_04.png"
+        },
+        {
+          "image": "dance/frames/dance_05.png"
+        },
+        {
+          "image": "dance/frames/dance_06.png"
+        },
+        {
+          "image": "dance/frames/dance_07.png"
+        },
+        {
+          "image": "dance/frames/dance_08.png"
+        },
+        {
+          "image": "dance/frames/dance_09.png"
+        },
+        {
+          "image": "dance/frames/dance_10.png"
+        },
+        {
+          "image": "dance/frames/dance_11.png"
+        },
+        {
+          "image": "dance/frames/dance_12.png"
+        },
+        {
+          "image": "dance/frames/dance_13.png"
+        },
+        {
+          "image": "dance/frames/dance_14.png"
+        },
+        {
+          "image": "dance/frames/dance_15.png"
+        },
+        {
+          "image": "dance/frames/dance_16.png"
+        },
+        {
+          "image": "dance/frames/dance_17.png"
+        },
+        {
+          "image": "dance/frames/dance_18.png"
+        },
+        {
+          "image": "dance/frames/dance_19.png"
+        },
+        {
+          "image": "dance/frames/dance_20.png"
+        },
+        {
+          "image": "dance/frames/dance_21.png"
+        },
+        {
+          "image": "dance/frames/dance_22.png"
+        },
+        {
+          "image": "dance/frames/dance_23.png"
+        },
+        {
+          "image": "dance/frames/dance_24.png"
+        },
+        {
+          "image": "dance/frames/dance_25.png"
+        },
+        {
+          "image": "dance/frames/dance_26.png"
+        },
+        {
+          "image": "dance/frames/dance_27.png"
+        },
+        {
+          "image": "dance/frames/dance_28.png"
+        },
+        {
+          "image": "dance/frames/dance_29.png"
+        },
+        {
+          "image": "dance/frames/dance_30.png"
+        }
+      ]
+    },
+    "cleanup": {
+      "playback": "once",
+      "fps": 12,
+      "alignment": "bottom",
+      "mirrorable": true,
+      "interruptible": true,
+      "frames": [
+        {
+          "image": "cleanup/frames/cleanup_01.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_02.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_03.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_04.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_05.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_06.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_07.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_08.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_09.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_10.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_11.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_12.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_13.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_14.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_15.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_16.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_17.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_18.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_19.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_20.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_21.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_22.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_23.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_24.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_25.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_26.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_27.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_28.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_29.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_30.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_31.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_32.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_33.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_34.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_35.png"
+        },
+        {
+          "image": "cleanup/frames/cleanup_36.png"
+        }
+      ]
+    }
+  }
+}
