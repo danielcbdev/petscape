@@ -114,6 +114,8 @@ public final class SettingsModel {
         runtime.setMusicDancingEnabled(true)
     }
 
+    public func retryMusicDetection() { runtime.retryMusicDetection() }
+
     public func cancelMusicConsent() { isMusicConsentPresented = false }
     public func dance() { runtime.requestDance() }
     public func stopDance() { runtime.stopDance() }

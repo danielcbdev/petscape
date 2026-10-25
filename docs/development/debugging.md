@@ -84,6 +84,18 @@ Log lines added in M6 (all builds; predicate `category == "dock" OR category == 
 log stream --level info --predicate 'subsystem == "io.github.danielcbdev.petscape" AND (category == "dock" OR category == "overlay")'
 ```
 
+## M16 music capture diagnostics
+
+The `permissions` category records only capture lifecycle: source start/failure, Core Audio OSStatus
+errors, and arrival of the first classifier result after a start. It never logs audio samples,
+classification scores, labels, or music-session history. `System audio capture source started`
+confirms setup reached `AudioDeviceStart`; `System audio classifier produced its first result`
+confirms the analyzer returned a window, but does not prove that macOS granted non-silent audio.
+
+```bash
+log stream --level info --predicate 'subsystem == "io.github.danielcbdev.petscape" AND category == "permissions"'
+```
+
 The debug overlay is drawn by `DebugOverlayLayer` (`CAShapeLayer`s) in `OverlayContentView` from data in the snapshot; it must
 not affect simulation.
 

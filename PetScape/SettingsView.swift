@@ -101,6 +101,11 @@ struct SettingsView: View {
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityIdentifier("settings.musicStatus")
+                if model.isMusicDancingEnabled {
+                    Button("Restart Music Detection", action: model.retryMusicDetection)
+                        .disabled(model.canStopDance)
+                        .accessibilityIdentifier("settings.retryMusicDetection")
+                }
                 if model.isSpecialArtworkPending {
                     Text("Dance and cleanup artwork is pending. Your pet holds a still pose during these activities.")
                         .font(.caption)
@@ -427,11 +432,11 @@ struct SettingsView: View {
             Text("Music detection is paused while your pet is unavailable or autonomous activities are off.")
         case .monitoring:
             Text(
-                "Waiting for music. If detection is silent, check PetScape's system audio access in Privacy & Security. After a pause, music must stop and start again."
+                "System audio capture started. If the cat does not dance while music plays, check PetScape's System Audio Recording access in Privacy & Security, then restart music detection. After a pause, music must stop and start again."
             )
         case .unavailable:
             Text(
-                "Music detection is unavailable. Check system audio access and your output device, then turn detection off and on to retry. Manual dance remains available."
+                "Music detection stopped. Check PetScape under System Audio Recording in Privacy & Security and your output device, then restart music detection. Manual dance remains available."
             )
         }
     }

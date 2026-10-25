@@ -73,6 +73,26 @@ struct MusicDetectionTests {
         #expect(edges == [true])
     }
 
+    @Test func explicitRetryRecoversWithoutClearingTheOptInPreference() {
+        let source = FakeSource()
+        let detector = MusicDetectionController(source: source)
+        var edges: [Bool] = []
+        detector.onMusicChange = { edges.append($0) }
+        source.failAtStart = true
+
+        detector.update(enabled: true, canRun: true)
+        #expect(detector.status == .unavailable)
+        #expect(source.starts == 1)
+
+        source.failAtStart = false
+        detector.retry(enabled: true, canRun: true)
+
+        #expect(detector.status == .monitoring)
+        #expect(source.starts == 2)
+        source.onScore?(0.9, 1)
+        #expect(edges == [true])
+    }
+
     @Test func failureCallbackCannotRestartCaptureDuringRuntimeRefresh() {
         let source = FakeSource()
         let detector = MusicDetectionController(source: source)

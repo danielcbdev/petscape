@@ -154,11 +154,27 @@ public final class PetRuntime {
     }
 
     public func refreshMusicDetection() {
-        let canRun =
-            isStarted && overlay.runState.status.state == .running
-            && preferences.petSettings.behavior.isEnabled && snapshot.pets.contains(where: { $0.isVisible })
+        let canRun = canRunMusicDetection
         world.apply(.configureMusicDancing(preferences.isMusicDancingEnabled && canRun))
         musicDetector.update(enabled: preferences.isMusicDancingEnabled, canRun: canRun)
+    }
+
+    /// Recreates the capture after an explicit recovery action without changing the user's opt-in.
+    public func retryMusicDetection() {
+        let canRun = canRunMusicDetection
+        world.apply(.configureMusicDancing(preferences.isMusicDancingEnabled && canRun))
+        musicDetector.retry(enabled: preferences.isMusicDancingEnabled, canRun: canRun)
+    }
+
+    /// An app-activation recovery path for capture failures; healthy monitoring is left untouched.
+    public func retryUnavailableMusicDetection() {
+        guard preferences.isMusicDancingEnabled, musicDetector.status == .unavailable else { return }
+        retryMusicDetection()
+    }
+
+    private var canRunMusicDetection: Bool {
+        isStarted && overlay.runState.status.state == .running
+            && preferences.petSettings.behavior.isEnabled && snapshot.pets.contains(where: { $0.isVisible })
     }
 
     private func publishDanceAvailability() {
