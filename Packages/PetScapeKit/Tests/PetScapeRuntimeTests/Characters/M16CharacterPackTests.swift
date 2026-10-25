@@ -127,7 +127,9 @@ struct M16CharacterPackTests {
             #expect(character.frames[expected.name]?.count == expected.count, "No silent fallback")
         }
         // Measured cost of both families at the existing 288 px decode policy; no budget is implied.
-        #expect(character.decodedByteCount - before == 66 * 288 * 288 * 4)
+        let expectedAdditionalBytes: Int = 66 * 288 * 288 * 4
+        let additionalDecodedBytes = character.decodedByteCount - before
+        #expect(additionalDecodedBytes == expectedAdditionalBytes)
     }
 
     private static func pixels(_ url: URL) throws -> Data {

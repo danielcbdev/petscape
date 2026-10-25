@@ -286,3 +286,11 @@ A separate local UI attempt also stopped during Automation Mode initialization; 
 security setting was changed. Authorized Git integration will make the manual workflow available
 on main so the public hosted runner can supply actual UI/build/package evidence before publication.
 No additional UI failure or missing native test is waived by the V8 policy.
+
+Initial remote compatibility check: development CI run `40218587264` failed to compile the existing
+M16 decoded-memory assertion with Swift 6.2 (`#expect` type-check timeout at M16CharacterPackTests.swift).
+The same arithmetic and exact equality are preserved, but expected and actual byte counts are
+now separately typed before the macro. No threshold/test count was changed; the V8 test and art
+remain untouched. Release dry run `40218628452` was cancelled after this concrete blocking defect
+was diagnosed, so its cancellation is not a successful package/UI result. A fresh committed run
+must validate the compatibility repair before any tag or public release.
