@@ -145,3 +145,14 @@ The Accessibility explanation, local system-audio consent copy and `NSAudioCaptu
 are translated in the app's `pt-BR` localization. English remains the source language. This changes
 presentation only: permission defaults, triggers, APIs, retention and privacy boundaries above are
 unchanged. Native system prompts use macOS's own language and were not replaced by app-authored UI.
+
+## M19 user-selected character packs
+
+Settings uses the native folder picker for a local pack chosen by the user. The app reads only that
+selected folder for the duration of import, then copies the validated runtime manifest and referenced
+PNG files into its own `~/Library/Application Support/PetScape/Characters` directory. No
+security-scoped bookmark is persisted. Import and catalog discovery require no Full Disk Access,
+Files & Folders, Accessibility, Screen Recording, Input Monitoring, Automation, or network access.
+No archive is opened and no pack code is executed. All other files and directories are ignored for
+runtime purposes and are not copied; symlink, alias, special-file, path, format and resource limits
+are enforced by the [M19 pack contract](asset-format.md#user-installed-packs-m19).

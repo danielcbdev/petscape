@@ -431,3 +431,63 @@ Unrun owner visual/accessibility follow-up matrix (accepted as an evidence limit
 
 Do not grant Accessibility or audio permission solely for this localization review. Existing M15,
 M16 and M18 acceptance exceptions remain unchanged.
+
+## M19 character pack import and discovery
+
+Automated pack tests use only generated temporary roots. Never point tests at the owner's
+`~/Library/Application Support/PetScape/Characters`. For UI tests, pass an isolated temporary user
+pack root through the DEBUG launch option and remove it during test teardown. Use temporary
+directories to exercise the Application Support path helper; do not create or alter the live
+Application Support tree.
+
+The M19 regression suite covers:
+
+- missing/empty roots, stable immediate-child discovery, bundled and installed origin labels,
+  duplicate IDs and corrupted packs that must not hide valid entries;
+- schema/ID/path validation, aliases/symlinks/special files, traversal, normalized-name collision,
+  missing and malformed PNGs, source dimensions, manifest/tree/frame/file/decoded-byte bounds;
+- atomic stage write, cancellation/failure cleanup, existing destination protection, exclusive
+  promotion, and unchanged installed packs/preferences on failure;
+- selection persistence and M18 fallback when an installed pack is removed or corrupted, plus busy,
+  late completion and lazy-load safety;
+- localized English and `pt-BR` import messages and Settings empty/loading/success/error states.
+
+Manual M19 matrix (record OS, locale and exact result):
+
+| Scenario | Expected |
+|---|---|
+| Cancel folder selection | No files, catalog entries, active pet or preference change |
+| Import a valid real external pack in English | Localized success; installed origin appears; active pet remains unchanged until selected |
+| Import the same pack or an ID that conflicts with bundled content | Actionable duplicate message; no overwrite or catalog change |
+| Select the installed pack while walking and in a busy physical phase | Safe M18 transaction or actionable rejection; old pet/preferences remain on rejection |
+| Relaunch with a selected installed pack | Same character restored from the stable ID |
+| Quit, remove/alter installed folder, and relaunch | Invalid/missing pack omitted; M18 fallback recovers after successful application |
+| Repeat import/error/selection review in `pt-BR` with keyboard and VoiceOver | No clipped copy; controls and origin/status are announced accessibly |
+
+Temporary fixture/UI coverage does not satisfy the real-pack installation/selection review. No
+owner-supplied external pack was available for the M19 implementation. The owner subsequently
+accepted M19 closure with this gap recorded in the [M19 closeout](../planning/milestones.md#owner-m19-closeout--2026-10-24).
+The manual checks below remain unverified, not passed; fixtures do not count as real-pack evidence.
+
+### M19 implementation verification (2026-10-24)
+
+`make format` and `make lint` passed. The focused `CharacterPackInstallationTests` suite passed
+15/15 tests, and the M19 suite passed again within the full package run. The full `make test`
+command stopped in `make test-core` on the retained M15 V8 pixel-QA exception:
+`M15CharacterPackTests.newDrawingsAreDistinctOpaqueContainedAndRegistered` recorded 48 issues.
+The same run passed Core (338 tests/32 suites), Rendering (50/10) and Platform (47/9); the Runtime
+run recorded 123 tests/13 suites with M19 passing and only the 48 M15 issues. `make test` therefore
+did not reach its UI phase. A separate full UI run passed 8/8 tests: launch/Quit, English and
+pt-BR Settings, empty catalog, M18 bundled keyboard selection/persistence, native folder-picker
+cancellation, and installed fixture discovery/selection/relaunch. The UI installation-selection
+case pre-populates an isolated temporary installed directory; it does not select a real external
+folder in the native picker.
+
+`make build` Debug and the Release `xcodebuild` build passed with no Swift compiler warnings. Release
+emitted Xcode's existing AppIntents metadata-extraction warning because the app has no
+`AppIntents.framework` dependency. `xcrun xcstringstool compile` succeeded for all 114 catalog
+entries, each with pt-BR text; syncing the Debug emitted strings found no missing translation. The
+bundled asset copy/validation script produced 201 files. These runs used macOS 27.0.1 and Xcode
+27.1. No owner-provided external pack was available, and no successful real-pack UI installation,
+visual review, VoiceOver review or imported-art performance measurement was performed. The owner
+accepted M19 closure with these evidence limits on 2026-10-24; they remain unverified, not passed.

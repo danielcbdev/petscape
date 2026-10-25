@@ -53,6 +53,38 @@ metadata, atlas and GIF when no runtime manifest references them.
 | Lighting | Light source consistent with the existing cat (top-left soft key) | Mirroring stays believable |
 | Previews | GIFs/atlases optional; never referenced at runtime unless declared as a sheet | Keep bundle small |
 
+## User-installed packs (M19)
+
+The user selects a **folder** containing one root-level `character.json` with schema version 1.
+Referenced images must be PNGs using pack-relative paths. For external packs, path components are
+ASCII letters/digits plus `.`, `_` or `-`; components cannot be empty, `.` or `..`, the extension
+must be lowercase `.png`, and paths that collide under case-folding or Unicode normalization are
+ambiguous and rejected. Repeated use of the same exact path is allowed. All declared frame and
+sheet paths are checked, including unused sheet declarations.
+
+The supported import profile is bounded: manifest ≤256 KiB; selected tree ≤2,048 entries and depth
+≤32; ≤64 animations, ≤512 frame entries, ≤64 sheets and ≤16×16 cells per sheet; ≤256 unique
+referenced images; ≤4 MiB per referenced PNG and ≤64 MiB total referenced file data; ≤4,096 px per
+source dimension; target decode side ≤768 px; estimated decoded bytes for all referenced images
+≤64 MiB. The limits cover the current 200-frame cat's ~45.2 MB referenced payload and its 288 px
+decode target. They are validation ceilings, not evidence that every accepted pack meets CPU or
+memory performance targets.
+
+Import copies only the root runtime manifest and unique referenced PNGs to
+`~/Library/Application Support/PetScape/Characters/<id>`. Unreferenced source files are not copied,
+loaded, interpreted or executed. ZIPs, executables, symlinks, aliases, special files, nested runtime
+manifests, unsupported/multi-image formats, unsafe paths, and invalid IDs are rejected. Only
+ordinary directories and regular files may occur in the bounded selected tree. The folder name in
+Application Support equals the stable manifest ID. Existing IDs/destinations are never overwritten.
+There is no update or in-app removal workflow in M19.
+
+The catalog checks only immediate installed child directories and reruns complete validation at
+startup. Invalid external packs remain on disk for the user to inspect or remove, but do not block
+other packs or app startup. External edits/removal are observed after restart. If a persisted
+installed ID is absent or invalid, the M18 selection fallback is applied and the preference changes
+only after a successful runtime swap. The real installed app must be quit before manually deleting
+an installed folder.
+
 ## Hit masks (derived, not authored)
 
 At load, each frame produces a `HitMask`: a 1-bit grid at ¼ of the decoded texture resolution,

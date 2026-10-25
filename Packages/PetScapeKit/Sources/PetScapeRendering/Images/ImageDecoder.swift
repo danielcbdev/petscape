@@ -2,6 +2,7 @@ import CoreGraphics
 import Foundation
 import ImageIO
 import PetScapeCore
+import UniformTypeIdentifiers
 
 /// Why an image file could not be turned into a `CGImage`. Paths are pack-relative for logs.
 public enum ImageDecodingError: Error, Equatable, Sendable {
@@ -29,6 +30,16 @@ nonisolated public struct ImageDecoder: Sendable {
         -> DecodedImage
     {
         try Self.decodeNow(contentsOf: url, maxPixelSize: maxPixelSize, label: label)
+    }
+
+    /// Validates and downsamples a captured PNG resource without reopening its source URL.
+    @concurrent
+    public func decodePNG(data: Data, maxPixelSize: Int, maxSourceDimension: Int, label: String)
+        async
+        throws(ImageDecodingError) -> DecodedImage
+    {
+        try Self.decodePNGNow(
+            data: data, maxPixelSize: maxPixelSize, maxSourceDimension: maxSourceDimension, label: label)
     }
 
     /// Decodes a sprite sheet so each of its `columns` × `rows` cells fits `cellMaxPixelSize`, then crops the
@@ -70,18 +81,42 @@ nonisolated public struct ImageDecoder: Sendable {
             Result { () throws(ImageDecodingError) in
                 let size = try sourcePixelSize(of: url, label: label)
                 guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { throw .undecodable(label) }
-                let options: [CFString: Any] = [
-                    kCGImageSourceCreateThumbnailFromImageAlways: true,
-                    kCGImageSourceCreateThumbnailWithTransform: true,
-                    kCGImageSourceThumbnailMaxPixelSize: max(1, maxPixelSize),
-                    kCGImageSourceShouldCacheImmediately: true,
-                ]
-                guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
-                    throw .undecodable(label)
-                }
-                return DecodedImage(image: image, sourcePixelWidth: size.width, sourcePixelHeight: size.height)
+                return try thumbnail(source: source, size: size, maxPixelSize: maxPixelSize, label: label)
             }
         }.get()
+    }
+
+    private static func decodePNGNow(
+        data: Data, maxPixelSize: Int, maxSourceDimension: Int, label: String
+    ) throws(ImageDecodingError) -> DecodedImage {
+        try Signposts.measure(Signposts.Interval.imageDecode) { () -> Result<DecodedImage, ImageDecodingError> in
+            Result { () throws(ImageDecodingError) in
+                guard let source = CGImageSourceCreateWithData(data as CFData, nil),
+                    CGImageSourceGetType(source) as String? == UTType.png.identifier,
+                    CGImageSourceGetCount(source) == 1
+                else { throw .undecodable(label) }
+                let size = try sourcePixelSize(of: source, label: label)
+                guard size.width <= maxSourceDimension, size.height <= maxSourceDimension else {
+                    throw .undecodable(label)
+                }
+                return try thumbnail(source: source, size: size, maxPixelSize: maxPixelSize, label: label)
+            }
+        }.get()
+    }
+
+    private static func thumbnail(
+        source: CGImageSource, size: (width: Int, height: Int), maxPixelSize: Int, label: String
+    ) throws(ImageDecodingError) -> DecodedImage {
+        let options: [CFString: Any] = [
+            kCGImageSourceCreateThumbnailFromImageAlways: true,
+            kCGImageSourceCreateThumbnailWithTransform: true,
+            kCGImageSourceThumbnailMaxPixelSize: max(1, maxPixelSize),
+            kCGImageSourceShouldCacheImmediately: true,
+        ]
+        guard let image = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary) else {
+            throw .undecodable(label)
+        }
+        return DecodedImage(image: image, sourcePixelWidth: size.width, sourcePixelHeight: size.height)
     }
 
     /// Pixel size from the file's properties, without decoding pixels.
@@ -89,6 +124,15 @@ nonisolated public struct ImageDecoder: Sendable {
         guard FileManager.default.fileExists(atPath: url.path) else { throw .missingFile(label) }
         guard
             let source = CGImageSourceCreateWithURL(url as CFURL, nil),
+            let size = try? sourcePixelSize(of: source, label: label)
+        else { throw .undecodable(label) }
+        return size
+    }
+
+    private static func sourcePixelSize(of source: CGImageSource, label: String) throws(ImageDecodingError)
+        -> (width: Int, height: Int)
+    {
+        guard
             CGImageSourceGetCount(source) > 0,
             let properties = CGImageSourceCopyPropertiesAtIndex(source, 0, nil) as? [CFString: Any],
             let width = properties[kCGImagePropertyPixelWidth] as? Int,

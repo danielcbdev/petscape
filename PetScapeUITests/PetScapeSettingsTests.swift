@@ -29,6 +29,7 @@ final class PetScapeSettingsTests: XCTestCase {
         try FileManager.default.createDirectory(at: root, withIntermediateDirectories: true)
         do {
             let characters = root.appending(path: "characters")
+            let userCharacters = root.appending(path: "user-characters")
             let source = products.appending(path: "PetScape.app/Contents/Resources/characters/cat")
             let manifest = try XCTUnwrap(
                 JSONSerialization.jsonObject(with: Data(contentsOf: source.appending(path: "character.json")))
@@ -38,6 +39,7 @@ final class PetScapeSettingsTests: XCTestCase {
             let path = try XCTUnwrap(frames.first?["image"] as? String)
             let image = try Data(contentsOf: source.appending(path: path))
             try FileManager.default.createDirectory(at: characters, withIntermediateDirectories: true)
+            try FileManager.default.createDirectory(at: userCharacters, withIntermediateDirectories: true)
             for index in 0..<characterCount {
                 let id = index == 0 ? "fixture-a" : "fixture-b"
                 let folder = characters.appending(path: id)
@@ -60,7 +62,10 @@ final class PetScapeSettingsTests: XCTestCase {
             defaults.set(true, forKey: "petscape.isPaused")
             defaults.set(false, forKey: "petscape.autonomy")
             let app = XCUIApplication()
-            app.launchArguments = ["--settings-test-suite", suite, "--characters-folder", characters.path]
+            app.launchArguments = [
+                "--settings-test-suite", suite, "--characters-folder", characters.path,
+                "--user-characters-folder", userCharacters.path,
+            ]
             setLanguage("en", for: app)
             return (app, root, suite)
         } catch {
@@ -84,6 +89,7 @@ final class PetScapeSettingsTests: XCTestCase {
         XCTAssertTrue(window.staticTexts["settings.noCharacters"].waitForExistence(timeout: 15))
         XCTAssertFalse(window.popUpButtons["settings.character"].exists)
         XCTAssertTrue(window.staticTexts["settings.characterError"].exists)
+        XCTAssertTrue(window.buttons["settings.installCharacterPack"].exists)
     }
 
     @MainActor
@@ -101,12 +107,12 @@ final class PetScapeSettingsTests: XCTestCase {
         let picker = app.windows.firstMatch.popUpButtons["settings.character"]
         XCTAssertTrue(picker.waitForExistence(timeout: 15))
         XCTAssertEqual(picker.label, "Character")
-        XCTAssertEqual(picker.value as? String, "Fixture A")
+        XCTAssertEqual(picker.value as? String, "Fixture A — Included")
         XCTAssertTrue(picker.isEnabled)
         picker.click()
         app.typeKey(.downArrow, modifierFlags: [])
         app.typeKey(.return, modifierFlags: [])
-        let selected = NSPredicate(format: "value == %@", "Fixture B")
+        let selected = NSPredicate(format: "value == %@", "Fixture B — Included")
         expectation(for: selected, evaluatedWith: picker)
         waitForExpectations(timeout: 10)
         XCTAssertFalse(app.windows.firstMatch.staticTexts["settings.characterError"].exists)
@@ -116,7 +122,80 @@ final class PetScapeSettingsTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let restored = app.windows.firstMatch.popUpButtons["settings.character"]
         XCTAssertTrue(restored.waitForExistence(timeout: 15))
-        XCTAssertEqual(restored.value as? String, "Fixture B")
+        XCTAssertEqual(restored.value as? String, "Fixture B — Included")
+    }
+
+    @MainActor
+    func testInstalledCharacterAppearsWithItsOriginAndCanBeSelected() throws {
+        let fixture = try fixtureApplication(characterCount: 1)
+        let bundleFolder = fixture.root.appending(path: "characters/fixture-a")
+        let sourceManifest = try XCTUnwrap(
+            JSONSerialization.jsonObject(with: Data(contentsOf: bundleFolder.appending(path: "character.json")))
+                as? [String: Any])
+        var installedManifest = sourceManifest
+        installedManifest["id"] = "zz-external"
+        installedManifest["displayName"] = "External Fixture"
+        let installed = fixture.root.appending(path: "user-characters/zz-external")
+        try FileManager.default.createDirectory(at: installed, withIntermediateDirectories: true)
+        try JSONSerialization.data(withJSONObject: installedManifest)
+            .write(to: installed.appending(path: "character.json"))
+        try FileManager.default.copyItem(
+            at: bundleFolder.appending(path: "frame.png"), to: installed.appending(path: "frame.png"))
+        defer {
+            fixture.app.terminate()
+            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
+            try? FileManager.default.removeItem(at: fixture.root)
+        }
+
+        let app = fixture.app
+        app.launch()
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let picker = app.windows.firstMatch.popUpButtons["settings.character"]
+        XCTAssertTrue(picker.waitForExistence(timeout: 15))
+        XCTAssertEqual(picker.value as? String, "Fixture A — Included")
+        picker.click()
+        let externalOption = app.menuItems["External Fixture — Installed"]
+        XCTAssertTrue(externalOption.waitForExistence(timeout: 5))
+        externalOption.click()
+        let external = NSPredicate(format: "value == %@", "External Fixture — Installed")
+        expectation(for: external, evaluatedWith: picker)
+        waitForExpectations(timeout: 10)
+        app.terminate()
+        app.launch()
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let restored = app.windows.firstMatch.popUpButtons["settings.character"]
+        XCTAssertTrue(restored.waitForExistence(timeout: 15))
+        XCTAssertEqual(restored.value as? String, "External Fixture — Installed")
+    }
+
+    @MainActor
+    func testCancellingNativePackPickerLeavesCharacterSelectionUntouched() throws {
+        let fixture = try fixtureApplication(characterCount: 1)
+        defer {
+            fixture.app.terminate()
+            UserDefaults.standard.removePersistentDomain(forName: fixture.suite)
+            try? FileManager.default.removeItem(at: fixture.root)
+        }
+        let app = fixture.app
+        app.launch()
+        app.activate()
+        app.typeKey(",", modifierFlags: .command)
+        let window = app.windows.firstMatch
+        let active = window.staticTexts["settings.singleCharacter"]
+        XCTAssertTrue(active.waitForExistence(timeout: 15))
+        window.buttons["settings.installCharacterPack"].click()
+        let cancel = app.buttons["CancelButton"]
+        XCTAssertTrue(cancel.waitForExistence(timeout: 10))
+        cancel.click()
+        XCTAssertTrue(active.exists)
+        XCTAssertFalse(window.staticTexts["settings.characterPackInstalled"].exists)
+        XCTAssertFalse(window.staticTexts["settings.characterPackError"].exists)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fixture.root.appending(path: "user-characters").path))
+        XCTAssertTrue(
+            (try FileManager.default.contentsOfDirectory(
+                atPath: fixture.root.appending(path: "user-characters").path)).isEmpty)
     }
 
     @MainActor
@@ -215,6 +294,8 @@ final class PetScapeSettingsTests: XCTestCase {
         let singleCharacter = window.staticTexts["settings.singleCharacter"]
         XCTAssertTrue(singleCharacter.waitForExistence(timeout: 15))
         XCTAssertEqual(singleCharacter.value as? String, "Este é o único personagem incluído no app.")
+        XCTAssertEqual(window.staticTexts["settings.characterOrigin"].value as? String, "Incluído")
+        XCTAssertEqual(window.buttons["settings.installCharacterPack"].label, "Instalar pacote de personagem…")
         XCTAssertEqual(window.switches["settings.windowInteraction"].label, "Interagir com janelas")
         XCTAssertEqual(window.switches["settings.musicDancing"].label, "Dançar ao som da música")
         XCTAssertEqual(
@@ -255,9 +336,9 @@ final class PetScapeSettingsTests: XCTestCase {
         app.typeKey(",", modifierFlags: .command)
         let window = app.windows.firstMatch
         XCTAssertEqual(
-            window.staticTexts["settings.noCharacters"].value as? String, "Nenhum personagem incluído está disponível.")
+            window.staticTexts["settings.noCharacters"].value as? String, "Nenhum personagem está disponível.")
         XCTAssertEqual(
             window.staticTexts["settings.characterError"].value as? String,
-            "Não foi possível carregar nenhum personagem incluído no app.")
+            "Não foi possível carregar nenhum personagem.")
     }
 }

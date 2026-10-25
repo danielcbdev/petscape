@@ -673,7 +673,8 @@ branch creation, commit and local merge into develop. This does not claim two re
 passing native UI tests. See the [closeout](milestones.md#owner-m18-closeout--2026-10-24).
 
 Design and execution checklist: [M18 register](milestones.md#m18--bundled-character-selection).
-M17 localization was completed separately; M19 external discovery/installation remains unauthorized.
+M17 localization was completed separately. M19 external discovery/installation has separate
+authorization and its own scope below.
 
 | ID | Task | Modules/files | Verification |
 |---|---|---|---|
@@ -683,6 +684,43 @@ M17 localization was completed separately; M19 external discovery/installation r
 | T18.4 | Atomic safe swap preserving contact and settings | Core/PetWorld; Runtime/PetRuntime | Supported swap, busy rejection, geometry fit, paused/hidden, old snapshots/events/masks |
 | T18.5 | Native accessible Settings integration through composition root | AppContainer, SettingsModel, SettingsView | Single real Cat text; native keyboard/AX assertions, model multi-option tests |
 | T18.6 | Gates and owner handoff | Planning/criteria; build evidence | Lint, package/UI, Debug/Release, asset validation; preserve V8 exception |
+
+## M19 — Character pack discovery and installation (authorized 2026-10-24)
+
+**Authorization:** the owner explicitly requested end-to-end M19 implementation on 2026-10-24.
+The owner later accepted M19 closure and explicitly authorized branch creation, a commit, and local
+merge into `develop`. This does not authorize M20, network discovery, publishing, pushes, tags,
+releases or PRs. The accepted real-pack/manual evidence limits are in the [owner closeout](milestones.md#owner-m19-closeout--2026-10-24).
+
+**Flow and contract:** the user chooses a local pack **folder** with root `character.json` using the
+native folder picker. Schema v1 and the existing validator remain authoritative. Import copies only
+the root manifest and referenced PNG resources to
+`~/Library/Application Support/PetScape/Characters/<id>`. ZIPs are unsupported. Unreferenced files
+are ignored and not copied or executed. The source tree is bounded and inspected for symlinks,
+aliases and special files; referenced paths are read without following links.
+
+The external-pack profile caps the manifest at 256 KiB; source trees at 2,048 entries and depth 32;
+the manifest at 64 clips, 512 frame entries and 64 sheets; sheet grids at 16×16; unique referenced
+PNG files at 256; individual/aggregate referenced file bytes at 4/64 MiB; source image dimensions
+at 4,096×4,096; target decode side at 768 px; and estimated aggregate decoded image bytes at
+64 MiB. These caps cover the current 200-frame cat pack's referenced resource size and maximum
+runtime decode target. Imported art still has no native performance approval or guarantee.
+
+Install uses a same-volume staging directory and exclusive atomic promotion to `<id>`. It validates
+the source snapshot and staged copy. IDs must match the existing identifier rule, remain unique
+against bundled and installed characters, and the installed folder name must equal the manifest ID.
+Duplicate IDs and existing destinations are rejected; M19 has no update/overwrite or in-app remove
+flow. Users can remove an installed folder in Finder while PetScape is quit; the next launch
+rediscovers the catalog and uses M18's successful-application fallback policy. External edits are
+seen on the next launch. No bookmarks are kept.
+
+| ID | Task | Modules/files | Verification |
+|---|---|---|---|
+| T19.1 | Record the folder format, source-of-truth, file access, removal/update/fallback policy, security boundaries and resource caps | Planning, asset-format, permissions, setup, testing | Docs agree with M18/FR-44 and current asset budget |
+| T19.2 | Read selected folders safely; validate schema, all declared resources and bounded PNG metadata; write sanitized staging and promote atomically without overwrite | Runtime/Characters, Rendering/ImageDecoder | Temporary-directory tests for path, link, file-type, byte, frame, dimension, duplicate and failure cases |
+| T19.3 | Discover immediate installed pack folders; combine valid installed and bundled entries with stable origin labels and unique IDs | Runtime/Characters, AppContainer | Isolated catalogs, corrupt/duplicate external entries, bundled isolation and fallback |
+| T19.4 | Add localized Settings folder import, progress/result/error states and installed source labels; retain M18 transactional selection | App, Runtime, String Catalog | English/pt-BR UI/model assertions; cancellation and failed import preserve selection |
+| T19.5 | Add adversarial/import/selection regression coverage, update user docs and record lint, test, build, validator and manual evidence | Tests, docs, all touched modules | `make lint`, `make test-core`, UI tests, Debug/Release builds, pack validator and manual matrix |
 
 ## M20 — Release pipeline
 

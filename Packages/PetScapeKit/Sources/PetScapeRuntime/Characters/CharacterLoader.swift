@@ -163,7 +163,8 @@ public final class CharacterLoader {
         do {
             return try Data(contentsOf: url)
         } catch {
-            throw .manifestUnreadable(error.localizedDescription)
+            // A filesystem error description can contain the user's full pack path; keep logs path-free.
+            throw .manifestUnreadable("filesystem read failed")
         }
     }
 

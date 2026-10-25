@@ -115,3 +115,21 @@ Status: proposed mitigations, no native M10 results. [Full contracts/tasks and r
 
 No new permissions, event injection, Dock-level elevation or silent requirement weakening may
 be used to hide these failures. M9 evidence gaps remain accepted historical limits, not M10 work.
+
+## M19 planning risks
+
+Status: implementation and automated evidence recorded 2026-10-24; M19 was closed by explicit owner
+acceptance with the real external pack and manual review evidence limits accepted and retained.
+
+| ID | Risk | P | I | Mitigation / gate |
+|---|---|---|---|---|
+| R-25 | A selected pack contains traversal paths, links, aliases, special files, deceptive image data or oversized resources | M | H | Restrict to a user-selected folder; snapshot referenced resources without following links; reuse schema-v1 validation; enforce path, file, image and decoded-byte limits; promote only a fully revalidated staged copy |
+| R-26 | Interrupted/concurrent import leaves a partial destination or overwrites an installed pack | L | H | Same-volume private staging, cleanup on every error/cancellation, exclusive atomic promotion and no update/overwrite policy |
+| R-27 | Installed ID collision shadows bundled content or makes ID-only preferences ambiguous | M | H | Keep origin as catalog metadata; reject bundled/installed and installed/installed collisions; retain ID-only preference only while combined catalog IDs are unique |
+| R-28 | Lazy image reads fail after an installed pack is changed or removed externally | M | M | Revalidate on discovery, keep current runtime selection on failed swap, omit corrupt pack without blocking launch, and document restart-based rediscovery/removal |
+| R-29 | Synthetic fixtures pass while no real external pack has been installed and visually reviewed | M | M | M19 closed by owner acceptance with this evidence gap retained as unverified; do not claim a real-pack pass or reinterpret M18's bundled-content criterion |
+
+M19 has no unresolved product choice: the selected-folder flow, no archives, duplicate rejection,
+no overwrite/update, no in-app removal, restart-based external refresh and resource bounds are
+specified in the M19 task plan. No ADR is proposed because module boundaries and the existing
+manifest/runtime contract are preserved.

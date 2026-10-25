@@ -52,7 +52,11 @@ Automation Mode/V8/performance evidence limits remain recorded in the
 implied. The owner separately authorized and accepted **M17 localization** on 2026-10-24, with
 native visual, VoiceOver and live system-language-change checks explicitly unverified and accepted
 as evidence limits in the [M17 closeout](docs/planning/milestones.md#owner-m17-closeout--2026-10-24).
-M19–M20 remain Not started and are not authorized.
+M19 was explicitly authorized and later closed by owner acceptance on 2026-10-24, with real
+external-pack import/manual visual review, VoiceOver review and imported-art performance still
+unverified. These are accepted evidence limits in the [M19 closeout](docs/planning/milestones.md#owner-m19-closeout--2026-10-24),
+not passed criteria. The owner authorized the feature branch, commit and local merge into `develop`;
+no push, tag, release or PR is implied. M20 remains Not started and unauthorized.
 Do not start implementation without an explicit instruction naming the milestone/task.
 
 ## 2. Stack
