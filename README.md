@@ -8,21 +8,37 @@ PetScape lives in the menu bar and lets clicks outside the pets pass through to 
 
 ## Download and install
 
-**[Download PetScape v1.0.2 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg)**
+For **Apple silicon and Intel Macs running macOS 14 or later**. Open **Terminal** and paste this
+entire block. It downloads the installer and its checksum, verifies the file and opens the disk
+image automatically. No manual file download, Xcode, Git, Python or project checkout is needed.
 
-For **Apple silicon and Intel Macs running macOS 14 or later**. The download contains the ready-to-run
-app; installation needs no Xcode, Git, project checkout or build commands.
+```bash
+mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
+cd "$HOME/Downloads/PetScape-1.0.2" &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.2-12-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.2-12-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
+open PetScape-1.0.2-12-universal.dmg
+```
 
-1. Download the **DMG** above, or find it under **Assets** on the
-   [v1.0.2 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2).
-   Choose `PetScape-1.0.2-12-universal.dmg`; GitHub's **Source code** links are for developers.
-2. Open the downloaded DMG and drag **PetScape.app** onto its **Applications** shortcut. If upgrading,
-   quit the old copy first and confirm replacement. Back up preferences and installed packs first.
-3. Eject the **PetScape 1.0.2** disk image in Finder, then open **Applications → PetScape**.
-4. If macOS says **“Apple could not verify PetScape.app is free of malware”**, follow the first-open
-   steps below. Read `INSTALL-FIRST.txt` in the DMG in TextEdit if you need the instructions offline.
-5. Look for the **paw icon in the menu bar**. PetScape has no Dock icon; open **Settings…** from the
-   paw menu to manage pets and preferences.
+The last line runs only after the checksum reports `OK`. A failed download or checksum stops the
+sequence before the disk image opens.
+
+1. Quit an older running PetScape, then drag **PetScape.app** onto **Applications** in the opened
+   disk image. Confirm replacement for an upgrade; back up preferences and installed packs first.
+2. Eject **PetScape 1.0.2** in Finder and open **Applications → PetScape**.
+3. Look for the **paw icon in the menu bar**; there is no Dock icon. Open **Settings…** there.
+   If macOS shows Apple's verification warning, follow the first-open steps below.
+
+`INSTALL-FIRST.txt` in the disk image opens in TextEdit. See the full
+[English and Brazilian Portuguese installation guide](docs/development/install.md).
+The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) also lists the ZIP,
+release notes and checksums. SHA-256 detects accidental corruption; it does not independently
+authenticate the source when package and checksum are replaced together.
 
 ### First open: Apple's verification warning
 
@@ -45,51 +61,6 @@ This is your explicit security exception, not Apple verification. Follow
 instructions do not apply consistently across macOS versions.
 If macOS reports malware/damage or the option is unavailable, stop and consult the project owner or
 your administrator. Availability depends on OS version and device policy.
-
-See [installation in English and Brazilian Portuguese](docs/development/install.md) for the full
-warning, upgrade and troubleshooting flow. The current V8 artwork has
-[final owner approval](docs/planning/m15-implementation.md#final-v8-visual-acceptance--2026-10-25);
-its known visual findings and the published releases' verification history remain documented.
-
-### Download through Terminal (MacDevClean flow)
-
-This follows [MacDevClean's download method](https://github.com/danielcbdev/mac-dev-clean#installing):
-download the published DMG and checksum with `curl`, verify, then open the disk image. It needs no
-Xcode, Git, Python or project checkout. Run these commands together in Terminal:
-
-```bash
-mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
-cd "$HOME/Downloads/PetScape-1.0.2" &&
-curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
-curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg.sha256 \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
-shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
-open PetScape-1.0.2-12-universal.dmg
-```
-
-Expect `OK`, then drag the app into Applications and follow the first-open steps above if prompted.
-The DMG is the same as the browser download, with the same signature and notarization limits.
-This does not guarantee a warning-free launch; no quarantine attributes or global security settings
-are changed. MacDevClean's published build is also ad-hoc and not notarized.
-
-### Verify your download
-
-Download the matching
-[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256)
-to the same folder as the DMG. In Terminal, change to that download folder and run:
-
-```bash
-shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256
-```
-
-Expect `PetScape-1.0.2-12-universal.dmg: OK`. On a mismatch, stop and download both matching files
-again before opening the app. The release also offers a ZIP and its own `.zip.sha256` file; ZIP
-users extract it and drag the app to Applications. `SHA256SUMS` checks **both** formats, so use the
-format-specific file when you download only one. A checksum detects accidental corruption but does
-not independently authenticate the source if package and checksum are both replaced.
 
 ## Features
 

@@ -2,44 +2,13 @@
 
 ## English
 
-PetScape v1.0.2 provides a **universal app for Apple silicon and Intel Macs with macOS 14 or later**.
-No Xcode, Git or project checkout is needed. Native Intel execution and clean-machine installation
-on macOS 14–26 remain unverified; both executable slices are cross-built and signature-checked.
+PetScape is a universal app for Apple silicon and Intel Macs running macOS 14 or later.
+No Xcode, Git, Python, source checkout or manual download is required.
 
-**Read this before the first open:** this app is ad-hoc signed and **not notarized**. macOS may say
-**“Apple could not verify PetScape.app is free of malware”**. If you independently trust the official
-download and accept the risk, try opening it once from Applications, dismiss that warning, then go
-to **System Settings → Privacy & Security → Security → Open Anyway**. Authenticate if asked and
-confirm **Open** in the next dialog. The paw icon appears in the menu bar. This is your app-specific
-approval, not Apple verification. If macOS reports damage/malware or offers no override, stop and
-consult the project owner/administrator. Availability depends on OS/device policy.
+### Download, verify and open
 
-The DMG and ZIP include these instructions as **INSTALL-FIRST.txt**, which Finder opens in
-TextEdit without a Markdown viewer. Keep them open while installing if needed.
-
-1. Download **PetScape-1.0.2-12-universal.dmg** from the
-   [official release](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2).
-   Select the DMG under **Assets**, rather than GitHub's Source code archives.
-2. For recommended integrity verification, download the matching `.dmg.sha256` file to the same
-   folder. In Terminal, change to that folder and run:
-
-   ```bash
-   shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256
-   ```
-
-   Expect the DMG filename followed by `OK`. If it fails, stop: check that both files belong to
-   the same version/build, download both again from the official release and retry. Do not open
-   an app from a mismatched download; report a persistent mismatch to the project owner.
-3. Open the DMG. Quit any running PetScape, then drag **PetScape.app** onto the **Applications**
-   shortcut. Confirm replacement for an upgrade. Back up preferences and installed packs before
-   upgrading; they remain in your user account and replacing the app does not intentionally remove
-   them. There is no automatic updater or migration guarantee for downgrades.
-4. Eject the **PetScape 1.0.2** disk image in Finder. Open **Applications → PetScape**. It appears as
-   a **paw icon in the menu bar**, without a Dock icon. Open **Settings…** from that menu.
-
-### Download with Terminal, like MacDevClean
-
-Run these together; a failed download or checksum stops before the disk image opens:
+Open Terminal and paste this entire block. It downloads the DMG and matching checksum, verifies
+the file and opens the disk image. A failed download or checksum stops before opening.
 
 ```bash
 mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
@@ -54,124 +23,115 @@ shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
 open PetScape-1.0.2-12-universal.dmg
 ```
 
-After `OK`, drag the app to Applications, eject the DMG and follow the first-open steps above.
-This is the same package as the browser download; no extra runtime or source checkout is needed.
-It changes no quarantine attributes or global security setting and guarantees no warning-free launch.
+When the checksum reports `OK`, the disk image opens:
 
-An alternative ZIP is available. Download it and its own `.zip.sha256` file, verify with
-`shasum -a 256 -c PetScape-1.0.2-12-universal.zip.sha256`, extract and drag the app to Applications.
-ZIP installation has no disk image to eject. `SHA256SUMS` lists **both DMG and ZIP**, so checking
-that combined file requires both downloads. A format-specific checksum checks only your chosen file.
+1. Quit any running PetScape. Back up preferences and installed character packs before an upgrade.
+2. Drag **PetScape.app** to **Applications** in the disk image. Confirm replacement if asked.
+3. Eject **PetScape 1.0.2** and open **Applications → PetScape**.
+4. Look for the **paw icon in the menu bar**. There is no Dock icon; open **Settings…** from the paw.
 
-Both formats contain `CONTENTS.sha256`; from the mounted DMG or extracted ZIP folder, optionally
-run `shasum -a 256 -c CONTENTS.sha256` to check the app, notes and license files. Every entry must
-report `OK`. The DMG's Applications shortcut is separately validated during packaging. A checksum
-detects accidental corruption; if someone replaces package and checksum on the same channel, it
-**does not** independently authenticate their source.
+### First open
 
-The app is **ad-hoc signed**. This signature checks bundle integrity, identifies no developer and
-is not an Apple trust endorsement. PetScape is **not notarized**. Depending on macOS version and
-security policy, a downloaded copy can warn that the developer cannot be verified or Apple cannot
-check the app, or be blocked. Successful checksum/signature verification does not prove it safe.
+The app is **ad-hoc signed and not notarized**. macOS may say **“Apple could not verify
+PetScape.app is free of malware”**. Signature/checksum checks verify integrity, not Apple approval.
 
-If you independently decide to trust this source after reviewing the warning, Apple's documented
-flow may offer **System Settings → Privacy & Security → Open Anyway** after an attempted launch.
-Read the warning, choose Open Anyway only if you accept the risk, authenticate when asked and
-confirm opening. This is your explicit security exception; it is not notarization or Apple validation.
-Labels and availability differ by macOS release and managed-device policy. If macOS reports
-malware/damage or no override is offered, stop and consult the project owner or administrator.
-Do not change global security policy. See [Apple's opening guidance](https://support.apple.com/en-us/102445).
+If you independently trust the official source and accept the risk:
 
-Basic overlay/manual behavior requires no privacy permission. Window interaction and music
-recognition have separate opt-in consent flows. Replacing an ad-hoc signed build can require
-reauthorizing optional OS permissions and reviewing the login item.
+1. Try opening PetScape from Applications once and dismiss the warning.
+2. Open **System Settings → Privacy & Security**, scroll to **Security**, then choose **Open Anyway**
+   for PetScape if macOS offers it.
+3. Authenticate if asked and confirm **Open** in the next dialog.
 
-Verification: universal packaging, DMG read-only mounting, ZIP extraction, per-slice signatures and
-checksums were exercised on macOS 27.0.1 / Xcode 27.1 and the v1.0.0 hosted package on Xcode 26.2.
-The owner reported the Apple verification warning when opening v1.0.0; the exact OS/download
-route and a successful approval/relaunch were not recorded. A complete clean-machine first-launch
-Gatekeeper flow remains **unverified**, as do managed Macs and older supported OS versions.
-No warning-free launch or universally available override is promised. Published v1.0.1 retains its
-historical release-only V8 exception. The owner subsequently closed the visual follow-up on
-2026-10-25: the exact artwork/findings are now an approved regression baseline in the current
-checkout, with original pixel assertions still evaluated and no claim of repaired pixels.
+This is your app-specific approval, not notarization or Apple verification. If macOS reports that
+the app will damage your computer, says it is damaged, or offers no override, stop and consult the
+project owner/administrator. Availability depends on OS/device policy. Follow
+[Apple's guidance](https://support.apple.com/en-us/102445). No global security setting or quarantine
+attribute is changed. No warning-free launch is promised.
 
-## Brazilian Portuguese installation copy
+### Verification, upgrades and alternatives
 
-O PetScape v1.0.2 oferece um app **universal para Macs Apple silicon e Intel com macOS 14 ou
-posterior**. Não é preciso Xcode, Git, baixar o projeto ou compilar. A execução em hardware Intel
-e a instalação limpa no macOS 14–26 ainda não foram verificadas; as duas arquiteturas são
-compiladas e têm a assinatura conferida.
+The Terminal block verifies the downloaded DMG automatically. A checksum mismatch must be resolved
+before opening; repeat the whole block to fetch both matching files from the official release.
+SHA-256 detects accidental corruption but cannot independently authenticate a source if both
+package and checksum are replaced. Both packages also contain `CONTENTS.sha256` for an optional
+internal check with `shasum -a 256 -c CONTENTS.sha256` from the mounted/extracted folder.
 
-**Antes da primeira abertura:** este app tem assinatura ad-hoc e **não foi notarizado**. O macOS
-pode mostrar **“A Apple não pôde verificar se o item PetScape.app está livre de algum malware
-capaz de danificar o Mac ou comprometer sua privacidade”**.
+The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) also lists a ZIP and
+its own `.zip.sha256`. The combined `SHA256SUMS` requires both formats; use a format-specific
+checksum for one file. ZIP users extract the app and drag it to Applications.
+
+Replacing the app preserves preferences/installed packs in your user account intentionally;
+there is no automatic updater or downgrade migration guarantee. Optional window interaction and
+music detection have separate consent flows; an ad-hoc update can require reauthorizing optional
+permissions and reviewing the login item. Basic overlay/manual behavior needs no privacy permission.
+
+`INSTALL-FIRST.txt` is this guide in native-readable plain text for TextEdit. The current artwork's
+exact hashes and accepted known visual findings are recorded in `ARTWORK-ACCEPTANCE.json`.
+Complete clean-machine approval/relaunch, native Intel execution, older supported OS and managed
+policies remain unverified. Integrity/architecture checks do not establish those manual results.
+
+## Português do Brasil
+
+O PetScape é universal para Macs Apple silicon e Intel com macOS 14 ou posterior. Não é necessário
+Xcode, Git, Python, baixar o projeto nem fazer download manual de arquivos.
+
+### Baixar, verificar e abrir
+
+Abra o Terminal e cole este bloco inteiro. Ele baixa o DMG e seu checksum, verifica a integridade
+e abre a imagem de disco. Se o download ou checksum falhar, a sequência para antes da abertura.
+
+```bash
+mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
+cd "$HOME/Downloads/PetScape-1.0.2" &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.2-12-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
+curl --fail --location --proto '=https' --proto-redir '=https' \
+  --output PetScape-1.0.2-12-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
+open PetScape-1.0.2-12-universal.dmg
+```
+
+Quando aparecer `OK`, a imagem de disco abrirá:
+
+1. Encerre qualquer PetScape em execução. Faça backup das preferências e pacotes antes de atualizar.
+2. Arraste **PetScape.app** para **Applications / Aplicativos** na imagem. Confirme a substituição.
+3. Ejete **PetScape 1.0.2** e abra **Aplicativos → PetScape**.
+4. Procure o **ícone de pata na barra de menus**. Não há ícone no Dock; abra **Ajustes…** pela pata.
+
+### Primeira abertura
+
+O app tem assinatura **ad-hoc** e **não foi notarizado**. O macOS pode mostrar **“A Apple não pôde
+verificar se o item PetScape.app está livre de algum malware capaz de danificar o Mac ou comprometer
+sua privacidade”**. Checksum e assinatura conferem integridade, sem equivaler à aprovação da Apple.
 
 Se você confia na origem oficial e aceita o risco:
 
-1. Tente abrir **Aplicativos → PetScape** uma vez e feche esse aviso.
-2. Entre em **Ajustes do Sistema → Privacidade e Segurança** e role até **Segurança**.
-3. Na mensagem sobre o PetScape, clique em **Abrir Mesmo Assim**, autentique-se se solicitado e
-   confirme **Abrir** na próxima janela.
-4. Procure o ícone de pata na barra de menus; o app não aparece no Dock.
+1. Tente abrir PetScape em Aplicativos uma vez e feche o aviso.
+2. Acesse **Ajustes do Sistema → Privacidade e Segurança**, role até **Segurança** e escolha
+   **Abrir Mesmo Assim** para o PetScape, se a opção estiver disponível.
+3. Autentique-se se solicitado e confirme **Abrir** na próxima janela.
 
-Essa é uma autorização específica escolhida por você, sem equivaler à aprovação da Apple. Se o
-macOS indicar malware/dano ou não oferecer essa opção, pare e consulte o responsável/administrador.
-O arquivo **INSTALL-FIRST.txt** dentro do DMG/ZIP abre no TextEdit e contém estas instruções.
+Essa aprovação é específica do app. Se o macOS disser que o app danificará o computador, estiver
+danificado ou não oferecer a opção de abertura, pare e consulte o responsável/administrador.
+A disponibilidade depende da versão e política do Mac. Consulte as
+[orientações da Apple](https://support.apple.com/pt-br/102445). A instalação não muda a política
+global de segurança nem atributos de quarentena, e não promete abertura sem alerta.
 
-1. Na [release oficial](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2), abra **Assets**
-   e baixe **PetScape-1.0.2-12-universal.dmg**. Os links **Source code** são para desenvolvimento.
-2. Para conferir a integridade, baixe também o arquivo `.dmg.sha256` correspondente para a mesma
-   pasta. No Terminal, entre nessa pasta e execute:
+### Verificação e atualização
 
-   ```bash
-   shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256
-   ```
+O bloco do Terminal já confere o checksum. Se falhar, repita o bloco para baixar os dois arquivos
+correspondentes novamente; não abra antes de resolver. Checksum detecta corrupção, mas não autentica
+a origem de forma independente se pacote e checksum forem substituídos juntos.
 
-   O resultado deve mostrar o nome do DMG e `OK`. Se falhar, não abra o app: confira versão/build,
-   baixe os dois arquivos novamente da release oficial e repita. Se persistir, avise o responsável.
-3. Abra o DMG. Encerre qualquer cópia do PetScape em execução e arraste **PetScape.app** para o
-   atalho **Applications / Aplicativos**. Confirme a substituição ao atualizar. Faça backup das
-   preferências e pacotes instalados antes; eles permanecem na sua conta. Não há atualização
-   automática nem garantia de migração ao voltar para uma versão anterior.
-4. Ejete o disco **PetScape 1.0.2** no Finder e abra **Aplicativos → PetScape**. Procure o **ícone de
-   pata na barra de menus**: não há ícone no Dock. Abra **Ajustes…** nesse menu.
+O arquivo `CONTENTS.sha256` permite conferir os arquivos internos com
+`shasum -a 256 -c CONTENTS.sha256`. A release também oferece ZIP com checksum próprio; o
+`SHA256SUMS` combinado exige ambos os formatos. Para atualizar, encerre a cópia antiga antes de
+substituir. Preferências e pacotes permanecem na sua conta; não há atualização automática ou
+garantia de migração ao voltar de versão. Permissões opcionais e item de início de sessão podem
+exigir nova revisão após uma atualização ad-hoc.
 
-Para baixar pelo mesmo método do MacDevClean, execute o bloco de comandos da seção
-**Download with Terminal, like MacDevClean** acima. Ele baixa o DMG e o checksum, exige resultado
-`OK` antes de abrir o disco e não exige Xcode, Git, Python ou o projeto local. Depois arraste o app
-para Aplicativos e siga a aprovação descrita acima, se aparecer. É o mesmo pacote oferecido no
-navegador, sem mudança na assinatura ou notarização e sem garantia de ausência do alerta.
-
-Há também um ZIP: baixe-o junto com o seu `.zip.sha256`, execute
-`shasum -a 256 -c PetScape-1.0.2-12-universal.zip.sha256`, extraia e arraste o app para Aplicativos.
-Nesse formato não há disco para ejetar. `SHA256SUMS` confere **os dois formatos** e exige ambos os
-arquivos; use o checksum específico se baixou apenas um. Dentro do disco montado ou pasta extraída,
-`shasum -a 256 -c CONTENTS.sha256` confere os arquivos internos. Todos devem indicar `OK`.
-Checksum detecta corrupção acidental; não autentica a origem de forma independente se pacote e
-checksum forem substituídos no mesmo canal.
-
-A assinatura é **ad-hoc**, sem identificar o desenvolvedor nem representar aprovação da Apple.
-O app **não foi notarizado**. O Gatekeeper pode avisar que o desenvolvedor não foi verificado,
-que a Apple não pode verificar o app, ou bloquear a abertura, conforme a versão e a política do Mac.
-
-Se você decidiu confiar na origem e aceita o risco, após tentar abrir o app o próprio macOS pode
-oferecer **Ajustes do Sistema → Privacidade e Segurança → Abrir Mesmo Assim** (Open Anyway).
-Leia o aviso, escolha a opção apenas se concordar, autentique-se se solicitado e confirme a abertura.
-É uma exceção escolhida por você, sem equivaler a notarização ou validação da Apple. A disponibilidade
-varia por versão e por políticas de computadores gerenciados. Em caso de aviso de malware/dano ou
-se a opção não aparecer, interrompa e consulte o responsável pelo projeto ou administrador, sem
-alterar a política global de segurança. Consulte as [orientações da Apple](https://support.apple.com/pt-br/102445).
-
-As funções básicas não exigem permissão especial. Interação com janelas e detecção de música têm
-consentimentos opcionais separados. Uma atualização ad-hoc pode exigir nova autorização dessas
-permissões e revisão do item de início de sessão.
-
-Verificado: empacotamento universal, montagem somente leitura do DMG, extração do ZIP, assinaturas
-e checksums no macOS 27.0.1 / Xcode 27.1 e no pacote v1.0.0 do CI com Xcode 26.2. O proprietário
-relatou o alerta de verificação da Apple na v1.0.0; versão do sistema, forma do download e abertura
-após aprovação não foram registradas. O fluxo completo de primeira abertura em Mac limpo permanece
-**não verificado**, assim como outros sistemas/dispositivos gerenciados. A release publicada v1.0.1
-mantém sua exceção V8 histórica. O proprietário encerrou e aprovou a pendência visual em 2026-10-25:
-as imagens e os achados exatos agora compõem o baseline de regressão da versão em desenvolvimento,
-com as verificações de pixels preservadas, sem alegar correção dos pixels.
+`INSTALL-FIRST.txt` abre este guia no TextEdit. O registro `ARTWORK-ACCEPTANCE.json` documenta as
+imagens e os achados visuais aceitos. Instalação limpa com aprovação/reabertura, execução nativa em
+Intel e comportamento em sistemas antigos/dispositivos gerenciados permanecem não verificados.
