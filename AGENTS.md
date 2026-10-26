@@ -116,6 +116,21 @@ The public DMG download, checksum, 216-file inventory, both signatures and nativ
 were verified. The owner's v1.0.0 warning is recorded; full clean-machine approval/relaunch and
 native Intel remain unverified. See the [follow-up](docs/planning/m21-implementation.md#v101-installation-follow-up--2026-10-25).
 
+**Final V8 visual approval (2026-10-25):** the owner subsequently closed and approved the existing
+artwork after the 48 findings were explained. The remaining visual follow-up is closed by acceptance,
+not pixel repair. [The exact baseline](docs/planning/v8-visual-acceptance.json) pins all 134 image
+hashes and 48 findings. Every original pixel assertion still runs; only a matching approved
+image/hash/criterion reports a strict, non-intermittent Swift Testing known issue. Changed assets,
+new findings and disappeared expected issues fail. The historical release-only waiver is retired;
+current packaging requires all gates to succeed. Existing release tags/artifacts remain historical.
+See the [final closeout](docs/planning/m15-implementation.md#final-v8-visual-acceptance--2026-10-25).
+
+**v1.0.2 publication authorization (2026-10-25):** after local V8 closeout, the owner explicitly
+requested committing, merging into develop, then main, and the complete release process.
+Target v1.0.2/build 12 includes the accepted visual baseline and retires the release-only waiver.
+All canonical gates must succeed; original art and the v1.0.0/v1.0.1 tags/artifacts remain preserved.
+See the [publication follow-up](docs/planning/m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
+
 ## 2. Stack
 
 Swift 6 (language mode 6, strict concurrency), SwiftUI (menu + settings), AppKit (windows, events,

@@ -208,6 +208,13 @@ These are acceptance checks, not passing results. Frame counts below are proposa
 
 - AC-M15-07 [Auto, Man, owner follow-up]: With autonomy enabled, supported rest/expression states share a five-second stop budget, followed by a walking interval; automatic jumps/Dock returns resume walking. Rest becomes infrequent. Speed remains configurable through 0.5–4, with synchronized paw cadence/ground motion and unchanged approved art. User pause, holding and disabled autonomy remain explicit exceptions.
 
+**Final visual acceptance (2026-10-25):** the owner explicitly closed and approved the delivered
+V8 artwork, accepting its exact 48 findings against the original AC-M15-02 visual targets. These
+are known accepted findings, not repaired pixels. The [hash-pinned baseline](v8-visual-acceptance.json)
+retains every original assertion and recognizes only the approved image/hash/criterion; changed art
+and unapproved findings still fail. AC-M15-04 now evaluates that explicit baseline. Historical
+failed reports/releases remain unchanged. See the [final closeout](m15-implementation.md#final-v8-visual-acceptance--2026-10-25).
+
 ### M16 — New behaviors and animations
 
 Contract: [M16 implementation](m16-implementation.md). These are criteria; their evidence is
@@ -271,7 +278,7 @@ recorded as passed; see the [M17 closeout](milestones.md#owner-m17-closeout--202
 - AC-M21-05 [Auto, Review]: GitHub Actions runs relevant checks, uses a supported standard macOS runner and least-privilege token permissions, pins third-party actions to reviewed immutable references, and never exposes or requires Apple signing/notarization secrets. CI dry-run uploads an artifact but does not create/publish a release.
 - AC-M21-06 [Auto, Review]: Any workflow path that creates a GitHub release has explicit opt-in publication, defaults to dry-run/no publication, and is not exercised during this implementation without separate owner authorization. No tag, push or public release is created by implementation verification.
 - AC-M21-07 [Man, Review]: English installation documentation explains that macOS may warn that the developer is unidentified or that Apple cannot check the app; it never promises warning-free first launch or a passing `spctl --assess`. It gives accurate, cautious steps for a user who has independently chosen to trust the source, and does not instruct disabling Gatekeeper or removing quarantine metadata.
-- AC-M21-08 [Auto, Man, Review]: A clean supported macOS environment records the actual package/install/first-launch flow and checksum validation. Results distinguish a successful user-approved launch from Apple verification; existing M15 V8 test failure remains visible and is not weakened, hidden or claimed to pass.
+- AC-M21-08 [Auto, Man, Review]: A clean supported macOS environment records the actual package/install/first-launch flow and checksum validation. Results distinguish a successful user-approved launch from Apple verification; M15 V8 findings retain their explicit owner-accepted known-issue record and original pixel assertions, with no claim of repaired pixels or rewritten historical failures.
 
 M21's criterion-by-criterion local evidence and unverified components are recorded in
 [m21-implementation.md](m21-implementation.md). M21's local delivery was closed by owner direction

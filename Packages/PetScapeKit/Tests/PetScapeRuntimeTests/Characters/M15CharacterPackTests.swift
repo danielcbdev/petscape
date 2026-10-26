@@ -16,6 +16,53 @@ struct M15CharacterPackTests {
         "landing": 4, "curious": 36, "picked-up": 6, "held": 15, "climb": 8,
     ]
 
+    private struct VisualAcceptance: Decodable {
+        let schemaVersion: Int
+        let approved: Bool
+        let sha256ByImage: [String: String]
+        let findings: [String: Set<String>]
+
+        func accepts(_ criterion: String, path: String, sha256: String) -> Bool {
+            schemaVersion == 1 && approved && sha256ByImage[path] == sha256
+                && findings[criterion, default: []].contains(path)
+        }
+    }
+
+    private func checkVisualCriterion(
+        _ criterion: String, path: String, sha256: String, acceptance: VisualAcceptance,
+        _ check: () -> Void
+    ) {
+        if acceptance.accepts(criterion, path: path, sha256: sha256) {
+            // Owner closed the visual follow-up on 2026-10-25. Keep the actual assertion and its
+            // known issue visible, scoped to this exact image and criterion. A disappeared issue
+            // also fails (isIntermittent defaults to false), requiring an explicit baseline review.
+            withKnownIssue("Owner-accepted V8 artwork: \(criterion), \(path)") {
+                check()
+            }
+        } else {
+            check()
+        }
+    }
+
+    @Test func acceptedVisualFindingsRequireTheExactApprovedImageAndCriterion() {
+        let path = "v8/example/frames/example_01.png"
+        let hash = String(repeating: "a", count: 64)
+        let acceptance = VisualAcceptance(
+            schemaVersion: 1, approved: true, sha256ByImage: [path: hash], findings: ["margin": [path]])
+        #expect(acceptance.accepts("margin", path: path, sha256: hash))
+        #expect(!acceptance.accepts("margin", path: path, sha256: String(repeating: "b", count: 64)))
+        #expect(!acceptance.accepts("margin", path: "v8/other.png", sha256: hash))
+        #expect(!acceptance.accepts("seam", path: path, sha256: hash))
+        #expect(
+            !VisualAcceptance(
+                schemaVersion: 1, approved: false, sha256ByImage: [path: hash], findings: ["margin": [path]]
+            ).accepts("margin", path: path, sha256: hash))
+        #expect(
+            !VisualAcceptance(
+                schemaVersion: 2, approved: true, sha256ByImage: [path: hash], findings: ["margin": [path]]
+            ).accepts("margin", path: path, sha256: hash))
+    }
+
     private func manifest(_ path: String) throws -> CharacterManifest {
         try CharacterManifest.decode(Data(contentsOf: root.appending(path: path))).manifest
     }
@@ -145,10 +192,23 @@ struct M15CharacterPackTests {
     @Test func newDrawingsAreDistinctOpaqueContainedAndRegistered() throws {
         let new = try manifest("character.json")
         let paths = new.animations.values.flatMap { $0.frames ?? [] }.compactMap(\.image)
-            .filter { $0.hasPrefix("v8/") }
+            .filter { $0.hasPrefix("v8/") }.sorted()
         #expect(paths.count == 134)
+        let acceptance = try JSONDecoder().decode(
+            VisualAcceptance.self,
+            from: Data(contentsOf: TestPacks.repositoryRoot.appending(path: "docs/planning/v8-visual-acceptance.json")))
+        #expect(acceptance.schemaVersion == 1 && acceptance.approved)
+        #expect(Set(paths) == Set(acceptance.sha256ByImage.keys))
+        #expect(Set(acceptance.findings.keys) == ["margin", "ground", "seam", "duplicate"])
+        #expect(acceptance.findings["margin"]?.count == 43)
+        #expect(acceptance.findings["ground"]?.count == 1)
+        #expect(acceptance.findings["seam"]?.count == 1)
+        #expect(acceptance.findings["duplicate"]?.count == 3)
         var drawings: Set<Data> = []
         for path in paths {
+            let hash = SHA256.hash(data: try Data(contentsOf: root.appending(path: path)))
+                .map { String(format: "%02x", $0) }.joined()
+            #expect(hash == acceptance.sha256ByImage[path], "Owner-approved V8 original changed: \(path)")
             let source = try #require(CGImageSourceCreateWithURL(root.appending(path: path) as CFURL, nil))
             let image = try #require(CGImageSourceCreateImageAtIndex(source, 0, nil))
             #expect(image.width == 512 && image.height == 512)
@@ -164,7 +224,9 @@ struct M15CharacterPackTests {
                 return true
             }
             #expect(drew)
-            #expect(drawings.insert(Data(pixels)).inserted, "Duplicated drawing: \(path)")
+            checkVisualCriterion("duplicate", path: path, sha256: hash, acceptance: acceptance) {
+                #expect(drawings.insert(Data(pixels)).inserted, "Duplicated drawing: \(path)")
+            }
             let alpha = stride(from: 3, to: pixels.count, by: 4).map { pixels[$0] }
             let solid = alpha.indices.filter { alpha[$0] >= 128 }
             #expect(solid.count > 30_000, "Readable body: \(path)")
@@ -182,20 +244,26 @@ struct M15CharacterPackTests {
                 }
                 #expect(interior.count > 30_000)
                 let translucent = interior.filter { alpha[$0] < 235 }
-                #expect(translucent.count <= 3, "Opaque body without seams: \(path)")
+                checkVisualCriterion("seam", path: path, sha256: hash, acceptance: acceptance) {
+                    #expect(translucent.count <= 3, "Opaque body without seams: \(path)")
+                }
                 #expect(translucent.allSatisfy { alpha[$0] >= 160 }, "No see-through hole: \(path)")
             } else {
                 #expect(alpha.filter { $0 == 255 }.count * 100 >= solid.count * 95, "Opaque body: \(path)")
             }
-            #expect(
-                alpha.indices.allSatisfy { i in
-                    alpha[i] == 0 || (i % 512 >= 8 && i % 512 < 504 && i / 512 >= 8 && i / 512 < 504)
-                }, "8 px transparent margin including antialiasing: \(path)")
+            checkVisualCriterion("margin", path: path, sha256: hash, acceptance: acceptance) {
+                #expect(
+                    alpha.indices.allSatisfy { i in
+                        alpha[i] == 0 || (i % 512 >= 8 && i % 512 < 504 && i / 512 >= 8 && i / 512 < 504)
+                    }, "8 px transparent margin including antialiasing: \(path)")
+            }
             #expect(Self.componentCount(alpha) == 1, "No detached visible islands: \(path)")
             let clip = path.split(separator: "/")[1]
             if clip != "climb" {
                 let bottom = try #require(solid.map { $0 / 512 }.max())
-                #expect(abs(bottom - 474) <= 1, "Ground/virtual foot registration: \(path)")
+                checkVisualCriterion("ground", path: path, sha256: hash, acceptance: acceptance) {
+                    #expect(abs(bottom - 474) <= 1, "Ground/virtual foot registration: \(path)")
+                }
             }
             if clip == "climb" {
                 let right = try #require(solid.map { $0 % 512 }.max())

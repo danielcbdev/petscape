@@ -621,7 +621,7 @@ preserve the no-step paused contract. No native PoC, Swift, tests or assets chan
 | T15.2 | Produce versioned, distinct in-between art for clips where the inventory justifies it | Art | T15.1 | L | AC-M15-02; source QA and provenance | **Done by owner acceptance**; final 134-frame pack; V7/V8 production and retained pixel-QA exception recorded |
 | T15.3 | Integrate approved frames; update counts/FPS/events while preserving duration and contracts | Pack | T15.2 | M | AC-M15-03/04; schema, references, tests | **Done**; final 134 references, owner-authorized timing rework and contracts recorded |
 | T15.4 | Build clip previews and inspect changed clips/transitions at runtime timing | Art, Runtime | T15.3 | M | AC-M15-05; recorded visual results | **Done by owner acceptance**; owner confirmed revised animations and final pacing tests |
-| T15.5 | Record asset provenance, evidence, limitations and closeout | Docs | T15.4 | S | AC-M15-06; owner review | **Done**; owner-directed closeout, evidence and retained exception recorded |
+| T15.5 | Record asset provenance, evidence, limitations and closeout | Docs | T15.4 | S | AC-M15-06; owner review | **Done**; final V8 visual follow-up accepted 2026-10-25; exact hashes/48 known findings retained, historical release waiver retired |
 | T15.6 | Owner pacing refinement: rare stops ≤5 s and faster configurable walking, preserving approved art | Core, Settings | T15.4 | M | Seeded pacing/landing/speed tests; build/lint/UI | **Done**; Core/UI/build/lint pass; pre-existing V8 pixel-QA failure documented |
 
 ## M16 — New behaviors and animations

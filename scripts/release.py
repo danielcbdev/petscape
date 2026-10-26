@@ -240,7 +240,7 @@ def main():
     parser.add_argument("version")
     parser.add_argument("build")
     parser.add_argument("--architecture", choices=["universal", "arm64"], default="universal")
-    parser.add_argument("--allow-known-v8-failure", action="store_true", help="explicit owner-approved 1.0.1 exception only; test stays failed")
+    parser.add_argument("--allow-known-v8-failure", action="store_true", help="legacy v1.0.1 opt-in, now retired; current policy rejects it")
     parser.add_argument("--rehearsal", action="store_true", help="diagnostic only; never waives a failed gate or returns success for one")
     args = parser.parse_args()
     validate_inputs(args.version, args.build)
@@ -326,6 +326,7 @@ def main():
     shutil.copyfile(ROOT / "docs/development/install.md", payload / "INSTALL-FIRST.txt")
     shutil.copyfile(ROOT / "LICENSE", payload / "SOURCE-LICENSE.txt")
     shutil.copyfile(ROOT / "ARTWORK-LICENSE.md", payload / "ARTWORK-LICENSE.md")
+    shutil.copyfile(ROOT / "docs/planning/v8-visual-acceptance.json", payload / "ARTWORK-ACCEPTANCE.json")
     if approved_failures:
         shutil.copyfile(exception_policy, payload / "RELEASE-EXCEPTION.json")
     write_inventory(payload)

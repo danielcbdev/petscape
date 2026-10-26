@@ -5,6 +5,17 @@ versions follow [Semantic Versioning](https://semver.org/). Release process: [re
 
 ## [Unreleased]
 
+## [1.0.2] - 2026-10-25
+
+### Changed
+
+- Closed the V8 visual follow-up by explicit owner acceptance on 2026-10-25. The 134 original
+  images and 48 exact findings are recorded as a hash-pinned visual baseline; all pixel criteria
+  remain evaluated and report accepted findings as known issues, rather than failed release gates.
+- Retired the version-specific V8 release waiver and removed its workflow input. Current packaging
+  requires every gate to succeed and includes `ARTWORK-ACCEPTANCE.json`. This records approval of
+  the existing artwork; no pixels were repaired or original assets modified.
+
 ## [1.0.1] - 2026-10-25
 
 ### Fixed

@@ -5,7 +5,13 @@
 Run `python3 -B -m unittest discover -s scripts/tests -v` for input/changelog validation,
 missing/altered resources, checksum corruption, metadata/signature rejection and strict gate failure.
 `scripts/release.sh VERSION BUILD [--rehearsal]` records canonical gates and artifact verification
-under ignored `dist/`; rehearsal never turns a failed gate into success. Do not suppress V8 pixel QA.
+under ignored `dist/`; rehearsal never turns a failed gate into success.
+The owner's final V8 approval on 2026-10-25 is an explicit visual regression baseline:
+[134 image hashes and 48 accepted findings](../planning/v8-visual-acceptance.json).
+Every original pixel criterion still runs; only an exact approved image/path/criterion is reported
+through Swift Testing `withKnownIssue`, with non-intermittent expectations. Changed images,
+unapproved findings or disappeared expected issues fail. Do not wrap the suite or future art in a
+blanket known-issue allowance. The historical release-only V8 waiver is retired.
 See [release process](release.md) and [M21 evidence](../planning/m21-implementation.md).
 
 | Manual release check | Expected | M21 evidence |

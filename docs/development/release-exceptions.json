@@ -1,9 +1,12 @@
 {
   "version": "1.0.1",
-  "approved": true,
+  "approved": false,
+  "retired": true,
+  "retiredOn": "2026-10-25",
+  "supersededBy": "../planning/v8-visual-acceptance.json",
   "approvedBy": "Daniel Carvalho (project owner)",
   "approvedOn": "2026-10-25",
   "test": "newDrawingsAreDistinctOpaqueContainedAndRegistered",
   "issues": 48,
-  "reason": "Owner separately and explicitly authorized keeping the same disclosed 48-issue V8 pixel-QA exception for the v1.0.1 installation follow-up on 2026-10-25. The test and original assets remain unchanged. All other gates must pass. This exception is not approval for a future version."
+  "reason": "The historical v1.0.1-only release waiver is retired after the owner explicitly closed and approved the current V8 artwork on 2026-10-25. Exact image hashes and accepted findings now belong to the visual regression baseline; original pixel assertions still run and report known issues. Current packaging requires every gate to succeed and cannot use this retired waiver. Published v1.0.0/v1.0.1 tags retain their original records."
 }

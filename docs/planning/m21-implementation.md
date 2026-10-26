@@ -520,3 +520,23 @@ from v1.0.0; installation packaging/docs and version-specific release policy are
   alert disappears. Complete clean-machine approval/relaunch, native Intel, older supported OS
   and managed-device policies remain unverified. The only waived failure is the separately
   approved exact V8 test; development/default strict package validation remains red for it.
+
+## v1.0.2 V8 closeout publication — 2026-10-25
+
+After the local [V8 visual closeout](m15-implementation.md#final-v8-visual-acceptance--2026-10-25),
+the owner explicitly requested: **“Commita, mergea para a develop, depois manda pra main e gera
+a release. Faz todo o processo”**. This authorizes feature commit/push, integration into develop
+then main, a new v1.0.2 tag and public release (build 12), superseding the prior local-only boundary
+for this closure. Existing release tags/artifacts remain immutable; no historical branch cleanup
+or forced remote updates are authorized.
+
+The approved artwork remains unchanged. All 134 original hashes and 48 precise accepted findings
+are recorded in `v8-visual-acceptance.json`; every pixel assertion runs and uses a strict known-issue
+scope per approved image/hash/criterion. The release-only exception is retired (`approved=false`),
+the workflow's bypass input is removed, and canonical commands must exit successfully.
+`ARTWORK-ACCEPTANCE.json` accompanies future DMG/ZIP payloads. This is acceptance, not pixel repair.
+
+The README/direct download, checksum commands and bundled bilingual installation guide target
+v1.0.2/build 12. Signing remains ad-hoc, without notarization or developer identity. Native Intel,
+clean-machine approval/relaunch and managed/older supported OS evidence remain unverified.
+Fresh integration/hosted/artifact/public-download results are recorded below as they complete.

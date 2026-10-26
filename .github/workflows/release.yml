@@ -15,10 +15,6 @@ on:
         description: Create a draft GitHub Release for an existing main tag (all gates required)
         type: boolean
         default: false
-      allow_known_v8_failure:
-        description: Apply the recorded owner-approved V8 exception for v1.0.1 only (all other gates required)
-        type: boolean
-        default: false
       existing_tag:
         description: Publication only - existing vVERSION tag at the selected main commit
         type: string
@@ -81,13 +77,8 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           BUILD: ${{ inputs.build }}
-          ALLOW_V8: ${{ inputs.allow_known_v8_failure }}
         run: |
-          args=("$VERSION" "$BUILD")
-          if [[ "$ALLOW_V8" == true ]]; then
-            args+=(--allow-known-v8-failure)
-          fi
-          scripts/release.sh "${args[@]}"
+          scripts/release.sh "$VERSION" "$BUILD"
       - name: Upload verified dry-run package
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:

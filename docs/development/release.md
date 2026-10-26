@@ -6,6 +6,16 @@ binary package and follow [the README](../../README.md#download-and-install); no
 Xcode or compilation is required. macOS 14+ is required. Both arm64 and x86_64 slices are built
 and verified; native Intel execution and clean older-OS testing remain unverified.
 
+## v1.0.2 V8 closeout publication — authorized 2026-10-25
+
+After accepting the final V8 visual baseline, the owner explicitly requested committing the
+closure, merging feature → develop → main, pushing and publishing another release. Target
+**v1.0.2/build 12** uses the strict workflow without a V8 failure-bypass input. Canonical tests must
+pass while transparently reporting the 48 hash-pinned, owner-accepted known findings. This records
+artwork acceptance; no original pixels are repaired or changed. Future packages include
+`ARTWORK-ACCEPTANCE.json`. Existing tags/releases remain unchanged. Exact hosted/package/public
+download results will be recorded in the [publication evidence](../planning/m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
+
 [v1.0.0 (build 10)](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0) was published on
 2026-10-25 from `c157cbf2dc31d69cc268b8de1b446a13d6211872`, following successful hosted validation
 with the explicit V8 exception. Its anonymous public DMG download, checksum and mounted payload
@@ -14,8 +24,8 @@ for exact hashes, gates and remaining native-install evidence limits.
 
 ## v1.0.1 installation follow-up — authorized 2026-10-25
 
-[v1.0.1/build 11](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1) is published as the
-latest stable version from `a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`, after
+[v1.0.1/build 11](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1) was published from
+`a9db12f5c0be3d49a3e1252d58301f6ccfdaf400`, after
 [hosted validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048). The actual
 public DMG download/checksum/mounted payload, both signatures and plain-text offline guide passed
 independent checks. Complete clean-machine approval/relaunch and native Intel remain unverified.
@@ -79,29 +89,28 @@ The owner separately confirmed:
 The earlier no-publication/no-Git instructions describe the original local implementation scope;
 this later explicit instruction supersedes them for the v1.0.0 publication only.
 
-## Gates and the bounded v1.0.1 exception
+## Current strict gates and the accepted V8 baseline
 
-Default packaging still requires a clean checkout and all gates green. The explicit
-`--allow-known-v8-failure` option is default off and requires the owner-approved
-[versioned policy](release-exceptions.json) for **1.0.1 only**, separately approved by the owner.
-The v1.0.0 tag retains its original policy. The option does not skip or weaken a test.
+The owner gave final approval of the current V8 artwork on 2026-10-25. The
+[acceptance record](../planning/v8-visual-acceptance.json) pins all 134 original image hashes and
+exactly 48 findings (43 margin, three cross-clip duplicate poses, one ground and one seam finding).
+Every original pixel assertion remains evaluated. Swift Testing reports only the exact approved
+image/hash/criterion as a non-intermittent known issue; changed images, unapproved findings and
+unexpectedly disappeared issues fail. This is visual acceptance, not repaired pixels. See the
+[closeout](../planning/m15-implementation.md#final-v8-visual-acceptance--2026-10-25).
 
-The full `make test-core` and `make test` commands run unchanged, retaining exit 2 and their raw
-logs when V8 fails. Before allowing that exact exception, the script requires complete Swift Testing
-summaries for all **573 tests** (Core 344, Platform 51, Rendering 50, Runtime 128), either the
-Swift 6.2 aggregate (65 suites) or four-module Swift 6.4 report, exactly one failed
-named test `newDrawingsAreDistinctOpaqueContainedAndRegistered`, exactly 48 recorded issues, and
-only the known failed M15 suite. Missing/truncated/changed output, another failure or a compiler/
-signal error blocks release. A changed test inventory requires a fresh policy/code review, not a
-wider match. The unchanged UI suite runs separately and must pass, as must every other gate.
+Current packaging requires a clean checkout and every canonical gate to exit successfully.
+The historical [release-only waiver](release-exceptions.json) is **retired** (`approved=false`),
+its workflow input is removed, and the legacy `--allow-known-v8-failure` CLI option is rejected.
+The v1.0.0/v1.0.1 tags and published artifacts retain their original approval/failure records;
+this closeout does not rewrite those results.
 
-`logs/results.json` retains every actual exit code. `logs/gate-review.json` distinguishes failed,
-owner-approved and blocking gates. Notes and `RELEASE-EXCEPTION.json` disclose any applied exception.
-The script may exit 0 for this explicitly approved release while the canonical V8 gate remains
-recorded as failed. No future version inherits the exception automatically.
-
-Rehearsal accepts local edits and may produce **NOT FOR PUBLICATION** packages, but still exits
-nonzero for a failed gate. Rehearsal is never used by the publication workflow.
+`logs/results.json` retains actual exit codes; `logs/gate-review.json` retains failed/blocking
+checks (the legacy `ownerApprovedV8Gates` field is empty under current policy).
+`ARTWORK-ACCEPTANCE.json` accompanies future packages and records the reviewed visual baseline.
+A known-issue test outcome must not be presented as every original pixel threshold passing.
+All other package/UI/build/signature/resource gates remain mandatory. Rehearsal accepts local
+edits but still exits nonzero for failures and marks output **NOT FOR PUBLICATION**.
 
 ## Local commands
 
@@ -115,14 +124,11 @@ release version/build are command-line overrides. Preserve bundle ID `io.github.
 python3 -B -m unittest discover -s scripts/tests -v
 bash -n scripts/release.sh
 
-# Default strict candidate (blocked by the existing V8 failure):
-scripts/release.sh 1.0.1 11
-
-# Explicitly approved follow-up, from a clean checkout:
-scripts/release.sh 1.0.1 11 --allow-known-v8-failure
+# Strict future candidate; choose a fresh version/build, no waiver:
+scripts/release.sh 1.0.2 12
 
 # Diagnostic local work; never distribute its output:
-scripts/release.sh 1.0.1 12 --rehearsal
+scripts/release.sh 1.0.2 12 --rehearsal
 ```
 
 Stable versions use `MAJOR.MINOR.PATCH`, without v/leading zeroes; build is a positive integer
@@ -136,15 +142,15 @@ builds; official packages use the default `universal`.
 ## Build, package and verification sequence
 
 1. Run canonical lint, package tests, `make test`, Debug build, release-tool tests and Release build.
-2. If the approved V8 option applies, run the unchanged UI suite separately; validate exact failure
-   evidence. All other failures block normal packaging.
+2. Review test results, including the exact owner-accepted known findings. Every gate must succeed;
+   no historical V8 release waiver applies.
 3. Run the manifest-driven asset-copy script into a temporary folder and compare every referenced
    file against the original source. Original art is never rewritten.
 4. Archive Release with both architectures, explicit `CODE_SIGN_IDENTITY=-`, no team and
    `CODE_SIGN_INJECT_BASE_ENTITLEMENTS=NO`. Validate bundle/version/build/minimum OS, executable
    slices, localizations, resources, per-slice ad-hoc signatures and absence of entitlements.
 5. Stage the complete app, notes, bilingual `INSTALL.md` and native-readable `INSTALL-FIRST.txt`, source/art license notices,
-   optional release-exception record and internal `CONTENTS.sha256` inventory.
+   `ARTWORK-ACCEPTANCE.json` and internal `CONTENTS.sha256` inventory.
 6. Create the ZIP with system `ditto`; create a read-only compressed DMG with system `hdiutil`,
    adding only the fixed `/Applications` shortcut. Verify image integrity, mount read-only without
    opening Finder, verify inventory and app signatures/resources again, then detach in `finally`.
@@ -175,9 +181,9 @@ release script delegates that build gate to the same target, including its Info.
 ## GitHub Actions and publication
 
 [release.yml](../../.github/workflows/release.yml) uses manual `workflow_dispatch`. Default
-`publish=false` and `allow_known_v8_failure=false` perform strict validation and upload artifacts
-without creating tags or releases. For the approved current follow-up, explicitly set the exception
-input true. The workflow calls the same local script; it has no second packaging implementation.
+`publish=false` performs strict validation and uploads artifacts without creating tags or releases.
+There is no V8 failure-bypass input. The workflow calls the same local script; it has no second
+packaging implementation.
 
 The public repository `danielcbdev/petscape` and enabled Actions were verified read-only. Standard
 `macos-26` is [generally available](https://github.blog/changelog/2026-02-26-macos-26-is-now-generally-available-for-github-hosted-runners/)
@@ -189,7 +195,7 @@ GitHub documents [standard hosted runners as free for public repositories](https
 Private repos have plan-specific minute/storage quotas and possible overages. An Ubuntu preflight
 stops private visibility before scheduling macOS (that small preflight can consume private minutes).
 Review billing before dispatching if visibility changes. Retention is seven days; quotas are not
-assumed unlimited. Existing development CI keeps its original checks and can still report V8 red.
+assumed unlimited. Existing development CI keeps its original checks; the accepted V8 baseline is evaluated within the tests.
 
 Actions remain pinned to reviewed official commits: checkout v5
 `fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09`, upload-artifact v4.6.2
@@ -202,14 +208,14 @@ Initial dispatch requires the workflow on default branch `main`, as
 After an authorized push, a publication rehearsal is:
 
 ```bash
-gh workflow run release.yml --ref main -f version=1.0.1 -f build=11 -f publish=false -f allow_known_v8_failure=true
+gh workflow run release.yml --ref main -f version=1.0.2 -f build=12 -f publish=false
 ```
 
 For `publish=true`, select main and supply an **already existing** `vVERSION` tag at that exact
 workflow commit. Tag identity is checked before building and again remotely before
 `gh release create --verify-tag --draft`; the workflow never creates/pushes tags or overwrites an
 existing release. Publish a reviewed draft only under owner authorization. The current owner's
-v1.0.1 request supplies that authorization; future releases need their own instruction.
+v1.0.2 request supplies that authorization; future releases need their own instruction.
 
 Actual Git/tag/run/release identities and validation results are recorded in the
 [M21 publication evidence](../planning/m21-implementation.md). Local and original closeout results

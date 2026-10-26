@@ -8,17 +8,17 @@ PetScape lives in the menu bar and lets clicks outside the pets pass through to 
 
 ## Download and install
 
-**[Download PetScape v1.0.1 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg)**
+**[Download PetScape v1.0.2 for Mac — Universal DMG](https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg)**
 
 For **Apple silicon and Intel Macs running macOS 14 or later**. The download contains the ready-to-run
 app; installation needs no Xcode, Git, project checkout or build commands.
 
 1. Download the **DMG** above, or find it under **Assets** on the
-   [v1.0.1 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.1).
-   Choose `PetScape-1.0.1-11-universal.dmg`; GitHub's **Source code** links are for developers.
+   [v1.0.2 release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2).
+   Choose `PetScape-1.0.2-12-universal.dmg`; GitHub's **Source code** links are for developers.
 2. Open the downloaded DMG and drag **PetScape.app** onto its **Applications** shortcut. If upgrading,
    quit the old copy first and confirm replacement. Back up preferences and installed packs first.
-3. Eject the **PetScape 1.0.1** disk image in Finder, then open **Applications → PetScape**.
+3. Eject the **PetScape 1.0.2** disk image in Finder, then open **Applications → PetScape**.
 4. If macOS says **“Apple could not verify PetScape.app is free of malware”**, follow the first-open
    steps below. Read `INSTALL-FIRST.txt` in the DMG in TextEdit if you need the instructions offline.
 5. Look for the **paw icon in the menu bar**. PetScape has no Dock icon; open **Settings…** from the
@@ -47,8 +47,9 @@ If macOS reports malware/damage or the option is unavailable, stop and consult t
 your administrator. Availability depends on OS version and device policy.
 
 See [installation in English and Brazilian Portuguese](docs/development/install.md) for the full
-warning, upgrade and troubleshooting flow. The release carries the documented, owner-approved
-[V8 artwork pixel-QA exception](docs/planning/m21-implementation.md); that failed test remains visible.
+warning, upgrade and troubleshooting flow. The current V8 artwork has
+[final owner approval](docs/planning/m15-implementation.md#final-v8-visual-acceptance--2026-10-25);
+its known visual findings and the published releases' verification history remain documented.
 
 ### Download through Terminal (MacDevClean flow)
 
@@ -57,16 +58,16 @@ download the published DMG and checksum with `curl`, verify, then open the disk 
 Xcode, Git, Python or project checkout. Run these commands together in Terminal:
 
 ```bash
-mkdir -p "$HOME/Downloads/PetScape-1.0.1" &&
-cd "$HOME/Downloads/PetScape-1.0.1" &&
+mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
+cd "$HOME/Downloads/PetScape-1.0.2" &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.1-11-universal.dmg \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg &&
+  --output PetScape-1.0.2-12-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.1-11-universal.dmg.sha256 \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg.sha256 &&
-shasum -a 256 -c PetScape-1.0.1-11-universal.dmg.sha256 &&
-open PetScape-1.0.1-11-universal.dmg
+  --output PetScape-1.0.2-12-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
+open PetScape-1.0.2-12-universal.dmg
 ```
 
 Expect `OK`, then drag the app into Applications and follow the first-open steps above if prompted.
@@ -77,14 +78,14 @@ are changed. MacDevClean's published build is also ad-hoc and not notarized.
 ### Verify your download
 
 Download the matching
-[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.1/PetScape-1.0.1-11-universal.dmg.sha256)
+[DMG checksum](https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256)
 to the same folder as the DMG. In Terminal, change to that download folder and run:
 
 ```bash
-shasum -a 256 -c PetScape-1.0.1-11-universal.dmg.sha256
+shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256
 ```
 
-Expect `PetScape-1.0.1-11-universal.dmg: OK`. On a mismatch, stop and download both matching files
+Expect `PetScape-1.0.2-12-universal.dmg: OK`. On a mismatch, stop and download both matching files
 again before opening the app. The release also offers a ZIP and its own `.zip.sha256` file; ZIP
 users extract it and drag the app to Applications. `SHA256SUMS` checks **both** formats, so use the
 format-specific file when you download only one. A checksum detects accidental corruption but does
@@ -232,13 +233,16 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The [v1.0.1 release validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048)
+The historical [v1.0.1 release validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048)
 passed lint, Debug/universal Release/archive builds, all 14 release-tool tests, a separately executed
 7-test UI suite and DMG/ZIP round-trips. Both full package rounds ran 573 tests and failed only the
 existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
-Consequently, `make test` stopped before UI and **default strict release packaging remains blocked**.
-For v1.0.1 only, the owner explicitly approved the exact known V8 failure as a disclosed release
-exception. That opt-in requires every other gate, including separately run UI tests, to pass.
+At that publication, `make test` stopped before UI and the separately authorized release exception
+was required. On 2026-10-25 the owner gave final visual approval of the existing V8 delivery.
+The current checkout pins all 134 image hashes and evaluates every original pixel assertion,
+reporting the exact 48 accepted findings as Swift Testing **known issues**. Changed images and
+unapproved findings still fail. This is acceptance of the artwork, not a claim that pixels were repaired.
+The release-only waiver is retired; current packaging requires every gate to succeed.
 Earlier transient runtime/UI failures and Xcode tooling warnings are retained in the
 [complete M21 evidence](docs/planning/m21-implementation.md); these results are not an all-green CI claim.
 
@@ -248,29 +252,30 @@ The same script drives local and GitHub Actions packaging. From a clean checkout
 version and a fresh increasing build number; for example:
 
 ```bash
-scripts/release.sh 1.0.1 11
+scripts/release.sh 1.0.2 12
 ```
 
 It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
 creates universal DMG/ZIP packages with notes/install instructions/checksums, mounts/extracts them
 and verifies them again.
 It writes to ignored `dist/release/PetScape-VERSION-BUILD-universal/` without modifying version configs.
-Any failed gate prevents normal packaging. The explicitly approved v1.0.1 exception requires
-`--allow-known-v8-failure`; its versioned policy and complete raw test logs are checked before it
-is applied. Other failures always block. The script itself creates no tag and publishes nothing.
+Any failed gate prevents normal packaging. The owner-approved V8 visual baseline is evaluated
+inside the tests; `ARTWORK-ACCEPTANCE.json` accompanies the package. The retired
+`--allow-known-v8-failure` option is rejected by current policy. The script itself creates no tag
+and publishes nothing. Choose a fresh version/build; this example does not publish a new release.
 
 For diagnostic local work with uncommitted edits:
 
 ```bash
-scripts/release.sh 1.0.1 11 --rehearsal
+scripts/release.sh 1.0.2 12 --rehearsal
 ```
 
 Rehearsal uses `dist/rehearsal/`, may create a ZIP marked **NOT FOR PUBLICATION**, and still returns
 nonzero when a gate fails. Existing output directories are never overwritten. This mode does not
-waive V8 or permit publication.
+waive a failed gate or permit publication.
 
 The [release workflow](.github/workflows/release.yml) is manual and defaults to `publish=false`.
-A separate `allow_known_v8_failure=false` input controls the version-specific exception.
+It has no V8 failure-bypass input; the historical release-only exception is retired.
 It uses Xcode 26.2 on the standard `macos-26` runner, checks repository visibility before scheduling
 macOS, pins actions and retains artifacts/logs for seven days. The optional draft-release job alone
 gets write permission and requires an already existing `vVERSION` tag at the selected `main` commit.

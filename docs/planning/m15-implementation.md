@@ -6,6 +6,12 @@ changes, the owner stated that testing was complete and explicitly authorized M1
 merge into `develop`. The rejected V7 and intermediate V8 records remain historical evidence.
 M14 is unchanged; M16–M20 remain planning only.
 
+**Subsequent final V8 approval (2026-10-25):** after the 48 findings were explained, the owner
+explicitly closed and approved the existing artwork. The remaining visual follow-up is closed by
+acceptance, with exact image hashes and known findings retained in the regression baseline.
+Historical red test/release records below are preserved, not rewritten as pixel repairs. See the
+[final acceptance](#final-v8-visual-acceptance--2026-10-25).
+
 ## Owner M15 closeout — 2026-10-23
 
 Owner confirmation: “já realizei os testes, pode fazer o fechamento do M15, atualizando o git e
@@ -317,3 +323,54 @@ provenance/evidence delivered; M16–M20 remain planning only, release moved to 
 
 No repository implementation or generation work remains. No commit, push, tag, release, PR or merge
 was performed. M16–M20 feature implementation remains outside this change.
+
+## Final V8 visual acceptance — 2026-10-25
+
+After the exact findings were explained, the owner instructed: **“pode resolver essa pendência,
+está concluído e aprovado”**. This closes the visual follow-up by explicit acceptance of the
+existing delivered artwork. It does not claim that pixels were redrawn or that the historical
+thresholds were all met. The original 134 images remain byte-identical.
+
+[The machine-readable acceptance record](v8-visual-acceptance.json) pins those 134 image SHA-256
+values and the precise 48 findings: 43 transparent-margin findings, three repeated poses across
+clips, one ground-registration finding and one interior seam finding. Duplicate traversal is now
+sorted for deterministic attribution: curious/idle/jump-start/picked-up share the same decoded
+initial pose, resulting in three duplicate occurrences. This was previously reported in varying
+order because manifest dictionaries do not define traversal order.
+
+Every original pixel assertion still executes. Only an approved path, exact source-file hash and
+specific criterion is wrapped individually in Swift Testing `withKnownIssue`, using its strict
+non-intermittent behavior. Other criteria remain ordinary assertions. A changed image, a new
+finding or a disappeared expected known issue fails; the baseline requires explicit review before
+it can change. A separate guard test verifies changed hash, unknown path/criterion, revoked approval
+and unsupported baseline schema are rejected. No test is skipped/deleted and no numeric pixel
+threshold is relaxed.
+
+The version-specific release waiver is retired (`approved=false`), and the workflow's bypass
+input is removed. Future packaging runs the strict gates and includes `ARTWORK-ACCEPTANCE.json`.
+Published v1.0.0/v1.0.1 tags, packages and historical red reports remain unchanged. This visual
+acceptance does not approve a new Git publication/release or alter Gatekeeper/notarization policy.
+
+Verification so far: the original focused test was reproduced failing with 48 issues before the
+change (`build/v8-owner-acceptance-before.log`); all eight focused M15 tests then passed with
+48 explicitly reported known issues (`build/v8-owner-acceptance-after.log`). The release-policy
+retirement regression test was observed failing before retirement and passing afterwards;
+all 15 Python release-tool tests pass. Actionlint and shell syntax pass. A separate read-only
+review confirmed the exact hash/finding inventory and found no masking/regression defect.
+Full package/lint/Debug results are recorded below after completion.
+
+### Final local verification
+
+- `make test-core`: exit 0; **574 tests pass**, including 48 explicitly reported known V8 issues:
+  Core 344, Platform 51, Rendering 50, Runtime 129. Runtime includes the new acceptance-scope guard.
+  Evidence: `build/v8-closeout-test-core.log`. This is a passing accepted-baseline test run, not
+  a claim that all original pixel thresholds are met.
+- `make lint` and `make build`: exit 0. Evidence: `build/v8-closeout-lint.log` and
+  `build/v8-closeout-build.log`.
+- Python release tooling: 15/15 pass, including rejection of the retired waiver. Actionlint,
+  shell syntax, relative documentation links/anchors and whitespace checks pass.
+- Diff confirms no changes under original `assets/`, app sources, runtime implementation or
+  configuration. The baseline hash guard independently checks all 134 accepted images.
+- Fresh UI/platform/Gatekeeper/Intel verification and release packaging were not run for this
+  test/documentation closeout. Prior hosted results remain historical; no new hosted CI result,
+  Git publication or release is claimed. Changes are local on `feature/T15-v8-owner-closeout`.

@@ -1,6 +1,7 @@
 """Release boundary tests; no original art, remote writes or paid credentials."""
 
 import importlib.util
+import json
 from pathlib import Path
 import plistlib
 import subprocess
@@ -142,6 +143,11 @@ class ReleaseTests(unittest.TestCase):
                                ({**policy, "issues": 49}, "1.0.1")]:
             with self.assertRaises(ValueError):
                 self.release.validate_v8_approval(value, version)
+
+    def test_retired_release_exception_cannot_waive_a_failed_gate(self):
+        policy = json.loads((SCRIPT.parent.parent / "docs/development/release-exceptions.json").read_text())
+        with self.assertRaisesRegex(ValueError, "no owner-approved V8 exception"):
+            self.release.validate_v8_approval(policy, policy["version"])
 
     def test_known_v8_report_accepts_complete_swift62_aggregate_without_other_failures(self):
         report = "\n".join([
