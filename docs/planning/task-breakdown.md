@@ -770,3 +770,9 @@ MacDevClean-style verified Terminal download, prominent app-specific approval gu
 `INSTALL-FIRST.txt` for TextEdit. v1.0.1/build 11 is published after successful hosted/public
 artifact checks with the separately approved exact V8 exception. Complete clean-machine
 approval/relaunch and native Intel remain unverified. See the [follow-up](m21-implementation.md#v101-installation-follow-up--2026-10-25).
+
+The [v1.0.2 V8 closeout publication](m21-implementation.md#v102-v8-closeout-publication--2026-10-25)
+is complete: feature → develop → main integration, every strict hosted gate passed, universal
+DMG/ZIP published, and public README download/checksum/payload checks passed. The exact visual
+baseline remains visible as 48 known findings; no release failure waiver applies. Native Intel
+and complete clean-machine approval/relaunch remain unverified.

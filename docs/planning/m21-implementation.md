@@ -540,3 +540,80 @@ The README/direct download, checksum commands and bundled bilingual installation
 v1.0.2/build 12. Signing remains ad-hoc, without notarization or developer identity. Native Intel,
 clean-machine approval/relaunch and managed/older supported OS evidence remain unverified.
 Fresh integration/hosted/artifact/public-download results are recorded below as they complete.
+
+### v1.0.2 strict hosted validation and artifact checks
+
+[Run 40255266960](https://github.com/danielcbdev/petscape/actions/runs/40255266960) completed
+successfully from clean feature commit `ce23370c260883d107a6dc2705be651f9eb95a53`, on macOS 26.6.2
+(25G83), Xcode 26.2 (17C52), Swift 6.2.3, arm64 host. Validation used no V8 bypass input/CLI option,
+and the optional publication job was skipped. The full source tree was checked before integration.
+
+| Gate | Actual result |
+|---|---|
+| Lint/module boundaries | Exit 0 |
+| `make test-core` | Exit 0; 574 Swift Testing tests/65 suites pass with 48 known visual issues, plus 2 XCTest cases |
+| `make test` | Exit 0; same full package round, then all 7 UI tests pass (`TEST SUCCEEDED`) |
+| Debug/universal Release build | Exit 0, including early toolchain preflight |
+| Release tooling | Exit 0; 15/15 tests pass, including retired-waiver rejection |
+| Character copy/resource parity | Exit 0 |
+| Universal ad-hoc archive | Exit 0 |
+| Gate review | `failedGates: []`, `ownerApprovedV8Gates: []`, `blockingGates: []` |
+| DMG/ZIP round-trips and external checksums | Pass |
+
+This is a successful strict gate result with transparent owner-accepted **known** visual findings;
+no failed gate is waived. The 48 original pixel thresholds are not claimed to have been repaired.
+Xcode's existing metadata-extraction/signed-XCTest stripping notices remain in logs; compiler
+warnings stay errors. The raw results/environment are retained in the workflow logs artifact.
+
+The actual CI artifacts were downloaded and independently checked on the owner's Mac: both external
+SHA-256 sums, DMG verification/read-only mount/eject, ZIP extraction, complete 216-file inventories,
+version 1.0.2/build 12, both executable slices and ad-hoc signatures, original resource parity,
+source/art licenses and canonical bilingual instructions passed. `INSTALL-FIRST.txt` is native
+plain text (12,330 bytes). `ARTWORK-ACCEPTANCE.json` exactly matches the approved source record;
+each of its 134 hashes also matches the PNG inside the actual app, and its finding counts are
+43 margin, three duplicate, one ground and one seam. Neither package contains `RELEASE-EXCEPTION.json`.
+The app was not launched and no global security/quarantine setting was changed during these checks.
+
+| Artifact | SHA-256 |
+|---|---|
+| `PetScape-1.0.2-12-universal.dmg` | `86d8844f7124e84cfdc2c00d3157de50c583fbec94de080edd84283558e98e0a` |
+| `PetScape-1.0.2-12-universal.zip` | `63a0e358c5df7c2341723f0d63f441d2c87d0323e8eecf44d41f81e14b45ce33` |
+
+Fresh local precommit verification also passed: 574 package tests with 48 known findings, 15 tooling
+tests, lint, actionlint, shell syntax, documentation paths/anchors and whitespace. A read-only final
+review found no release blocker. The tested feature commit was fast-forward merged into develop,
+then main, and both were pushed before tag/release creation. Runtime/app sources, configuration and
+all original assets have no diff from v1.0.1. Existing release tags/artifacts are preserved.
+
+### v1.0.2 publication and anonymous installation entry point
+
+- **Release:** [PetScape v1.0.2](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2),
+  latest stable (`draft=false`, `prerelease=false`), published at `2026-10-26T01:59:56Z`
+  (2026-10-25 in the owner's America/Fortaleza timezone).
+- **Tag:** annotated `v1.0.2`, object `c40a5bbd364201ce90afd1dd70f2bf2ad657962a`, points to exact
+  validated/integrated source `ce23370c260883d107a6dc2705be651f9eb95a53`. It was pushed after all
+  strict gates and local checks passed. No tag was moved for final documentation.
+- **Publication:** the six verified CI files were downloaded and independently checked, uploaded
+  to a draft using `gh release create --verify-tag --draft`, inspected for expected names/sizes
+  and server SHA-256, then explicitly published with `gh release edit --draft=false --latest`.
+  The manual validation workflow itself published nothing. No new rebuild substituted bytes.
+- **Assets:** universal DMG (48,415,793 bytes), ZIP (46,598,275 bytes), each format's `.sha256`,
+  combined `SHA256SUMS` and `RELEASE-NOTES.md`. Server digests match the table above. Both binary
+  formats contain the full artwork acceptance record and no retired release-waiver file.
+- **Anonymous download:** ordinary HTTPS-only `curl` fetched the exact README DMG URL and matching
+  checksum without `gh`/tokens or the ZIP. `shasum -a 256 -c` returned `OK`. Mounted inventory,
+  bundle/version/build, both architectures/signatures, canonical instructions, acceptance metadata
+  and all 134 actual bundled image hashes passed; the volume was ejected afterwards.
+- **README commands:** the actual documented Terminal block was independently executed against
+  the public v1.0.2 URLs, using an owned download directory. Real HTTPS downloads/checksum passed;
+  the final Finder `open` was replaced by a completion marker, so app opening/approval is not
+  claimed as tested. Source checkout/Xcode/Python are not needed by users following the README.
+- **Git:** the implementation was committed on `feature/T15-v8-owner-closeout`, merged into
+  develop and then main with fast-forwards, and pushed before release creation. A documentation-only
+  follow-up records actual results after publication and is synchronized across those three
+  branches. Prior tags/artifacts and unrelated branches/worktrees remain preserved.
+- **Limits:** full clean-machine first-open/approval/relaunch, native Intel execution, older
+  supported OS and managed-device policy behavior remain unverified. Ad-hoc signing provides no
+  Apple developer identity/notarization; this release does not promise disappearance of Apple's
+  verification warning. The visual follow-up is closed by acceptance, with original pixel
+  criteria still evaluated and known findings transparently retained.

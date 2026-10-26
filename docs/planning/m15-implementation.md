@@ -374,3 +374,14 @@ Full package/lint/Debug results are recorded below after completion.
 - Fresh UI/platform/Gatekeeper/Intel verification and release packaging were not run for this
   test/documentation closeout. Prior hosted results remain historical; no new hosted CI result,
   Git publication or release is claimed. Changes are local on `feature/T15-v8-owner-closeout`.
+
+### Subsequent Git and release closeout
+
+The owner then explicitly authorized committing, merging into develop and main, and the full
+release process. This superseded the earlier local-only boundary for this closure.
+Implementation commit `ce23370c260883d107a6dc2705be651f9eb95a53` was integrated and published as
+[v1.0.2/build 12](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) after every strict
+hosted gate passed (both 574-test rounds, 7 UI tests, 15 tooling tests; no failed-gate waiver).
+The public DMG/README download, checksum, mounted payload and exact artwork baseline were verified.
+See the [complete publication evidence](m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
+Historical local/red reports and existing releases remain unchanged; no pixel repair is claimed.

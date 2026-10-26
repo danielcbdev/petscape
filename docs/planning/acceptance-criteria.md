@@ -304,6 +304,12 @@ and native-readable offline instructions. Its hosted gates and public DMG checks
 complete clean-machine approval/relaunch part of AC-M21-08 remains unverified. See the
 [v1.0.1 follow-up](m21-implementation.md#v101-installation-follow-up--2026-10-25).
 
+The subsequent [v1.0.2 publication](m21-implementation.md#v102-v8-closeout-publication--2026-10-25)
+passed every strict hosted gate without a release failure waiver, using the exact owner-accepted
+visual baseline. Both 574-test rounds, 7 UI and 15 tooling tests passed. Public DMG/README download,
+checksums, mounted payload and acceptance metadata were verified; AC-M21-08's complete clean-machine
+approval/relaunch and native Intel execution remain unverified.
+
 ## M7/M8 evidence status (2026-10-18)
 
 Automated engineering evidence is recorded per task in [task-breakdown.md](task-breakdown.md#execution-evidence-2026-10-18):

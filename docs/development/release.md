@@ -9,12 +9,17 @@ and verified; native Intel execution and clean older-OS testing remain unverifie
 ## v1.0.2 V8 closeout publication — authorized 2026-10-25
 
 After accepting the final V8 visual baseline, the owner explicitly requested committing the
-closure, merging feature → develop → main, pushing and publishing another release. Target
-**v1.0.2/build 12** uses the strict workflow without a V8 failure-bypass input. Canonical tests must
-pass while transparently reporting the 48 hash-pinned, owner-accepted known findings. This records
+closure, merging feature → develop → main, pushing and publishing another release.
+**[v1.0.2/build 12](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) is published** from
+`ce23370c260883d107a6dc2705be651f9eb95a53`, following
+[strict validation](https://github.com/danielcbdev/petscape/actions/runs/40255266960) with every gate
+exit 0 and no release failure waiver. Both 574-test rounds report the 48 hash-pinned,
+owner-accepted known findings; all 7 UI and 15 tooling tests pass. This records
 artwork acceptance; no original pixels are repaired or changed. Future packages include
-`ARTWORK-ACCEPTANCE.json`. Existing tags/releases remain unchanged. Exact hosted/package/public
-download results will be recorded in the [publication evidence](../planning/m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
+`ARTWORK-ACCEPTANCE.json`. Existing tags/releases remain unchanged. The public DMG and README
+download/checksum commands were verified independently, including mounted inventory and both
+signatures. Exact results and remaining native-install evidence limits are recorded in the
+[publication evidence](../planning/m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
 
 [v1.0.0 (build 10)](https://github.com/danielcbdev/petscape/releases/tag/v1.0.0) was published on
 2026-10-25 from `c157cbf2dc31d69cc268b8de1b446a13d6211872`, following successful hosted validation
@@ -124,11 +129,11 @@ release version/build are command-line overrides. Preserve bundle ID `io.github.
 python3 -B -m unittest discover -s scripts/tests -v
 bash -n scripts/release.sh
 
-# Strict future candidate; choose a fresh version/build, no waiver:
-scripts/release.sh 1.0.2 12
+# Future candidate: add nonempty changelog notes and choose a fresh version/build, no waiver:
+scripts/release.sh 1.0.3 13
 
 # Diagnostic local work; never distribute its output:
-scripts/release.sh 1.0.2 12 --rehearsal
+scripts/release.sh 1.0.3 13 --rehearsal
 ```
 
 Stable versions use `MAJOR.MINOR.PATCH`, without v/leading zeroes; build is a positive integer
@@ -208,7 +213,7 @@ Initial dispatch requires the workflow on default branch `main`, as
 After an authorized push, a publication rehearsal is:
 
 ```bash
-gh workflow run release.yml --ref main -f version=1.0.2 -f build=12 -f publish=false
+gh workflow run release.yml --ref main -f version=1.0.3 -f build=13 -f publish=false
 ```
 
 For `publish=true`, select main and supply an **already existing** `vVERSION` tag at that exact

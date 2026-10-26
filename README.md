@@ -233,26 +233,26 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The historical [v1.0.1 release validation](https://github.com/danielcbdev/petscape/actions/runs/40227041048)
-passed lint, Debug/universal Release/archive builds, all 14 release-tool tests, a separately executed
-7-test UI suite and DMG/ZIP round-trips. Both full package rounds ran 573 tests and failed only the
-existing M15 `newDrawingsAreDistinctOpaqueContainedAndRegistered` V8 pixel-QA test with 48 issues.
-At that publication, `make test` stopped before UI and the separately authorized release exception
-was required. On 2026-10-25 the owner gave final visual approval of the existing V8 delivery.
-The current checkout pins all 134 image hashes and evaluates every original pixel assertion,
-reporting the exact 48 accepted findings as Swift Testing **known issues**. Changed images and
-unapproved findings still fail. This is acceptance of the artwork, not a claim that pixels were repaired.
-The release-only waiver is retired; current packaging requires every gate to succeed.
-Earlier transient runtime/UI failures and Xcode tooling warnings are retained in the
-[complete M21 evidence](docs/planning/m21-implementation.md); these results are not an all-green CI claim.
+The [v1.0.2 strict release validation](https://github.com/danielcbdev/petscape/actions/runs/40255266960)
+passed all canonical gates: two complete rounds of 574 Swift Testing tests (plus two XCTest cases
+per round), 7 UI tests, 15 release-tool tests, lint, Debug/universal Release/archive and DMG/ZIP
+round-trips. Every gate returned zero; no release failure waiver was used.
+
+The owner gave final visual approval of the existing V8 delivery on 2026-10-25. All 134 image hashes
+are pinned and every original pixel assertion runs, transparently reporting the exact 48 accepted
+findings as Swift Testing **known issues**. Changed images, unapproved findings and disappeared
+expected issues still fail. This is artwork acceptance, not a claim of repaired pixels. The
+historical release-only waiver is retired. Older failed reports and tooling notices remain in the
+[complete M21 evidence](docs/planning/m21-implementation.md).
 
 ## Build a release candidate
 
 The same script drives local and GitHub Actions packaging. From a clean checkout, choose a stable
-version and a fresh increasing build number; for example:
+version and a fresh increasing build number. Add matching or nonempty Unreleased notes to
+`CHANGELOG.md` first; for example:
 
 ```bash
-scripts/release.sh 1.0.2 12
+scripts/release.sh 1.0.3 13
 ```
 
 It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
@@ -267,7 +267,7 @@ and publishes nothing. Choose a fresh version/build; this example does not publi
 For diagnostic local work with uncommitted edits:
 
 ```bash
-scripts/release.sh 1.0.2 12 --rehearsal
+scripts/release.sh 1.0.3 13 --rehearsal
 ```
 
 Rehearsal uses `dist/rehearsal/`, may create a ZIP marked **NOT FOR PUBLICATION**, and still returns

@@ -131,6 +131,14 @@ Target v1.0.2/build 12 includes the accepted visual baseline and retires the rel
 All canonical gates must succeed; original art and the v1.0.0/v1.0.1 tags/artifacts remain preserved.
 See the [publication follow-up](docs/planning/m21-implementation.md#v102-v8-closeout-publication--2026-10-25).
 
+**Published v1.0.2/build 12:** [strict hosted validation](https://github.com/danielcbdev/petscape/actions/runs/40255266960)
+from `ce23370c260883d107a6dc2705be651f9eb95a53` passed every gate with exit 0: both complete
+574-test rounds (48 explicitly known visual findings), 7 UI tests and 15 tooling tests. Failed,
+release-waiver and blocking gate lists are empty. Feature → develop → main integration and
+publication are complete; the public DMG/README downloads, checksums, 216-file inventory, both
+signatures and exact 134-image acceptance record were verified. Clean-machine approval/relaunch
+and native Intel remain unverified. See the [release](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2).
+
 ## 2. Stack
 
 Swift 6 (language mode 6, strict concurrency), SwiftUI (menu + settings), AppKit (windows, events,
