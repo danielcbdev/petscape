@@ -11,23 +11,23 @@ Open Terminal and paste this entire block. It downloads the DMG and matching che
 the file and opens the disk image. A failed download or checksum stops before opening.
 
 ```bash
-mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
-cd "$HOME/Downloads/PetScape-1.0.2" &&
+mkdir -p "$HOME/Downloads/PetScape-1.0.3" &&
+cd "$HOME/Downloads/PetScape-1.0.3" &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
+  --output PetScape-1.0.3-13-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg.sha256 \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
-shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
-open PetScape-1.0.2-12-universal.dmg
+  --output PetScape-1.0.3-13-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.3-13-universal.dmg.sha256 &&
+open PetScape-1.0.3-13-universal.dmg
 ```
 
 When the checksum reports `OK`, the disk image opens:
 
 1. Quit any running PetScape. Back up preferences and installed character packs before an upgrade.
 2. Drag **PetScape.app** to **Applications** in the disk image. Confirm replacement if asked.
-3. Eject **PetScape 1.0.2** and open **Applications → PetScape**.
+3. Eject **PetScape 1.0.3** and open **Applications → PetScape**.
 4. Look for the **paw icon in the menu bar**. There is no Dock icon; open **Settings…** from the paw.
 
 ### First open
@@ -56,7 +56,7 @@ SHA-256 detects accidental corruption but cannot independently authenticate a so
 package and checksum are replaced. Both packages also contain `CONTENTS.sha256` for an optional
 internal check with `shasum -a 256 -c CONTENTS.sha256` from the mounted/extracted folder.
 
-The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) also lists a ZIP and
+The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.3) also lists a ZIP and
 its own `.zip.sha256`. The combined `SHA256SUMS` requires both formats; use a format-specific
 checksum for one file. ZIP users extract the app and drag it to Applications.
 
@@ -81,23 +81,23 @@ Abra o Terminal e cole este bloco inteiro. Ele baixa o DMG e seu checksum, verif
 e abre a imagem de disco. Se o download ou checksum falhar, a sequência para antes da abertura.
 
 ```bash
-mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
-cd "$HOME/Downloads/PetScape-1.0.2" &&
+mkdir -p "$HOME/Downloads/PetScape-1.0.3" &&
+cd "$HOME/Downloads/PetScape-1.0.3" &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
+  --output PetScape-1.0.3-13-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg.sha256 \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
-shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
-open PetScape-1.0.2-12-universal.dmg
+  --output PetScape-1.0.3-13-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.3-13-universal.dmg.sha256 &&
+open PetScape-1.0.3-13-universal.dmg
 ```
 
 Quando aparecer `OK`, a imagem de disco abrirá:
 
 1. Encerre qualquer PetScape em execução. Faça backup das preferências e pacotes antes de atualizar.
 2. Arraste **PetScape.app** para **Applications / Aplicativos** na imagem. Confirme a substituição.
-3. Ejete **PetScape 1.0.2** e abra **Aplicativos → PetScape**.
+3. Ejete **PetScape 1.0.3** e abra **Aplicativos → PetScape**.
 4. Procure o **ícone de pata na barra de menus**. Não há ícone no Dock; abra **Ajustes…** pela pata.
 
 ### Primeira abertura

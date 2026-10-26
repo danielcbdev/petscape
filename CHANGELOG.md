@@ -5,6 +5,16 @@ versions follow [Semantic Versioning](https://semver.org/). Release process: [re
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-25
+
+### Fixed
+
+- Installation now starts with a single cURL block that downloads the DMG and checksum, verifies
+  integrity and opens the disk image. Manual file download is not a required first step.
+- Removed unrelated project references from the README, changelog and bundled English/pt-BR
+  installation guide. Both DMG/ZIP carry the corrected native-readable instructions.
+- App logic, original artwork and strict accepted-baseline gates remain unchanged.
+
 ## [1.0.2] - 2026-10-25
 
 ### Changed

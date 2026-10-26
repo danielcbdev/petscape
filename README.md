@@ -13,16 +13,16 @@ entire block. It downloads the installer and its checksum, verifies the file and
 image automatically. No manual file download, Xcode, Git, Python or project checkout is needed.
 
 ```bash
-mkdir -p "$HOME/Downloads/PetScape-1.0.2" &&
-cd "$HOME/Downloads/PetScape-1.0.2" &&
+mkdir -p "$HOME/Downloads/PetScape-1.0.3" &&
+cd "$HOME/Downloads/PetScape-1.0.3" &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg &&
+  --output PetScape-1.0.3-13-universal.dmg \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg &&
 curl --fail --location --proto '=https' --proto-redir '=https' \
-  --output PetScape-1.0.2-12-universal.dmg.sha256 \
-  https://github.com/danielcbdev/petscape/releases/download/v1.0.2/PetScape-1.0.2-12-universal.dmg.sha256 &&
-shasum -a 256 -c PetScape-1.0.2-12-universal.dmg.sha256 &&
-open PetScape-1.0.2-12-universal.dmg
+  --output PetScape-1.0.3-13-universal.dmg.sha256 \
+  https://github.com/danielcbdev/petscape/releases/download/v1.0.3/PetScape-1.0.3-13-universal.dmg.sha256 &&
+shasum -a 256 -c PetScape-1.0.3-13-universal.dmg.sha256 &&
+open PetScape-1.0.3-13-universal.dmg
 ```
 
 The last line runs only after the checksum reports `OK`. A failed download or checksum stops the
@@ -30,13 +30,13 @@ sequence before the disk image opens.
 
 1. Quit an older running PetScape, then drag **PetScape.app** onto **Applications** in the opened
    disk image. Confirm replacement for an upgrade; back up preferences and installed packs first.
-2. Eject **PetScape 1.0.2** in Finder and open **Applications → PetScape**.
+2. Eject **PetScape 1.0.3** in Finder and open **Applications → PetScape**.
 3. Look for the **paw icon in the menu bar**; there is no Dock icon. Open **Settings…** there.
    If macOS shows Apple's verification warning, follow the first-open steps below.
 
 `INSTALL-FIRST.txt` in the disk image opens in TextEdit. See the full
 [English and Brazilian Portuguese installation guide](docs/development/install.md).
-The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.2) also lists the ZIP,
+The [release page](https://github.com/danielcbdev/petscape/releases/tag/v1.0.3) also lists the ZIP,
 release notes and checksums. SHA-256 detects accidental corruption; it does not independently
 authenticate the source when package and checksum are replaced together.
 

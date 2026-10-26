@@ -617,3 +617,25 @@ all original assets have no diff from v1.0.1. Existing release tags/artifacts ar
   Apple developer identity/notarization; this release does not promise disappearance of Apple's
   verification warning. The visual follow-up is closed by acceptance, with original pixel
   criteria still evaluated and known findings transparently retained.
+
+## v1.0.3 cURL-first installation — 2026-10-25
+
+The owner corrected the installation presentation: the external project was only a technical
+reference, must not be cited in the README, and installation must lead with the cURL block rather
+than require a manual DMG download. They requested immediate corrections followed by Git updates.
+This steers the ongoing authorized Git/release process.
+
+The README was immediately rewritten so its first installation action is one Terminal block that
+downloads the DMG and checksum, verifies and opens the image. Its commands were byte-for-byte the
+same public v1.0.2 commands already tested; no manual download is required. Unrelated-project
+references were removed from README, CHANGELOG and canonical bilingual installation instructions.
+The correction commit `4b38906` was integrated/pushed to main and develop immediately, and the
+public raw README was checked for cURL preceding install steps and zero unrelated-project names.
+The v1.0.2 release-page instructions were corrected to lead with the same block as well.
+
+To deliver matching offline instructions inside the packages without silently replacing immutable
+published binaries, the active release now targets **v1.0.3/build 13**. Only documentation and
+packaged instructions change from v1.0.2; app/runtime/configuration, original art, hash-pinned
+accepted findings and all strict gate requirements remain unchanged. No failure waiver or global
+security/quarantine operation is introduced. `feature/T21-curl-install-flow` carries the correction.
+Fresh strict hosted/artifact/public-download results will be recorded below.
