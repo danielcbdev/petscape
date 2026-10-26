@@ -6,6 +6,17 @@ binary package and follow [the README](../../README.md#download-and-install); no
 Xcode or compilation is required. macOS 14+ is required. Both arm64 and x86_64 slices are built
 and verified; native Intel execution and clean older-OS testing remain unverified.
 
+## Current installation release: v1.0.3/build 13
+
+[v1.0.3](https://github.com/danielcbdev/petscape/releases/tag/v1.0.3) is published from
+`a6deacf4a06e801101be2b242d57305ef50a79ba`. The README, release body and native-readable bilingual
+guide lead with the same cURL download/checksum/open flow, without requiring a manual file
+download or citing unrelated projects. [Strict validation](https://github.com/danielcbdev/petscape/actions/runs/40260320801)
+passed every gate: both 574-test rounds (48 explicitly known artwork findings), 7 UI tests and
+15 tooling tests, builds/archive and package round-trips. There were no failed/waived/blocking gates.
+Actual DMG/ZIP and public README download/checksum/payload checks passed. See the
+[publication evidence](../planning/m21-implementation.md#v103-curl-first-installation--2026-10-25).
+
 ## v1.0.2 V8 closeout publication — authorized 2026-10-25
 
 After accepting the final V8 visual baseline, the owner explicitly requested committing the
@@ -130,10 +141,10 @@ python3 -B -m unittest discover -s scripts/tests -v
 bash -n scripts/release.sh
 
 # Future candidate: add nonempty changelog notes and choose a fresh version/build, no waiver:
-scripts/release.sh 1.0.3 13
+scripts/release.sh 1.0.4 14
 
 # Diagnostic local work; never distribute its output:
-scripts/release.sh 1.0.3 13 --rehearsal
+scripts/release.sh 1.0.4 14 --rehearsal
 ```
 
 Stable versions use `MAJOR.MINOR.PATCH`, without v/leading zeroes; build is a positive integer
@@ -213,7 +224,7 @@ Initial dispatch requires the workflow on default branch `main`, as
 After an authorized push, a publication rehearsal is:
 
 ```bash
-gh workflow run release.yml --ref main -f version=1.0.3 -f build=13 -f publish=false
+gh workflow run release.yml --ref main -f version=1.0.4 -f build=14 -f publish=false
 ```
 
 For `publish=true`, select main and supply an **already existing** `vVERSION` tag at that exact

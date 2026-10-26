@@ -204,7 +204,7 @@ permissions or the login item again. See [full installation guidance](docs/devel
 XCUITest requires a working macOS Automation Mode session; see [setup](docs/development/setup.md#ui-tests-and-automation-mode).
 No product privacy permission should be enabled as a workaround for test setup.
 
-The [v1.0.2 strict release validation](https://github.com/danielcbdev/petscape/actions/runs/40255266960)
+The [v1.0.3 strict release validation](https://github.com/danielcbdev/petscape/actions/runs/40260320801)
 passed all canonical gates: two complete rounds of 574 Swift Testing tests (plus two XCTest cases
 per round), 7 UI tests, 15 release-tool tests, lint, Debug/universal Release/archive and DMG/ZIP
 round-trips. Every gate returned zero; no release failure waiver was used.
@@ -223,7 +223,7 @@ version and a fresh increasing build number. Add matching or nonempty Unreleased
 `CHANGELOG.md` first; for example:
 
 ```bash
-scripts/release.sh 1.0.3 13
+scripts/release.sh 1.0.4 14
 ```
 
 It runs the canonical gates, creates a Release archive, validates ad-hoc signing and bundle contents,
@@ -238,7 +238,7 @@ and publishes nothing. Choose a fresh version/build; this example does not publi
 For diagnostic local work with uncommitted edits:
 
 ```bash
-scripts/release.sh 1.0.3 13 --rehearsal
+scripts/release.sh 1.0.4 14 --rehearsal
 ```
 
 Rehearsal uses `dist/rehearsal/`, may create a ZIP marked **NOT FOR PUBLICATION**, and still returns

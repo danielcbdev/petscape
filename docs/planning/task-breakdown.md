@@ -776,3 +776,9 @@ is complete: feature → develop → main integration, every strict hosted gate 
 DMG/ZIP published, and public README download/checksum/payload checks passed. The exact visual
 baseline remains visible as 48 known findings; no release failure waiver applies. Native Intel
 and complete clean-machine approval/relaunch remain unverified.
+
+The [v1.0.3 installation correction](m21-implementation.md#v103-curl-first-installation--2026-10-25)
+is published: README/release/bundled English/pt-BR instructions lead with verified cURL download
+and opening, with no unrelated-project references in user-facing documents. Every strict gate,
+actual package check and public README download/checksum check passed. Native-install limits
+remain explicitly unverified; earlier published binaries/tags are preserved.

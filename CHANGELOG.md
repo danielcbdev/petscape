@@ -5,7 +5,7 @@ versions follow [Semantic Versioning](https://semver.org/). Release process: [re
 
 ## [Unreleased]
 
-## [1.0.3] - 2026-10-25
+## [1.0.3] - 2026-10-26
 
 ### Fixed
 

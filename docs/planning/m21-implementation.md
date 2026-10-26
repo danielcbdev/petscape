@@ -639,3 +639,50 @@ packaged instructions change from v1.0.2; app/runtime/configuration, original ar
 accepted findings and all strict gate requirements remain unchanged. No failure waiver or global
 security/quarantine operation is introduced. `feature/T21-curl-install-flow` carries the correction.
 Fresh strict hosted/artifact/public-download results will be recorded below.
+
+### v1.0.3 strict validation, payload and public release
+
+[Run 40260320801](https://github.com/danielcbdev/petscape/actions/runs/40260320801) completed from
+clean source `a6deacf4a06e801101be2b242d57305ef50a79ba`, with Xcode 26.2 (17C52), Swift 6.2.3,
+macOS 26.6.2 (25G83), arm64 host. Every raw gate exit is zero (`lint`, `test-core`, `test`, `debug`,
+`release-tests`, `release-build`, `characters`, `archive`). All failed/approved-waiver/blocking
+lists are empty. Both full rounds passed 574 Swift Testing tests/65 suites with the same 48 known
+accepted visual findings, plus two XCTest cases each. Canonical `make test` also passed all seven
+UI tests; all 15 release-tool tests passed. Existing tooling notices remain in the uploaded logs.
+
+A separate read-only review found no blocker: README and English/pt-BR guide each start with the
+same cURL block, all three blocks are byte-identical/valid shell, filenames/URLs target 1.0.3/build13,
+and no unrelated-project names occur in README/INSTALL/CHANGELOG. Tests/app/config/scripts/artwork
+have no diff from v1.0.2. Strict requirements were retained rather than bypassed for documentation.
+
+The actual downloaded CI DMG/ZIP passed external checksums, read-only DMG verification/mount/eject,
+ZIP extraction, full 216-file inventories, metadata/version/build, both native slices/signatures,
+resource/license parity and artwork acceptance checks. The packaged `INSTALL-FIRST.txt` is plain
+text (7,803 bytes), equals the corrected canonical guide and contains no unrelated-project names.
+All 134 accepted PNG hashes match the app. Neither format contains a release-waiver record.
+
+| Artifact | SHA-256 |
+|---|---|
+| `PetScape-1.0.3-13-universal.dmg` | `a5e1c2b548db8da66e0a6dfc25713bba8e693bcb72c5d90adad02cc126b17818` |
+| `PetScape-1.0.3-13-universal.zip` | `c903ae4ee7d0ef0518c1c927d2880e0fc960fb2a490895305f406c065f1dfd21` |
+
+The tested feature commit was fast-forward merged into develop then main and pushed. Annotated
+`v1.0.3` (tag object `980607440f0e89e5abe1e83fa7d0eb369ebf9356`) points to that exact tested source.
+The six verified files were uploaded to a draft, inspected for expected names/sizes/server hashes,
+then explicitly published as [v1.0.3](https://github.com/danielcbdev/petscape/releases/tag/v1.0.3),
+latest stable (`draft=false`, `prerelease=false`), at `2026-10-26T03:00:44Z`. Its local publication
+date is 2026-10-26; preparation/owner authorization began on 2026-10-25. The changelog records the
+actual publication date. DMG size is 48,497,383 bytes; ZIP size is 46,594,544 bytes.
+
+The actual first cURL block in the README was executed against the public release with a temporary
+owned download location: real HTTPS-only downloads and checksum passed without `gh`/tokens.
+The final `open` was replaced with a completion marker, so no app/Finder launch is claimed.
+A separate anonymous public DMG download also passed checksum, full mounted inventory, canonical
+guide, all 134 actual image hashes and both signatures; the image was ejected. These checks changed
+no security setting/quarantine attribute and did not run the app.
+
+A final documentation-only evidence commit is synchronized to main, develop and
+`feature/T21-curl-install-flow`. Previous published binaries/tags remain preserved. Complete
+clean-machine approval/relaunch, native Intel, older supported OS and managed policies remain
+unverified; the signing/notarization limits are unchanged. The V8 visual follow-up remains closed
+by owner acceptance with all exact known findings transparently evaluated.

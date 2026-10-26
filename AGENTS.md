@@ -146,6 +146,15 @@ release process now targets v1.0.3/build 13 so the corrected native-readable gui
 DMG/ZIP; immutable earlier binaries remain preserved. No app/artwork/test contract changes apply.
 See the [follow-up](docs/planning/m21-implementation.md#v103-curl-first-installation--2026-10-25).
 
+**Published v1.0.3/build 13:** the cURL-first README, release-page instructions and bundled
+English/pt-BR guide are consistent and contain no unrelated-project references. Strict
+[run 40260320801](https://github.com/danielcbdev/petscape/actions/runs/40260320801) from
+`a6deacf4a06e801101be2b242d57305ef50a79ba` passed every gate (574-test rounds, 7 UI, 15 tooling).
+Both actual packages and the anonymous public README downloads/checksums, mounted inventory,
+native guide and signatures passed. Feature → develop → main integration/publication are complete.
+The app/artwork/accepted-baseline code remains unchanged from v1.0.2; native Intel and clean-machine
+approval/relaunch remain unverified. See the [release](https://github.com/danielcbdev/petscape/releases/tag/v1.0.3).
+
 ## 2. Stack
 
 Swift 6 (language mode 6, strict concurrency), SwiftUI (menu + settings), AppKit (windows, events,
